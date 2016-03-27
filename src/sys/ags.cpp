@@ -7,6 +7,7 @@
 #include "ags.h"
 #include "crc32.h"
 #include "../fileio.h"
+using namespace Gdiplus;
 
 extern _TCHAR g_root[_MAX_PATH];
 extern HWND g_hwnd;

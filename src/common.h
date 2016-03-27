@@ -7,26 +7,14 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
-#include <windows.h>
-#include <gdiplus.h>
-
-#pragma comment(lib, "Gdiplus.lib")
-using namespace Gdiplus;
-
-#ifdef _DEBUG
-	// detect memory leaks
-	#define _CRTDBG_MAP_ALLOC
-	#include <crtdbg.h>
-	#define malloc(s) _malloc_dbg(s, _NORMAL_BLOCK, __FILE__, __LINE__)
-	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+// tchar.h shim
+typedef char _TCHAR;
+#ifndef _T
+#define _T(s) s
 #endif
-
-#include <tchar.h>
-
-#if defined(_MSC_VER) && _MSC_VER == 1200
-	// variable scope of 'for' loop for Microsoft Visual C++ 6.0
-	#define for if(0);else for
-#endif
+#define _tfopen_s fopen_s
+#define _tcscpy_s strcpy_s
+#define _stprintf_s sprintf_s
 
 // type definition
 #ifndef uint8

@@ -34,7 +34,7 @@ bool FILEIO::Fopen(_TCHAR *filename, int mode)
 	} else if(mode == FILEIO_READ_WRITE_BINARY) {
 		_tfopen_s(&fp, filename, _T("r+b"));
 	} else if(mode == FILEIO_READ_ASCII) {
-		_tfopen_s(&fp, filename, __T("r"));
+		_tfopen_s(&fp, filename, _T("r"));
 	} else if(mode == FILEIO_WRITE_ASCII) {
 		_tfopen_s(&fp, filename, _T("w"));
 	} else if(mode == FILEIO_READ_WRITE_ASCII) {
