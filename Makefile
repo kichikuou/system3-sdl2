@@ -1,4 +1,4 @@
-CXXFLAGS = -Isrc -Isrc/sys -D_SYSTEM3 -D_DEBUG_CONSOLE
+CXXFLAGS = -Isrc -Isrc/sys -D_SYSTEM3 -D_DEBUG_CONSOLE -MMD
 
 LIBS = -lgdi32 -lgdiplus -lwinmm
 
@@ -21,6 +21,8 @@ OBJS = src/fileio.o \
 	src/sys/nact_sys3.o \
 	src/res3/Script1.o
 
+DEPS := $(OBJS:%.o=%.d)
+
 system3.exe: $(OBJS)
 	$(CXX) $(OBJS) $(LIBS) -mwindows -static -o $@
 
@@ -28,4 +30,6 @@ src/res3/Script1.o: src/res3/Script1.rc
 	windres $< $@
 
 clean:
-	rm -f src/*.o src/sys/*.o src/res3/*.o system3.exe
+	rm -f src/*.o src/sys/*.o src/res3/*.o system3.exe $(DEPS)
+
+-include $(DEPS)
