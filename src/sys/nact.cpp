@@ -131,8 +131,7 @@ NACT::NACT()
 	// メインスレッド起動
 	params.nact = this;
 	params.terminate = false;
-	hThread = (HANDLE)_beginthread(thread, 0, &params);
-	SetThreadPriority(hThread, THREAD_PRIORITY_NORMAL);
+	hThread = SDL_CreateThread(thread, "NactThread", &params);
 }
 
 NACT::~NACT()
@@ -140,7 +139,7 @@ NACT::~NACT()
 	// メインスレッド終了
 	params.terminate = true;
 	if(hThread) {
-		WaitForSingleObject(hThread, INFINITE);
+		SDL_WaitThread(hThread, NULL);
 	}
 	hThread = NULL;
 
@@ -161,11 +160,13 @@ NACT::~NACT()
 	release_console();
 }
 
-void NACT::thread(PVOID pvoid)
+int NACT::thread(void* pvoid)
 {
 	volatile PPARAMS pparams;
 	pparams = (PPARAMS)pvoid;
 	int sleep_cnt = 0;
+
+	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_NORMAL);
 
 	while(!pparams->terminate) {
 		pparams->nact->execute();
@@ -176,7 +177,7 @@ void NACT::thread(PVOID pvoid)
 			Sleep(0);
 		}
 	}
-	_endthread();
+	return 0;
 }
 
 // コマンドパーサ

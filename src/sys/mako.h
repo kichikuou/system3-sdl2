@@ -8,7 +8,6 @@
 #define _MAKO_H_
 
 #include <windows.h>
-#include <process.h>
 #include <mmsystem.h>
 #include <stdio.h>
 #include <limits.h>
@@ -47,8 +46,8 @@ private:
 	} PARAMS, *PPARAMS;
 	PARAMS params;
 
-	static void thread(PVOID pvoid);
-	HANDLE hThread;
+	static int thread(void* pvoid);
+	SDL_Thread* hThread;
 
 	// MIDI‰¹Œ¹
 	union UNION_MIDI_DATA {

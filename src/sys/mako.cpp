@@ -29,8 +29,7 @@ MAKO::MAKO(NACT* parent) : nact(parent)
 	params.mako = this;
 	params.current_music = params.next_music = 0;
 	params.request_fill = params.terminate = false;
-	hThread = (HANDLE)_beginthread(thread, 0, &params);
-	SetThreadPriority(hThread, THREAD_PRIORITY_HIGHEST);
+	hThread = SDL_CreateThread(thread, "MidiThread", &params);
 }
 
 MAKO::~MAKO()
@@ -38,7 +37,7 @@ MAKO::~MAKO()
 	// MIDI再生スレッド終了
 	params.terminate = true;
 	if(hThread) {
-		WaitForSingleObject(hThread, INFINITE);
+		SDL_WaitThread(hThread, NULL);
 	}
 	hThread = NULL;
 
@@ -48,10 +47,12 @@ MAKO::~MAKO()
 #endif
 }
 
-void MAKO::thread(PVOID pvoid)
+int MAKO::thread(void* pvoid)
 {
 	volatile PPARAMS pparams;
 	pparams = (PPARAMS)pvoid;
+
+	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 
 	// MIDI初期化
 	pparams->mako->initialize_midi();
@@ -92,7 +93,7 @@ void MAKO::thread(PVOID pvoid)
 	pparams->mako->stop_midi();
 	pparams->mako->release_midi();
 
-	_endthread();
+	return 0;
 }
 
 void MAKO::play_music(int page)

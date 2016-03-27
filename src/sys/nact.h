@@ -8,7 +8,6 @@
 #define _NACT_H_
 
 #include <windows.h>
-#include <process.h>
 #if defined(_DEBUG_CONSOLE)
 #include <wincon.h>
 #endif
@@ -231,8 +230,8 @@ private:
 	} PARAMS, *PPARAMS;
 	PARAMS params;
 
-	static void thread(PVOID pvoid);
-	HANDLE hThread;
+	static int thread(void* pvoid);
+	SDL_Thread* hThread;
 
 	// デバッグログ
 	void initialize_console();
