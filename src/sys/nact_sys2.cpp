@@ -14,21 +14,21 @@
 
 #define WAIT(tm) \
 { \
-	DWORD dwTime = timeGetTime() + (tm); \
+	Uint32 dwTime = SDL_GetTicks() + (tm); \
 	for(;;) { \
 		if(params.terminate) { \
 			return; \
 		} \
-		if(dwTime <= timeGetTime()) { \
+		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		Sleep(10); \
+		SDL_Delay(10); \
 	} \
 }
 
 #define WAIT_KEYQUIT(tm) \
 { \
-	DWORD dwTime = timeGetTime() + (tm); \
+	Uint32 dwTime = SDL_GetTicks() + (tm); \
 	for(;;) { \
 		if(params.terminate) { \
 			return; \
@@ -41,17 +41,17 @@
 				if(!get_key()) { \
 					break; \
 				} \
-				if(dwTime <= timeGetTime()) { \
+				if(dwTime <= SDL_GetTicks()) { \
 					break; \
 				} \
-				Sleep(10); \
+				SDL_Delay(10); \
 			} \
 			break; \
 		} \
-		if(dwTime <= timeGetTime()) { \
+		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		Sleep(10); \
+		SDL_Delay(10); \
 	} \
 }
 
@@ -370,7 +370,7 @@ void NACT::cmd_open_menu()
 		if(!get_key()) {
 			break;
 		}
-		Sleep(10);
+		SDL_Delay(10);
 	}
 
 	// メニュー表示
@@ -395,14 +395,14 @@ void NACT::cmd_open_menu()
 				return;
 			}
 			if(val = get_key()) {
-				Sleep(100);
+				SDL_Delay(100);
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
 		if(val) {
 			for(;;) {
@@ -412,7 +412,7 @@ void NACT::cmd_open_menu()
 				if(!get_key()) {
 					break;
 				}
-				Sleep(10);
+				SDL_Delay(10);
 			}
 		}
 
@@ -539,7 +539,7 @@ void NACT::cmd_open_verb()
 		if(!get_key()) {
 			break;
 		}
-		Sleep(10);
+		SDL_Delay(10);
 	}
 
 	// メニュー表示
@@ -564,14 +564,14 @@ void NACT::cmd_open_verb()
 				return;
 			}
 			if(val = get_key()) {
-				Sleep(100);
+				SDL_Delay(100);
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
 		if(val) {
 			for(;;) {
@@ -581,7 +581,7 @@ void NACT::cmd_open_verb()
 				if(!get_key()) {
 					break;
 				}
-				Sleep(10);
+				SDL_Delay(10);
 			}
 		}
 
@@ -683,7 +683,7 @@ void NACT::cmd_open_obj(int verb)
 		if(!get_key()) {
 			break;
 		}
-		Sleep(10);
+		SDL_Delay(10);
 	}
 
 	// メニュー表示
@@ -708,14 +708,14 @@ void NACT::cmd_open_obj(int verb)
 				return;
 			}
 			if(val = get_key()) {
-				Sleep(100);
+				SDL_Delay(100);
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
 		if(val) {
 			for(;;) {
@@ -725,7 +725,7 @@ void NACT::cmd_open_obj(int verb)
 				if(!get_key()) {
 					break;
 				}
-				Sleep(10);
+				SDL_Delay(10);
 			}
 		}
 
@@ -791,9 +791,9 @@ void NACT::cmd_a()
 			if(get_key()) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
-		Sleep(100);
+		SDL_Delay(100);
 		for(;;) {
 			if(params.terminate) {
 				return;
@@ -801,7 +801,7 @@ void NACT::cmd_a()
 			if(!(get_key() & 0x18)) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
 	}
 
@@ -1434,7 +1434,7 @@ void NACT::cmd_y()
 			break;
 		case 3:
 			{
-				DWORD dwTime = timeGetTime() + param * 1000 / 60;
+				Uint32 dwTime = SDL_GetTicks() + param * 1000 / 60;
 				for(;;) {
 					if(params.terminate) {
 						return;
@@ -1443,10 +1443,10 @@ void NACT::cmd_y()
 //					if(RND && wait_keydown) {
 //						break;
 //					}
-					if(dwTime <= timeGetTime()) {
+					if(dwTime <= SDL_GetTicks()) {
 						break;
 					}
-					Sleep(10);
+					SDL_Delay(10);
 				}
 			}
 			break;
@@ -1473,7 +1473,7 @@ void NACT::cmd_y()
 		case 40:
 		case 42:
 			{
-				DWORD dwStart = timeGetTime();
+				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_in(i);
 					DWORD dwTime = dwStart + param * 1000 / 60 * i;
@@ -1481,10 +1481,10 @@ void NACT::cmd_y()
 						if(params.terminate) {
 							return;
 						}
-						if(dwTime <= timeGetTime()) {
+						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						Sleep(0);
+						SDL_Delay(0);
 					}
 				}
 			}
@@ -1492,7 +1492,7 @@ void NACT::cmd_y()
 		case 41:
 		case 43:
 			{
-				DWORD dwStart = timeGetTime();
+				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_out(i, (cmd == 41) ? false : true);
 					DWORD dwTime = dwStart + param * 1000 / 60 * i;
@@ -1500,10 +1500,10 @@ void NACT::cmd_y()
 						if(params.terminate) {
 							return;
 						}
-						if(dwTime <= timeGetTime()) {
+						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						Sleep(0);
+						SDL_Delay(0);
 					}
 				}
 			}

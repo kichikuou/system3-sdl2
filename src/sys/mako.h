@@ -98,7 +98,7 @@ private:
 	PLAY play[9];
 	bool mute_flag;
 	float play_time;
-	DWORD prev_time;
+	Uint32 prev_time;
 
 public:
 	MAKO(NACT* parent);

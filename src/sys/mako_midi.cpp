@@ -92,7 +92,7 @@ void MAKO::start_midi()
 	midiOutPrepareHeader(hMidi, &mhMidi, sizeof(mhMidi));
 	midiOutLongMsg(hMidi, &mhMidi, sizeof(mhMidi));
 	while(!(mhMidi.dwFlags & MHDR_DONE)) {
-		Sleep(10);
+		SDL_Delay(10);
 	}
 	midiOutUnprepareHeader(hMidi, &mhMidi, sizeof(mhMidi));
 
@@ -123,14 +123,14 @@ void MAKO::start_midi()
 	}
 
 	// タイマーリセット
-	prev_time = timeGetTime();
+	prev_time = SDL_GetTicks();
 	play_time = 0;
 }
 
 void MAKO::play_midi()
 {
 	// 経過時間の取得
-	DWORD current_time = timeGetTime();
+	Uint32 current_time = SDL_GetTicks();
 	if(current_time > prev_time) {
 		play_time += (float)(current_time - prev_time);
 		prev_time = current_time;

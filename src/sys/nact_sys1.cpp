@@ -26,21 +26,21 @@
 
 #define WAIT(tm) \
 { \
-	DWORD dwTime = timeGetTime() + (tm); \
+	Uint32 dwTime = SDL_GetTicks() + (tm); \
 	for(;;) { \
 		if(params.terminate) { \
 			return; \
 		} \
-		if(dwTime <= timeGetTime()) { \
+		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		Sleep(10); \
+		SDL_Delay(10); \
 	} \
 }
 
 #define WAIT_KEYQUIT(tm) \
 { \
-	DWORD dwTime = timeGetTime() + (tm); \
+	Uint32 dwTime = SDL_GetTicks() + (tm); \
 	for(;;) { \
 		if(params.terminate) { \
 			return; \
@@ -53,17 +53,17 @@
 				if(!get_key()) { \
 					break; \
 				} \
-				if(dwTime <= timeGetTime()) { \
+				if(dwTime <= SDL_GetTicks()) { \
 					break; \
 				} \
-				Sleep(10); \
+				SDL_Delay(10); \
 			} \
 			break; \
 		} \
-		if(dwTime <= timeGetTime()) { \
+		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		Sleep(10); \
+		SDL_Delay(10); \
 	} \
 }
 
@@ -345,7 +345,7 @@ void NACT::cmd_open_menu()
 		if(!get_key()) {
 			break;
 		}
-		Sleep(10);
+		SDL_Delay(10);
 	}
 
 	// メニュー表示
@@ -370,14 +370,14 @@ void NACT::cmd_open_menu()
 				return;
 			}
 			if(val = get_key()) {
-				Sleep(100);
+				SDL_Delay(100);
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
 		if(val) {
 			for(;;) {
@@ -387,7 +387,7 @@ void NACT::cmd_open_menu()
 				if(!get_key()) {
 					break;
 				}
-				Sleep(10);
+				SDL_Delay(10);
 			}
 		}
 
@@ -549,7 +549,7 @@ top2:
 		if(!get_key()) {
 			break;
 		}
-		Sleep(10);
+		SDL_Delay(10);
 	}
 
 	// メニュー表示
@@ -574,14 +574,14 @@ top2:
 				return;
 			}
 			if(val = get_key()) {
-				Sleep(100);
+				SDL_Delay(100);
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
 		if(val) {
 			for(;;) {
@@ -591,7 +591,7 @@ top2:
 				if(!get_key()) {
 					break;
 				}
-				Sleep(10);
+				SDL_Delay(10);
 			}
 		}
 
@@ -737,7 +737,7 @@ top2:
 		if(!get_key()) {
 			break;
 		}
-		Sleep(10);
+		SDL_Delay(10);
 	}
 
 	// メニュー表示
@@ -762,14 +762,14 @@ top2:
 				return;
 			}
 			if(val = get_key()) {
-				Sleep(100);
+				SDL_Delay(100);
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
 		if(val) {
 			for(;;) {
@@ -779,7 +779,7 @@ top2:
 				if(!get_key()) {
 					break;
 				}
-				Sleep(10);
+				SDL_Delay(10);
 			}
 		}
 
@@ -847,9 +847,9 @@ void NACT::cmd_a()
 			if(get_key()) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
-		Sleep(100);
+		SDL_Delay(100);
 		for(;;) {
 			if(params.terminate) {
 				return;
@@ -857,7 +857,7 @@ void NACT::cmd_a()
 			if(!(get_key() & 0x18)) {
 				break;
 			}
-			Sleep(10);
+			SDL_Delay(10);
 		}
 	}
 
@@ -1390,9 +1390,9 @@ void NACT::cmd_y()
 				if(get_key()) {
 					break;
 				}
-				Sleep(10);
+				SDL_Delay(10);
 			}
-			Sleep(100);
+			SDL_Delay(100);
 			for(;;) {
 				if(params.terminate) {
 					return;
@@ -1400,7 +1400,7 @@ void NACT::cmd_y()
 				if(!(get_key() & 0x18)) {
 					break;
 				}
-				Sleep(10);
+				SDL_Delay(10);
 			}
 			ags->clear_text_window(text_window, true);
 			break;

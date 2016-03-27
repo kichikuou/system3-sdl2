@@ -72,7 +72,7 @@ int MAKO::thread(void* pvoid)
 					pparams->mako->load_mda(next_music);
 					pparams->mako->start_midi();
 					current_music = next_music;
-					Sleep(100);
+					SDL_Delay(100);
 				} else {
 					next_music = 0;
 				}
@@ -86,7 +86,7 @@ int MAKO::thread(void* pvoid)
 		if(pparams->next_music == next_music_bak) {
 			pparams->next_music = next_music;
 		}
-		Sleep(10);
+		SDL_Delay(10);
 	}
 
 	// MIDIŠJ•ú

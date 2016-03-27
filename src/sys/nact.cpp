@@ -85,7 +85,7 @@ NACT::NACT()
 	// コマンド初期化
 	column = true;		// 座標モード
 	wait_keydown = true;	// ウェイト時のキー受付
-	seed = timeGetTime();	// 乱数の種
+	seed = SDL_GetTicks();	// 乱数の種
 	text_wait_time = 100;	// メッセージ表示のウェイト
 	text_wait_enb = false;
 	text_skip_enb = false;
@@ -172,9 +172,9 @@ int NACT::thread(void* pvoid)
 		pparams->nact->execute();
 		// 512コマンド実行毎にSleep(10)
 		if(!(sleep_cnt = (sleep_cnt + 1) & 0x1ff)) {
-			Sleep(10);
+			SDL_Delay(10);
 		} else {
-			Sleep(0);
+			SDL_Delay(0);
 		}
 	}
 	return 0;
@@ -341,7 +341,7 @@ void NACT::execute()
 #endif
 				
 				if(!ags->draw_menu && text_wait_enb && cmd != 0x20) {
-					DWORD dwTime = timeGetTime() + text_wait_time;
+					Uint32 dwTime = SDL_GetTicks() + text_wait_time;
 					for(;;) {
 						if(params.terminate) {
 							return;
@@ -350,10 +350,10 @@ void NACT::execute()
 						if(RND && wait_keydown) {
 							break;
 						}
-						if(dwTime <= timeGetTime()) {
+						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						Sleep(10);
+						SDL_Delay(10);
 					}
 				}
 
@@ -374,7 +374,7 @@ void NACT::execute()
 #endif
 				
 				if(!ags->draw_menu && text_wait_enb) {
-					DWORD dwTime = timeGetTime() + text_wait_time;
+					Uint32 dwTime = SDL_GetTicks() + text_wait_time;
 					for(;;) {
 						if(params.terminate) {
 							return;
@@ -383,10 +383,10 @@ void NACT::execute()
 						if(RND && wait_keydown) {
 							break;
 						}
-						if(dwTime <= timeGetTime()) {
+						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						Sleep(10);
+						SDL_Delay(10);
 					}
 				}
 
