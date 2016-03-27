@@ -7,6 +7,8 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#include <SDL.h>
+
 // tchar.h shim
 typedef char _TCHAR;
 #ifndef _T

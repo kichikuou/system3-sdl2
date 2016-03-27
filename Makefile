@@ -1,4 +1,7 @@
-CXXFLAGS = -Isrc -Isrc/sys -D_SYSTEM3 -D_DEBUG_CONSOLE -MMD
+SDL_CFLAGS := $(shell sdl2-config --cflags)
+SDL_LFLAGS := $(shell sdl2-config --libs) -luuid -limm32 -lole32 -loleaut32 -lversion
+
+CXXFLAGS = -Isrc -Isrc/sys -D_SYSTEM3 -D_DEBUG_CONSOLE -MMD $(SDL_CFLAGS)
 
 LIBS = -lgdi32 -lgdiplus -lwinmm
 
@@ -24,7 +27,7 @@ OBJS = src/fileio.o \
 DEPS := $(OBJS:%.o=%.d)
 
 system3.exe: $(OBJS)
-	$(CXX) $(OBJS) $(LIBS) -mwindows -static -o $@
+	$(CXX) $(OBJS) $(SDL_LFLAGS) $(LIBS) -static -o $@
 
 src/res3/Script1.o: src/res3/Script1.rc
 	windres $< $@
