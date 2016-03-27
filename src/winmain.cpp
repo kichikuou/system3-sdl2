@@ -9,7 +9,6 @@
 #include <commdlg.h>
 #include <commctrl.h>
 #include <stdio.h>
-#include <tchar.h>
 #include "common.h"
 #if defined(_SYSTEM1)
 #include "res1/resource.h"

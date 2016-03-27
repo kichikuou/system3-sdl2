@@ -9,7 +9,6 @@
 
 #include <windows.h>
 #include <gdiplus.h>
-#include <tchar.h>
 #include <stdio.h>
 #include "../common.h"
 #include "nact.h"

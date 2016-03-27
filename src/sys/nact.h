@@ -13,7 +13,6 @@
 #include <wincon.h>
 #endif
 #include <mmsystem.h>
-#include <tchar.h>
 #include <stdio.h>
 #include "../common.h"
 

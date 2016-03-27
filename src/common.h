@@ -14,6 +14,7 @@ typedef char _TCHAR;
 #endif
 #define _tfopen_s fopen_s
 #define _tcscpy_s strcpy_s
+#define _tcslen strlen
 #define _stprintf_s sprintf_s
 
 // type definition

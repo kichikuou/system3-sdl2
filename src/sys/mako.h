@@ -9,7 +9,6 @@
 
 #include <windows.h>
 #include <process.h>
-#include <tchar.h>
 #include <mmsystem.h>
 #include <stdio.h>
 #include <limits.h>
