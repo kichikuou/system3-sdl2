@@ -7,9 +7,6 @@
 #include "mako.h"
 #include "dri.h"
 
-extern HINSTANCE g_hinst;
-extern HWND g_hwnd;
-
 #define next_mml(p) mml[p].data[mml[p].addr++]
 
 // MIDI‰¹Œ¹
@@ -489,7 +486,7 @@ void MAKO::load_mda(int page)
 	int size;
 	uint8* data = NULL;
 	if((data = dri->load(path, page, &size)) == NULL) {
-		data = dri->load_mda(g_hinst, nact->crc32, page, &size);
+		data = dri->load_mda(nact->crc32, page, &size);
 	}
 
 	if(data) {

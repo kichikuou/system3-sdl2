@@ -86,7 +86,7 @@ uint8* DRI::load(_TCHAR path[], int page, int* size)
 	return buffer;
 }
 
-uint8* DRI::load_mda(HINSTANCE hInst, uint32 crc32, int page, int* size)
+uint8* DRI::load_mda(uint32 crc32, int page, int* size)
 {
 #if defined(_SYSTEM1)
 	return NULL;
@@ -94,71 +94,77 @@ uint8* DRI::load_mda(HINSTANCE hInst, uint32 crc32, int page, int* size)
 	return NULL;
 #else
 	// データ取得
-	HGLOBAL hGlobal = NULL;
+	const char* fname = NULL;
 
 	switch(crc32) {
 		case CRC32_AMBIVALENZ_FD:	// AmbivalenZ (FD)
 		case CRC32_AMBIVALENZ_CD:	// AmbivalenZ (CD)
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_AMB), _T("mda")));
+			fname = "AMUS_AMB.MDA";
 			break;
 		case CRC32_DPSALL:		// DPS全部
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_ALL), _T("mda")));
+			fname = "AMUS_ALL.MDA";
 			break;
 		case CRC32_FUNNYBEE_CD:		// Funny Bee (CD)
 //		case CRC32_FUNNYBEE_PATCH:	// Funny Bee (CD + Patch)
 		case CRC32_FUNNYBEE_FD:		// Funny Bee (FD)
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_BEE), _T("mda")));
+			fname = "AMUS_BEE.MDA";
 			break;
 		case CRC32_ONLYYOU:		// Only You
 		case CRC32_ONLYYOU_DEMO:	// Only You (DEMO)
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_OY), _T("mda")));
+			fname = "AMUS_OY.MDA";
 			break;
 		case CRC32_PROSTUDENTG_CD:	// Prostudent -G- (CD)
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_PSG), _T("mda")));
+			fname = "AMUS_PSG.MDA";
 			break;
 		case CRC32_RANCE41:		// Rance 4.1
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_R41), _T("mda")));
+			fname = "AMUS_R41.MDA";
 			break;
 		case CRC32_RANCE42:		// Rance 4.2
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_R42), _T("mda")));
+			fname = "AMUS_R42.MDA";
 			break;
 		case CRC32_AYUMI_CD:		// あゆみちゃん物語 (CD)
 		case CRC32_AYUMI_JISSHA_256:	// あゆみちゃん物語 実写版
 		case CRC32_AYUMI_JISSHA_FULL:	// あゆみちゃん物語 フルカラー実写版
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_AYM), _T("mda")));
+			fname = "AMUS_AYM.MDA";
 			break;
 		case CRC32_YAKATA3_CD:		// アリスの館３ (CD)
 		case CRC32_YAKATA3_FD:		// アリスの館３ (FD)
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_AL3), _T("mda")));
+			fname = "AMUS_AL3.MDA";
 			break;
 		case CRC32_HASHIRIONNA2:	// 走り女２ (Rance 4.x ヒントディスク)
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_RG2), _T("mda")));
+			fname = "AMUS_RG2.MDA";
 			break;
 		case CRC32_OTOMESENKI:		// 乙女戦記
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_OTM), _T("mda")));
+			fname = "AMUS_OTM.MDA";
 			break;
 		case CRC32_MUGENHOUYOU:		// 夢幻泡影
-			hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDR_MGN), _T("mda")));
+			fname = "AMUS_MGN.MDA";
 			break;
 	}
 
-	if(hGlobal == NULL) {
+	if(fname == NULL) {
 		return NULL;
 	}
 
-	uint8* data = (uint8*)LockResource(hGlobal);
+	FILE* fp = fopen(fname, "rb");
+	if (!fp)
+		return NULL;
+	uint8 buf[4];
 
 	// ページの位置を取得
-	int link_sector = data[0] | (data[1] << 8);
-	int data_sector = data[2] | (data[3] << 8);
+	fread(buf, 4, 1, fp);
+	int link_sector = buf[0] | (buf[1] << 8);
+	int data_sector = buf[2] | (buf[3] << 8);
 
 	if(page > (data_sector - link_sector) * 128 - 1) {
 		// ページ番号不正
 		return NULL;
 	}
 
-	int disk_index = data[(link_sector - 1) * 256 + (page - 1) * 2 + 0];
-	int link_index = data[(link_sector - 1) * 256 + (page - 1) * 2 + 1];
+	fseek(fp, (link_sector - 1) * 256 + (page - 1) * 2, SEEK_SET);
+	fread(buf, 2, 1, fp);
+	int disk_index = buf[0];
+	int link_index = buf[1];
 
 	if(disk_index == 0 || disk_index == 0x1a) {
 		// 欠番
@@ -166,12 +172,17 @@ uint8* DRI::load_mda(HINSTANCE hInst, uint32 crc32, int page, int* size)
 	}
 
 	// データ取得
-	int start_sector = data[link_index * 2 + 0] | (data[link_index * 2 + 1] << 8);
-	int end_sector = data[link_index * 2 + 2] | (data[link_index * 2 + 3] << 8);
+	fseek(fp, link_index * 2, SEEK_SET);
+	fread(buf, 4, 1, fp);
+	int start_sector = buf[0] | (buf[1] << 8);
+	int end_sector = buf[2] | (buf[3] << 8);
 
 	int buffer_size = (end_sector - start_sector) * 256;
 	uint8* buffer = (uint8*)malloc(buffer_size);
-	memcpy(buffer, &data[(start_sector - 1) * 256], buffer_size);
+	fseek(fp, (start_sector - 1) * 256, SEEK_SET);
+	fread(buffer, buffer_size, 1, fp);
+
+	fclose(fp);
 
 	*size = buffer_size;
 	return buffer;
