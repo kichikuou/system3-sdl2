@@ -226,7 +226,6 @@ private:
 	// デバッグログ
 	void initialize_console();
 	void release_console();
-	HANDLE hConsole;
 
 public:
 	NACT();

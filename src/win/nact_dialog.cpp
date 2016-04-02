@@ -11,7 +11,6 @@
 #endif
 
 extern SDL_Window* g_window;
-extern HINSTANCE g_hinst;
 
 static BOOL CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -74,7 +73,8 @@ static BOOL CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 
 void NACT::text_dialog()
 {
+	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
 	SDL_SysWMinfo info;
 	SDL_GetWindowWMInfo(g_window, &info);
-	int r = DialogBoxParam(g_hinst, MAKEINTRESOURCE(IDD_DIALOG1), info.info.win.window, TextDialogProc, (LPARAM)this);
+	int r = DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), info.info.win.window, TextDialogProc, (LPARAM)this);
 }

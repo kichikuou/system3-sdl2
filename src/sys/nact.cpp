@@ -441,6 +441,7 @@ void NACT::select_sound(int dev)
 }
 
 // デバッグコンソール
+HANDLE hConsole;
 
 void NACT::initialize_console()
 {

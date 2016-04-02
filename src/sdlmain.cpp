@@ -2,13 +2,10 @@
 #include "sys/nact.h"
 
 _TCHAR g_root[_MAX_PATH];
-HINSTANCE g_hinst;
 SDL_Window* g_window;
 
 int main(int argc, char *argv[])
 {
-	g_hinst = (HINSTANCE)::GetModuleHandle(NULL);
-
 	SDL_Init(SDL_INIT_VIDEO);
 
 	// ウィンドウ表示

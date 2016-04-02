@@ -6,8 +6,6 @@
 
 #include "ags.h"
 
-extern HINSTANCE g_hinst;
-
 void AGS::load_cursor(int page)
 {
 	// カーソルCGをロードする
@@ -27,6 +25,8 @@ void AGS::load_cursor(int page)
 	cg_dest_x = j_x;
 	cg_dest_y = j_y;
 	dest_screen = dest;
+
+	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
 
 	// フォントの生成
 	for(int i = 0; i < 10; i++) {
@@ -78,7 +78,7 @@ void AGS::load_cursor(int page)
 		if(hCursor[i]) {
 			DestroyCursor(hCursor[i]);
 		}
-		hCursor[i] = CreateCursor(g_hinst, 2, 2, 32, 32, amask, xmask);
+		hCursor[i] = CreateCursor(hinst, 2, 2, 32, 32, amask, xmask);
 	}
 }
 
