@@ -7,13 +7,6 @@
 #include "dri.h"
 #include "crc32.h"
 #include "../fileio.h"
-#if defined(_SYSTEM1)
-#include "../res1/resource.h"
-#elif defined(_SYSTEM2)
-#include "../res2/resource.h"
-#else
-#include "../res3/resource.h"
-#endif
 
 extern _TCHAR g_root[_MAX_PATH];
 

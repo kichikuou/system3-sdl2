@@ -218,7 +218,7 @@ private:
 	uint32 calc_crc32();
 
 	// Y27 ダイアログ
-	static BOOL CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+	void text_dialog();
 
 	// 終了フラグ
 	bool terminate;

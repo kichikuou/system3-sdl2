@@ -23,6 +23,7 @@ OBJS = src/fileio.o \
 	src/sys/nact_crc32.o \
 	src/sys/nact_input.o \
 	src/sys/nact_sys3.o \
+	src/win/nact_dialog.o \
 	src/res3/Script1.o
 
 DEPS := $(OBJS:%.o=%.d)
@@ -34,6 +35,6 @@ src/res3/Script1.o: src/res3/Script1.rc
 	windres $< $@
 
 clean:
-	rm -f src/*.o src/sys/*.o src/res3/*.o system3.exe $(DEPS)
+	rm -f src/*.o src/sys/*.o src/win/*.o src/res3/*.o system3.exe $(DEPS)
 
 -include $(DEPS)

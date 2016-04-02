@@ -4,14 +4,6 @@
 	[ NACT - command ]
 */
 
-#if defined(_SYSTEM1)
-#include "../res1/resource.h"
-#elif defined(_SYSTEM2)
-#include "../res2/resource.h"
-#else
-#include "../res3/resource.h"
-#endif
-
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
@@ -19,7 +11,6 @@
 #include "../fileio.h"
 
 extern _TCHAR g_root[_MAX_PATH];
-extern HINSTANCE g_hinst;
 
 void NACT::cmd_calc()
 {
@@ -1546,8 +1537,7 @@ void NACT::cmd_y()
 			break;
 		case 27:
 			tvar_maxlen = param;
-			// TODO: fix
-			// DialogBoxParam(g_hinst, MAKEINTRESOURCE(IDD_DIALOG1), g_hwnd, TextDialogProc, (LPARAM)this);
+			text_dialog();
 			break;
 		case 28:
 			ags->text_space = (param == 0) ? 2 : 0;
