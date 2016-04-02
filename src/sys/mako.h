@@ -25,6 +25,10 @@ protected:
 	NACT* nact;
 
 private:
+	void reset_midi();
+	void send_2bytes(uint8 d1, uint8 d2);
+	void send_3bytes(uint8 d1, uint8 d2, uint8 d3);
+
 	// FM, CD-DA
 	bool cdda_play;
 	int current_mark;	// Y18

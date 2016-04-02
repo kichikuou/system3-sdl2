@@ -4,35 +4,10 @@
 	[ MAKO - midi ]
 */
 
-#include <windows.h>
-#include <mmsystem.h>
 #include "mako.h"
 #include "dri.h"
 
 #define next_mml(p) mml[p].data[mml[p].addr++]
-
-// MIDI音源
-union UNION_MIDI_DATA {
-	DWORD msg;
-	BYTE data[4];
-};
-static UNION_MIDI_DATA midi;
-static HMIDIOUT hMidi;
-
-#define send_2bytes(d1, d2) { midi.data[0] = (BYTE)d1; midi.data[1] = (BYTE)d2; midiOutShortMsg(hMidi,midi.msg); }
-#define send_3bytes(d1, d2, d3) { midi.data[0] = (BYTE)d1; midi.data[1] = (BYTE)d2; midi.data[2] = (BYTE)d3 ;midiOutShortMsg(hMidi, midi.msg); }
-
-void MAKO::initialize_midi()
-{
-	// MIDI音源の初期化
-	midiOutOpen(&hMidi, MIDI_MAPPER, NULL, NULL, CALLBACK_NULL);
-}
-
-void MAKO::release_midi()
-{
-	// MIDI音源の開放
-	midiOutClose(hMidi);
-}
 
 void MAKO::stop_midi()
 {
@@ -87,20 +62,7 @@ void MAKO::start_midi()
 		play[i + 3].pan = mda[i + 256].pan;
 	}
 
-	// MIDI音源のGS-RESET
-	BYTE gs_reset[11] = {0xf0, 0x41, 0x20, 0x42, 0x12, 0x40, 0x00, 0x7f, 0x00, 0x41, 0xf7};
-	MIDIHDR mhMidi;
-	ZeroMemory(&mhMidi, sizeof(mhMidi));
-	mhMidi.lpData = (LPSTR)gs_reset;
-	mhMidi.dwBufferLength = 11;
-	mhMidi.dwBytesRecorded = 11;
-
-	midiOutPrepareHeader(hMidi, &mhMidi, sizeof(mhMidi));
-	midiOutLongMsg(hMidi, &mhMidi, sizeof(mhMidi));
-	while(!(mhMidi.dwFlags & MHDR_DONE)) {
-		SDL_Delay(10);
-	}
-	midiOutUnprepareHeader(hMidi, &mhMidi, sizeof(mhMidi));
+	reset_midi();
 
 	// システムリセット、ボリュームリセット
 	for(int i = 0; i < 10; i++) {
