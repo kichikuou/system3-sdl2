@@ -31,7 +31,7 @@ uint32 NACT::calc_crc32()
 			}
 			table[i] = c;
 		}
-		// ADISK.DAT‚Ìæ“ª256bytes
+		// ADISK.DATã®å…ˆé ­256bytes
 		for(int i = 0; i < 256; i++) {
 			int d = fio->Fgetc();
 			uint32 c = ~crc;
@@ -42,7 +42,7 @@ uint32 NACT::calc_crc32()
 	}
 #if defined(_SYSTEM2)
 	if(crc == CRC32_SDPS) {
-		// Super D.P.S‚Ìê‡‚ÍBDISK.DAT‚ÌCRC‚ğæ‚é
+		// Super D.P.Sã®å ´åˆã¯BDISK.DATã®CRCã‚’å–ã‚‹
 		_stprintf_s(file_path, _MAX_PATH, _T("%sBDISK.DAT"), g_root);
 		
 		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
@@ -58,7 +58,7 @@ uint32 NACT::calc_crc32()
 				}
 				table[i] = c;
 			}
-			// BDISK.DAT‚Ìæ“ª256bytes
+			// BDISK.DATã®å…ˆé ­256bytes
 			crc = 0;
 			for(int i = 0; i < 256; i++) {
 				int d = fio->Fgetc();
@@ -84,19 +84,19 @@ bool NACT::get_title(_TCHAR title[], int length)
 #if defined(_SYSTEM1)
 
 #if defined(_CRESCENT)
-	_tcscpy_s(title, length, _T("ƒNƒŒƒZƒ“ƒgƒ€[ƒ“‚ª‚Ÿ‚é"));
+	_tcscpy_s(title, length, _T("ã‚¯ãƒ¬ã‚»ãƒ³ãƒˆãƒ ãƒ¼ãƒ³ãŒãã‚‹"));
 	return true;
 #elif defined(_DPS)
 	_tcscpy_s(title, length, _T("D.P.S - Dream Program System"));
 	return true;
 #elif defined(_FUKEI)
-	_tcscpy_s(title, length, _T("•wŒx‚³‚ñ‚u‚w"));
+	_tcscpy_s(title, length, _T("å©¦è­¦ã•ã‚“ï¼¶ï¼¸"));
 	return true;
 #elif defined(_INTRUDER)
-	_tcscpy_s(title, length, _T("Intruder -÷‰®•~‚Ì’Tõ-"));
+	_tcscpy_s(title, length, _T("Intruder -æ¡œå±‹æ•·ã®æ¢ç´¢-"));
 	return true;
 #elif defined(_TENGU)
-	_tcscpy_s(title, length, _T("‚ ‚Ô‚È‚¢‚Ä‚ñ‚®“`à"));
+	_tcscpy_s(title, length, _T("ã‚ã¶ãªã„ã¦ã‚“ãä¼èª¬"));
 	return true;
 #elif defined(_VAMPIRE)
 	_tcscpy_s(title, length, _T("Little Vampire"));
@@ -110,7 +110,7 @@ bool NACT::get_title(_TCHAR title[], int length)
 
 	switch(crc32) {
 		case CRC32_AYUMI_PROTO:
-			_tcscpy_s(title, length, _T("‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê PROTO"));
+			_tcscpy_s(title, length, _T("ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª PROTO"));
 			return true;
 		case CRC32_SDPS_MARIA:
 		case CRC32_SDPS_TONO:
@@ -129,58 +129,58 @@ bool NACT::get_title(_TCHAR title[], int length)
 	switch(crc32) {
 		case CRC32_AMBIVALENZ_FD:
 		case CRC32_AMBIVALENZ_CD:
-			_tcscpy_s(title, length, _T("AmbivalenZ |“ñ—¥”w”½|"));
+			_tcscpy_s(title, length, _T("AmbivalenZ âˆ’äºŒå¾‹èƒŒåâˆ’"));
 			return true;
 		case CRC32_DPSALL:
-			_tcscpy_s(title, length, _T("D.P.S. ‘S•”"));
+			_tcscpy_s(title, length, _T("D.P.S. å…¨éƒ¨"));
 			return true;
 		case CRC32_FUNNYBEE_CD:
 //		case CRC32_FUNNYBEE_PATCH:
 		case CRC32_FUNNYBEE_FD:
-			_tcscpy_s(title, length, _T("‰F’ˆ‰õ“ƒtƒ@ƒj[Bee"));
+			_tcscpy_s(title, length, _T("å®‡å®™å¿«ç›—ãƒ•ã‚¡ãƒ‹ãƒ¼Bee"));
 			return true;
 		case CRC32_ONLYYOU:
-			_tcscpy_s(title, length, _T("Only You |¢‹I––‚ÌƒWƒ…ƒŠƒGƒbƒg’B|"));
+			_tcscpy_s(title, length, _T("Only You âˆ’ä¸–ç´€æœ«ã®ã‚¸ãƒ¥ãƒªã‚¨ãƒƒãƒˆé”âˆ’"));
 			return true;
 		case CRC32_ONLYYOU_DEMO:
-			_tcscpy_s(title, length, _T("Only You |¢‹I––‚ÌƒWƒ…ƒŠƒGƒbƒg’B| ƒfƒ‚”Å"));
+			_tcscpy_s(title, length, _T("Only You âˆ’ä¸–ç´€æœ«ã®ã‚¸ãƒ¥ãƒªã‚¨ãƒƒãƒˆé”âˆ’ ãƒ‡ãƒ¢ç‰ˆ"));
 			return true;
 		case CRC32_PROSTUDENTG_CD:
 			_tcscpy_s(title, length, _T("prostudent G"));
 			return true;
 		case CRC32_RANCE41:
-			_tcscpy_s(title, length, _T("ƒ‰ƒ“ƒX 4.1 `‚¨–òHê‚ğ‹~‚¦I`"));
+			_tcscpy_s(title, length, _T("ãƒ©ãƒ³ã‚¹ 4.1 ã€œãŠè–¬å·¥å ´ã‚’æ•‘ãˆï¼ã€œ"));
 			return true;
 		case CRC32_RANCE42:
-			_tcscpy_s(title, length, _T("ƒ‰ƒ“ƒX 4.2 `ƒGƒ“ƒWƒFƒ‹‘g`"));
+			_tcscpy_s(title, length, _T("ãƒ©ãƒ³ã‚¹ 4.2 ã€œã‚¨ãƒ³ã‚¸ã‚§ãƒ«çµ„ã€œ"));
 			return true;
 		case CRC32_AYUMI_CD:
-			_tcscpy_s(title, length, _T("‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê"));
+			_tcscpy_s(title, length, _T("ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª"));
 			return true;
 		case CRC32_AYUMI_JISSHA_256:
-			_tcscpy_s(title, length, _T("‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ÀÊ”Å"));
+			_tcscpy_s(title, length, _T("ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª å®Ÿå†™ç‰ˆ"));
 			return true;
 		case CRC32_AYUMI_JISSHA_FULL:
-			_tcscpy_s(title, length, _T("‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ƒtƒ‹ƒJƒ‰[ÀÊ”Å"));
+			_tcscpy_s(title, length, _T("ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª ãƒ•ãƒ«ã‚«ãƒ©ãƒ¼å®Ÿå†™ç‰ˆ"));
 			return true;
 		case CRC32_YAKATA3_CD:
 		case CRC32_YAKATA3_FD:
-			_tcscpy_s(title, length, _T("ƒAƒŠƒX‚ÌŠÙ3"));
+			_tcscpy_s(title, length, _T("ã‚¢ãƒªã‚¹ã®é¤¨3"));
 			return true;
 		case CRC32_HASHIRIONNA2:
-			_tcscpy_s(title, length, _T("‘–‚è—2"));
+			_tcscpy_s(title, length, _T("èµ°ã‚Šå¥³2"));
 			return true;
 		case CRC32_TOUSHIN2_SP:
-			_tcscpy_s(title, length, _T("“¬_“ss2 ‚»‚µ‚ÄA‚»‚ê‚©‚çc"));
+			_tcscpy_s(title, length, _T("é—˜ç¥éƒ½å¸‚2 ãã—ã¦ã€ãã‚Œã‹ã‚‰â€¦"));
 			return true;
 		case CRC32_OTOMESENKI:
-			_tcscpy_s(title, length, _T("‰³—í‹L"));
+			_tcscpy_s(title, length, _T("ä¹™å¥³æˆ¦è¨˜"));
 			return true;
 		case CRC32_NINGYO:
-			_tcscpy_s(title, length, _T("l‹› -åfq-"));
+			_tcscpy_s(title, length, _T("äººé­š -è˜¿å­-"));
 			return true;
 		case CRC32_MUGENHOUYOU:
-			_tcscpy_s(title, length, _T("–²Œ¶–A‰e"));
+			_tcscpy_s(title, length, _T("å¤¢å¹»æ³¡å½±"));
 			return true;
 	}
 	title[0] = _T('\0');

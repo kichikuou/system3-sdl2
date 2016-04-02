@@ -35,10 +35,6 @@ int main(int argc, char *argv[])
 #else
 		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM3  -  %s"), title);
 #endif
-		wchar_t wbuf[128];
-		MultiByteToWideChar(CP_ACP, 0, buf, -1, wbuf, 128);
-		WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, buf, 128, NULL, NULL);
-
 		SDL_SetWindowTitle(g_window, buf);
 	}
 

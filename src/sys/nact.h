@@ -7,7 +7,6 @@
 #ifndef _NACT_H_
 #define _NACT_H_
 
-#include <windows.h>
 #include <stdio.h>
 #include "../common.h"
 
