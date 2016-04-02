@@ -26,8 +26,6 @@ void AGS::load_cursor(int page)
 	cg_dest_y = j_y;
 	dest_screen = dest;
 
-	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
-
 	// フォントの生成
 	for(int i = 0; i < 10; i++) {
 		// パターン読み込み
@@ -76,18 +74,19 @@ void AGS::load_cursor(int page)
 			}
 		}
 		if(hCursor[i]) {
-			DestroyCursor(hCursor[i]);
+			SDL_FreeCursor(hCursor[i]);
 		}
-		hCursor[i] = CreateCursor(hinst, 2, 2, 32, 32, amask, xmask);
+		// TODO: fix amask/xmask values
+		hCursor[i] = SDL_CreateCursor(amask, xmask, 32, 32, 2, 2);
 	}
 }
 
 void AGS::select_cursor()
 {
 	if(cursor_index == 0) {
-		SetCursor(hArrow);
+		SDL_SetCursor(SDL_GetDefaultCursor());
 	} else if(1 <= cursor_index && cursor_index <= 10 && hCursor[cursor_index - 1]) {
-		SetCursor(hCursor[cursor_index - 1]);
+		SDL_SetCursor(hCursor[cursor_index - 1]);
 	}
 }
 

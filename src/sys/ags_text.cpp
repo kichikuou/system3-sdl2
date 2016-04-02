@@ -5,6 +5,7 @@
 */
 
 #include "ags.h"
+#include <windows.h>
 
 void AGS::draw_text(char string[])
 {

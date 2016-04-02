@@ -198,7 +198,7 @@ void AGS::close_text_window(int index, bool update)
 void AGS::clear_menu_window()
 {
 	// TODO: use draw function
-	memset(hBmpScreen[2]->pixels, menu_back_color, 640 * 480 * sizeof(DWORD));
+	memset(hBmpScreen[2]->pixels, menu_back_color, 640 * 480 * sizeof(Uint32));
 }
 
 void AGS::open_menu_window(int index)

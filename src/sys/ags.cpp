@@ -71,7 +71,6 @@ AGS::AGS(NACT* parent) : nact(parent)
 	for(int i = 0; i < 10; i++) {
 		hCursor[i] = NULL;
 	}
-	hArrow = LoadCursor(NULL, IDC_ARROW);
 
 	// GAIJI.DAT読み込み
 	memset(gaiji, 0, sizeof(gaiji));
@@ -304,7 +303,7 @@ AGS::~AGS()
 	// カーソル開放
 	for(int i = 0; i < 10; i++) {
 		if(hCursor[i]) {
-			DestroyCursor(hCursor[i]);
+			SDL_FreeCursor(hCursor[i]);
 		}
 	}
 

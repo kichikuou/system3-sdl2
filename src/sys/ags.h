@@ -7,7 +7,6 @@
 #ifndef _AGS_H_
 #define _AGS_H_
 
-#include <windows.h>
 #include <stdio.h>
 #include "../common.h"
 #include "nact.h"
@@ -57,8 +56,7 @@ private:
 	TTF_Font* hFont64;
 
 	// ÉJÅ[É\Éã
-	HCURSOR hArrow;
-	HCURSOR hCursor[10];
+	SDL_Cursor* hCursor[10];
 
 	// AGS
 #if defined(_SYSTEM1)
