@@ -1,7 +1,7 @@
 SDL_CFLAGS := $(shell sdl2-config --cflags)
 SDL_LFLAGS := -lSDL2_ttf $(shell sdl2-config --libs)
 
-CXXFLAGS = -Isrc -Isrc/sys -D_SYSTEM3 -D_DEBUG_CONSOLE -MMD $(SDL_CFLAGS)
+CXXFLAGS = -Isrc -Isrc/sys -D_SYSTEM3 -D_DEBUG_CONSOLE -MMD $(SDL_CFLAGS) -g
 
 LIBS = -lfreetype -lharfbuzz -lglib-2.0 -lpng -lbz2 -lz -lintl -liconv \
 	-luuid -limm32 -lole32 -loleaut32 -lversion -lgdi32 -lgdiplus -lwinmm -lws2_32

@@ -453,6 +453,8 @@ void AGS::invalidate_screen(int sx, int sy, int width, int height)
 {
 	SDL_UnlockSurface(hBmpDest);
 	uint32* pixels = surface_line(hBmpDest, screen_height == 400 ? sy + (scroll - 400) : sy) + sx;
+	if (sy + height > screen_height)
+		height = screen_height - sy;
 	SDL_Rect rect = {sx, sy, width, height};
 	SDL_UpdateTexture(sdlTexture, &rect, pixels, hBmpDest->pitch);
 	SDL_RenderClear(sdlRenderer);
