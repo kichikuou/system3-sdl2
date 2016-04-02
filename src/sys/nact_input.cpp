@@ -38,6 +38,7 @@ uint8 NACT::get_key()
 
 	// マウス移動で方向入力はサポートしない
 
+#ifdef USE_JOY
 	// ジョイスティック
 	if(joy_num > 0) {
 		JOYINFO joyinfo;
@@ -52,6 +53,7 @@ uint8 NACT::get_key()
 			if(joyinfo.wButtons & JOY_BUTTON4) val |= 0x80;
 		}
 	}
+#endif
 
 	return val;
 }

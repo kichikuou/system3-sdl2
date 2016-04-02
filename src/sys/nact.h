@@ -8,10 +8,6 @@
 #define _NACT_H_
 
 #include <windows.h>
-#if defined(_DEBUG_CONSOLE)
-#include <wincon.h>
-#endif
-#include <mmsystem.h>
 #include <stdio.h>
 #include "../common.h"
 
@@ -213,8 +209,10 @@ private:
 	void get_cursor(int* x, int* y);
 	void set_cursor(int x, int y);
 
+#ifdef USE_JOY
 	int joy_num;
 	JOYCAPS joycaps;
+#endif
 	int mouse_x, mouse_y;
 
 	uint32 calc_crc32();

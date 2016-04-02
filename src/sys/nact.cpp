@@ -120,11 +120,13 @@ NACT::NACT()
 	ags = new AGS(this);
 	mako = new MAKO(this);
 
+#ifdef USE_JOY
 	// “ü—Í‰Šú‰»
 	joy_num = joyGetNumDevs();
 	if(joy_num) {
 		joyGetDevCaps(JOYSTICKID1, &joycaps, sizeof(JOYCAPS));
 	}
+#endif
 
 	terminate = false;
 }
