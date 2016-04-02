@@ -5,7 +5,6 @@
 */
 
 #include "ags.h"
-#include <windows.h>
 
 void AGS::draw_text(char string[])
 {
@@ -54,24 +53,7 @@ void AGS::draw_text(char string[])
 
 void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color)
 {
-	char string[3];
-	int length;
-	SDL_Color white = {0xff, 0xff, 0xff};
-
 	// パターン取得
-	if(code > 0xff) {
-		string[0] = code >> 8;
-		string[1] = code & 0xff;
-		string[2] = '\0';
-		length = 2;
-	} else {
-		string[0] = code & 0xff;
-		string[1] = '\0';
-		length = 1;
-	}
-	Uint16 buf[2];
-	MultiByteToWideChar(CP_ACP, 0, string, length, (LPWSTR)buf, 2);
-
 	TTF_Font* font = NULL;
 	switch (size) {
 	case 16: font = hFont16; break;
@@ -81,7 +63,8 @@ void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uin
 	case 64: font = hFont64; break;
 	}
 
-	SDL_Surface* fs = TTF_RenderGlyph_Solid(font, buf[0], white);
+	SDL_Color white = {0xff, 0xff, 0xff};
+	SDL_Surface* fs = TTF_RenderGlyph_Solid(font, sjis_to_unicode(code), white);
 
 	// パターン出力
 	// TODO: Blit?
