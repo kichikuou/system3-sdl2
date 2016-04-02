@@ -21,13 +21,11 @@
 #include "../fileio.h"
 
 extern _TCHAR g_root[_MAX_PATH];
-extern HWND g_hwnd;
 
 // 初期化
 
 NACT::NACT()
 {
-	memset(key, 0, sizeof(key));
 	mouse_x = mouse_y = 0;
 
 	// デバッグコンソール起動
@@ -128,21 +126,11 @@ NACT::NACT()
 		joyGetDevCaps(JOYSTICKID1, &joycaps, sizeof(JOYCAPS));
 	}
 
-	// メインスレッド起動
-	params.nact = this;
 	params.terminate = false;
-	hThread = SDL_CreateThread(thread, "NactThread", &params);
 }
 
 NACT::~NACT()
 {
-	// メインスレッド終了
-	params.terminate = true;
-	if(hThread) {
-		SDL_WaitThread(hThread, NULL);
-	}
-	hThread = NULL;
-
 	// 各種クラス開放
 	if(ags) {
 		delete ags;
@@ -160,16 +148,12 @@ NACT::~NACT()
 	release_console();
 }
 
-int NACT::thread(void* pvoid)
+void NACT::mainloop()
 {
-	volatile PPARAMS pparams;
-	pparams = (PPARAMS)pvoid;
 	int sleep_cnt = 0;
 
-	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_NORMAL);
-
-	while(!pparams->terminate) {
-		pparams->nact->execute();
+	while(!params.terminate) {
+		execute();
 		// 512コマンド実行毎にSleep(10)
 		if(!(sleep_cnt = (sleep_cnt + 1) & 0x1ff)) {
 			SDL_Delay(10);
@@ -177,7 +161,6 @@ int NACT::thread(void* pvoid)
 			SDL_Delay(0);
 		}
 	}
-	return 0;
 }
 
 // コマンドパーサ
@@ -192,7 +175,7 @@ void NACT::execute()
 	// 致命的なエラー発生 or 正常終了
 	if(fatal_error) {
 		if(!post_quit) {
-			PostMessage(g_hwnd, WM_CLOSE, 0, 0);
+			params.terminate = true;
 		}
 		post_quit = true;
 		return;
@@ -437,28 +420,9 @@ int NACT::get_screen_height()
 	return ags->screen_height;
 }
 
-void NACT::update_screen(HDC hdc, int sx, int sy, int width, int height)
-{
-	ags->update_screen(hdc, sx, sy, width, height);
-}
-
 void NACT::notify_mci(int status)
 {
 	mako->notify_mci(status);
-}
-
-void NACT::key_down(int val)
-{
-	key[val] = 1;
-}
-
-void NACT::key_up(int val)
-{
-	if(val == -1) {
-		memset(key, 0, sizeof(key));
-	} else {
-		key[val] = 0;
-	}
 }
 
 void NACT::select_cursor()

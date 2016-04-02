@@ -7,10 +7,9 @@
 #include "ags.h"
 #include "crc32.h"
 #include "../fileio.h"
-using namespace Gdiplus;
 
 extern _TCHAR g_root[_MAX_PATH];
-extern HWND g_hwnd;
+extern SDL_Window* g_window;
 
 #define SET_TEXT(n, x1, y1, x2, y2, f) { \
 	text_w[n].sx = x1; \
@@ -36,126 +35,37 @@ extern HWND g_hwnd;
 
 AGS::AGS(NACT* parent) : nact(parent)
 {
-	// GDI+初期化
-	GdiplusStartup(&gdiToken, &gdiSI, NULL);
-
-	HDC hdc = GetDC(g_hwnd);
+	sdlRenderer = SDL_CreateRenderer(g_window, -1, 0);
+	SDL_RenderSetLogicalSize(sdlRenderer, 640, 400);
+	sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, 640, 400); // TOOD: pixelformat?
 
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
 	for(int i = 0; i < 3; i++) {
-		lpBufScreen[i] = (LPBYTE)GlobalAlloc(GPTR, sizeof(BITMAPINFO));
-		lpDibScreen[i] = (LPBITMAPINFO)lpBufScreen[i];
-		lpDibScreen[i]->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-		lpDibScreen[i]->bmiHeader.biWidth = 640;
-		lpDibScreen[i]->bmiHeader.biHeight = 480;
-		lpDibScreen[i]->bmiHeader.biPlanes = 1;
-		lpDibScreen[i]->bmiHeader.biBitCount = 32;
-		lpDibScreen[i]->bmiHeader.biCompression = BI_RGB;
-		lpDibScreen[i]->bmiHeader.biSizeImage = 0;
-		lpDibScreen[i]->bmiHeader.biXPelsPerMeter = 0;
-		lpDibScreen[i]->bmiHeader.biYPelsPerMeter = 0;
-		lpDibScreen[i]->bmiHeader.biClrUsed = 0;
-		lpDibScreen[i]->bmiHeader.biClrImportant = 0;
-		hBmpScreen[i] = CreateDIBSection(hdc, lpDibScreen[i], DIB_RGB_COLORS, (PVOID*)&lpBmpScreen[i], NULL, 0);
-		hdcDibScreen[i] = CreateCompatibleDC(hdc);
-		SelectObject(hdcDibScreen[i], hBmpScreen[i]);
-		memset(lpBmpScreen[i], 0, 640 * 480 * sizeof(DWORD));
+		hBmpScreen[i] = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
+		SDL_LockSurface(hBmpScreen[i]);
+
+		// TODO: clear surface
+		// memset(lpBmpScreen[i], 0, 640 * 480 * sizeof(DWORD));
 
 		// 仮想VRAMへのポインタ取得
 		for(int j = 0; j < 480; j++) {
-			vram[i][j] = &lpBmpScreen[i][640 * (479 - j)];
+			vram[i][j] = surface_line(hBmpScreen[i], j);
 		}
 	}
 
 	// DIBSection 24bpp * 1 (最終出力先)
-	lpBufDest = (LPBYTE)GlobalAlloc(GPTR, sizeof(BITMAPINFO));
-	lpDibDest = (LPBITMAPINFO)lpBufDest;
-	lpDibDest->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	lpDibDest->bmiHeader.biWidth = 640;
-	lpDibDest->bmiHeader.biHeight = 480;
-	lpDibDest->bmiHeader.biPlanes = 1;
-	lpDibDest->bmiHeader.biBitCount = 32;
-	lpDibDest->bmiHeader.biCompression = BI_RGB;
-	lpDibDest->bmiHeader.biSizeImage = 0;
-	lpDibDest->bmiHeader.biXPelsPerMeter = 0;
-	lpDibDest->bmiHeader.biYPelsPerMeter = 0;
-	lpDibDest->bmiHeader.biClrUsed = 0;
-	lpDibDest->bmiHeader.biClrImportant = 0;
-	hBmpDest = CreateDIBSection(hdc, lpDibDest, DIB_RGB_COLORS, (PVOID*)&lpBmpDest, NULL, 0);
-	hdcDibDest = CreateCompatibleDC(hdc);
-	SelectObject(hdcDibDest, hBmpDest);
-	memset(lpBmpDest, 0, 640 * 480 * sizeof(DWORD));
-
-	// DIBSection 24bpp * 1 (テキスト描画)
-	lpBufText = (LPBYTE)GlobalAlloc(GPTR, sizeof(BITMAPINFO));
-	lpDibText = (LPBITMAPINFO)lpBufText;
-	lpDibText->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	lpDibText->bmiHeader.biWidth = 64;
-	lpDibText->bmiHeader.biHeight = 64;
-	lpDibText->bmiHeader.biPlanes = 1;
-	lpDibText->bmiHeader.biBitCount = 32;
-	lpDibText->bmiHeader.biCompression = BI_RGB;
-	lpDibText->bmiHeader.biSizeImage = 0;
-	lpDibText->bmiHeader.biXPelsPerMeter = 0;
-	lpDibText->bmiHeader.biYPelsPerMeter = 0;
-	lpDibText->bmiHeader.biClrUsed = 0;
-	lpDibText->bmiHeader.biClrImportant = 0;
-	hBmpText = CreateDIBSection(hdc, lpDibText, DIB_RGB_COLORS, (PVOID*)&lpBmpText, NULL, 0);
-	hdcDibText = CreateCompatibleDC(hdc);
-	SelectObject(hdcDibText, hBmpText);
-//	memset(lpBmpText, 0, 64 * 64 * sizeof(DWORD));
-
-	// DIBSection 24bpp * 1 (メニュー描画)
-	lpBufMenu = (LPBYTE)GlobalAlloc(GPTR, sizeof(BITMAPINFO));
-	lpDibMenu = (LPBITMAPINFO)lpBufMenu;
-	lpDibMenu->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	lpDibMenu->bmiHeader.biWidth = 64;
-	lpDibMenu->bmiHeader.biHeight = 64;
-	lpDibMenu->bmiHeader.biPlanes = 1;
-	lpDibMenu->bmiHeader.biBitCount = 32;
-	lpDibMenu->bmiHeader.biCompression = BI_RGB;
-	lpDibMenu->bmiHeader.biSizeImage = 0;
-	lpDibMenu->bmiHeader.biXPelsPerMeter = 0;
-	lpDibMenu->bmiHeader.biYPelsPerMeter = 0;
-	lpDibMenu->bmiHeader.biClrUsed = 0;
-	lpDibMenu->bmiHeader.biClrImportant = 0;
-	hBmpMenu = CreateDIBSection(hdc, lpDibMenu, DIB_RGB_COLORS, (PVOID*)&lpBmpMenu, NULL, 0);
-	hdcDibMenu = CreateCompatibleDC(hdc);
-	SelectObject(hdcDibMenu, hBmpMenu);
-//	memset(lpBmpMenu, 0, 64 * 64 * sizeof(DWORD));
-
-	ReleaseDC(g_hwnd, hdc);
+	hBmpDest = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
+	SDL_LockSurface(hBmpDest);
+	// TODO: clear surface
 
 	// フォント
-	LOGFONT logfont;
-	logfont.lfEscapement = 0;
-	logfont.lfOrientation = 0;
-	logfont.lfWeight = FW_NORMAL;
-	logfont.lfItalic = FALSE;
-	logfont.lfUnderline = FALSE;
-	logfont.lfStrikeOut = FALSE;
-	logfont.lfCharSet = SHIFTJIS_CHARSET;
-	logfont.lfOutPrecision = OUT_TT_PRECIS;
-	logfont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-	logfont.lfQuality = NONANTIALIASED_QUALITY; //DEFAULT_QUALITY;
-	logfont.lfPitchAndFamily = FIXED_PITCH | FF_DONTCARE;
-	_tcscpy_s(logfont.lfFaceName, LF_FACESIZE, _T("ＭＳ ゴシック"));
-
-	logfont.lfHeight = 16;
-	logfont.lfWidth = 8;
-	hFont16 = CreateFontIndirect(&logfont);
-	logfont.lfHeight = 24;
-	logfont.lfWidth = 12;
-	hFont24 = CreateFontIndirect(&logfont);
-	logfont.lfHeight = 32;
-	logfont.lfWidth = 16;
-	hFont32 = CreateFontIndirect(&logfont);
-	logfont.lfHeight = 48;
-	logfont.lfWidth = 24;
-	hFont48 = CreateFontIndirect(&logfont);
-	logfont.lfHeight = 64;
-	logfont.lfWidth = 32;
-	hFont64 = CreateFontIndirect(&logfont);
+	TTF_Init();
+	const char fontfile[] = "MTLc3m.ttf";
+	hFont16 = TTF_OpenFont(fontfile, 16);
+	hFont24 = TTF_OpenFont(fontfile, 24);
+	hFont32 = TTF_OpenFont(fontfile, 32);
+	hFont48 = TTF_OpenFont(fontfile, 48);
+	hFont64 = TTF_OpenFont(fontfile, 64);
 
 	// カーソル初期化
 	for(int i = 0; i < 10; i++) {
@@ -327,7 +237,6 @@ AGS::AGS(NACT* parent) : nact(parent)
 	text_dest_y = text_w[0].sy + 2;
 	text_space = 2;
 	text_font_size = 16;
-	old_text_font_size = 0;
 #if defined(_SYSTEM1)
 	text_font_color = 15 + 16;
 	text_frame_color = 15 + 16;
@@ -342,7 +251,6 @@ AGS::AGS(NACT* parent) : nact(parent)
 	menu_dest_x = 2;
 	menu_dest_y = 0;
 	menu_font_size = 16;
-	old_menu_font_size = 0;
 #if defined(_SYSTEM1)
 	menu_font_color = 15 + 16;
 	menu_frame_color = 15 + 16;
@@ -401,33 +309,18 @@ AGS::~AGS()
 	}
 
 	// フォント開放
-	DeleteObject(hFont16);
-	DeleteObject(hFont24);
-	DeleteObject(hFont32);
-	DeleteObject(hFont48);
-	DeleteObject(hFont64);
+	TTF_CloseFont(hFont16);
+	TTF_CloseFont(hFont24);
+	TTF_CloseFont(hFont32);
+	TTF_CloseFont(hFont48);
+	TTF_CloseFont(hFont64);
 
-	// DIBSection開放
+	// surface開放
 	for(int i = 0; i < 3; i++) {
-		DeleteDC(hdcDibScreen[i]);
-		DeleteObject(hBmpScreen[i]);
-		GlobalFree(lpBufScreen[i]);
+		SDL_FreeSurface(hBmpScreen[i]);
 	}
 
-	DeleteDC(hdcDibDest);
-	DeleteObject(hBmpDest);
-	GlobalFree(lpBufDest);
-
-	DeleteDC(hdcDibText);
-	DeleteObject(hBmpText);
-	GlobalFree(lpBufText);
-
-	DeleteDC(hdcDibMenu);
-	DeleteObject(hBmpMenu);
-	GlobalFree(lpBufMenu);
-
-	// GDI+開放
-	GdiplusShutdown(gdiToken);
+	SDL_FreeSurface(hBmpDest);
 }
 
 void AGS::set_palette(int index, int r, int g, int b)
@@ -455,12 +348,12 @@ void AGS::set_pixel(int dest, int x, int y, uint8 color)
 
 void AGS::fade_start()
 {
-	memcpy(fader_screen, lpBmpDest, sizeof(fader_screen));
+	memcpy(fader_screen, hBmpDest->pixels, sizeof(fader_screen));
 }
 
 void AGS::fade_end()
 {
-	memcpy(lpBmpDest, fader_screen, sizeof(fader_screen));
+	memcpy(hBmpDest->pixels, fader_screen, sizeof(fader_screen));
 }
 
 void AGS::fade_out(int depth, bool white)
@@ -471,7 +364,7 @@ void AGS::fade_out(int depth, bool white)
 	fader = true;
 
 	for(int y = 0; y < 480; y += 4) {
-		uint32* dest = &lpBmpDest[640 * (479 - y - fy) + fx];
+		uint32* dest = surface_line(hBmpDest, y + fy) + fx;
 		for(int x = 0; x < 640; x += 4) {
 			dest[x] = white ? 0xffffff : 0;
 		}
@@ -489,8 +382,8 @@ void AGS::fade_in(int depth)
 	fader = (depth == 15) ? false : true;
 
 	for(int y = 0; y < 480; y += 4) {
-		uint32* src = &fader_screen[640 * (479 - y - fy) + fx];
-		uint32* dest = &lpBmpDest[640 * (479 - y - fy) + fx];
+		uint32* src = &fader_screen[640 * (y + fy) + fx];
+		uint32* dest = surface_line(hBmpDest, y + fy) + fx;
 		for(int x = 0; x < 640; x += 4) {
 			dest[x] = src[x];
 		}
@@ -505,7 +398,7 @@ void AGS::flush_screen(bool update)
 	if(update) {
 		for(int y = 0; y < screen_height; y++) {
 			uint32* src = vram[0][y];
-			uint32* dest = &lpBmpDest[640 * (479 - y)];
+			uint32* dest = surface_line(hBmpDest, y);
 			for(int x = 0; x < 640; x++) {
 #if defined(_SYSTEM3)
 				// あゆみちゃん物語 フルカラー実写版
@@ -525,7 +418,7 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 	if(fader) {
 		for(int y = sy; y < (sy + height) && y < 480; y++) {
 			uint32* src = vram[0][y];
-			uint32* dest = &fader_screen[640 * (479 - y)];
+			uint32* dest = &fader_screen[640 * y];
 			for(int x = sx; x < (sx + width) && x < 640; x++) {
 				uint32 a=src[x];
 #if defined(_SYSTEM3)
@@ -540,7 +433,7 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 	} else {
 		for(int y = sy; y < (sy + height) && y < 480; y++) {
 			uint32* src = vram[0][y];
-			uint32* dest = &lpBmpDest[640 * (479 - y)];
+			uint32* dest = surface_line(hBmpDest, y);
 			for(int x = sx; x < (sx + width) && x < 640; x++) {
 				uint32 a=src[x];
 #if defined(_SYSTEM3)
@@ -558,22 +451,13 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 
 void AGS::invalidate_screen(int sx, int sy, int width, int height)
 {
-	RECT rect;
-	rect.left = sx;
-	rect.top = sy;
-	rect.right = sx + width;
-	rect.bottom = sy + height;
-
-	InvalidateRect(g_hwnd, &rect, FALSE);
-	UpdateWindow(g_hwnd);
-}
-
-void AGS::update_screen(HDC hdc, int sx, int sy, int width, int height)
-{
-	if(screen_height == 400) {
-		BitBlt(hdc, sx, sy, width, height, hdcDibDest, sx, sy + (scroll - 400), SRCCOPY);
-	} else {
-		BitBlt(hdc, sx, sy, width, height, hdcDibDest, sx, sy, SRCCOPY);
-	}
+	SDL_UnlockSurface(hBmpDest);
+	uint32* pixels = surface_line(hBmpDest, screen_height == 400 ? sy + (scroll - 400) : sy) + sx;
+	SDL_Rect rect = {sx, sy, width, height};
+	SDL_UpdateTexture(sdlTexture, &rect, pixels, hBmpDest->pitch);
+	SDL_RenderClear(sdlRenderer);
+	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+	SDL_RenderPresent(sdlRenderer);
+	SDL_LockSurface(hBmpDest);
 }
 

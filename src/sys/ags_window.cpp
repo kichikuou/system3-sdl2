@@ -94,7 +94,7 @@ void AGS::open_text_window(int index, bool erase)
 		text_w[index - 1].screen_height = height;
 
 		for(int y = 0; y < height && y + sy < 480; y++) {
-			uint32* scr = fader ? &fader_screen[640 * (479 - y - sy) + sx] : &lpBmpDest[640 * (479 - y - sy) + sx];
+			uint32* scr = fader ? &fader_screen[640 * (y + sy) + sx] : surface_line(hBmpDest, y + sy) + sx;
 			for(int x = 0; x < width && x + sx < 640; x++) {
 				uint32 col = vram[0][y + sy][x + sx];
 				if(!(col & 0x80000000)) {
@@ -156,7 +156,7 @@ void AGS::close_text_window(int index, bool update)
 		text_w[index - 1].window_height = height;
 
 		for(int y = 0; y < height && y + sy < 480; y++) {
-			uint32* scr = fader ? &fader_screen[640 * (479 - y - sy) + sx] : &lpBmpDest[640 * (479 - y - sy) + sx];
+			uint32* scr = fader ? &fader_screen[640 * (y + sy) + sx] : surface_line(hBmpDest, y + sy) + sx;
 			for(int x = 0; x < width && x + sx < 640; x++) {
 				uint32 col = vram[0][y + sy][x + sx];
 				if(!(col & 0x80000000)) {
@@ -197,7 +197,8 @@ void AGS::close_text_window(int index, bool update)
 
 void AGS::clear_menu_window()
 {
-	memset(lpBmpScreen[2], menu_back_color, 640 * 480 * sizeof(DWORD));
+	// TODO: use draw function
+	memset(hBmpScreen[2]->pixels, menu_back_color, 640 * 480 * sizeof(DWORD));
 }
 
 void AGS::open_menu_window(int index)
@@ -228,7 +229,7 @@ void AGS::open_menu_window(int index)
 		menu_w[index - 1].screen_height = wheight;
 
 		for(int y = 0; y < wheight && y + wsy < 480; y++) {
-			uint32* scr = fader ? &fader_screen[640 * (479 - y - wsy) + wsx] : &lpBmpDest[640 * (479 - y - wsy) + wsx];
+			uint32* scr = fader ? &fader_screen[640 * (y + wsy) + wsx] : surface_line(hBmpDest, y + wsy) + wsx;
 			for(int x = 0; x < wwidth && x + wsx < 640; x++) {
 				uint32 col = vram[0][y + wsy][x + wsx];
 				if(!(col & 0x80000000)) {

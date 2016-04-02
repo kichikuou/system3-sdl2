@@ -1113,8 +1113,6 @@ void NACT::cmd_l()
 			scenario_page = next_page;
 			scenario_addr = next_addr;
 
-//			ags->old_text_font_size = 0;
-//			ags->old__menu_font_fize = 0;
 			mako->play_music(next_music);
 		}
 		delete fio;

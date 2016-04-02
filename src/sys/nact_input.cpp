@@ -6,21 +6,35 @@
 
 #include "nact.h"
 
-extern HWND g_hwnd;
+static bool pump_events()
+{
+	SDL_Event e;
+	while (SDL_PollEvent(&e)) {
+		switch (e.type) {
+		case SDL_QUIT:
+			return true;
+		}
+	}
+	return false;
+}
 
 uint8 NACT::get_key()
 {
 	uint8 val = 0;
 
+	params.terminate = pump_events();
+
 	// キーボード＆マウス
-	if(key[VK_UP    ] || key[VK_NUMPAD8]) val |= 0x01;
-	if(key[VK_DOWN  ] || key[VK_NUMPAD2]) val |= 0x02;
-	if(key[VK_LEFT  ] || key[VK_NUMPAD4]) val |= 0x04;
-	if(key[VK_RIGHT ] || key[VK_NUMPAD6]) val |= 0x08;
-	if(key[VK_RETURN] || key[VK_LBUTTON]) val |= 0x10;
-	if(key[VK_SPACE ] || key[VK_RBUTTON]) val |= 0x20;
-	if(key[VK_ESCAPE]                   ) val |= 0x40;
-	if(key[VK_TAB   ]                   ) val |= 0x80;
+	const Uint8* key = SDL_GetKeyboardState(NULL);
+	Uint32 mouse = SDL_GetMouseState(NULL, NULL);
+	if(key[SDL_SCANCODE_UP    ] || key[SDL_SCANCODE_KP_8 ]) val |= 0x01;
+	if(key[SDL_SCANCODE_DOWN  ] || key[SDL_SCANCODE_KP_2 ]) val |= 0x02;
+	if(key[SDL_SCANCODE_LEFT  ] || key[SDL_SCANCODE_KP_4 ]) val |= 0x04;
+	if(key[SDL_SCANCODE_RIGHT ] || key[SDL_SCANCODE_KP_6 ]) val |= 0x08;
+	if(key[SDL_SCANCODE_RETURN] || (mouse & SDL_BUTTON(1))) val |= 0x10;
+	if(key[SDL_SCANCODE_SPACE ] || (mouse & SDL_BUTTON(3))) val |= 0x20;
+	if(key[SDL_SCANCODE_ESCAPE]                           ) val |= 0x40;
+	if(key[SDL_SCANCODE_TAB   ]                           ) val |= 0x80;
 
 	// マウス移動で方向入力はサポートしない
 
@@ -44,19 +58,12 @@ uint8 NACT::get_key()
 
 void NACT::get_cursor(int* x, int* y)
 {
-	POINT pt;
-	GetCursorPos(&pt);
-	ScreenToClient(g_hwnd, &pt);
-	*x = pt.x;
-	*y = pt.y;
+	params.terminate = pump_events();
+	SDL_GetMouseState(x, y);
 }
 
 void NACT::set_cursor(int x, int y)
 {
-	POINT pt;
-	pt.x = x;
-	pt.y = y;
-	ClientToScreen(g_hwnd, &pt);
-	SetCursorPos(pt.x, pt.y);
+	// TODO: implement
 }
 

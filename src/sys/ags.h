@@ -8,10 +8,10 @@
 #define _AGS_H_
 
 #include <windows.h>
-#include <gdiplus.h>
 #include <stdio.h>
 #include "../common.h"
 #include "nact.h"
+#include <SDL_ttf.h>
 
 // フェード処理
 static const int fade_x[16] = {0, 2, 2, 0, 1, 3, 3, 1, 1, 3, 3, 1, 0, 2, 2, 0};
@@ -32,49 +32,29 @@ static inline uint32 SETPALETTE16(uint32 R, uint32 G, uint32 B)
 	return SETPALETTE256(R, G, B);
 }
 
+inline uint32* surface_line(SDL_Surface* surface, int y)
+{
+	return (uint32*)((uint8*)surface->pixels + surface->pitch * y);
+}
+
 class AGS
 {
 protected:
 	NACT* nact;
 private:
-	// GDI+
-	Gdiplus::GdiplusStartupInput gdiSI;
-	ULONG_PTR gdiToken;
+	SDL_Renderer* sdlRenderer;
+	SDL_Texture* sdlTexture;
 
-	// DIBSection 8bpp * 3 (表, 裏, メニュー)
-	HDC hdcDibScreen[3];
-	HBITMAP hBmpScreen[3];
-	LPBYTE lpBufScreen[3];
-	LPDWORD lpBmpScreen[3];
-	LPBITMAPINFO lpDibScreen[3];
-
-	// DIBSection 24bpp (最終出力先)
-	HDC hdcDibDest;
-	HBITMAP hBmpDest;
-	LPBYTE lpBufDest;
-	LPDWORD lpBmpDest;
-	LPBITMAPINFO lpDibDest;
-
-	// DIBSection 24bpp (テキスト描画)
-	HDC hdcDibText;
-	HBITMAP hBmpText;
-	LPBYTE lpBufText;
-	LPDWORD lpBmpText;
-	LPBITMAPINFO lpDibText;
-
-	// DIBSection 24bpp (メニュー描画)
-	HDC hdcDibMenu;
-	HBITMAP hBmpMenu;
-	LPBYTE lpBufMenu;
-	LPDWORD lpBmpMenu;
-	LPBITMAPINFO lpDibMenu;
+	// Surface
+	SDL_Surface* hBmpScreen[3]; // 8bpp * 3 (表, 裏, メニュー)
+	SDL_Surface* hBmpDest; // DIBSection 24bpp (最終出力先)
 
 	// フォント
-	HFONT hFont16;
-	HFONT hFont24;
-	HFONT hFont32;
-	HFONT hFont48;
-	HFONT hFont64;
+	TTF_Font* hFont16;
+	TTF_Font* hFont24;
+	TTF_Font* hFont32;
+	TTF_Font* hFont48;
+	TTF_Font* hFont64;
 
 	// カーソル
 	HCURSOR hArrow;
@@ -118,7 +98,6 @@ public:
 	AGS(NACT* parent);
 	~AGS();
 
-	void update_screen(HDC hdc, int sx, int sy, int width, int height);
 	void flush_screen(bool update);
 
 	void load_cg(int page, int transparent);
@@ -172,7 +151,6 @@ public:
 	int text_dest_y;
 	int text_space;
 	int text_font_size;
-	int old_text_font_size;
 	uint8 text_font_color;
 	uint8 text_frame_color;
 	uint8 text_back_color;
@@ -182,7 +160,6 @@ public:
 	int menu_dest_x;
 	int menu_dest_y;
 	int menu_font_size;
-	int old_menu_font_size;
 	uint8 menu_font_color;
 	uint8 menu_frame_color;
 	uint8 menu_back_color;

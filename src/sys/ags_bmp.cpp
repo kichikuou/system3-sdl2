@@ -19,6 +19,8 @@ void AGS::load_bmp(const _TCHAR *file_path)
 	}
 
 	if(extract_cg) {
+		assert(false);
+#if 0
 		// BMPì«Ç›çûÇ›
 		WCHAR wszFilePath[_MAX_PATH];
 		MultiByteToWideChar(CP_ACP, 0, file_path, -1, wszFilePath, _MAX_PATH);
@@ -38,5 +40,6 @@ void AGS::load_bmp(const _TCHAR *file_path)
 
 		// BMPäJï˙
 		delete pBitmap;
+#endif
 	}
 }

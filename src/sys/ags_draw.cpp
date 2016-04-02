@@ -87,7 +87,17 @@ void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)
 		draw_screen(dx, dy, width, height);
 	}
 #else
-	BitBlt(hdcDibScreen[dest_screen], dx, dy, ex - sx + 1, ey - sy + 1, hdcDibScreen[src_screen], sx, sy, SRCCOPY);
+	int width = ex - sx + 1;
+	int height = ey - sy + 1;
+	SDL_Rect srcrect = {sx, sy, width, height};
+	SDL_Rect destrect = {dx, dy, width, height};
+
+	SDL_UnlockSurface(hBmpScreen[src_screen]);
+	SDL_UnlockSurface(hBmpScreen[dest_screen]);
+	SDL_BlitSurface(hBmpScreen[src_screen], &srcrect, hBmpScreen[dest_screen], &destrect);
+	SDL_LockSurface(hBmpScreen[dest_screen]);
+	SDL_LockSurface(hBmpScreen[src_screen]);
+
 	if(dest_screen == 0) {
 		draw_screen(dx, dy, ex - sx + 1, ey - sy + 1);
 	}
@@ -103,8 +113,15 @@ void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 	int sy = gsc / 80;
 	int dx = (gde % 80) * 8;
 	int dy = gde / 80;
+	SDL_Rect srcrect = {sx, sy, glx * 8, gly};
+	SDL_Rect destrect = {dx, dy, glx * 8, gly};
 
-	BitBlt(hdcDibScreen[dest], dx, dy, glx * 8, gly, hdcDibScreen[src], sx, sy, SRCCOPY);
+	SDL_UnlockSurface(hBmpScreen[src]);
+	SDL_UnlockSurface(hBmpScreen[dest]);
+	SDL_BlitSurface(hBmpScreen[src], &srcrect, hBmpScreen[dest], &destrect);
+	SDL_LockSurface(hBmpScreen[dest]);
+	SDL_LockSurface(hBmpScreen[src]);
+
 	if(dest == 0) {
 		draw_screen(dx, dy, glx * 8, gly);
 	}
@@ -112,10 +129,13 @@ void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 
 void AGS::paint(int x, int y, uint8 color)
 {
+	assert(false);
+#if 0
 	HBRUSH hBrush = CreateSolidBrush(RGB(color, color, color));
 	SelectObject(hdcDibScreen[0], hBrush);
 	ExtFloodFill(hdcDibScreen[0], x, y, GetPixel(hdcDibScreen[0], x, y), FLOODFILLSURFACE);
 	draw_screen(0, 0, 640, screen_height);
+#endif
 }
 
 void AGS::draw_box(int index)

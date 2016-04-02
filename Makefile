@@ -1,12 +1,13 @@
 SDL_CFLAGS := $(shell sdl2-config --cflags)
-SDL_LFLAGS := $(shell sdl2-config --libs) -luuid -limm32 -lole32 -loleaut32 -lversion
+SDL_LFLAGS := -lSDL2_ttf $(shell sdl2-config --libs)
 
 CXXFLAGS = -Isrc -Isrc/sys -D_SYSTEM3 -D_DEBUG_CONSOLE -MMD $(SDL_CFLAGS)
 
-LIBS = -lgdi32 -lgdiplus -lwinmm
+LIBS = -lfreetype -lharfbuzz -lglib-2.0 -lpng -lbz2 -lz -lintl -liconv \
+	-luuid -limm32 -lole32 -loleaut32 -lversion -lgdi32 -lgdiplus -lwinmm -lws2_32
 
 OBJS = src/fileio.o \
-	src/winmain.o \
+	src/sdlmain.o \
 	src/sys/ags.o \
 	src/sys/ags_bmp.o \
 	src/sys/ags_cursor.o \

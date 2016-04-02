@@ -7,8 +7,6 @@
 #include "mako.h"
 #include "dri.h"
 
-extern HWND g_hwnd;
-
 MAKO::MAKO(NACT* parent) : nact(parent)
 {
 	// AMUS.DAT, AMSE.DAT
@@ -107,7 +105,8 @@ void MAKO::play_music(int page)
 	if(current_music) {
 		bool next_cdda = (page < 100 && cd_track[page]) ? true : false;
 		if(cdda_play && !next_cdda) {
-			PostMessage(g_hwnd, WM_USER, 0, 0);
+			// TODO: fix
+			// PostMessage(g_hwnd, WM_USER, 0, 0);
 		} else if(!cdda_play && next_cdda) {
 			params.next_music = 0;
 		}
@@ -119,7 +118,8 @@ void MAKO::play_music(int page)
 
 	if(page < 100 && cd_track[page]) {
 		// CD-DA‚ÅÄ¶
-		PostMessage(g_hwnd, WM_USER, cd_track[page] + 1, 0);
+		// TODO: fix
+		// PostMessage(g_hwnd, WM_USER, cd_track[page] + 1, 0);
 		cdda_play = true;
 	} else {
 		// MIDI‚ÅÄ¶
@@ -133,7 +133,8 @@ void MAKO::stop_music()
 	// Œ»ÝÄ¶’†‚Ìê‡‚Í’âŽ~‚·‚é
 	if(current_music) {
 		if(cdda_play) {
-			PostMessage(g_hwnd, WM_USER, 0, 0);
+			// TODO: fix
+			// PostMessage(g_hwnd, WM_USER, 0, 0);
 		} else {
 			params.next_music = 0;
 		}
@@ -165,7 +166,8 @@ void MAKO::notify_mci(int status)
 	if(cdda_play) {
 		current_loop++;
 		if(current_loop < current_max || current_max == 0) {
-			PostMessage(g_hwnd, WM_USER, cd_track[current_music] + 1, 0);
+			// TODO: fix
+			// PostMessage(g_hwnd, WM_USER, cd_track[current_music] + 1, 0);
 		} else {
 			current_music = current_mark = current_loop = 0;
 			cdda_play = false;

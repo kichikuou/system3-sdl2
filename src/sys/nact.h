@@ -215,7 +215,6 @@ private:
 
 	int joy_num;
 	JOYCAPS joycaps;
-	uint8 key[256];
 	int mouse_x, mouse_y;
 
 	uint32 calc_crc32();
@@ -225,13 +224,9 @@ private:
 
 	// メインスレッド
 	typedef struct {
-		NACT* nact;
 		bool terminate;
 	} PARAMS, *PPARAMS;
 	PARAMS params;
-
-	static int thread(void* pvoid);
-	SDL_Thread* hThread;
 
 	// デバッグログ
 	void initialize_console();
@@ -242,12 +237,11 @@ public:
 	NACT();
 	~NACT();
 
+	void mainloop();
+
 	int get_screen_height();
-	void update_screen(HDC hdc, int sx, int sy, int width, int  height);
 	void notify_mci(int status);
 
-	void key_down(int val);
-	void key_up(int val);
 	void select_cursor();
 	void select_sound(int dev);
 

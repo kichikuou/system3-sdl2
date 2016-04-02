@@ -20,7 +20,6 @@
 
 extern _TCHAR g_root[_MAX_PATH];
 extern HINSTANCE g_hinst;
-extern HWND g_hwnd;
 
 void NACT::cmd_calc()
 {
@@ -1033,8 +1032,6 @@ void NACT::cmd_l()
 			scenario_page = next_page;
 			scenario_addr = next_addr;
 
-//			ags->old_text_font_size = 0;
-//			ags->old_menu_font_size = 0;
 			mako->play_music(next_music);
 		}
 		delete fio;
@@ -1549,7 +1546,8 @@ void NACT::cmd_y()
 			break;
 		case 27:
 			tvar_maxlen = param;
-			DialogBoxParam(g_hinst, MAKEINTRESOURCE(IDD_DIALOG1), g_hwnd, TextDialogProc, (LPARAM)this);
+			// TODO: fix
+			// DialogBoxParam(g_hinst, MAKEINTRESOURCE(IDD_DIALOG1), g_hwnd, TextDialogProc, (LPARAM)this);
 			break;
 		case 28:
 			ags->text_space = (param == 0) ? 2 : 0;
@@ -1740,7 +1738,8 @@ void NACT::cmd_y()
 			break;
 		case 232:
 			if(ags->screen_height != param ? 480 : 400) {
-				SendMessage(g_hwnd, WM_USER + 2, param ? 480 : 400, 0);
+				// TODO: fix
+				// SendMessage(g_hwnd, WM_USER + 2, param ? 480 : 400, 0);
 				ags->screen_height = param ? 480 : 400;
 			}
 			break;

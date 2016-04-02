@@ -8,43 +8,6 @@
 
 void AGS::draw_text(char string[])
 {
-	// フォントサイズの変更後、一度だけ更新する
-	if(draw_menu) {
-		if(old_menu_font_size != menu_font_size) {
-			if(menu_font_size == 16) {
-				SelectObject(hdcDibMenu, hFont16);
-			} else if(menu_font_size == 24) {
-				SelectObject(hdcDibMenu, hFont24);
-			} else if(menu_font_size == 32) {
-				SelectObject(hdcDibMenu, hFont32);
-			} else if(menu_font_size == 48) {
-				SelectObject(hdcDibMenu, hFont48);
-			} else if(menu_font_size == 64) {
-				SelectObject(hdcDibMenu, hFont64);
-			}
-			SetBkMode(hdcDibMenu, TRANSPARENT);
-			SetTextColor(hdcDibMenu, RGB(255, 255, 255));
-			old_menu_font_size = menu_font_size;
-		}
-	} else {
-		if(old_text_font_size != text_font_size) {
-			if(text_font_size == 16) {
-				SelectObject(hdcDibText, hFont16);
-			} else if(text_font_size == 24) {
-				SelectObject(hdcDibText, hFont24);
-			} else if(text_font_size == 32) {
-				SelectObject(hdcDibText, hFont32);
-			} else if(text_font_size == 48) {
-				SelectObject(hdcDibText, hFont48);
-			} else if(text_font_size == 64) {
-				SelectObject(hdcDibText, hFont64);
-			}
-			SetBkMode(hdcDibText, TRANSPARENT);
-			SetTextColor(hdcDibText, RGB(255, 255, 255));
-			old_text_font_size = text_font_size;
-		}
-	}
-
 	int p = 0;
 
 	while(string[p] != '\0') {
@@ -92,6 +55,7 @@ void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uin
 {
 	char string[3];
 	int length;
+	SDL_Color white = {0xff, 0xff, 0xff};
 
 	// パターン取得
 	if(code > 0xff) {
@@ -104,18 +68,32 @@ void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uin
 		string[1] = '\0';
 		length = 1;
 	}
-	memset(draw_menu ? lpBmpMenu : lpBmpText, 0, 64 * 64 * sizeof(DWORD));
-	ExtTextOut(draw_menu ? hdcDibMenu : hdcDibText, 0, 0, NULL, NULL, string, length, NULL);
+	Uint16 buf[2];
+	MultiByteToWideChar(CP_ACP, 0, string, length, (LPWSTR)buf, 2);
+
+	TTF_Font* font = NULL;
+	switch (size) {
+	case 16: font = hFont16; break;
+	case 24: font = hFont24; break;
+	case 32: font = hFont32; break;
+	case 48: font = hFont48; break;
+	case 64: font = hFont64; break;
+	}
+
+	SDL_Surface* fs = TTF_RenderGlyph_Solid(font, buf[0], white);
 
 	// パターン出力
-	for(int y = 0; y < size && y < 64 && dest_y + y < 480; y++) {
-		uint32 *pattern = draw_menu ? &lpBmpMenu[64 * (63 - y)] : &lpBmpText[64 * (63 - y)];
-		for(int x = 0; x < size && x < 64 && dest_x + x < 640; x++) {
+	// TODO: Blit?
+	for(int y = 0; y < size && y < fs->w && dest_y + y < 480; y++) {
+		uint8 *pattern = (uint8*)surface_line(fs, y);	// FIXME: do not assume 8bpp
+		for(int x = 0; x < size && x < fs->h && dest_x + x < 640; x++) {
 			if(pattern[x] != 0) {
 				vram[dest][dest_y + y][dest_x + x] = color;
 			}
 		}
 	}
+
+	SDL_FreeSurface(fs);
 }
 
 void AGS::draw_gaiji(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color)
