@@ -7,14 +7,6 @@ SDL_Window* g_window;
 
 int main(int argc, char *argv[])
 {
-	// モジュールパス取得
-	GetModuleFileName(NULL, g_root, _MAX_PATH);
-	int p = _tcslen(g_root);
-	while(g_root[p] != _T('\\')) {
-		p--;
-	}
-	g_root[p + 1] = _T('\0');
-
 	g_hinst = (HINSTANCE)::GetModuleHandle(NULL);
 
 	SDL_Init(SDL_INIT_VIDEO);

@@ -1802,6 +1802,7 @@ void NACT::cmd_y()
 			break;
 		case 250:
 			{
+#if 0
 				_TCHAR path[4];
 				path[0] = g_root[0];
 				path[1] = _T(':');
@@ -1811,6 +1812,9 @@ void NACT::cmd_y()
 				// フロッピーから起動した場合は0が返る
 				//RND = (t == DRIVE_REMOVABLE) ? 0 : (t == DRIVE_CDROM) ? 2 : 1;
 				RND = (t == DRIVE_CDROM) ? 2 : 1;
+#else
+				RND = 1;
+#endif
 			}
 			break;
 		case 251:
