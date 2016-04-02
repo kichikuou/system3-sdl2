@@ -4,7 +4,9 @@
 	[ NACT - command ]
 */
 
-#include <windows.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
@@ -1560,7 +1562,7 @@ void NACT::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_in(i);
-					DWORD dwTime = dwStart + param * 1000 / 60 * i;
+					Uint32 dwTime = dwStart + param * 1000 / 60 * i;
 					for(;;) {
 						if(terminate) {
 							return;
@@ -1581,7 +1583,7 @@ void NACT::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_out(i, (cmd == 41) ? false : true);
-					DWORD dwTime = dwStart + param * 1000 / 60 * i;
+					Uint32 dwTime = dwStart + param * 1000 / 60 * i;
 					for(;;) {
 						if(terminate) {
 							return;
@@ -1748,15 +1750,16 @@ void NACT::cmd_y()
 			break;
 		case 238:
 			{
-				SYSTEMTIME sTime;
-				GetLocalTime(&sTime);
-				D01 = sTime.wYear;
-				D02 = sTime.wMonth;
-				D03 = sTime.wDay;
-				D04 = sTime.wHour;
-				D05 = sTime.wMinute;
-				D06 = sTime.wSecond;
-				D07 = sTime.wDayOfWeek + 1;
+				time_t timer;
+				time(&timer);
+				struct tm *t = localtime(&timer);
+				D01 = t->tm_year + 1900;
+				D02 = t->tm_mon + 1;
+				D03 = t->tm_mday;
+				D04 = t->tm_hour;
+				D05 = t->tm_min;
+				D06 = t->tm_sec;
+				D07 = t->tm_wday + 1;
 			}
 			break;
 		case 239:
@@ -1766,21 +1769,15 @@ void NACT::cmd_y()
 				path[7] = _T('A') + param - 1;
 				_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
 
-				HANDLE hFile = CreateFile(file_path, GENERIC_READ, FILE_SHARE_WRITE, NULL,
-				                          OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-				if(hFile != INVALID_HANDLE_VALUE) {
-					FILETIME fTime, fLocalTime;
-					SYSTEMTIME sTime;
-					GetFileTime(hFile, NULL, NULL, &fTime);
-					FileTimeToLocalFileTime(&fTime, &fLocalTime);
-					FileTimeToSystemTime(&fLocalTime, &sTime);
-					CloseHandle(hFile);
-					D01 = sTime.wYear;
-					D02 = sTime.wMonth;
-					D03 = sTime.wDay;
-					D04 = sTime.wHour;
-					D05 = sTime.wMinute;
-					D06 = sTime.wSecond;
+				struct stat statbuf;
+				if (stat(file_path, &statbuf) != -1) {
+					struct tm *t = localtime(&statbuf.st_mtime);
+					D01 = t->tm_year + 1900;
+					D02 = t->tm_mon + 1;
+					D03 = t->tm_mday;
+					D04 = t->tm_hour;
+					D05 = t->tm_min;
+					D06 = t->tm_sec;
 				} else {
 					D01 = D02 = D03 = D04 = D05 = D06 = 0;
 				}
