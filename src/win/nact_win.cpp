@@ -78,3 +78,36 @@ void NACT::text_dialog()
 	SDL_GetWindowWMInfo(g_window, &info);
 	int r = DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), info.info.win.window, TextDialogProc, (LPARAM)this);
 }
+
+// デバッグコンソール
+HANDLE hConsole;
+
+void NACT::initialize_console()
+{
+#if defined(_DEBUG_CONSOLE)
+	AllocConsole();
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+#if defined(_SYSTEM1)
+	SetConsoleTitle("SYSTEM1 NACT Tracer");
+#elif defined(_SYSTEM2)
+	SetConsoleTitle("SYSTEM2 NACT Tracer");
+#else
+	SetConsoleTitle("SYSTEM3 NACT Tracer");
+#endif
+#endif
+}
+
+void NACT::release_console()
+{
+#if defined(_DEBUG_CONSOLE)
+	FreeConsole();
+#endif
+}
+
+void NACT::output_console(char log[])
+{
+#if defined(_DEBUG_CONSOLE)
+	DWORD dwWritten;
+	WriteConsole(hConsole, log, strlen(log), &dwWritten, NULL);
+#endif
+}

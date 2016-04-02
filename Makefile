@@ -23,7 +23,7 @@ OBJS = src/fileio.o \
 	src/sys/nact_crc32.o \
 	src/sys/nact_input.o \
 	src/sys/nact_sys3.o \
-	src/win/nact_dialog.o \
+	src/win/nact_win.o \
 	src/win/unicode.o \
 	src/res3/Script1.o
 

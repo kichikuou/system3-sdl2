@@ -4,7 +4,6 @@
 	[ NACT ]
 */
 
-#include <windows.h>
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
@@ -438,37 +437,4 @@ void NACT::select_sound(int dev)
 		mako->stop_music();
 		mako->play_music(page);
 	}
-}
-
-// デバッグコンソール
-HANDLE hConsole;
-
-void NACT::initialize_console()
-{
-#if defined(_DEBUG_CONSOLE)
-	AllocConsole();
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-#if defined(_SYSTEM1)
-	SetConsoleTitle("SYSTEM1 NACT Tracer");
-#elif defined(_SYSTEM2)
-	SetConsoleTitle("SYSTEM2 NACT Tracer");
-#else
-	SetConsoleTitle("SYSTEM3 NACT Tracer");
-#endif
-#endif
-}
-
-void NACT::release_console()
-{
-#if defined(_DEBUG_CONSOLE)
-	FreeConsole();
-#endif
-}
-
-void NACT::output_console(char log[])
-{
-#if defined(_DEBUG_CONSOLE)
-	DWORD dwWritten;
-	WriteConsole(hConsole, log, strlen(log), &dwWritten, NULL);
-#endif
 }
