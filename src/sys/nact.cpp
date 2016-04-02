@@ -126,7 +126,7 @@ NACT::NACT()
 		joyGetDevCaps(JOYSTICKID1, &joycaps, sizeof(JOYCAPS));
 	}
 
-	params.terminate = false;
+	terminate = false;
 }
 
 NACT::~NACT()
@@ -152,7 +152,7 @@ void NACT::mainloop()
 {
 	int sleep_cnt = 0;
 
-	while(!params.terminate) {
+	while(!terminate) {
 		execute();
 		// 512コマンド実行毎にSleep(10)
 		if(!(sleep_cnt = (sleep_cnt + 1) & 0x1ff)) {
@@ -175,7 +175,7 @@ void NACT::execute()
 	// 致命的なエラー発生 or 正常終了
 	if(fatal_error) {
 		if(!post_quit) {
-			params.terminate = true;
+			terminate = true;
 		}
 		post_quit = true;
 		return;
@@ -326,7 +326,7 @@ void NACT::execute()
 				if(!ags->draw_menu && text_wait_enb && cmd != 0x20) {
 					Uint32 dwTime = SDL_GetTicks() + text_wait_time;
 					for(;;) {
-						if(params.terminate) {
+						if(terminate) {
 							return;
 						}
 						RND = get_key();
@@ -359,7 +359,7 @@ void NACT::execute()
 				if(!ags->draw_menu && text_wait_enb) {
 					Uint32 dwTime = SDL_GetTicks() + text_wait_time;
 					for(;;) {
-						if(params.terminate) {
+						if(terminate) {
 							return;
 						}
 						RND = get_key();

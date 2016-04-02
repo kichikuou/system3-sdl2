@@ -222,11 +222,8 @@ private:
 	// Y27 ダイアログ
 	static BOOL CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	// メインスレッド
-	typedef struct {
-		bool terminate;
-	} PARAMS, *PPARAMS;
-	PARAMS params;
+	// 終了フラグ
+	bool terminate;
 
 	// デバッグログ
 	void initialize_console();

@@ -28,7 +28,7 @@
 { \
 	Uint32 dwTime = SDL_GetTicks() + (tm); \
 	for(;;) { \
-		if(params.terminate) { \
+		if(terminate) { \
 			return; \
 		} \
 		if(dwTime <= SDL_GetTicks()) { \
@@ -42,12 +42,12 @@
 { \
 	Uint32 dwTime = SDL_GetTicks() + (tm); \
 	for(;;) { \
-		if(params.terminate) { \
+		if(terminate) { \
 			return; \
 		} \
 		if(get_key()) { \
 			for(;;) { \
-				if(params.terminate) { \
+				if(terminate) { \
 					return; \
 				} \
 				if(!get_key()) { \
@@ -338,7 +338,7 @@ void NACT::cmd_open_menu()
 
 	// クリック中の間は待機
 	for(;;) {
-		if(params.terminate) {
+		if(terminate) {
 			return;
 		}
 //		if(get_key() != 32) {
@@ -366,7 +366,7 @@ void NACT::cmd_open_menu()
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
-			if(params.terminate) {
+			if(terminate) {
 				return;
 			}
 			if(val = get_key()) {
@@ -381,7 +381,7 @@ void NACT::cmd_open_menu()
 		}
 		if(val) {
 			for(;;) {
-				if(params.terminate) {
+				if(terminate) {
 					return;
 				}
 				if(!get_key()) {
@@ -542,7 +542,7 @@ top2:
 
 	// クリック中の間は待機
 	for(;;) {
-		if(params.terminate) {
+		if(terminate) {
 			return;
 		}
 //		if(get_key() != 32) {
@@ -570,7 +570,7 @@ top2:
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
-			if(params.terminate) {
+			if(terminate) {
 				return;
 			}
 			if(val = get_key()) {
@@ -585,7 +585,7 @@ top2:
 		}
 		if(val) {
 			for(;;) {
-				if(params.terminate) {
+				if(terminate) {
 					return;
 				}
 				if(!get_key()) {
@@ -730,7 +730,7 @@ top2:
 
 	// クリック中の間は待機
 	for(;;) {
-		if(params.terminate) {
+		if(terminate) {
 			return;
 		}
 //		if(get_key() != 32) {
@@ -758,7 +758,7 @@ top2:
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
-			if(params.terminate) {
+			if(terminate) {
 				return;
 			}
 			if(val = get_key()) {
@@ -773,7 +773,7 @@ top2:
 		}
 		if(val) {
 			for(;;) {
-				if(params.terminate) {
+				if(terminate) {
 					return;
 				}
 				if(!get_key()) {
@@ -841,7 +841,7 @@ void NACT::cmd_a()
 
 		// キーが押されて離されるまで待機
 		for(;;) {
-			if(params.terminate) {
+			if(terminate) {
 				return;
 			}
 			if(get_key()) {
@@ -851,7 +851,7 @@ void NACT::cmd_a()
 		}
 		SDL_Delay(100);
 		for(;;) {
-			if(params.terminate) {
+			if(terminate) {
 				return;
 			}
 			if(!(get_key() & 0x18)) {
@@ -1382,7 +1382,7 @@ void NACT::cmd_y()
 				ags->draw_push(text_window);
 			}
 			for(;;) {
-				if(params.terminate) {
+				if(terminate) {
 					return;
 				}
 				if(get_key()) {
@@ -1392,7 +1392,7 @@ void NACT::cmd_y()
 			}
 			SDL_Delay(100);
 			for(;;) {
-				if(params.terminate) {
+				if(terminate) {
 					return;
 				}
 				if(!(get_key() & 0x18)) {

@@ -22,7 +22,7 @@ uint8 NACT::get_key()
 {
 	uint8 val = 0;
 
-	params.terminate = pump_events();
+	terminate = pump_events();
 
 	// キーボード＆マウス
 	const Uint8* key = SDL_GetKeyboardState(NULL);
@@ -58,7 +58,7 @@ uint8 NACT::get_key()
 
 void NACT::get_cursor(int* x, int* y)
 {
-	params.terminate = pump_events();
+	terminate = pump_events();
 	SDL_GetMouseState(x, y);
 }
 
