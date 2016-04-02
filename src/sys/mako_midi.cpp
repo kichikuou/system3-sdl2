@@ -4,12 +4,21 @@
 	[ MAKO - midi ]
 */
 
+#include <windows.h>
+#include <mmsystem.h>
 #include "mako.h"
 #include "dri.h"
 
 #define next_mml(p) mml[p].data[mml[p].addr++]
 
 // MIDI‰¹Œ¹
+union UNION_MIDI_DATA {
+	DWORD msg;
+	BYTE data[4];
+};
+static UNION_MIDI_DATA midi;
+static HMIDIOUT hMidi;
+
 #define send_2bytes(d1, d2) { midi.data[0] = (BYTE)d1; midi.data[1] = (BYTE)d2; midiOutShortMsg(hMidi,midi.msg); }
 #define send_3bytes(d1, d2, d3) { midi.data[0] = (BYTE)d1; midi.data[1] = (BYTE)d2; midi.data[2] = (BYTE)d3 ;midiOutShortMsg(hMidi, midi.msg); }
 

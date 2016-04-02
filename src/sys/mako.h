@@ -7,8 +7,6 @@
 #ifndef _MAKO_H_
 #define _MAKO_H_
 
-#include <windows.h>
-#include <mmsystem.h>
 #include <stdio.h>
 #include <limits.h>
 #include <math.h>
@@ -19,7 +17,7 @@
 #define MAX_MMLS (128 * 1024)
 
 #define _USE_REAL_MIDI
-#define _USE_PCM
+//#define _USE_PCM
 
 class MAKO
 {
@@ -48,14 +46,6 @@ private:
 
 	static int thread(void* pvoid);
 	SDL_Thread* hThread;
-
-	// MIDI‰¹Œ¹
-	union UNION_MIDI_DATA {
-		DWORD msg;
-		BYTE data[4];
-	};
-	UNION_MIDI_DATA midi;
-	HMIDIOUT hMidi;
 
 	// MML
 	typedef struct {

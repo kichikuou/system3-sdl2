@@ -177,6 +177,7 @@ void MAKO::notify_mci(int status)
 
 void MAKO::play_pcm(int page, bool loop)
 {
+	assert(false);
 #if defined(_USE_PCM)
 	static char header[44] = {
 		'R' , 'I' , 'F' , 'F' , 0x00, 0x00, 0x00, 0x00, 'W' , 'A' , 'V' , 'E' , 'f' , 'm' , 't' , ' ' ,

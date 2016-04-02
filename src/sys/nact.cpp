@@ -4,6 +4,7 @@
 	[ NACT ]
 */
 
+#include <windows.h>
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
