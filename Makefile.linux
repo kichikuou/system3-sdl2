@@ -25,8 +25,7 @@ OBJS = src/fileio.o \
 	src/sys/nact_input.o \
 	src/sys/nact_sys3.o \
 	src/linux/nact_linux.o \
-	src/linux/mako_linux.o \
-	src/linux/unicode.o
+	src/linux/mako_linux.o
 
 DEPS := $(OBJS:%.o=%.d)
 

@@ -28,14 +28,19 @@ typedef signed char int8;
 typedef signed short int16;
 typedef signed long int32;
 
+
 #ifndef WIN32
+
 #define _MAX_PATH PATH_MAX
 #define sscanf_s sscanf
 #define sprintf_s snprintf
-void strcpy_s(char* dst, size_t n, const char* src);
-#endif
 
-// utilities
-uint16 sjis_to_unicode(uint16 sjis);
+inline void strcpy_s(char* dst, size_t n, const char* src)
+{
+	strncpy(dst, src, n);
+	dst[n - 1] = '\0';
+}
+
+#endif // !WIN32
 
 #endif
