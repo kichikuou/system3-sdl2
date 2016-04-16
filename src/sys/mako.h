@@ -13,6 +13,8 @@
 #include "../common.h"
 #include "nact.h"
 
+#ifndef EMSCRIPTEN
+
 #define MAX_SAMPLES (128 * 1024)
 #define MAX_MMLS (128 * 1024)
 
@@ -125,5 +127,42 @@ public:
 	int next_loop;		// Y19
 	int cd_track[100];	// Z
 };
+
+#else // EMSCRIPTEN
+
+class MAKO {
+public:
+	MAKO(NACT* parent) {}
+
+	void play_music(int page) { playing = true; }
+	void stop_music() { playing = false; }
+	bool check_music() { return playing; }
+	void get_mark(int* mark, int* loop) {}
+	void notify_mci(int status) {}
+
+	void play_pcm(int page, bool loop) {}
+	void stop_pcm() {}
+	bool check_pcm() { return false; }
+
+	void initialize_midi() {}
+	void release_midi() {}
+	void stop_midi() {}
+	void start_midi() {}
+	void play_midi() {}
+
+	bool load_mml(int page) { return false; }
+	void load_mda(int page) {}
+
+	// AMUS.DAT, AMSE.DAT
+	_TCHAR amus[16];
+	_TCHAR amse[16];
+
+	bool playing;
+	int current_music;
+	int next_loop;		// Y19
+	int cd_track[100];	// Z
+};
+
+#endif // EMSCRIPTEN
 
 #endif

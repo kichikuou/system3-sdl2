@@ -11,6 +11,11 @@
 #include <assert.h>
 #include <limits.h>
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#define SDL_Delay emscripten_sleep
+#endif
+
 // tchar.h shim
 typedef char _TCHAR;
 #ifndef _T
