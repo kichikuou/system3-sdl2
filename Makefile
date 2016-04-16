@@ -4,7 +4,7 @@ ifdef EMSCRIPTEN
   include Makefile.emscripten
 else
   UNAME := $(shell uname -s)
-  ifeq ($(UNAME_S),Linux)
+  ifeq ($(UNAME),Linux)
     include Makefile.linux
   else
     include Makefile.win

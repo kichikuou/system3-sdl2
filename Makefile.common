@@ -27,4 +27,8 @@ WINOBJS := \
 	src/res3/Script1.o
 
 LINUXOBJS := \
+	src/linux/nact_linux.o \
+	src/linux/mako_linux.o
+
+EMOBJS := \
 	src/linux/nact_linux.o

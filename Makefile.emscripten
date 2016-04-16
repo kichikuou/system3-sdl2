@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 
-OBJS := $(SYSOBJS) $(LINUXOBJS)
+OBJS := $(SYSOBJS) $(EMOBJS)
 
 DEPS := $(OBJS:%.o=%.d)
 
