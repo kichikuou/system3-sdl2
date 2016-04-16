@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 	nact->mainloop();
 
 	SDL_DestroyWindow(g_window);
+	SDL_Quit();
 
 	// system3 開放
 	delete nact;
