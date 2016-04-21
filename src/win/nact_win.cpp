@@ -79,14 +79,11 @@ void NACT::text_dialog()
 	int r = DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), info.info.win.window, TextDialogProc, (LPARAM)this);
 }
 
-// デバッグコンソール
-HANDLE hConsole;
-
 void NACT::initialize_console()
 {
 #if defined(_DEBUG_CONSOLE)
 	AllocConsole();
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	freopen("CONOUT$", "w", stdout);
 #if defined(_SYSTEM1)
 	SetConsoleTitle("SYSTEM1 NACT Tracer");
 #elif defined(_SYSTEM2)
@@ -107,7 +104,6 @@ void NACT::release_console()
 void NACT::output_console(char log[])
 {
 #if defined(_DEBUG_CONSOLE)
-	DWORD dwWritten;
-	WriteConsole(hConsole, log, strlen(log), &dwWritten, NULL);
+	fputs(log, stdout);
 #endif
 }
