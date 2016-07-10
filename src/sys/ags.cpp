@@ -451,9 +451,16 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 void AGS::invalidate_screen(int sx, int sy, int width, int height)
 {
 	SDL_UnlockSurface(hBmpDest);
-	uint32* pixels = surface_line(hBmpDest, screen_height == 400 ? sy + (scroll - 400) : sy) + sx;
+	int top = screen_height == 400 ? sy + (scroll - 400) : sy;
+	if (top < 0) {
+		height += top;
+		top = 0;
+	}
+	uint32* pixels = surface_line(hBmpDest, top) + sx;
 	if (sy + height > screen_height)
 		height = screen_height - sy;
+	if (sx + width > hBmpDest->w)
+		width = hBmpDest->w - sx;
 	SDL_Rect rect = {sx, sy, width, height};
 	SDL_UpdateTexture(sdlTexture, &rect, pixels, hBmpDest->pitch);
 	SDL_RenderClear(sdlRenderer);
@@ -461,4 +468,3 @@ void AGS::invalidate_screen(int sx, int sy, int width, int height)
 	SDL_RenderPresent(sdlRenderer);
 	SDL_LockSurface(hBmpDest);
 }
-
