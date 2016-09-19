@@ -132,11 +132,11 @@ public:
 
 class MAKO {
 public:
-	MAKO(NACT* parent) {}
+	MAKO(NACT* parent);
 
-	void play_music(int page) { playing = true; }
-	void stop_music() { playing = false; }
-	bool check_music() { return playing; }
+	void play_music(int page);
+	void stop_music();
+	bool check_music() { return current_music != 0; }
 	void get_mark(int* mark, int* loop) {}
 	void notify_mci(int status) {}
 
@@ -157,7 +157,6 @@ public:
 	_TCHAR amus[16];
 	_TCHAR amse[16];
 
-	bool playing;
 	int current_music;
 	int next_loop;		// Y19
 	int cd_track[100];	// Z

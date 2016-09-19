@@ -31,4 +31,5 @@ LINUXOBJS := \
 	src/linux/mako_linux.o
 
 EMOBJS := \
-	src/linux/nact_linux.o
+	src/linux/nact_linux.o \
+	src/emscripten/mako.o
