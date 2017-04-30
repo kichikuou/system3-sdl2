@@ -8,23 +8,37 @@ DEPS := $(OBJS:%.o=%.d)
 EMTERPRETIFY_WHITELIST := -s EMTERPRETIFY_WHITELIST='["__ZN4NACT12cmd_open_objEi", "__ZN4NACT13cmd_open_menuEv", "__ZN4NACT13cmd_open_verbEv", "__ZN4NACT5cmd_aEv", "__ZN4NACT5cmd_kEv", "__ZN4NACT5cmd_rEv", "__ZN4NACT5cmd_yEv", "__ZN4NACT7executeEv", "__ZN4NACT8mainloopEv", "_main"]'
 
 INCLUDES := -Isrc -Isrc/sys
-DEFS := -D_SYSTEM3 -D_DEBUG_CONSOLE 
-EMFLAGS := -s USE_SDL=2 -s USE_SDL_TTF=2 -O1 -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1 -s SAFE_HEAP=1 -s TOTAL_MEMORY=33554432 $(EMTERPRETIFY_WHITELIST)
+DEFS := -D_SYSTEM3
+# DEFS += -D_DEBUG_CONSOLE
 
-EXPORTS := -s EXPORTED_FUNCTIONS="['_main']"
+EMPORTS := -s USE_SDL=2 -s USE_SDL_TTF=2
+EMFLAGS := $(EMPORTS)
+
+#EMFLAGS += -O1 -s SAFE_HEAP=1
+EMFLAGS += -O2
+
+EMFLAGS += -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1 $(EMTERPRETIFY_WHITELIST)
+
+WASMFLAGS := -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s "BINARYEN_TRAP_MODE='allow'"
+ASMJSFLAGS := -s TOTAL_MEMORY=33554432
 
 CXX = em++
 
 CXXFLAGS = $(DEFS) $(INCLUDES) $(EMFLAGS) -MMD
 
-LFLAGS = $(EMFLAGS) $(EXPORTS)
-PRELOADS = --preload-file gamedata@/
+LFLAGS := $(EMFLAGS)
+LFLAGS += -s EXPORTED_FUNCTIONS="['_main']"
 
-system3.html: system3.bc
-	$(CXX) $< $(LFLAGS) $(LIBS) -o $@ $(PRELOADS)
+all: doc/system3.js doc/system3.asm.js
+
+doc/system3.js: system3.bc
+	$(CXX) $< $(LFLAGS) $(WASMFLAGS) $(LIBS) -o $@
+
+doc/system3.asm.js: system3.bc
+	$(CXX) $< $(LFLAGS) $(ASMJSFLAGS) $(LIBS) -o $@
 
 system3.bc: $(OBJS)
 	$(CXX) $(OBJS) $(LFLAGS) $(LIBS) -o $@
 
 clean:
-	rm -f $(OBJS) $(DEPS) system3.js system3.bc system3.data system3.html $(DEPS)
+	rm -f $(OBJS) $(DEPS) system3.js system3.bc $(DEPS)
