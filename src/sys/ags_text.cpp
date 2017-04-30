@@ -19,6 +19,24 @@ inline uint16 sjis_to_unicode(uint16 code)
 void AGS::draw_text(char string[])
 {
 	int p = 0;
+	int screen, *dest_x, dest_y, font_size;
+	uint8 font_color;
+
+	if (draw_menu) {
+		screen = 2;
+		dest_x = &menu_dest_x;
+		dest_y = menu_dest_y;
+		font_size = menu_font_size;
+		font_color = menu_font_color;
+	} else {
+		screen = dest_screen;
+		dest_x = &text_dest_x;
+		dest_y = text_dest_y;
+		font_size = text_font_size;
+		font_color = text_font_color;
+		if (*string && text_font_maxsize < text_font_size)
+			text_font_maxsize = text_font_size;
+	}
 
 	while(string[p] != '\0') {
 		// 文字コード取得
@@ -32,32 +50,18 @@ void AGS::draw_text(char string[])
 			code = convert_zenkaku(code);
 		}
 
-		if(draw_menu) {
-			// 文字出力
-			if((0xeb9f <= code && code <= 0xebfc) || (0xec40 <= code && code <= 0xec9e)) {
-				draw_gaiji(2, menu_dest_x, menu_dest_y, code, menu_font_size, menu_font_color);
-			} else {
-				draw_char(2, menu_dest_x, menu_dest_y, code, menu_font_size, menu_font_color);
-			}
-			// 出力位置の更新
-			menu_dest_x += (code & 0xff00) ? menu_font_size : (menu_font_size >> 1);
+		// 文字出力
+		if((0xeb9f <= code && code <= 0xebfc) || (0xec40 <= code && code <= 0xec9e)) {
+			draw_gaiji(screen, *dest_x, dest_y, code, font_size, font_color);
 		} else {
-			// 文字出力
-			if((0xeb9f <= code && code <= 0xebfc) || (0xec40 <= code && code <= 0xec9e)) {
-				draw_gaiji(dest_screen, text_dest_x, text_dest_y, code, text_font_size, text_font_color);
-			} else {
-				draw_char(dest_screen, text_dest_x, text_dest_y, code, text_font_size, text_font_color);
-			}
-			// 画面更新
-			if(dest_screen == 0) {
-				draw_screen(text_dest_x, text_dest_y, (code & 0xff00) ? text_font_size : (text_font_size >> 1), text_font_size);
-			}
-			// 出力位置の更新
-			text_dest_x += (code & 0xff00) ? text_font_size : (text_font_size >> 1);
-			if(text_font_maxsize < text_font_size) {
-				text_font_maxsize = text_font_size;
-			}
+			draw_char(screen, *dest_x, dest_y, code, font_size, font_color);
 		}
+		// 画面更新
+		if(screen == 0) {
+			draw_screen(*dest_x, dest_y, (code & 0xff00) ? font_size : (font_size >> 1), font_size);
+		}
+		// 出力位置の更新
+		*dest_x += (code & 0xff00) ? font_size : (font_size >> 1);
 	}
 }
 
