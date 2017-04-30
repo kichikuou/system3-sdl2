@@ -182,6 +182,8 @@ int NACT::menu_select(int num_items)
 	int height = ags->menu_font_size + 4;
 	set_cursor(mx, my);
 
+	bool selectable = true;
+
 	// メニュー選択
 	for(;;) {
 		// 入力待機
@@ -219,6 +221,9 @@ int NACT::menu_select(int num_items)
 			if(sx <= mx && mx <= ex && 0 <= index && index < num_items) {
 				current_index = index;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -231,7 +236,8 @@ int NACT::menu_select(int num_items)
 				current_index = num_items - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
