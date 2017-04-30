@@ -8,6 +8,7 @@
 #define _FILEIO_H_
 
 #include <stdio.h>
+#include <sys/stat.h>
 #include "common.h"
 
 #define FILEIO_READ_BINARY 1
@@ -28,6 +29,7 @@ public:
 	~FILEIO();
 
 	static void SetSaveDir(const char* savedir);
+	static int StatSavedata(const char* filename, struct stat* buf);
 	bool Fopen(const _TCHAR *filename, int mode);
 	void Fclose();
 	uint32 Fseek(long offset, int origin);

@@ -5,15 +5,12 @@
 */
 
 #include <time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
 #include "crc32.h"
 #include "../fileio.h"
-
-extern _TCHAR g_root[_MAX_PATH];
 
 void NACT::cmd_calc()
 {
@@ -1602,13 +1599,12 @@ void NACT::cmd_y()
 			break;
 		case 239:
 			{
-				_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
+				_TCHAR path[_MAX_PATH];
 				_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
 				path[7] = _T('A') + param - 1;
-				_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
 
 				struct stat statbuf;
-				if (stat(file_path, &statbuf) != -1) {
+				if (FILEIO::StatSavedata(path, &statbuf) != -1) {
 					struct tm *t = localtime(&statbuf.st_mtime);
 					D01 = t->tm_year + 1900;
 					D02 = t->tm_mon + 1;
