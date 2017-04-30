@@ -144,8 +144,6 @@ void NACT::mainloop()
 		// 512コマンド実行毎にSleep(10)
 		if(!(sleep_cnt = (sleep_cnt + 1) & 0x1ff)) {
 			SDL_Delay(10);
-		} else {
-			SDL_Delay(0);
 		}
 	}
 }
@@ -323,7 +321,7 @@ void NACT::execute()
 						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						SDL_Delay(10);
+						SDL_Delay(16);
 					}
 				}
 
@@ -356,7 +354,7 @@ void NACT::execute()
 						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						SDL_Delay(10);
+						SDL_Delay(16);
 					}
 				}
 

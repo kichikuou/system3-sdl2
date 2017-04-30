@@ -21,7 +21,7 @@ inline uint16 sjis_to_unicode(uint16 code)
 void AGS::draw_text(char string[])
 {
 	int p = 0;
-	int screen, *dest_x, dest_y, font_size;
+	int screen, dest_x, dest_y, font_size;
 	uint8 font_color;
 
 	uint8 antialias_cache[256*7];
@@ -30,13 +30,13 @@ void AGS::draw_text(char string[])
 
 	if (draw_menu) {
 		screen = 2;
-		dest_x = &menu_dest_x;
+		dest_x = menu_dest_x;
 		dest_y = menu_dest_y;
 		font_size = menu_font_size;
 		font_color = menu_font_color;
 	} else {
 		screen = dest_screen;
-		dest_x = &text_dest_x;
+		dest_x = text_dest_x;
 		dest_y = text_dest_y;
 		font_size = text_font_size;
 		font_color = text_font_color;
@@ -58,19 +58,23 @@ void AGS::draw_text(char string[])
 
 		// 文字出力
 		if((0xeb9f <= code && code <= 0xebfc) || (0xec40 <= code && code <= 0xec9e)) {
-			draw_gaiji(screen, *dest_x, dest_y, code, font_size, font_color);
+			draw_gaiji(screen, dest_x, dest_y, code, font_size, font_color);
 		} else {
 			if (antialias)
-				draw_char_antialias(screen, *dest_x, dest_y, code, font_size, font_color, antialias_cache);
+				draw_char_antialias(screen, dest_x, dest_y, code, font_size, font_color, antialias_cache);
 			else
-				draw_char(screen, *dest_x, dest_y, code, font_size, font_color);
-		}
-		// 画面更新
-		if(screen == 0) {
-			draw_screen(*dest_x, dest_y, (code & 0xff00) ? font_size : (font_size >> 1), font_size);
+				draw_char(screen, dest_x, dest_y, code, font_size, font_color);
 		}
 		// 出力位置の更新
-		*dest_x += (code & 0xff00) ? font_size : (font_size >> 1);
+		dest_x += (code & 0xff00) ? font_size : (font_size >> 1);
+	}
+	if (draw_menu)
+		menu_dest_x = dest_x;
+	else {
+		// 画面更新
+		if(screen == 0)
+			draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, font_size);
+		text_dest_x = dest_x;
 	}
 }
 

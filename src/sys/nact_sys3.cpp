@@ -163,7 +163,7 @@ int NACT::menu_select(int num_items)
 		if(!get_key()) {
 			break;
 		}
-		SDL_Delay(10);
+		SDL_Delay(16);
 	}
 
 	// ƒƒjƒ…[•\Ž¦
@@ -197,7 +197,7 @@ int NACT::menu_select(int num_items)
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			SDL_Delay(10);
+			SDL_Delay(16);
 		}
 		if(val) {
 			for(;;) {
@@ -207,7 +207,7 @@ int NACT::menu_select(int num_items)
 				if(!get_key()) {
 					break;
 				}
-				SDL_Delay(10);
+				SDL_Delay(16);
 			}
 		}
 
@@ -442,9 +442,9 @@ void NACT::cmd_a()
 			if(get_key()) {
 				break;
 			}
-			SDL_Delay(10);
+			SDL_Delay(16);
 		}
-		SDL_Delay(100);
+		SDL_Delay(30);
 		for(;;) {
 			if(terminate) {
 				return;
@@ -452,7 +452,7 @@ void NACT::cmd_a()
 			if(!(get_key() & 0x18)) {
 				break;
 			}
-			SDL_Delay(10);
+			SDL_Delay(16);
 		}
 	}
 
@@ -725,7 +725,7 @@ void NACT::cmd_k()
 				return;
 			}
 		}
-		SDL_Delay(10);
+		SDL_Delay(16);
 	}
 	if(cmd != 0 && cmd != 4) {
 		RND = val;
@@ -741,7 +741,7 @@ void NACT::cmd_k()
 			if(!(val = get_key())) {
 				break;
 			}
-			SDL_Delay(10);
+			SDL_Delay(16);
 		}
 	}
 
@@ -1306,7 +1306,7 @@ void NACT::cmd_y()
 					if(dwTime <= SDL_GetTicks()) {
 						break;
 					}
-					SDL_Delay(10);
+					SDL_Delay(16);
 				}
 			}
 			break;
@@ -1397,16 +1397,7 @@ void NACT::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_in(i);
-					Uint32 dwTime = dwStart + param * 1000 / 60 * i;
-					for(;;) {
-						if(terminate) {
-							return;
-						}
-						if(dwTime <= SDL_GetTicks()) {
-							break;
-						}
-						SDL_Delay(0);
-					}
+					SDL_Delay(dwStart + param * 1000 / 60 * i - SDL_GetTicks());
 				}
 				ags->fade_end();
 			}
@@ -1418,16 +1409,7 @@ void NACT::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_out(i, (cmd == 41) ? false : true);
-					Uint32 dwTime = dwStart + param * 1000 / 60 * i;
-					for(;;) {
-						if(terminate) {
-							return;
-						}
-						if(dwTime <= SDL_GetTicks()) {
-							break;
-						}
-						SDL_Delay(0);
-					}
+					SDL_Delay(dwStart + param * 1000 / 60 * i - SDL_GetTicks());
 				}
 			}
 			break;
@@ -1465,7 +1447,7 @@ void NACT::cmd_y()
 						if(!get_key()) {
 							break;
 						}
-						SDL_Delay(0);
+						SDL_Delay(16);
 					}
 				}
 			} else if(param == 3) {
