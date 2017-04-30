@@ -12,10 +12,7 @@
 
 #define FILEIO_READ_BINARY 1
 #define FILEIO_WRITE_BINARY 2
-#define FILEIO_READ_WRITE_BINARY 3
-#define FILEIO_READ_ASCII 4
-#define FILEIO_WRITE_ASCII 5
-#define FILEIO_READ_WRITE_ASCII 6
+#define FILEIO_SAVEDATA 4
 
 #define FILEIO_SEEK_SET 0
 #define FILEIO_SEEK_CUR 1
@@ -29,6 +26,7 @@ public:
 	FILEIO();
 	~FILEIO();
 
+	static void SetSaveDir(const char* savedir);
 	bool Fopen(const _TCHAR *filename, int mode);
 	void Fclose();
 	uint32 Fseek(long offset, int origin);

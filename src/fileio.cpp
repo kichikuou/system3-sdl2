@@ -7,6 +7,12 @@
 #include "fileio.h"
 
 _TCHAR g_root[_MAX_PATH];
+const char* g_savedir;
+
+void FILEIO::SetSaveDir(const char* savedir)
+{
+	g_savedir = savedir;
+}
 
 FILEIO::FILEIO()
 {
@@ -25,7 +31,11 @@ FILEIO::~FILEIO(void)
 bool FILEIO::Fopen(const _TCHAR *filename, int mode)
 {
 	_TCHAR path[_MAX_PATH];
-	_stprintf_s(path, _MAX_PATH, _T("%s%s"), filename, g_root);
+	_stprintf_s(path, _MAX_PATH, _T("%s%s"),
+				(g_savedir && mode & FILEIO_SAVEDATA) ? g_savedir : g_root,
+				filename);
+
+	mode &= ~FILEIO_SAVEDATA;
 
 	if(fp != NULL) {
 		Fclose();
@@ -36,14 +46,6 @@ bool FILEIO::Fopen(const _TCHAR *filename, int mode)
 		fp = fopen(path, _T("rb"));
 	} else if(mode == FILEIO_WRITE_BINARY) {
 		fp = fopen(path, _T("wb"));
-	} else if(mode == FILEIO_READ_WRITE_BINARY) {
-		fp = fopen(path, _T("r+b"));
-	} else if(mode == FILEIO_READ_ASCII) {
-		fp = fopen(path, _T("r"));
-	} else if(mode == FILEIO_WRITE_ASCII) {
-		fp = fopen(path, _T("w"));
-	} else if(mode == FILEIO_READ_WRITE_ASCII) {
-		fp = fopen(path, _T("r+w"));
 	}
 	return (fp != NULL);
 }

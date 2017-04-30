@@ -1,4 +1,5 @@
 #include "common.h"
+#include "fileio.h"
 #include "sys/nact.h"
 
 extern "C" {
@@ -26,6 +27,8 @@ int main(int argc, char *argv[])
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-antialias") == 0)
 			ags_setAntialiasedStringMode(1);
+		if (strcmp(argv[i], "-savedir") == 0)
+			FILEIO::SetSaveDir(argv[++i]);
 	}
 
 	// system3 初期化
