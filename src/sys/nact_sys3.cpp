@@ -194,9 +194,10 @@ int NACT::menu_select(int num_items)
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
-			if(abs(my - current_my) > 3) {
+			int dx = mx - current_mx;
+			int dy = my - current_my;
+			if (dx*dx + dy*dy > 10)
 				break;
-			}
 			SDL_Delay(16);
 		}
 		if(val) {
