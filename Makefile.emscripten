@@ -27,7 +27,7 @@ CXX = em++
 CXXFLAGS = $(DEFS) $(INCLUDES) $(EMFLAGS) -MMD
 
 LFLAGS := $(EMFLAGS)
-LFLAGS += -s EXPORTED_FUNCTIONS="['_main']"
+LFLAGS += -s EXPORTED_FUNCTIONS="['_main','_ags_setAntialiasedStringMode']"
 
 all: doc/system3.js doc/system3.asm.js
 
