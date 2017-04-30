@@ -22,6 +22,7 @@ class FILEIO
 {
 private:
 	FILE* fp;
+	int mode_;
 public:
 	FILEIO();
 	~FILEIO();

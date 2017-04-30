@@ -5,6 +5,9 @@
 */
 
 #include "fileio.h"
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 _TCHAR g_root[_MAX_PATH];
 const char* g_savedir;
@@ -30,6 +33,7 @@ FILEIO::~FILEIO(void)
 
 bool FILEIO::Fopen(const _TCHAR *filename, int mode)
 {
+	mode_ = mode;
 	_TCHAR path[_MAX_PATH];
 	_stprintf_s(path, _MAX_PATH, _T("%s%s"),
 				(g_savedir && mode & FILEIO_SAVEDATA) ? g_savedir : g_root,
@@ -56,6 +60,11 @@ void FILEIO::Fclose()
 		fclose(fp);
 	}
 	fp = NULL;
+
+#ifdef __EMSCRIPTEN__
+	if (mode_ & FILEIO_WRITE_BINARY)
+		EM_ASM( xsystem35.shell.syncfs(); );
+#endif
 }
 
 uint32 FILEIO::Fseek(long offset, int origin)
