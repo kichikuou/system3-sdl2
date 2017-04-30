@@ -74,6 +74,7 @@ private:
 #endif
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
+	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color, uint8 cache[]);
 	void draw_gaiji(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
 	uint16 convert_zenkaku(uint16 code);
 	uint16 convert_hankaku(uint16 code);
@@ -82,6 +83,11 @@ private:
 
 	void draw_screen(int sx, int sy, int width, int heignt);
 	void invalidate_screen(int sx, int sy, int width, int height);
+
+	uint8 palR(uint8 col) { return screen_palette[col] >> 16 & 0xff; }
+	uint8 palG(uint8 col) { return screen_palette[col] >> 8 & 0xff; }
+	uint8 palB(uint8 col) { return screen_palette[col] & 0xff; }
+	int nearest_color(int r, int g, int b);
 
 	uint32* vram[3][480];	// 仮想VRAMへのポインタ
 

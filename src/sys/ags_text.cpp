@@ -7,6 +7,8 @@
 #include "ags.h"
 #include "s2utbl.h"
 
+static bool antialias = false;
+
 inline uint16 sjis_to_unicode(uint16 code)
 {
 	if (code >= 0xa0 && code <= 0xdf)
@@ -21,6 +23,10 @@ void AGS::draw_text(char string[])
 	int p = 0;
 	int screen, *dest_x, dest_y, font_size;
 	uint8 font_color;
+
+	uint8 antialias_cache[256*7];
+	if (antialias)
+		memset(antialias_cache, 0, 256);
 
 	if (draw_menu) {
 		screen = 2;
@@ -54,7 +60,10 @@ void AGS::draw_text(char string[])
 		if((0xeb9f <= code && code <= 0xebfc) || (0xec40 <= code && code <= 0xec9e)) {
 			draw_gaiji(screen, *dest_x, dest_y, code, font_size, font_color);
 		} else {
-			draw_char(screen, *dest_x, dest_y, code, font_size, font_color);
+			if (antialias)
+				draw_char_antialias(screen, *dest_x, dest_y, code, font_size, font_color, antialias_cache);
+			else
+				draw_char(screen, *dest_x, dest_y, code, font_size, font_color);
 		}
 		// 画面更新
 		if(screen == 0) {
@@ -81,12 +90,69 @@ void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uin
 	SDL_Surface* fs = TTF_RenderGlyph_Solid(font, sjis_to_unicode(code), white);
 
 	// パターン出力
-	// TODO: Blit?
 	for(int y = 0; y < size && y < fs->w && dest_y + y < 480; y++) {
 		uint8 *pattern = (uint8*)surface_line(fs, y);	// FIXME: do not assume 8bpp
 		for(int x = 0; x < size && x < fs->h && dest_x + x < 640; x++) {
 			if(pattern[x] != 0) {
 				vram[dest][dest_y + y][dest_x + x] = color;
+			}
+		}
+	}
+
+	SDL_FreeSurface(fs);
+}
+
+int AGS::nearest_color(int r, int g, int b) {
+	int i, col, mind = INT_MAX;
+	for (i = 0; i < 256; i++) {
+		int dr = r - palR(i);
+		int dg = g - palG(i);
+		int db = b - palB(i);
+		int d = dr*dr*30 + dg*dg*59 + db*db*11;
+		if (d < mind) {
+			mind = d;
+			col = i;
+		}
+	}
+	return col;
+}
+
+void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color, uint8 cache[])
+{
+	// パターン取得
+	TTF_Font* font = NULL;
+	switch (size) {
+	case 16: font = hFont16; break;
+	case 24: font = hFont24; break;
+	case 32: font = hFont32; break;
+	case 48: font = hFont48; break;
+	case 64: font = hFont64; break;
+	}
+
+	SDL_Color black = {0, 0, 0};
+	SDL_Color white = {0xff, 0xff, 0xff};
+	SDL_Surface* fs = TTF_RenderGlyph_Shaded(font, sjis_to_unicode(code), white, black);
+
+	// パターン出力
+	for(int y = 0; y < size && y < fs->w && dest_y + y < 480; y++) {
+		uint8 *pattern = (uint8*)surface_line(fs, y);
+		uint32 *dp = &vram[dest][dest_y + y][dest_x];
+		for(int x = 0; x < size && x < fs->h && dest_x + x < 640; x++, dp++) {
+			uint8 bg = *dp;
+			int alpha = pattern[x] >> 5;
+			if (alpha == 0) {
+				// Transparent, do nothing
+			} else if (alpha == 7) {
+				*dp = color;
+			} else if (cache[bg] & 1 << alpha) {
+				*dp = cache[alpha << 8 | bg];
+			} else {
+				cache[bg] |= 1 << alpha;
+				int c = nearest_color((palR(color) * alpha + palR(bg) * (7 - alpha)) / 7,
+									  (palG(color) * alpha + palG(bg) * (7 - alpha)) / 7,
+									  (palB(color) * alpha + palB(bg) * (7 - alpha)) / 7);
+				cache[alpha << 8 | bg] = c;
+				*dp = c;
 			}
 		}
 	}
@@ -462,3 +528,10 @@ uint16 AGS::convert_hankaku(uint16 code)
 	return code;
 }
 
+extern "C" {
+
+void ags_setAntialiasedStringMode(int on) {
+	antialias = on != 0;
+}
+
+}
