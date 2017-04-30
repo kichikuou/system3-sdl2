@@ -29,7 +29,7 @@ public:
 	FILEIO();
 	~FILEIO();
 
-	bool Fopen(_TCHAR *filename, int mode);
+	bool Fopen(const _TCHAR *filename, int mode);
 	void Fclose();
 	uint32 Fseek(long offset, int origin);
 	uint32 Ftell();

@@ -10,8 +10,6 @@
 #include "dri.h"
 #include "../fileio.h"
 
-extern _TCHAR g_root[_MAX_PATH];
-
 // ‰Šú‰»
 
 NACT::NACT()
@@ -28,10 +26,7 @@ NACT::NACT()
 
 	// AG00.DAT“Ç‚İ‚İ
 	FILEIO* fio = new FILEIO();
-	_TCHAR file_path[_MAX_PATH];
-	_stprintf_s(file_path, _MAX_PATH, _T("%sAG00.DAT"), g_root);
-
-	if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+	if(fio->Fopen(_T("AG00.DAT"), FILEIO_READ_BINARY)) {
 		int d0, d1, d2, d3;
 		char string[MAX_CAPTION];
 		fio->Fgets(string);

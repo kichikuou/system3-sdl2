@@ -6,6 +6,8 @@
 
 #include "fileio.h"
 
+_TCHAR g_root[_MAX_PATH];
+
 FILEIO::FILEIO()
 {
 	// èâä˙âª
@@ -20,25 +22,28 @@ FILEIO::~FILEIO(void)
 	}
 }
 
-bool FILEIO::Fopen(_TCHAR *filename, int mode)
+bool FILEIO::Fopen(const _TCHAR *filename, int mode)
 {
+	_TCHAR path[_MAX_PATH];
+	_stprintf_s(path, _MAX_PATH, _T("%s%s"), filename, g_root);
+
 	if(fp != NULL) {
 		Fclose();
 	}
 	fp = NULL;
 	
 	if(mode == FILEIO_READ_BINARY) {
-		fp = fopen(filename, _T("rb"));
+		fp = fopen(path, _T("rb"));
 	} else if(mode == FILEIO_WRITE_BINARY) {
-		fp = fopen(filename, _T("wb"));
+		fp = fopen(path, _T("wb"));
 	} else if(mode == FILEIO_READ_WRITE_BINARY) {
-		fp = fopen(filename, _T("r+b"));
+		fp = fopen(path, _T("r+b"));
 	} else if(mode == FILEIO_READ_ASCII) {
-		fp = fopen(filename, _T("r"));
+		fp = fopen(path, _T("r"));
 	} else if(mode == FILEIO_WRITE_ASCII) {
-		fp = fopen(filename, _T("w"));
+		fp = fopen(path, _T("w"));
 	} else if(mode == FILEIO_READ_WRITE_ASCII) {
-		fp = fopen(filename, _T("r+w"));
+		fp = fopen(path, _T("r+w"));
 	}
 	return (fp != NULL);
 }

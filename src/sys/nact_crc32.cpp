@@ -8,17 +8,11 @@
 #include "crc32.h"
 #include "../fileio.h"
 
-extern _TCHAR g_root[_MAX_PATH];
-
 uint32 NACT::calc_crc32()
 {
 	uint32 crc = 0;
 	FILEIO* fio = new FILEIO();
-
-	_TCHAR file_path[_MAX_PATH];
-	_stprintf_s(file_path, _MAX_PATH, _T("%sADISK.DAT"), g_root);
-
-	if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+	if(fio->Fopen(_T("ADISK.DAT"), FILEIO_READ_BINARY)) {
 		uint32 table[256];
 		for(int i = 0; i < 256; i++) {
 			uint32 c = i;
@@ -43,9 +37,7 @@ uint32 NACT::calc_crc32()
 #if defined(_SYSTEM2)
 	if(crc == CRC32_SDPS) {
 		// Super D.P.Sの場合はBDISK.DATのCRCを取る
-		_stprintf_s(file_path, _MAX_PATH, _T("%sBDISK.DAT"), g_root);
-		
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+		if(fio->Fopen(_T("BDISK.DAT"), FILEIO_READ_BINARY)) {
 			uint32 table[256];
 			for(int i = 0; i < 256; i++) {
 				uint32 c = i;

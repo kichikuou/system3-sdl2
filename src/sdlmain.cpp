@@ -5,7 +5,6 @@ extern "C" {
 	void ags_setAntialiasedStringMode(int on);
 }
 
-_TCHAR g_root[_MAX_PATH];
 SDL_Window* g_window;
 
 int main(int argc, char *argv[])

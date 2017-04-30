@@ -55,7 +55,6 @@
 	} \
 }
 
-extern _TCHAR g_root[_MAX_PATH];
 extern HWND g_hwnd;
 
 void NACT::cmd_calc()
@@ -1024,13 +1023,12 @@ void NACT::cmd_l()
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
+		_TCHAR path[_MAX_PATH];
 		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
 		path[7] = _T('A') + index - 1;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+		if(fio->Fopen(path, FILEIO_READ_BINARY)) {
 			fio->Fseek(112, FILEIO_SEEK_SET);
 
 			int next_page = fio->Fgetw() - 1;
@@ -1221,13 +1219,12 @@ void NACT::cmd_q()
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
+		_TCHAR path[_MAX_PATH];
 		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
 		path[7] = _T('A') + index - 1;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_WRITE_BINARY)) {
+		if(fio->Fopen(path, FILEIO_WRITE_BINARY)) {
 			uint8 buffer[9510];
 			int p = 0;
 

@@ -919,11 +919,8 @@ void NACT::cmd_l()
 
 	if(index == 0) {
 		// 特殊セーブ
-		_TCHAR file_path[_MAX_PATH];
-		_stprintf_s(file_path, _MAX_PATH, _T("%sASLEEP.DAT"), g_root);
-
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+		if(fio->Fopen(_T("ASLEEP.DAT"), FILEIO_READ_BINARY)) {
 			// U01 - U20
 			for(int i = 21; i <= 40; i++) {
 				var[i] = fio->Fgetw();
@@ -937,13 +934,12 @@ void NACT::cmd_l()
 		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
+		_TCHAR path[_MAX_PATH];
 		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
 		path[7] = _T('A') + index - 1;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+		if(fio->Fopen(path, FILEIO_READ_BINARY)) {
 			fio->Fseek(112, FILEIO_SEEK_SET);
 
 			int next_page = fio->Fgetw() - 1;
@@ -1031,13 +1027,12 @@ void NACT::cmd_l()
 		delete fio;
 	} else if(101 <= index && index <= 126) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
+		_TCHAR path[_MAX_PATH];
 		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
 		path[7] = _T('A') + index - 101;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+		if(fio->Fopen(path, FILEIO_READ_BINARY)) {
 			fio->Fseek(112 + 16, FILEIO_SEEK_SET);
 			var[0] = fio->Fgetw();
 			fio->Fclose();
@@ -1211,11 +1206,8 @@ void NACT::cmd_q()
 
 	if(index == 0) {
 		// 特殊セーブ
-		_TCHAR file_path[_MAX_PATH];
-		_stprintf_s(file_path, _MAX_PATH, _T("%sASLEEP.DAT"), g_root);
-
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_WRITE_BINARY)) {
+		if(fio->Fopen(_T("ASLEEP.DAT"), FILEIO_WRITE_BINARY)) {
 			// U01 - U20
 			for(int i = 21; i <= 40; i++) {
 				fio->Fputw(var[i]);
@@ -1229,13 +1221,12 @@ void NACT::cmd_q()
 		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
+		_TCHAR path[_MAX_PATH];
 		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
 		path[7] = _T('A') + index - 1;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_WRITE_BINARY)) {
+		if(fio->Fopen(path, FILEIO_WRITE_BINARY)) {
 			uint8 buffer[9510];
 			int p = 0;
 

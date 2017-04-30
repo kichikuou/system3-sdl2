@@ -8,7 +8,6 @@
 #include "crc32.h"
 #include "../fileio.h"
 
-extern _TCHAR g_root[_MAX_PATH];
 extern SDL_Window* g_window;
 
 #define SET_TEXT(n, x1, y1, x2, y2, f) { \
@@ -76,10 +75,7 @@ AGS::AGS(NACT* parent) : nact(parent)
 	memset(gaiji, 0, sizeof(gaiji));
 
 	FILEIO* fio = new FILEIO();
-	_TCHAR file_path[_MAX_PATH];
-	_stprintf_s(file_path, _MAX_PATH, _T("%sGAIJI.DAT"), g_root);
-
-	if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+	if(fio->Fopen(_T("GAIJI.DAT"), FILEIO_READ_BINARY)) {
 		int d1, d2;
 		while((d1 = fio->Fgetc()) != EOF) {
 			d2 = fio->Fgetc();
