@@ -19,12 +19,11 @@ void MAKO::play_music(int page)
 	if (current_music == page)
 		return;
 
-	current_music = page;
-	int loop_count = next_loop;
-	next_loop = 0;
-
 	EM_ASM_ARGS({ xsystem35.cdPlayer.play($0, $1); },
-				cd_track[page] + 1, loop_count);
+				cd_track[page] + 1, next_loop ? 0 : 1);
+
+	current_music = page;
+	next_loop = 0;
 }
 
 void MAKO::stop_music()
