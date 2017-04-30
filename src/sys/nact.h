@@ -128,6 +128,7 @@ private:
 
 	void cmd_set_menu();
 	void cmd_open_menu();
+	int menu_select(int num_items);
 
 	void cmd_set_verbobj();
 	void cmd_set_verbobj2();
