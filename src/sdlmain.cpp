@@ -1,6 +1,9 @@
 #include "common.h"
 #include "fileio.h"
 #include "sys/nact.h"
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 extern "C" {
 	void ags_setAntialiasedStringMode(int on);
@@ -23,6 +26,10 @@ int main(int argc, char *argv[])
 #endif
 
 	g_window = SDL_CreateWindow(buf, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, 0);
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM( xsystem35.shell.windowSizeChanged(); );
+#endif
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-antialias") == 0)
