@@ -538,4 +538,10 @@ void ags_setAntialiasedStringMode(int on) {
 	antialias = on != 0;
 }
 
+#ifdef __EMSCRIPTEN__
+int sjis2unicode(int byte1, int byte2) {
+	return s2u[byte1 - 0x80][byte2 - 0x40];
+}
+#endif
+
 }
