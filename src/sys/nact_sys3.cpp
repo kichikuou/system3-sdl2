@@ -189,15 +189,15 @@ int NACT::menu_select(int num_items)
 			if(terminate) {
 				return -1;
 			}
-			if(val = get_key()) {
-				SDL_Delay(100);
-				break;
-			}
 			get_cursor(&current_mx, &current_my);
 			int dx = mx - current_mx;
 			int dy = my - current_my;
 			if (dx*dx + dy*dy > 10)
 				break;
+			if(val = get_key()) {
+				SDL_Delay(100);
+				break;
+			}
 			SDL_Delay(16);
 		}
 		if(val) {
