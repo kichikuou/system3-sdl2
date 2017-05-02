@@ -9,6 +9,7 @@
 #include "../fileio.h"
 
 extern SDL_Window* g_window;
+static SDL_Surface* display_surface;
 
 #define SET_TEXT(n, x1, y1, x2, y2, f) { \
 	text_w[n].sx = x1; \
@@ -53,7 +54,7 @@ AGS::AGS(NACT* parent) : nact(parent)
 	}
 
 	// DIBSection 24bpp * 1 (ÅIo—Íæ)
-	hBmpDest = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
+	display_surface = hBmpDest = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
 	SDL_LockSurface(hBmpDest);
 	// TODO: clear surface
 
@@ -464,3 +465,15 @@ void AGS::invalidate_screen(int sx, int sy, int width, int height)
 	SDL_RenderPresent(sdlRenderer);
 	SDL_LockSurface(hBmpDest);
 }
+
+#ifdef __EMSCRIPTEN__
+extern "C" {
+
+void* EMSCRIPTEN_KEEPALIVE sdl_getDisplaySurface() {
+	if (SDL_MUSTLOCK(display_surface))
+		return NULL;
+	return display_surface->pixels;
+}
+
+}
+#endif
