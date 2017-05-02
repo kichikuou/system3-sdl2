@@ -26,12 +26,15 @@ CXXFLAGS = $(DEFS) $(INCLUDES) $(EMFLAGS) -MMD
 LFLAGS := $(EMFLAGS)
 LFLAGS += -s EXPORTED_FUNCTIONS="['_main','_ags_setAntialiasedStringMode','_sjis2unicode']"
 
-all: doc/system3.js doc/system3.asm.js
+all: out/system3.js out/system3.asm.js
 
-doc/system3.js: system3.bc emterpretify_whitelist
+out:
+	mkdir out
+
+out/system3.js: system3.bc emterpretify_whitelist out
 	$(CXX) $< $(LFLAGS) $(WASMFLAGS) $(LIBS) @emterpretify_whitelist -o $@
 
-doc/system3.asm.js: system3.bc emterpretify_whitelist
+out/system3.asm.js: system3.bc emterpretify_whitelist out
 	$(CXX) $< $(LFLAGS) $(ASMJSFLAGS) $(LIBS) @emterpretify_whitelist -o $@
 
 system3.bc: $(OBJS)
