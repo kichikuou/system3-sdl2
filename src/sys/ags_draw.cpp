@@ -93,9 +93,11 @@ void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)
 	SDL_Rect destrect = {dx, dy, width, height};
 
 	SDL_UnlockSurface(hBmpScreen[src_screen]);
-	SDL_UnlockSurface(hBmpScreen[dest_screen]);
+	if (src_screen != dest_screen)
+		SDL_UnlockSurface(hBmpScreen[dest_screen]);
 	SDL_BlitSurface(hBmpScreen[src_screen], &srcrect, hBmpScreen[dest_screen], &destrect);
-	SDL_LockSurface(hBmpScreen[dest_screen]);
+	if (src_screen != dest_screen)
+		SDL_LockSurface(hBmpScreen[dest_screen]);
 	SDL_LockSurface(hBmpScreen[src_screen]);
 
 	if(dest_screen == 0) {
@@ -117,9 +119,11 @@ void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 	SDL_Rect destrect = {dx, dy, glx * 8, gly};
 
 	SDL_UnlockSurface(hBmpScreen[src]);
-	SDL_UnlockSurface(hBmpScreen[dest]);
+	if (src_screen != dest_screen)
+		SDL_UnlockSurface(hBmpScreen[dest]);
 	SDL_BlitSurface(hBmpScreen[src], &srcrect, hBmpScreen[dest], &destrect);
-	SDL_LockSurface(hBmpScreen[dest]);
+	if (src_screen != dest_screen)
+		SDL_LockSurface(hBmpScreen[dest]);
 	SDL_LockSurface(hBmpScreen[src]);
 
 	if(dest == 0) {
