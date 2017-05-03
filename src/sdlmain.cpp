@@ -27,10 +27,6 @@ int main(int argc, char *argv[])
 
 	g_window = SDL_CreateWindow(buf, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, 0);
 
-#ifdef __EMSCRIPTEN__
-	EM_ASM( xsystem35.shell.windowSizeChanged(); );
-#endif
-
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-antialias") == 0)
 			ags_setAntialiasedStringMode(1);
@@ -44,14 +40,18 @@ int main(int argc, char *argv[])
 	_TCHAR title[128];
 	if(nact->get_title(title, 128)) {
 #if defined(_SYSTEM1)
-		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM1  -  %s"), title);
+		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM1: %s"), title);
 #elif defined(_SYSTEM2)
-		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM2  -  %s"), title);
+		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM2: %s"), title);
 #else
-		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM3  -  %s"), title);
+		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM3: %s"), title);
 #endif
 		SDL_SetWindowTitle(g_window, buf);
 	}
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM( xsystem35.shell.windowSizeChanged(); );
+#endif
 
 	nact->mainloop();
 
