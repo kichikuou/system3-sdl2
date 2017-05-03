@@ -50,6 +50,9 @@ int main(int argc, char *argv[])
 	}
 
 #ifdef __EMSCRIPTEN__
+	// Workaround for https://github.com/emscripten-ports/SDL2/issues/41
+	SDL_EventState(SDL_RELEASED, 0);
+
 	EM_ASM( xsystem35.shell.windowSizeChanged(); );
 #endif
 
