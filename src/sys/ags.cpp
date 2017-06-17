@@ -157,7 +157,11 @@ AGS::AGS(NACT* parent) : nact(parent)
 	program_palette[0xcf] = SETPALETTE16(0xf, 0xf, 0xf);
 	program_palette[0xdf] = SETPALETTE16(0xf, 0xf, 0xf);
 	program_palette[0xef] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0xff] = SETPALETTE16(0xf, 0xf, 0xf);
+
+	// This improves text antialias
+	for (int i = 1; i <= 0xf; i++)
+		program_palette[0xf0 + i] = SETPALETTE16(i, i, i);
+
 	memcpy(screen_palette, program_palette, sizeof(program_palette));
 
 	// BƒRƒ}ƒ“ƒh
