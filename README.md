@@ -12,4 +12,4 @@ Emscripten, Windows (MSYS2), Linux でビルドできます。必要なライブ
 
 でコンパイルできます。
 
-Emscripten版を実行するには、[鬼畜王 on Web](https://kichikuou.github.io/web/) のリポジトリをチェックアウトして、`docs`ディレクトリに `out/system3.*` をすべてコピーしてください。
+Emscripten版を実行するには、[鬼畜王 on Webのリポジトリ](https://github.com/kichikuou/web)をチェックアウトして、`docs`ディレクトリに `out/system3.*` をすべてコピーしてください。
