@@ -27,6 +27,7 @@ CXXFLAGS = $(DEFS) $(INCLUDES) $(EMFLAGS) -MMD
 
 LFLAGS := $(EMFLAGS)
 LFLAGS += -s EXPORTED_FUNCTIONS="['_main','_ags_setAntialiasedStringMode','_sjis2unicode']"
+LFLAGS += -s EXTRA_EXPORTED_RUNTIME_METHODS="['getValue','getMemory','addRunDependency','removeRunDependency']"
 
 all: out/system3.js out/system3.asm.js
 
