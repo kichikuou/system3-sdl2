@@ -540,10 +540,6 @@ void ags_setAntialiasedStringMode(int on) {
 }
 
 #ifdef __EMSCRIPTEN__
-int sjis2unicode(int byte1, int byte2) {
-	return s2u[byte1 - 0x80][byte2 - 0x40];
-}
-
 char* sjis2utf(char* str) {
 	unsigned char* src = (unsigned char*)str;
 	unsigned char* dst = (unsigned char*)malloc(strlen(str) * 3 + 1);
