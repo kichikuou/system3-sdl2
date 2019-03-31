@@ -1398,7 +1398,9 @@ void NACT::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_in(i);
-					SDL_Delay(dwStart + param * 1000 / 60 * i - SDL_GetTicks());
+					int32 ms = dwStart + param * 1000 / 60 * i - SDL_GetTicks();
+					if (ms > 0)
+						SDL_Delay(ms);
 				}
 				ags->fade_end();
 			}
@@ -1410,7 +1412,9 @@ void NACT::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_out(i, (cmd == 41) ? false : true);
-					SDL_Delay(dwStart + param * 1000 / 60 * i - SDL_GetTicks());
+					int32 ms = dwStart + param * 1000 / 60 * i - SDL_GetTicks();
+					if (ms > 0)
+						SDL_Delay(ms);
 				}
 			}
 			break;
