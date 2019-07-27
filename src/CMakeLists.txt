@@ -61,7 +61,7 @@ if (EMSCRIPTEN)
   set(LINK_OPTS
 	"SHELL:-s ENVIRONMENT=web"
 	"SHELL:-s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1"
-	"SHELL:-s TOTAL_MEMORY=83886080"
+	"SHELL:-s ALLOW_MEMORY_GROWTH=1"
 	"SHELL:-s NO_EXIT_RUNTIME=1"
 	"SHELL:-s EXPORTED_FUNCTIONS=\"['_main','_ags_setAntialiasedStringMode']\""
 	"SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['getValue','getMemory','addRunDependency','removeRunDependency']\""
