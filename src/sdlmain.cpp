@@ -47,7 +47,11 @@ int main(int argc, char *argv[])
 #else
 		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM3: %s"), title);
 #endif
+#ifdef __EMSCRIPTEN__
+		EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, buf);
+#else
 		SDL_SetWindowTitle(g_window, buf);
+#endif
 	}
 
 #ifdef __EMSCRIPTEN__
