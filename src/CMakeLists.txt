@@ -51,33 +51,22 @@ target_include_directories(objLib PRIVATE . sys)
 
 if (EMSCRIPTEN)
 
-  add_executable(system3.asm $<TARGET_OBJECTS:objLib>)
-
   set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
   target_compile_options(objLib PRIVATE ${LIBS})
   target_link_options(system3 PRIVATE ${LIBS})
-  target_link_options(system3.asm PRIVATE ${LIBS})
+
+  # Without optimizations, Asyncify generates very large code.
+  list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG "-O1")
 
   set(LINK_OPTS
 	"SHELL:-s ENVIRONMENT=web"
-	"SHELL:-s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1"
+	"SHELL:-s ASYNCIFY=1 -s ASYNCIFY_IGNORE_INDIRECT=1"
 	"SHELL:-s ALLOW_MEMORY_GROWTH=1"
 	"SHELL:-s NO_EXIT_RUNTIME=1"
 	"SHELL:-s EXPORTED_FUNCTIONS=\"['_main','_ags_setAntialiasedStringMode']\""
-	"SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['getValue','getMemory','addRunDependency','removeRunDependency']\""
-	@${CMAKE_CURRENT_SOURCE_DIR}/../emterpretify_whitelist)
+	"SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['getValue','getMemory','addRunDependency','removeRunDependency']\"")
 
   target_link_options(system3 PRIVATE ${LINK_OPTS})
-  target_link_options(system3.asm PRIVATE ${LINK_OPTS} "SHELL:-s WASM=0")
-
-  add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/../emterpretify_whitelist
-	COMMAND ${CMAKE_CXX_COMPILER} -s USE_SDL=2 -s USE_SDL_TTF=2 -s EMTERPRETIFY=1 -s EMTERPRETIFY_ADVISE=1 $<TARGET_OBJECTS:objLib>
-		| grep EMTERPRETIFY_WHITELIST
-		> ${CMAKE_CURRENT_SOURCE_DIR}/../emterpretify_whitelist
-	COMMAND_EXPAND_LISTS)
-  add_custom_target(emterpretify_whitelist DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../emterpretify_whitelist)
-  add_dependencies(system3 emterpretify_whitelist)
-  add_dependencies(system3.asm emterpretify_whitelist)
 
 else()
 
