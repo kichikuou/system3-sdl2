@@ -34,7 +34,7 @@ else()
 	list(APPEND SRCS
 	  win/nact_win.cpp
 	  win/mako_win.cpp
-	  res3/Script1.cpp
+	  res3/Script1.rc
 	  )
   else()
 	list(APPEND SRCS
@@ -88,5 +88,9 @@ else()
   target_include_directories(objLib PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS})
   target_link_libraries(system3 PRIVATE ${SDL2TTF_LIBRARIES} ${SDL2_LIBRARIES})
   target_link_directories(system3 PRIVATE ${SDL2_LIBRARY_DIRS} ${SDL2TTF_LIBRARY_DIRS})
+
+  if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_link_libraries(system3 PRIVATE winmm)
+  endif()
 
 endif()
