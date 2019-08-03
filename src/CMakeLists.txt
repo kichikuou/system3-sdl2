@@ -82,4 +82,6 @@ else()
     target_link_libraries(system3 PRIVATE winmm)
   endif()
 
+  install(TARGETS system3 RUNTIME DESTINATION bin)
+
 endif()

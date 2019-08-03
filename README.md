@@ -5,11 +5,15 @@ System3 for Win32は一部のゲームで専用の実行ファイルを生成し
 
 ## ビルド方法
 
-SDL2, SDL_ttf ライブラリを使用しています。
-Emscripten, Windows (MSYS2), Linux でビルドできます。必要なライブラリをインストールして、
+[CMake](https://cmake.org/) が必要です。
 
-    $ make
+必要なライブラリ (SDL2, SDL_ttf) をインストールして、
 
-でコンパイルできます。
+    $ mkdir out
+    $ cd out
+    $ cmake -DCMAKE_BUILD_TYPE=Debug ../src/
+    $ make && make install
+
+でコンパイル・インストールできます。
 
 Emscripten版を実行するには、[鬼畜王 on Webのリポジトリ](https://github.com/kichikuou/web)をチェックアウトして、`docs`ディレクトリに `out/system3.*` をすべてコピーしてください。
