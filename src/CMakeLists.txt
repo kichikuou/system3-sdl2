@@ -69,7 +69,7 @@ else()
 
   include(FindPkgConfig)
   pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
-  pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET sdl2_ttf)
+  pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
 
   target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
 
