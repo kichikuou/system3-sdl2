@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.13)
 
 project(system3 LANGUAGES CXX)
 
-set(SRCS
+add_executable(system3)
+target_compile_definitions(system3 PRIVATE _SYSTEM3 $<$<CONFIG:Debug>:_DEBUG_CONSOLE>)
+target_include_directories(system3 PRIVATE . sys)
+
+target_sources(system3 PRIVATE
   sdlmain.cpp
   fileio.cpp
   sys/ags.cpp
@@ -21,44 +25,39 @@ set(SRCS
   )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  list(APPEND SRCS
+  target_sources(system3 PRIVATE
 	linux/nact_linux.cpp
 	emscripten/mako.cpp
 	)
 else()
-  list(APPEND SRCS
+  target_sources(system3 PRIVATE
 	sys/mako.cpp
 	sys/mako_midi.cpp
 	)
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	list(APPEND SRCS
+	target_sources(system3 PRIVATE
 	  win/nact_win.cpp
 	  win/mako_win.cpp
 	  res3/Script1.rc
 	  )
   else()
-	list(APPEND SRCS
+	target_sources(system3 PRIVATE
 	  linux/nact_linux.cpp
 	  linux/mako_linux.cpp
 	  )
   endif()
 endif()
 
-add_library(objLib OBJECT ${SRCS})
-add_executable(system3 $<TARGET_OBJECTS:objLib>)
-target_compile_definitions(objLib PRIVATE _SYSTEM3 $<$<CONFIG:Debug>:_DEBUG_CONSOLE>)
-target_include_directories(objLib PRIVATE . sys)
-
 if (EMSCRIPTEN)
 
   set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
-  target_compile_options(objLib PRIVATE ${LIBS})
+  target_compile_options(system3 PRIVATE ${LIBS})
   target_link_options(system3 PRIVATE ${LIBS})
 
   # Without optimizations, Asyncify generates very large code.
   list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG "-O1")
 
-  set(LINK_OPTS
+  target_link_options(system3 PRIVATE
 	"SHELL:-s ENVIRONMENT=web"
 	"SHELL:-s ASYNCIFY=1 -s ASYNCIFY_IGNORE_INDIRECT=1"
 	"SHELL:-s ALLOW_MEMORY_GROWTH=1"
@@ -66,17 +65,13 @@ if (EMSCRIPTEN)
 	"SHELL:-s EXPORTED_FUNCTIONS=\"['_main','_ags_setAntialiasedStringMode']\""
 	"SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['getValue','getMemory','addRunDependency','removeRunDependency']\"")
 
-  target_link_options(system3 PRIVATE ${LINK_OPTS})
-
 else()
 
   include(FindPkgConfig)
-  pkg_check_modules(SDL2 REQUIRED sdl2)
-  pkg_check_modules(SDL2TTF REQUIRED sdl2_ttf)
+  pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
+  pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET sdl2_ttf)
 
-  target_include_directories(objLib PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS})
-  target_link_libraries(system3 PRIVATE ${SDL2TTF_LIBRARIES} ${SDL2_LIBRARIES})
-  target_link_directories(system3 PRIVATE ${SDL2_LIBRARY_DIRS} ${SDL2TTF_LIBRARY_DIRS})
+  target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(system3 PRIVATE winmm)
