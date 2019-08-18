@@ -13,7 +13,7 @@
 
 // ‰Šú‰»
 
-NACT::NACT()
+NACT::NACT(const char* fontfile)
 {
 	mouse_x = mouse_y = 0;
 
@@ -110,7 +110,7 @@ NACT::NACT()
 #endif
 
 	// ŠeíƒNƒ‰ƒX¶¬
-	ags = new AGS(this);
+	ags = new AGS(this, fontfile);
 	mako = new MAKO(this);
 
 #ifdef USE_JOY

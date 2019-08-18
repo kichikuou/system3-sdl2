@@ -99,7 +99,7 @@ private:
 	uint32 fader_screen[640 * 480];
 
 public:
-	AGS(NACT* parent);
+	AGS(NACT* parent, const char* fontfile);
 	~AGS();
 
 	void flush_screen(bool update);

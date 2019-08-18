@@ -28,15 +28,19 @@ int main(int argc, char *argv[])
 
 	g_window = SDL_CreateWindow(buf, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, 0);
 
+	const char *fontfile = "MTLc3m.ttf";
+
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-antialias") == 0)
 			ags_setAntialiasedStringMode(1);
 		if (strcmp(argv[i], "-savedir") == 0)
 			FILEIO::SetSaveDir(argv[++i]);
+		if (strcmp(argv[i], "-fontfile") == 0)
+			fontfile = argv[++i];
 	}
 
 	// system3 初期化
-	NACT* nact = new NACT();
+	NACT* nact = new NACT(fontfile);
 
 	_TCHAR title[128];
 	if(nact->get_title(title, 128)) {

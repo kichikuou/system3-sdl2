@@ -33,7 +33,7 @@ static SDL_Surface* display_surface;
 	box[n].ey = y2; \
 }
 
-AGS::AGS(NACT* parent) : nact(parent)
+AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 {
 	sdlRenderer = SDL_CreateRenderer(g_window, -1, 0);
 	SDL_RenderSetLogicalSize(sdlRenderer, 640, 400);
@@ -60,12 +60,15 @@ AGS::AGS(NACT* parent) : nact(parent)
 
 	// フォント
 	TTF_Init();
-	const char fontfile[] = "MTLc3m.ttf";
 	hFont16 = TTF_OpenFont(fontfile, 16);
 	hFont24 = TTF_OpenFont(fontfile, 24);
 	hFont32 = TTF_OpenFont(fontfile, 32);
 	hFont48 = TTF_OpenFont(fontfile, 48);
 	hFont64 = TTF_OpenFont(fontfile, 64);
+	if (!hFont16 || !hFont24 || !hFont32 || !hFont48 || !hFont64) {
+		printf("Cannot open font file %s\n", fontfile);
+		exit(1);
+	}
 
 	// カーソル初期化
 	for(int i = 0; i < 10; i++) {

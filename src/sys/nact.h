@@ -231,7 +231,7 @@ private:
 	void release_console();
 
 public:
-	NACT();
+	NACT(const char* fontfile);
 	~NACT();
 
 	void mainloop();
