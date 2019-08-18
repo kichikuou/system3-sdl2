@@ -1455,6 +1455,7 @@ void NACT::cmd_y()
 		case 26:
 			ags->text_font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
+#if 0 // Broken in Super D.P.S
 		case 40:
 		case 42:
 			{
@@ -1493,6 +1494,7 @@ void NACT::cmd_y()
 				}
 			}
 			break;
+#endif
 		case 221:
 		case 222:
 		case 223:
