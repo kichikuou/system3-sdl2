@@ -167,33 +167,44 @@ AGS::AGS(NACT* parent) : nact(parent)
 	// Bコマンド
 	for(int i = 0; i < 10; i++) {
 		// ウィンドウの初期位置はシステムによって異なる
-#if defined(_BUNKASAI)
-		SET_TEXT(i, 24, 304, 616, 384, false);
-		SET_MENU(i, 440, 18, 620, 178, true);
-#elif defined(_CRESCENT)
-		SET_TEXT(i, 24, 288, 616, 378, false);
-		// 本来は横メニュー
-		SET_MENU(i, 464, 50, 623, 240, true);
-#elif defined(_DPS)
-		SET_TEXT(i, 48, 288, 594, 393, false);
-		//SET_MENU(i, 48, 288, 584, 393, false);
-		SET_MENU(i, 48, 288, 594, 393, false);
-#elif defined(_FUKEI)
-		SET_TEXT(i, 44, 282, 593, 396, false);
-		SET_MENU(i, 460, 14, 635, 214, false);
-#elif defined(_INTRUDER)
-		SET_TEXT(i, 8, 280, 629, 393, false);
-		SET_MENU(i, 448, 136, 623, 340, true);
-#elif defined(_TENGU)
-		SET_TEXT(i, 44, 282, 593, 396, false);
-		SET_MENU(i, 452, 14, 627, 214, false);
-#elif defined(_VAMPIRE)
-		SET_TEXT(i, 8, 255, 615, 383, false);
-		SET_MENU(i, 448, 11, 615, 224, false);
-#else
-		SET_TEXT(i, 8, 311, 623, 391, true);
-		SET_MENU(i, 464, 80, 623, 240, true);
+		switch (nact->crc32) {
+#if defined(_SYSTEM1)
+		case CRC32_BUNKASAI:
+			SET_TEXT(i, 24, 304, 616, 384, false);
+			SET_MENU(i, 440, 18, 620, 178, true);
+			break;
+		case CRC32_CRESCENT:
+			SET_TEXT(i, 24, 288, 616, 378, false);
+			// 本来は横メニュー
+			SET_MENU(i, 464, 50, 623, 240, true);
+			break;
+		case CRC32_DPS:
+			SET_TEXT(i, 48, 288, 594, 393, false);
+			//SET_MENU(i, 48, 288, 584, 393, false);
+			SET_MENU(i, 48, 288, 594, 393, false);
+			break;
+		case CRC32_FUKEI:
+			SET_TEXT(i, 44, 282, 593, 396, false);
+			SET_MENU(i, 460, 14, 635, 214, false);
+			break;
+		case CRC32_INTRUDER:
+			SET_TEXT(i, 8, 280, 629, 393, false);
+			SET_MENU(i, 448, 136, 623, 340, true);
+			break;
+		case CRC32_TENGU:
+			SET_TEXT(i, 44, 282, 593, 396, false);
+			SET_MENU(i, 452, 14, 627, 214, false);
+			break;
+		case CRC32_VAMPIRE:
+			SET_TEXT(i, 8, 255, 615, 383, false);
+			SET_MENU(i, 448, 11, 615, 224, false);
+			break;
 #endif
+		default:
+			SET_TEXT(i, 8, 311, 623, 391, true);
+			SET_MENU(i, 464, 80, 623, 240, true);
+			break;
+		}
 		text_w[i].push = false;
 		text_w[i].screen = NULL;
 		text_w[i].window = NULL;

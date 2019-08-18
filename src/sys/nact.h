@@ -163,13 +163,16 @@ private:
 
 #if defined(_SYSTEM1)
 	void opening();
-#if defined(_DPS)
+
+	int menu_max;	// メニューの改ページ
+
+	// DPS
 	bool text_refresh;
-#elif defined(_INTRUDER)
-	int paint_x;		// Intruder Zコマンド
+
+	// Intruder Zコマンド
+	int paint_x;
 	int paint_y;
 	int map_page;
-#endif
 #endif
 
 	bool column;		// 座標モード

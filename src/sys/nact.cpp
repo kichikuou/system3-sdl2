@@ -9,6 +9,7 @@
 #include "mako.h"
 #include "dri.h"
 #include "../fileio.h"
+#include "crc32.h"
 
 // 初期化
 
@@ -87,18 +88,25 @@ NACT::NACT()
 	pcm_index = 0;
 	memset(pcm, 0, sizeof(pcm));
 
+#ifdef _SYSTEM1
 	// SYETEM1 初期化
-#if defined(_DPS)
-	text_refresh = false;
-	_tcscpy_s(tvar[0], 22, _T("カスタム"));
-	_tcscpy_s(tvar[1], 22, _T("リーナス"));
-	_tcscpy_s(tvar[2], 22, _T("かつみ"));
-	_tcscpy_s(tvar[3], 22, _T("由美子"));
-	_tcscpy_s(tvar[4], 22, _T("いつみ"));
-	_tcscpy_s(tvar[5], 22, _T("ひとみ"));
-	_tcscpy_s(tvar[6], 22, _T("真理子"));
-#elif defined(_INTRUDER)
-	paint_x = paint_y = map_page = 0;
+	menu_max = 6;
+	switch (crc32) {
+	case CRC32_DPS:
+		text_refresh = false;
+		_tcscpy_s(tvar[0], 22, _T("カスタム"));
+		_tcscpy_s(tvar[1], 22, _T("リーナス"));
+		_tcscpy_s(tvar[2], 22, _T("かつみ"));
+		_tcscpy_s(tvar[3], 22, _T("由美子"));
+		_tcscpy_s(tvar[4], 22, _T("いつみ"));
+		_tcscpy_s(tvar[5], 22, _T("ひとみ"));
+		_tcscpy_s(tvar[6], 22, _T("真理子"));
+		break;
+	case CRC32_INTRUDER:
+		menu_max = 11;
+		paint_x = paint_y = map_page = 0;
+		break;
+	}
 #endif
 
 	// 各種クラス生成
@@ -302,8 +310,8 @@ void NACT::execute()
 				string[0] = cmd;
 				string[1] = '\0';
 				ags->draw_text(string);
-#if defined(_DPS)
-				if(!ags->draw_menu) {
+#if defined(_SYSTEM1)
+				if(crc32 == CRC32_DPS && !ags->draw_menu) {
 					text_refresh = false;
 				}
 #endif
@@ -335,8 +343,8 @@ void NACT::execute()
 				string[1] = getd();
 				string[2] = '\0';
 				ags->draw_text(string);
-#if defined(_DPS)
-				if(!ags->draw_menu) {
+#if defined(_SYSTEM1)
+				if(crc32 == CRC32_DPS && !ags->draw_menu) {
 					text_refresh = false;
 				}
 #endif

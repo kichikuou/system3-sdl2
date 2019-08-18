@@ -1343,15 +1343,7 @@ void NACT::cmd_u()
 	output_console(log);
 #endif
 
-#if defined(_INTRUDER)
-	ags->load_cg(page, 11);
-
-	if(page == 5) {
-		WAIT(400)
-	}
-#else
 	ags->load_cg(page, transparent);
-#endif
 }
 
 void NACT::cmd_v()

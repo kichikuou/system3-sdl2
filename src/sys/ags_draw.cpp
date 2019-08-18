@@ -31,16 +31,21 @@ void AGS::load_cg(int page, int transparent)
 	uint8* data = dri->load(acg, page, &size);
 	if(data) {
 #if defined(_SYSTEM1)
-#if defined(_BUNKASAI)
-		load_vsp(data, page, transparent);
-#elif defined(_INTRUDER)
-//		load_gm3(data, page, transparent);
-		load_vsp(data, page, transparent);	// Žb’è
-#elif defined(_VAMPIRE)
-		load_vsp2l(data, page, transparent);
-#else
-		load_gl3(data, page, transparent);
-#endif
+		switch (nact->crc32) {
+		case CRC32_BUNKASAI:
+			load_vsp(data, page, transparent);
+			break;
+		case CRC32_INTRUDER:
+			// load_gm3(data, page, transparent);
+			load_vsp(data, page, transparent);	// Žb’è
+			break;
+		case CRC32_VAMPIRE:
+			load_vsp2l(data, page, transparent);
+			break;
+		default:
+			load_gl3(data, page, transparent);
+			break;
+		}
 #elif defined(_SYSTEM2)
 		if(nact->crc32 == CRC32_AYUMI_PROTO) {
 			// ‚ ‚ä‚Ý‚¿‚á‚ñ•¨Œê PROTO

@@ -6,6 +6,7 @@
 
 #include "mako.h"
 #include "dri.h"
+#include "crc32.h"
 
 #define next_mml(p) mml[p].data[mml[p].addr++]
 
@@ -197,11 +198,12 @@ void MAKO::play_midi()
 					play[i].pan = next_mml(i);
 					send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
 				}
-#if !defined(_DPS)
 				else if(d0 == 0xec) {
+#ifdef _SYSTEM1
+					if (nact->crc32 != CRC32_DPS)
+#endif
 					mute_flag = true;
 				}
-#endif
 				else if(d0 == 0xf5) {
 					int n = next_mml(i);
 					if(n != play[i].timbre) {

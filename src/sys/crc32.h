@@ -10,6 +10,14 @@
 // ADISK.DATの先頭256bytes
 #if defined(_SYSTEM1)
 
+#define CRC32_CRESCENT	0x42351f2c	// クレセントムーンがぁる
+#define CRC32_DPS		0x69ea4865	// D.P.S. - Dream Program System
+#define CRC32_FUKEI		0x026de326	// 婦警さんＶＸ (ALICEの館3 UNITBASE/Y_SYUREN.LZH)
+#define CRC32_INTRUDER	0xa7520fb2	// Intruder -桜屋敷の探索-
+#define CRC32_TENGU		0xc942ff58	// あぶないてんぐ伝説
+#define CRC32_VAMPIRE	0x957bcfbf	// Little Vampire
+#define CRC32_BUNKASAI	0			// あぶない文化祭前夜? (未確認)
+
 #elif defined(_SYSTEM2)
 
 #define CRC32_AYUMI_PROTO	0x4e2f5678	// あゆみちゃん物語 PROTO

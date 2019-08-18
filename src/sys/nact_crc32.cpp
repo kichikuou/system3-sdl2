@@ -64,9 +64,7 @@ uint32 NACT::calc_crc32()
 #endif
 	delete fio;
 #if 0
-FILE* fp = fopen("crc32.txt", "w");
-fprintf(fp, "%x\n", crc);
-fclose(fp);
+	printf("CRC: %x\n", crc);
 #endif
 	return crc;
 }
@@ -75,28 +73,29 @@ bool NACT::get_title(_TCHAR title[], int length)
 {
 #if defined(_SYSTEM1)
 
-#if defined(_CRESCENT)
-	_tcscpy_s(title, length, _T("クレセントムーンがぁる"));
-	return true;
-#elif defined(_DPS)
-	_tcscpy_s(title, length, _T("D.P.S - Dream Program System"));
-	return true;
-#elif defined(_FUKEI)
-	_tcscpy_s(title, length, _T("婦警さんＶＸ"));
-	return true;
-#elif defined(_INTRUDER)
-	_tcscpy_s(title, length, _T("Intruder -桜屋敷の探索-"));
-	return true;
-#elif defined(_TENGU)
-	_tcscpy_s(title, length, _T("あぶないてんぐ伝説"));
-	return true;
-#elif defined(_VAMPIRE)
-	_tcscpy_s(title, length, _T("Little Vampire"));
-	return true;
-#else
-	title[0] = _T('\0');
-	return false;
-#endif
+	switch(crc32) {
+	case CRC32_CRESCENT:
+		_tcscpy_s(title, length, _T("クレセントムーンがぁる"));
+		return true;
+	case CRC32_DPS:
+		_tcscpy_s(title, length, _T("D.P.S - Dream Program System"));
+		return true;
+	case CRC32_FUKEI:
+		_tcscpy_s(title, length, _T("婦警さんＶＸ"));
+		return true;
+	case CRC32_INTRUDER:
+		_tcscpy_s(title, length, _T("Intruder -桜屋敷の探索-"));
+		return true;
+	case CRC32_TENGU:
+		_tcscpy_s(title, length, _T("あぶないてんぐ伝説"));
+		return true;
+	case CRC32_VAMPIRE:
+		_tcscpy_s(title, length, _T("Little Vampire"));
+		return true;
+	default:
+		title[0] = _T('\0');
+		return false;
+	}
 
 #elif defined(_SYSTEM2)
 
