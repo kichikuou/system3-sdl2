@@ -29,7 +29,7 @@ void AGS::load_cg(int page, int transparent)
 	DRI* dri = new DRI();
 	int size;
 	uint8* data = dri->load(acg, page, &size);
-	if(data) {
+	if(data && size > 0) {
 #if defined(_SYSTEM1)
 		switch (nact->crc32) {
 		case CRC32_BUNKASAI:
@@ -67,8 +67,9 @@ void AGS::load_cg(int page, int transparent)
 			load_pms(data, page, transparent);
 		}
 #endif
-		free(data);
 	}
+	if (data)
+		free(data);
 	delete dri;
 }
 
