@@ -67,8 +67,6 @@
 	} \
 }
 
-extern HWND g_hwnd;
-
 void NACT::opening()
 {
 #if defined(_CRESCENT)

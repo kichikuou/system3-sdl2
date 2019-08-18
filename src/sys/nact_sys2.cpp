@@ -55,8 +55,6 @@
 	} \
 }
 
-extern HWND g_hwnd;
-
 void NACT::cmd_calc()
 {
 	int index = getd();
@@ -1471,7 +1469,7 @@ void NACT::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_in(i);
-					DWORD dwTime = dwStart + param * 1000 / 60 * i;
+					Uint32 dwTime = dwStart + param * 1000 / 60 * i;
 					for(;;) {
 						if(terminate) {
 							return;
@@ -1490,7 +1488,7 @@ void NACT::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_out(i, (cmd == 41) ? false : true);
-					DWORD dwTime = dwStart + param * 1000 / 60 * i;
+					Uint32 dwTime = dwStart + param * 1000 / 60 * i;
 					for(;;) {
 						if(terminate) {
 							return;
