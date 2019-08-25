@@ -5,6 +5,7 @@ project(System3 LANGUAGES CXX)
 set(SRC_COMMON
   sdlmain.cpp
   fileio.cpp
+  utfsjis.cpp
   sys/ags.cpp
   sys/ags_cursor.cpp
   sys/ags_draw.cpp

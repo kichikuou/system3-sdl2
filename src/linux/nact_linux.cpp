@@ -1,13 +1,8 @@
 #include <stdio.h>
 #include "nact.h"
+#include "utfsjis.h"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
-
-extern "C" {
-// ags_text.cpp
-char* sjis2utf(char* src);
-char* utf2sjis(char* src);
-}
 #endif
 
 void NACT::text_dialog()
