@@ -7,6 +7,7 @@
 #include <string.h>
 #include "ags.h"
 #include "utfsjis.h"
+#include "texthook.h"
 
 static bool antialias = false;
 
@@ -52,6 +53,9 @@ void AGS::draw_text(char string[])
 		if((0xeb9f <= code && code <= 0xebfc) || (0xec40 <= code && code <= 0xec9e)) {
 			draw_gaiji(screen, dest_x, dest_y, code, font_size, font_color);
 		} else {
+			if (!draw_menu)
+				texthook_character(nact->get_scenario_page(), sjis_to_unicode(code));
+
 			if (antialias)
 				draw_char_antialias(screen, dest_x, dest_y, code, font_size, font_color, antialias_cache);
 			else

@@ -6,6 +6,7 @@ set(SRC_COMMON
   sdlmain.cpp
   fileio.cpp
   utfsjis.cpp
+  texthook.cpp
   sys/ags.cpp
   sys/ags_cursor.cpp
   sys/ags_draw.cpp

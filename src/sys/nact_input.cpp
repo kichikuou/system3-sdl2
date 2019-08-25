@@ -6,6 +6,7 @@
 
 #include "nact.h"
 #include "ags.h"
+#include "texthook.h"
 
 static int mousex, mousey;
 
@@ -36,6 +37,8 @@ static bool pump_events(int screen_height)
 uint8 NACT::get_key()
 {
 	uint8 val = 0;
+
+	texthook_keywait();
 
 	if (pump_events(ags->screen_height))
 		terminate = true;

@@ -11,6 +11,7 @@
 #include "mako.h"
 #include "crc32.h"
 #include "../fileio.h"
+#include "texthook.h"
 
 void NACT::cmd_calc()
 {
@@ -423,6 +424,8 @@ void NACT::cmd_open_obj(int verb)
 
 void NACT::cmd_a()
 {
+	texthook_nextpage();
+
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
 	sprintf_s(log, 128, "A\n");
@@ -1139,6 +1142,8 @@ void NACT::cmd_q()
 
 void NACT::cmd_r()
 {
+	texthook_newline();
+
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
 	sprintf_s(log, 128, "R\n");
