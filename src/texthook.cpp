@@ -45,6 +45,7 @@ void texthook_character(int page, int c) {
 void texthook_newline(void) {
 	if (newlines < 2) {
 		putchar('\n');
+		fflush(stdout);
 		newlines++;
 	}
 }
@@ -52,6 +53,7 @@ void texthook_newline(void) {
 void texthook_nextpage(void) {
 	while (newlines < 2) {
 		putchar('\n');
+		fflush(stdout);
 		newlines++;
 	}
 }
