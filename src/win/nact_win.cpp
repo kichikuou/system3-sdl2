@@ -12,7 +12,7 @@
 
 extern SDL_Window* g_window;
 
-static BOOL CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	static NACT* nact;
 	char string[64];
