@@ -4,18 +4,42 @@
 
 ## ビルド方法
 
-[CMake](https://cmake.org/) が必要です。
+### Linux (Debian, Ubuntu)
 
-必要なライブラリ (SDL2, SDL_ttf) をインストールして、
+    $ sudo apt install cmake libsdl2-dev libsdl-ttf2.0-0
+    $ mkdir -p out/debug
+    $ cd out/debug
+    $ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
+    $ make
+    $ sudo make install
 
-    $ mkdir out
-    $ cd out
-    $ cmake -DCMAKE_BUILD_TYPE=Debug ../src/
-    $ make && make install
+### MacOS
 
-でコンパイル・インストールできます。
+    $ brew install cmake pkg-config sdl2 sdl2_ttf
+    $ mkdir -p out/debug
+    $ cd out/debug
+    $ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
+    $ make
+    $ sudo make install
 
-実行ファイルとゲームとの対応は以下のとおりです。
+### Windows (MSYS2 mingw64)
+
+    $ pacman -S cmake mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
+    $ mkdir -p out/debug
+    $ cd out/debug
+    $ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
+    $ make
+
+### Emscripten
+
+    $ mkdir -p out/wasm
+    $ cd out/wasm
+    $ emcmake cmake -DCMAKE_BUILD_TYPE=MinSizeRel ../../src/
+    $ make
+
+## 実行方法
+
+ビルドすると4つの実行可能ファイル `system1`, `system2`, `system3`, `prog_omake` が生成されます。実行ファイルとゲームとの対応は以下のとおりです。
 
 - system1
   - クレセントムーンがぁる
@@ -48,4 +72,4 @@
 - prog_omake
   - prostudent G おまけ
 
-Emscripten版を実行するには、[鬼畜王 on Webのリポジトリ](https://github.com/kichikuou/web)をチェックアウトして、`docs`ディレクトリに `out/system3.*` をすべてコピーしてください。
+Emscripten版を実行するには、[鬼畜王 on Webのリポジトリ](https://github.com/kichikuou/web)をチェックアウトして、`docs`ディレクトリに `out/wasm/system3.*` をすべてコピーしてください。
