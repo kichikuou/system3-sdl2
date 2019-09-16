@@ -12,7 +12,7 @@ static HMIDIOUT hMidi;
 void MAKO::initialize_midi()
 {
 	// MIDI音源の初期化
-	midiOutOpen(&hMidi, MIDI_MAPPER, NULL, NULL, CALLBACK_NULL);
+	midiOutOpen(&hMidi, MIDI_MAPPER, 0, 0, CALLBACK_NULL);
 }
 
 void MAKO::release_midi()
