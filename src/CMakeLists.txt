@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.13)
 
 project(System3 LANGUAGES CXX)
 
+# In msys, `pkg-config --libs` returns `-lmingw32` but find_library() cannot
+# find it in default search paths.
+if (MSYS)
+  list(APPEND CMAKE_LIBRARY_PATH $ENV{MINGW_PREFIX}/$ENV{MINGW_CHOST}/lib)
+endif ()
+
 set(SRC_COMMON
   sdlmain.cpp
   fileio.cpp
