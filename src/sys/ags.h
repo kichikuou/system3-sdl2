@@ -124,7 +124,7 @@ public:
 	void box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color);
 	void box_line(int dest, int sx, int sy, int ex, int ey, uint8 color);
 
-	void draw_text(char string[]);
+	void draw_text(const char* string);
 
 	void clear_text_window(int index, bool erase);
 	bool return_text_line(int index);

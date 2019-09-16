@@ -391,7 +391,7 @@ void NACT::cmd_open_menu()
 			if(terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key())) {
 				SDL_Delay(100);
 				break;
 			}
@@ -560,7 +560,7 @@ void NACT::cmd_open_verb()
 			if(terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key())) {
 				SDL_Delay(100);
 				break;
 			}
@@ -704,7 +704,7 @@ void NACT::cmd_open_obj(int verb)
 			if(terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key())) {
 				SDL_Delay(100);
 				break;
 			}

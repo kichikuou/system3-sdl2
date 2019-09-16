@@ -195,7 +195,7 @@ int NACT::menu_select(int num_items)
 			int dy = my - current_my;
 			if (dx*dx + dy*dy > 10)
 				break;
-			if(val = get_key()) {
+			if((val = get_key())) {
 				SDL_Delay(100);
 				break;
 			}
@@ -703,7 +703,7 @@ void NACT::cmd_k()
 		if(terminate) {
 			return;
 		}
-		if(val = get_key()) {
+		if((val = get_key())) {
 			break;
 		}
 		if(1 <= cmd && cmd <= 3) {
@@ -1448,7 +1448,7 @@ void NACT::cmd_y()
 				get_cursor(&x, &y);
 				M_X = (x < 0) ? x : (x > 639) ? 639 : x;
 				M_Y = (y < 0) ? 0 : (y > 479) ? 479 : y;
-				if(RND = get_key()) {
+				if((RND = get_key())) {
 					// キー入力があった場合は、離すまで待機
 					for(;;) {
 						if(terminate) {

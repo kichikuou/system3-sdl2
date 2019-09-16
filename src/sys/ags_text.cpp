@@ -11,7 +11,7 @@
 
 static bool antialias = false;
 
-void AGS::draw_text(char string[])
+void AGS::draw_text(const char* string)
 {
 	int p = 0;
 	int screen, dest_x, dest_y, font_size;

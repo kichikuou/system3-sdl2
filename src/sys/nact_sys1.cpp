@@ -361,7 +361,7 @@ void NACT::cmd_open_menu()
 			if(terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key())) {
 				SDL_Delay(100);
 				break;
 			}
@@ -565,7 +565,7 @@ top2:
 			if(terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key())) {
 				SDL_Delay(100);
 				break;
 			}
@@ -753,7 +753,7 @@ top2:
 			if(terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key())) {
 				SDL_Delay(100);
 				break;
 			}
@@ -1435,7 +1435,7 @@ void NACT::cmd_z()
 	switch (crc32) {
 	case CRC32_INTRUDER:
 		if(cmd == 1 && 1 <= param && param <= 4) {
-			char* buf[4] = {"ƒ", "È", "„", "É"};
+			const char* buf[4] = {"ƒ", "È", "„", "É"};
 
 			// –îˆó‚ðÁ‹Ž‚·‚é
 			if(map_page) {
