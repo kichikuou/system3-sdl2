@@ -95,6 +95,7 @@ else()  # emscripten
   set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
   target_compile_options(system3 PRIVATE ${LIBS})
   target_link_options(system3 PRIVATE ${LIBS})
+  target_link_libraries(system3 PRIVATE idbfs.js)
 
   # Without optimizations, Asyncify generates very large code.
   list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG "-O1")
