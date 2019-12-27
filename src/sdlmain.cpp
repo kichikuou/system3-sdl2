@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
 	g_window = SDL_CreateWindow(buf, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, 0);
 
-	const char *fontfile = "MTLc3m.ttf";
+	const char *fontfile = DEFAULT_FONT_PATH "/MTLc3m.ttf";
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-antialias") == 0)

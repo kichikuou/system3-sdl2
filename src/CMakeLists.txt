@@ -26,11 +26,13 @@ set(SRC_COMMON
   )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(DEFAULT_FONT_PATH .)
   set(SRC_PLATFORM
 	linux/nact_linux.cpp
 	emscripten/mako.cpp
 	)
 else()
+  set(DEFAULT_FONT_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/fonts)
   set(SRC_MAKO
 	sys/mako.cpp
 	sys/mako_midi.cpp
@@ -51,7 +53,9 @@ else()
 endif()
 
 add_library(common INTERFACE)
-target_compile_definitions(common INTERFACE $<$<CONFIG:Debug>:_DEBUG_CONSOLE>)
+target_compile_definitions(common INTERFACE
+  $<$<CONFIG:Debug>:_DEBUG_CONSOLE>
+  DEFAULT_FONT_PATH="${DEFAULT_FONT_PATH}")
 target_include_directories(common INTERFACE . sys)
 target_sources(common INTERFACE ${SRC_COMMON} ${SRC_PLATFORM} ${SRC_MAKO})
 
@@ -89,6 +93,8 @@ if (NOT EMSCRIPTEN)
   endif()
 
   install(TARGETS system1 system2 system3 prog_omake RUNTIME DESTINATION bin)
+  install(FILES ../fonts/MTLc3m.ttf ../fonts/MTLc3m.ttf.license
+	DESTINATION share/system3/fonts)
 
 else()  # emscripten
 
