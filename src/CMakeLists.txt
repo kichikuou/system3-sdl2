@@ -59,12 +59,21 @@ target_compile_definitions(common INTERFACE
 target_include_directories(common INTERFACE . sys)
 target_sources(common INTERFACE ${SRC_COMMON} ${SRC_PLATFORM} ${SRC_MAKO})
 
-add_executable(system3)
+if (ANDROID)
+  add_library(system3 SHARED)
+else()
+  add_executable(system3)
+endif()
+
 target_sources(system3 PRIVATE sys/nact_sys3.cpp ${RES3} sys/ags_bmp.cpp sys/ags_pms.cpp)
 target_compile_definitions(system3 PRIVATE _SYSTEM3)
 target_link_libraries(system3 PRIVATE common)
 
-if (NOT EMSCRIPTEN)
+if (ANDROID)
+
+  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf)
+
+elseif (NOT EMSCRIPTEN)
 
   add_executable(system1)
   target_sources(system1 PRIVATE sys/nact_sys1.cpp ${RES1} sys/ags_gl3.cpp sys/ags_gm3.cpp sys/ags_vsp2l.cpp)
