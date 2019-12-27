@@ -256,6 +256,8 @@ public:
 	void output_console(char log[]);
 
 	int get_scenario_page() const { return scenario_page; }
+
+	void fatal(const char* msg, ...);
 };
 
 #endif

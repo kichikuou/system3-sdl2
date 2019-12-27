@@ -4,12 +4,15 @@
 	[ NACT ]
 */
 
+#include <stdarg.h>
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
 #include "dri.h"
 #include "../fileio.h"
 #include "crc32.h"
+
+extern SDL_Window* g_window;
 
 // 初期化
 
@@ -162,7 +165,7 @@ void NACT::execute()
 {
 	// アドレスの確認
 	if(scenario_addr < 2 || scenario_addr >= scenario_size) {
-		fatal_error = true;
+		fatal("Scenario error");
 	}
 
 	// 致命的なエラー発生 or 正常終了
@@ -370,14 +373,7 @@ void NACT::execute()
 				output_console(string);
 #endif
 			} else {
-				fatal_error = true;
-
-#if defined(_DEBUG_CONSOLE)
-				char log[128];
-				memset(log, 0, sizeof(log));
-				sprintf_s(log, 128, "\nFAILED: %2x, %d", cmd, scenario_addr);
-				output_console(log);
-#endif
+				fatal("Unknown command %2x at %d", cmd, scenario_addr);
 			}
 			break;
 	}
@@ -390,7 +386,7 @@ void NACT::load_scenario(int page)
 	}
 	DRI* dri = new DRI();
 	if((scenario_data = dri->load(adisk, page + 1, &scenario_size)) == NULL) {
-		fatal_error = true;
+		fatal("Cannot load scenario %d", page);
 	}
 	delete dri;
 }
@@ -438,4 +434,13 @@ void NACT::select_sound(int dev)
 		mako->stop_music();
 		mako->play_music(page);
 	}
+}
+
+void NACT::fatal(const char* format, ...) {
+	char buf[512];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, sizeof buf, format, args);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3", buf, g_window);
+	fatal_error = true;
 }

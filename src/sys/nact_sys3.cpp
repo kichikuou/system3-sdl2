@@ -1689,7 +1689,7 @@ uint16 NACT::cali()
 {
 	uint32 cali[256];
 	int p = 1;
-	fatal_error = true;
+	bool ok = false;
 
 	while(p > 0) {
 		uint8 dat = getd();
@@ -1742,10 +1742,13 @@ uint16 NACT::cali()
 			p--;
 		} else if(dat == 0x7f) {
 			if(p == 2) {
-				fatal_error = false;
+				ok = true;
 			}
 			p = 0;
 		}
+	}
+	if (!ok) {
+		fatal("cali: invalid expression");
 	}
 	return (uint16)(cali[1] & 0xffff);
 }
@@ -1760,10 +1763,10 @@ uint16 NACT::cali2()
 	} else if(0xc0 <= dat && dat <= 0xff) {
 		val = ((dat & 0x3f) << 8) | getd();
 	} else {
-		fatal_error = true;
+		fatal("cali2: invalid expression");
 	}
 	if(getd() != 0x7f) {
-		fatal_error = true;
+		fatal("cali2: invalid expression");
 	}
 	return val;
 }

@@ -66,8 +66,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	hFont48 = TTF_OpenFont(fontfile, 48);
 	hFont64 = TTF_OpenFont(fontfile, 64);
 	if (!hFont16 || !hFont24 || !hFont32 || !hFont48 || !hFont64) {
-		printf("Cannot open font file %s\n", fontfile);
-		exit(1);
+		parent->fatal("Cannot open font file %s", fontfile);
 	}
 
 	// ƒJ[ƒ\ƒ‹‰Šú‰»
