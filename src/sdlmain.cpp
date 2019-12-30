@@ -1,6 +1,7 @@
 #include "common.h"
 #include "fileio.h"
 #include "sys/nact.h"
+#include <unistd.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -14,6 +15,12 @@ SDL_Window* g_window;
 
 int main(int argc, char *argv[])
 {
+#ifdef __ANDROID__
+	// Chdir to the internal storage path where the launcher should have placed
+	// game files.
+	chdir(SDL_AndroidGetInternalStoragePath());
+#endif
+
 	SDL_Init(SDL_INIT_VIDEO);
 
 	// ウィンドウ表示
