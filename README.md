@@ -37,6 +37,10 @@
     $ emcmake cmake -DCMAKE_BUILD_TYPE=MinSizeRel ../../src/
     $ make
 
+### Android
+
+[android/README.md](android/) を参照してください。
+
 ## 実行方法
 
 ビルドすると4つの実行可能ファイル `system1`, `system2`, `system3`, `prog_omake` が生成されます。実行ファイルとゲームとの対応は以下のとおりです。
