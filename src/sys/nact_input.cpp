@@ -8,7 +8,7 @@
 #include "ags.h"
 #include "texthook.h"
 
-static int mousex, mousey;
+static int mousex, mousey, fingers;
 
 static bool pump_events(int screen_height)
 {
@@ -28,6 +28,7 @@ static bool pump_events(int screen_height)
 		case SDL_FINGERMOTION:
 			mousex = e.tfinger.x * 640;
 			mousey = e.tfinger.y * screen_height;
+			fingers = SDL_GetNumTouchFingers(e.tfinger.touchId);
 			break;
 		}
 	}
@@ -46,7 +47,6 @@ uint8 NACT::get_key()
 	// キーボード＆マウス
 	const Uint8* key = SDL_GetKeyboardState(NULL);
 	Uint32 mouse;
-	int fingers = SDL_GetNumTouchFingers(SDL_GetTouchDevice(0));
 	if (fingers) {
 		mouse = fingers == 1 ? SDL_BUTTON_LMASK : SDL_BUTTON_RMASK;
 	} else {

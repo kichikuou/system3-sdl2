@@ -36,13 +36,12 @@ cd system3-sdl2/android
 ## How to use
 1. Create a ZIP file containing all the game files (`*.DAT`), and transfer it to your device.
 2. When you start the app, a file chooser opens. Select the zip file.
-3. The game starts.
+3. The game starts. Two-finger touch is treated as a right click.
 4. Game data persists in the app's internal storage. Use the device's Settings app if you want to clear it (eg. before installing another game).
 
 Note that this Android port is still in early development; see below.
 
 ## TODO
-- Right-click emulation
 - Save / Load support
 - Better launcher
 - App icon
