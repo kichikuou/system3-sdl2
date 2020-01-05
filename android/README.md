@@ -1,4 +1,4 @@
-# sytem35 for Android
+# system35 for Android
 
 ## Build
 Prerequisites:
@@ -39,9 +39,7 @@ cd system3-sdl2/android
 3. The game starts. Two-finger touch is treated as a right click.
 4. Game data persists in the app's internal storage. Use the device's Settings app if you want to clear it (eg. before installing another game).
 
-Note that this Android port is still in early development; see below.
+Note that this Android port is still incomplete; see below.
 
 ## TODO
-- Save / Load support
 - Better launcher
-- App icon
