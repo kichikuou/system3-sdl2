@@ -13,7 +13,7 @@
 #include "../common.h"
 #include "nact.h"
 
-#ifndef EMSCRIPTEN
+#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 
 #define MAX_SAMPLES (128 * 1024)
 #define MAX_MMLS (128 * 1024)
@@ -128,7 +128,7 @@ public:
 	int cd_track[100];	// Z
 };
 
-#else // EMSCRIPTEN
+#else // Emscripten or Android
 
 class MAKO {
 public:

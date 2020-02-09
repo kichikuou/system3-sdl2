@@ -30,10 +30,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	linux/nact_linux.cpp
 	emscripten/mako.cpp
 	)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  set(SRC_PLATFORM
+	linux/nact_linux.cpp
+	android/mako.cpp
+	)
 else()
-  if (NOT ANDROID)
-	set(DEFAULT_FONT_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/fonts/)
-  endif()
+  set(DEFAULT_FONT_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/fonts/)
 
   set(SRC_MAKO
 	sys/mako.cpp
