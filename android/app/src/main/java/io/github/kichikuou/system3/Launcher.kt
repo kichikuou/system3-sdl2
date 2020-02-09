@@ -187,15 +187,14 @@ class Launcher private constructor(private val rootDir: File) {
             val configWriter = GameConfigWriter()
             forEachZipEntry(input) { zipEntry, zip ->
                 Log.i("extractFiles", zipEntry.name)
-                val path = File(outDir, zipEntry.name)
+                val entryName = File(zipEntry.name).name
                 if (zipEntry.isDirectory)
                     return@forEachZipEntry
-                path.parentFile.mkdirs()
-                handler.sendMessage(handler.obtainMessage(PROGRESS, zipEntry.name))
-                FileOutputStream(path).buffered().use {
+                handler.sendMessage(handler.obtainMessage(PROGRESS, entryName))
+                FileOutputStream(File(outDir, entryName)).buffered().use {
                     zip.copyTo(it)
                 }
-                configWriter.maybeAdd(zipEntry.name)
+                configWriter.maybeAdd(entryName)
             }
             configWriter.write(outDir)
             handler.sendMessage(handler.obtainMessage(SUCCESS, outDir))
@@ -212,36 +211,17 @@ class Launcher private constructor(private val rootDir: File) {
 
     class InstallFailureException(val msgId: Int) : Exception()
 
-    // A helper class which generates xsystem35.gr and playlist.txt in the game root directory.
+    // A helper class which generates playlist.txt in the game root directory.
     private class GameConfigWriter {
-        private val grb = StringBuilder()
-        private var basename: String? = null
-        private val aldRegex = """(.*?)([a-z])([a-z])\.ald""".toRegex(RegexOption.IGNORE_CASE)
-        private val resourceType = mapOf(
-                "d" to "Data",
-                "g" to "Graphics",
-                "m" to "Midi",
-                "r" to "Resource",
-                "s" to "Scenario",
-                "w" to "Wave")
-
+        private var hasAdisk = false
         private val audioRegex = """.*?(\d+)\.(wav|mp3|ogg)""".toRegex(RegexOption.IGNORE_CASE)
         private val audioFiles: Array<String?> = arrayOfNulls(100)
 
         fun maybeAdd(path: String) {
             val name = File(path).name
 
-            if (name.toLowerCase(Locale.US) == "system39.ain") {
-                grb.appendln("Ain $path")
-                return
-            }
-            aldRegex.matchEntire(name)?.let {
-                val type = resourceType[it.groupValues[2].toLowerCase(Locale.US)]
-                val id = it.groupValues[3].toUpperCase(Locale.US)
-                if (type != null) {
-                    grb.appendln("$type$id $path")
-                    basename = it.groupValues[1]
-                }
+            if (name.toLowerCase(Locale.US) == "adisk.dat") {
+                hasAdisk = true
             }
             audioRegex.matchEntire(name)?.let {
                 val track = it.groupValues[1].toInt()
@@ -251,14 +231,9 @@ class Launcher private constructor(private val rootDir: File) {
         }
 
         fun write(outDir: File) {
-            basename ?: throw InstallFailureException(R.string.cannot_find_adisk)
-            for (id in 'A' .. 'Z') {
-                grb.appendln("Save$id ../save/${basename}s${id.toLowerCase()}.asd")
+            if (!hasAdisk) {
+                throw InstallFailureException(R.string.cannot_find_adisk)
             }
-            val gr = grb.toString()
-            Log.i("xsystem35.gr", gr)
-            File(outDir, "xsystem35.gr").writeText(gr)
-
             val playlist = audioFiles.joinToString("\n") { it ?: "" }.trimEnd('\n')
             File(outDir, PLAYLIST_FILE).writeText(playlist)
         }

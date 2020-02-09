@@ -15,12 +15,6 @@ SDL_Window* g_window;
 
 int main(int argc, char *argv[])
 {
-#ifdef __ANDROID__
-	// Chdir to the internal storage path where the launcher should have placed
-	// game files.
-	chdir(SDL_AndroidGetInternalStoragePath());
-#endif
-
 	SDL_Init(SDL_INIT_VIDEO);
 
 	// ウィンドウ表示
@@ -38,11 +32,13 @@ int main(int argc, char *argv[])
 	const char *fontfile = DEFAULT_FONT_PATH "MTLc3m.ttf";
 
 	for (int i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-antialias") == 0)
+		if (strcmp(argv[i], "-gamedir") == 0)
+			chdir(argv[++i]);
+		else if (strcmp(argv[i], "-antialias") == 0)
 			ags_setAntialiasedStringMode(1);
-		if (strcmp(argv[i], "-savedir") == 0)
+		else if (strcmp(argv[i], "-savedir") == 0)
 			FILEIO::SetSaveDir(argv[++i]);
-		if (strcmp(argv[i], "-fontfile") == 0)
+		else if (strcmp(argv[i], "-fontfile") == 0)
 			fontfile = argv[++i];
 	}
 
