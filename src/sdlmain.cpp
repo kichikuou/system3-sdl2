@@ -27,7 +27,13 @@ int main(int argc, char *argv[])
 	_tcscpy_s(buf, 128, _T("Scenario Decoder SYSTEM3"));
 #endif
 
-	g_window = SDL_CreateWindow(buf, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, 0);
+#ifdef __ANDROID__
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+	Uint32 flags = SDL_WINDOW_FULLSCREEN;
+#else
+	Uint32 flags = 0;
+#endif
+	g_window = SDL_CreateWindow(buf, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 
 	const char *fontfile = DEFAULT_FONT_PATH "MTLc3m.ttf";
 

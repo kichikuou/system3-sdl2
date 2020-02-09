@@ -10,7 +10,7 @@
 
 static int mousex, mousey, fingers;
 
-static bool pump_events(int screen_height)
+static bool pump_events(AGS* ags)
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
@@ -27,8 +27,12 @@ static bool pump_events(int screen_height)
 		case SDL_FINGERUP:
 		case SDL_FINGERMOTION:
 			mousex = e.tfinger.x * 640;
-			mousey = e.tfinger.y * screen_height;
+			mousey = e.tfinger.y * ags->screen_height;
 			fingers = SDL_GetNumTouchFingers(e.tfinger.touchId);
+			break;
+
+		case SDL_APP_DIDENTERFOREGROUND:
+			ags->flush_screen(false);
 			break;
 		}
 	}
@@ -41,7 +45,7 @@ uint8 NACT::get_key()
 
 	texthook_keywait();
 
-	if (pump_events(ags->screen_height))
+	if (pump_events(ags))
 		terminate = true;
 
 	// キーボード＆マウス
@@ -86,7 +90,7 @@ uint8 NACT::get_key()
 
 void NACT::get_cursor(int* x, int* y)
 {
-	if (pump_events(ags->screen_height))
+	if (pump_events(ags))
 		terminate = true;
 	*x = mousex;
 	*y = mousey;
