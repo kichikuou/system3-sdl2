@@ -25,11 +25,13 @@ import org.libsdl.app.SDLActivity
 import java.io.File
 import java.io.IOException
 
-// Intent for this activity must have the following extra:
+// Intent for this activity must have the following extras:
 // - EXTRA_GAME_ROOT (string): A path to the game installation.
+// - EXTRA_SAVE_DIR (string): A directory where save files will be stored.
 class GameActivity : SDLActivity() {
     companion object {
         const val EXTRA_GAME_ROOT = "GAME_ROOT"
+        const val EXTRA_SAVE_DIR = "SAVE_DIR"
     }
 
     private lateinit var gameRoot: File
@@ -59,7 +61,9 @@ class GameActivity : SDLActivity() {
     }
 
     override fun getArguments(): Array<String> {
-        return arrayOf("-gamedir", intent.getStringExtra(EXTRA_GAME_ROOT))
+        return arrayOf("-antialias",
+                "-gamedir", intent.getStringExtra(EXTRA_GAME_ROOT),
+                "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR) + "/")
     }
 
     override fun setTitle(title: CharSequence?) {
@@ -98,7 +102,7 @@ private class CddaPlayer(private val playlistPath: File) {
             Log.w("cddaStart", "No playlist entry for track $track")
             return
         }
-        Log.v("cddaStart", "${f} Loop:${loop}")
+        Log.v("cddaStart", "$f Loop:$loop")
         try {
             player.apply {
                 reset()

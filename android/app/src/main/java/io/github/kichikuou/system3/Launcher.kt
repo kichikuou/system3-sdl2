@@ -23,7 +23,6 @@ import android.os.Handler
 import android.os.Message
 import android.util.Log
 import java.io.*
-import java.lang.StringBuilder
 import java.nio.charset.Charset
 import java.util.*
 import java.util.zip.ZipEntry
@@ -68,6 +67,8 @@ class Launcher private constructor(private val rootDir: File) {
     var observer: LauncherObserver? = null
     var isInstalling = false
         private set
+    val saveDir: File
+        get() = File(rootDir, SAVE_DIR)
 
     init {
         updateGameList()
@@ -124,7 +125,7 @@ class Launcher private constructor(private val rootDir: File) {
             }
         }
         if (!saveDirFound) {
-            File(rootDir, SAVE_DIR).mkdir()
+            saveDir.mkdir()
         }
     }
 
@@ -145,7 +146,7 @@ class Launcher private constructor(private val rootDir: File) {
         } else {
             ZipOutputStream(output.buffered())
         }.use { zip ->
-            for (path in File(rootDir, SAVE_DIR).listFiles()) {
+            for (path in saveDir.listFiles()) {
                 if (path.isDirectory || path.name.endsWith(".asd."))
                     continue
                 val pathInZip = "${SAVE_DIR}/${path.name}"
