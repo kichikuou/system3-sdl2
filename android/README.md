@@ -1,5 +1,8 @@
 # system35 for Android
 
+## Download
+Prebuilt APKs are [here](https://github.com/kichikuou/system3-sdl2/releases).
+
 ## Build
 Prerequisites:
 - CMake >=3.13
@@ -33,13 +36,26 @@ cd system3-sdl2/android
 ./gradlew build  # or ./gradlew installDebug if you have a connected device
 ```
 
-## How to use
-1. Create a ZIP file containing all the game files (`*.DAT`), and transfer it to your device.
-2. When you start the app, a file chooser opens. Select the zip file.
-3. The game starts. Two-finger touch is treated as a right click.
-4. Game data persists in the app's internal storage. Use the device's Settings app if you want to clear it (eg. before installing another game).
+## Use
+### Basic Usage
+1. Create a ZIP file containing all the game files and BGM files (see [below](#preparing-a-zip) for details), and transfer it to your device.
+2. Open the app. A list of installed games is displayed. Since nothing has been installed yet, only the "Install from ZIP" button is displayed. Tap it.
+3. Select the ZIP file you created in 1.
+4. The game starts. Two-finger touch is treated as a right click.
 
-Note that this Android port is still incomplete; see below.
+### Preparing a ZIP
+- Include all `.DAT` files.
+- Music files (`.mp3`, `.ogg` or `.wav`) whose file names end with a number are recognized as BGM files. For example:
+  - `Track2.mp3`
+  - `15.ogg`
+  - `rance41_03.wav` (This shouldn't be `rance4103.wav`, because it would be treated as the 4103rd track)
 
-## TODO
-- Better launcher
+Note: This form of ZIP can be used in [Kichikuou on Web](http://kichikuou.github.io/web/) as well.
+
+### Miscellaneous
+- You can export / import saved files using the option menu of the game list.
+- To uninstall a game, long-tap the title in the game list.
+
+## Known Issues
+- MIDI sound is not supported.
+- Android versions older than 7.0 cannot handle ZIPs containing Shift-JIS file names. This is the case with some ZIPs distributed on [retroc.net](http://retropc.net/alice/). If you get the error "This type of ZIP is not supported.", unzip the ZIP file on your PC and re-archive it with a modern ZIP creation software.
