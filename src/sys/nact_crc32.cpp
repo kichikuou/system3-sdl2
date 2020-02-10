@@ -8,8 +8,63 @@
 #include "crc32.h"
 #include "../fileio.h"
 
-uint32 NACT::calc_crc32()
+namespace {
+
+const struct CRCTable {
+	const char* id;
+	uint32 crc32;
+	const _TCHAR* title;
+} crc_table[] = {
+#if defined(_SYSTEM1)
+	{"crescent",        CRC32_CRESCENT,          _T("クレセントムーンがぁる")},
+	{"dps",             CRC32_DPS,               _T("D.P.S - Dream Program System")},
+	{"fukei",           CRC32_FUKEI,             _T("婦警さんＶＸ")},
+	{"intruder",        CRC32_INTRUDER,          _T("Intruder -桜屋敷の探索-")},
+	{"tengu",           CRC32_TENGU,             _T("あぶないてんぐ伝説")},
+	{"little_vampire",  CRC32_VAMPIRE,           _T("Little Vampire")},
+#elif defined(_SYSTEM2)
+	{"ayumi_proto",     CRC32_AYUMI_PROTO,       _T("あゆみちゃん物語 PROTO")},
+	{"sdps_maria",      CRC32_SDPS_MARIA,        _T("Super D.P.S")},
+	{"sdps_tono",       CRC32_SDPS_TONO,         _T("Super D.P.S")},
+	{"sdps_kaizoku",    CRC32_SDPS_KAIZOKU,      _T("Super D.P.S")},
+	{"prog_fd",         CRC32_PROSTUDENTG_FD,    _T("prostudent G")},
+#else // System3
+	{"ambivalenz_fd",   CRC32_AMBIVALENZ_FD,     _T("AmbivalenZ −二律背反−")},
+	{"ambivalenz_cd",   CRC32_AMBIVALENZ_CD,     _T("AmbivalenZ −二律背反−")},
+	{"dps_all",         CRC32_DPSALL,            _T("D.P.S. 全部")},
+	{"funnybee_cd",     CRC32_FUNNYBEE_CD,       _T("宇宙快盗ファニーBee")},
+//	{"funnybee_patch",  CRC32_FUNNYBEE_PATCH,    _T("宇宙快盗ファニーBee")},
+	{"funnybee_fd",     CRC32_FUNNYBEE_FD,       _T("宇宙快盗ファニーBee")},
+	{"onlyyou",         CRC32_ONLYYOU,           _T("Only You −世紀末のジュリエット達−")},
+	{"onlyyou_demo",    CRC32_ONLYYOU_DEMO,      _T("Only You −世紀末のジュリエット達− デモ版")},
+	{"prog_cd",         CRC32_PROSTUDENTG_CD,    _T("prostudent G")},
+	{"rance41",         CRC32_RANCE41,           _T("ランス 4.1 〜お薬工場を救え！〜")},
+	{"rance42",         CRC32_RANCE42,           _T("ランス 4.2 〜エンジェル組〜")},
+	{"ayumi_cd",        CRC32_AYUMI_CD,          _T("あゆみちゃん物語")},
+	{"ayumi_live_256",  CRC32_AYUMI_JISSHA_256,  _T("あゆみちゃん物語 実写版")},
+	{"ayumi_live_full", CRC32_AYUMI_JISSHA_FULL, _T("あゆみちゃん物語 フルカラー実写版")},
+	{"yakata3_cd",      CRC32_YAKATA3_CD,        _T("アリスの館3")},
+	{"yakata3_fd",      CRC32_YAKATA3_FD,        _T("アリスの館3")},
+	{"hashirionna2",    CRC32_HASHIRIONNA2,      _T("走り女2")},
+	{"toushin2_sp",     CRC32_TOUSHIN2_SP,       _T("闘神都市2 そして、それから…")},
+	{"otome",           CRC32_OTOMESENKI,        _T("乙女戦記")},
+	{"ningyo",          CRC32_NINGYO,            _T("人魚 -蘿子-")},
+	{"mugen",           CRC32_MUGENHOUYOU,       _T("夢幻泡影")},
+#endif
+	{NULL, 0, NULL},
+};
+
+} // namespace
+
+uint32 NACT::calc_crc32(const char* game_id)
 {
+	if (game_id) {
+		for (const CRCTable* t = crc_table; t->id; t++) {
+			if (strcmp(t->id, game_id) == 0)
+				return t->crc32;
+		}
+	}
+
 	uint32 crc = 0;
 	FILEIO* fio = new FILEIO();
 	if(fio->Fopen(_T("ADISK.DAT"), FILEIO_READ_BINARY)) {
@@ -69,114 +124,11 @@ uint32 NACT::calc_crc32()
 	return crc;
 }
 
-bool NACT::get_title(_TCHAR title[], int length)
+const _TCHAR* NACT::get_title()
 {
-#if defined(_SYSTEM1)
-
-	switch(crc32) {
-	case CRC32_CRESCENT:
-		_tcscpy_s(title, length, _T("クレセントムーンがぁる"));
-		return true;
-	case CRC32_DPS:
-		_tcscpy_s(title, length, _T("D.P.S - Dream Program System"));
-		return true;
-	case CRC32_FUKEI:
-		_tcscpy_s(title, length, _T("婦警さんＶＸ"));
-		return true;
-	case CRC32_INTRUDER:
-		_tcscpy_s(title, length, _T("Intruder -桜屋敷の探索-"));
-		return true;
-	case CRC32_TENGU:
-		_tcscpy_s(title, length, _T("あぶないてんぐ伝説"));
-		return true;
-	case CRC32_VAMPIRE:
-		_tcscpy_s(title, length, _T("Little Vampire"));
-		return true;
-	default:
-		title[0] = _T('\0');
-		return false;
+	for (const CRCTable* t = crc_table; t->id; t++) {
+		if (crc32 == t->crc32)
+			return t->title;
 	}
-
-#elif defined(_SYSTEM2)
-
-	switch(crc32) {
-		case CRC32_AYUMI_PROTO:
-			_tcscpy_s(title, length, _T("あゆみちゃん物語 PROTO"));
-			return true;
-		case CRC32_SDPS_MARIA:
-		case CRC32_SDPS_TONO:
-		case CRC32_SDPS_KAIZOKU:
-			_tcscpy_s(title, length, _T("Super D.P.S"));
-			return true;
-		case CRC32_PROSTUDENTG_FD:
-			_tcscpy_s(title, length, _T("prostudent G"));
-			return true;
-	}
-	title[0] = _T('\0');
-	return false;
-
-#else
-
-	switch(crc32) {
-		case CRC32_AMBIVALENZ_FD:
-		case CRC32_AMBIVALENZ_CD:
-			_tcscpy_s(title, length, _T("AmbivalenZ −二律背反−"));
-			return true;
-		case CRC32_DPSALL:
-			_tcscpy_s(title, length, _T("D.P.S. 全部"));
-			return true;
-		case CRC32_FUNNYBEE_CD:
-//		case CRC32_FUNNYBEE_PATCH:
-		case CRC32_FUNNYBEE_FD:
-			_tcscpy_s(title, length, _T("宇宙快盗ファニーBee"));
-			return true;
-		case CRC32_ONLYYOU:
-			_tcscpy_s(title, length, _T("Only You −世紀末のジュリエット達−"));
-			return true;
-		case CRC32_ONLYYOU_DEMO:
-			_tcscpy_s(title, length, _T("Only You −世紀末のジュリエット達− デモ版"));
-			return true;
-		case CRC32_PROSTUDENTG_CD:
-			_tcscpy_s(title, length, _T("prostudent G"));
-			return true;
-		case CRC32_RANCE41:
-			_tcscpy_s(title, length, _T("ランス 4.1 〜お薬工場を救え！〜"));
-			return true;
-		case CRC32_RANCE42:
-			_tcscpy_s(title, length, _T("ランス 4.2 〜エンジェル組〜"));
-			return true;
-		case CRC32_AYUMI_CD:
-			_tcscpy_s(title, length, _T("あゆみちゃん物語"));
-			return true;
-		case CRC32_AYUMI_JISSHA_256:
-			_tcscpy_s(title, length, _T("あゆみちゃん物語 実写版"));
-			return true;
-		case CRC32_AYUMI_JISSHA_FULL:
-			_tcscpy_s(title, length, _T("あゆみちゃん物語 フルカラー実写版"));
-			return true;
-		case CRC32_YAKATA3_CD:
-		case CRC32_YAKATA3_FD:
-			_tcscpy_s(title, length, _T("アリスの館3"));
-			return true;
-		case CRC32_HASHIRIONNA2:
-			_tcscpy_s(title, length, _T("走り女2"));
-			return true;
-		case CRC32_TOUSHIN2_SP:
-			_tcscpy_s(title, length, _T("闘神都市2 そして、それから…"));
-			return true;
-		case CRC32_OTOMESENKI:
-			_tcscpy_s(title, length, _T("乙女戦記"));
-			return true;
-		case CRC32_NINGYO:
-			_tcscpy_s(title, length, _T("人魚 -蘿子-"));
-			return true;
-		case CRC32_MUGENHOUYOU:
-			_tcscpy_s(title, length, _T("夢幻泡影"));
-			return true;
-	}
-	title[0] = _T('\0');
-	return false;
-
-#endif
+	return NULL;
 }
-

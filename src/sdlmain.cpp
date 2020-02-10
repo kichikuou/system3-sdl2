@@ -35,7 +35,8 @@ int main(int argc, char *argv[])
 #endif
 	g_window = SDL_CreateWindow(buf, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 
-	const char *fontfile = DEFAULT_FONT_PATH "MTLc3m.ttf";
+	const char* font_file = DEFAULT_FONT_PATH "MTLc3m.ttf";
+	const char* game_id = NULL;
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-gamedir") == 0)
@@ -45,14 +46,16 @@ int main(int argc, char *argv[])
 		else if (strcmp(argv[i], "-savedir") == 0)
 			FILEIO::SetSaveDir(argv[++i]);
 		else if (strcmp(argv[i], "-fontfile") == 0)
-			fontfile = argv[++i];
+			font_file = argv[++i];
+		else if (strcmp(argv[i], "-game") == 0)
+			game_id = argv[++i];
 	}
 
 	// system3 初期化
-	NACT* nact = new NACT(fontfile);
+	NACT* nact = new NACT(game_id, font_file);
 
-	_TCHAR title[128];
-	if(nact->get_title(title, 128)) {
+	const _TCHAR* title = nact->get_title();
+	if (title) {
 #if defined(_SYSTEM1)
 		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM1: %s"), title);
 #elif defined(_SYSTEM2)

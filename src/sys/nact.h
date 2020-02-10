@@ -218,7 +218,7 @@ private:
 #endif
 	int mouse_x, mouse_y;
 
-	uint32 calc_crc32();
+	uint32 calc_crc32(const char* game_id);
 
 	// Y27 ダイアログ
 	void text_dialog();
@@ -231,7 +231,7 @@ private:
 	void release_console();
 
 public:
-	NACT(const char* fontfile);
+	NACT(const char* game_id, const char* font_file);
 	~NACT();
 
 	void mainloop();
@@ -242,7 +242,7 @@ public:
 	void select_cursor();
 	void select_sound(int dev);
 
-	bool get_title(_TCHAR title[], int length);
+	const _TCHAR* get_title();
 
 	bool text_skip_enb;	// メッセージスキップ
 	bool text_wait_enb;	// テキスト表示のウェイト有効／無効

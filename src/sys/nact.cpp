@@ -16,7 +16,7 @@ extern SDL_Window* g_window;
 
 // ‰Šú‰»
 
-NACT::NACT(const char* fontfile)
+NACT::NACT(const char* game_id, const char* font_file)
 {
 	mouse_x = mouse_y = 0;
 
@@ -25,7 +25,7 @@ NACT::NACT(const char* fontfile)
 
 	// SYSTEM3 ‰Šú‰»
 
-	crc32 = calc_crc32();
+	crc32 = calc_crc32(game_id);
 	fatal_error = post_quit = false;
 
 	// AG00.DAT“Ç‚İ‚İ
@@ -113,7 +113,7 @@ NACT::NACT(const char* fontfile)
 #endif
 
 	// ŠeíƒNƒ‰ƒX¶¬
-	ags = new AGS(this, fontfile);
+	ags = new AGS(this, font_file);
 	mako = new MAKO(this);
 
 #ifdef USE_JOY
