@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">system3</string>
+    <string name="app_name">System3</string>
     <string name="action_export_save_data">Export Save Files</string>
     <string name="action_import_save_data">Import Save Files</string>
     <string name="cancel">Cancel</string>

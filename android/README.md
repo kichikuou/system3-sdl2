@@ -1,4 +1,4 @@
-# system35 for Android
+# System3 for Android
 
 ## Download
 Prebuilt APKs are [here](https://github.com/kichikuou/system3-sdl2/releases).

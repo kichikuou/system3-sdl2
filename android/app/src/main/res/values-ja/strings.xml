@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">system3</string>
+    <string name="app_name">System3</string>
     <string name="action_export_save_data">セーブデータをエクスポート</string>
     <string name="action_import_save_data">セーブデータをインポート</string>
     <string name="cancel">キャンセル</string>
