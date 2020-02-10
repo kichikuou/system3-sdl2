@@ -141,15 +141,11 @@ class Launcher private constructor(private val rootDir: File) {
 
     // Throws IOException
     fun exportSaveData(output: OutputStream) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            ZipOutputStream(output.buffered(), Charset.forName("Shift_JIS"))
-        } else {
-            ZipOutputStream(output.buffered())
-        }.use { zip ->
-            for (path in saveDir.listFiles()) {
-                if (path.isDirectory || path.name.endsWith(".asd."))
+        ZipOutputStream(output.buffered()).use { zip ->
+            for (path in saveDir.walkTopDown()) {
+                if (path.isDirectory)
                     continue
-                val pathInZip = "${SAVE_DIR}/${path.name}"
+                val pathInZip = path.relativeTo(saveDir.parentFile).path
                 Log.i("exportSaveData", pathInZip)
                 zip.putNextEntry(ZipEntry(pathInZip))
                 path.inputStream().buffered().use {
@@ -163,12 +159,13 @@ class Launcher private constructor(private val rootDir: File) {
         try {
             var imported = false
             forEachZipEntry(input) { zipEntry, zip ->
-                // Process only files directly under save/
-                if (zipEntry.isDirectory || !zipEntry.name.startsWith("save/") ||
-                        zipEntry.name.count{it == '/'} != 1)
+                // Process only files under save/
+                if (zipEntry.isDirectory || !zipEntry.name.startsWith("save/"))
                     return@forEachZipEntry
                 Log.i("importSaveData", zipEntry.name)
-                FileOutputStream(File(rootDir, zipEntry.name)).buffered().use {
+                val path = File(rootDir, zipEntry.name)
+                path.parentFile.mkdirs()
+                FileOutputStream(path).buffered().use {
                     zip.copyTo(it)
                 }
                 imported = true
