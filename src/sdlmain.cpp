@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
 
 	const char* font_file = DEFAULT_FONT_PATH "MTLc3m.ttf";
 	const char* game_id = NULL;
+	char save_dir[256] = "";
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-gamedir") == 0)
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
 		else if (strcmp(argv[i], "-antialias") == 0)
 			ags_setAntialiasedStringMode(1);
 		else if (strcmp(argv[i], "-savedir") == 0)
-			FILEIO::SetSaveDir(argv[++i]);
+			strcpy(save_dir, argv[++i]);
 		else if (strcmp(argv[i], "-fontfile") == 0)
 			font_file = argv[++i];
 		else if (strcmp(argv[i], "-game") == 0)
@@ -53,6 +54,18 @@ int main(int argc, char *argv[])
 
 	// system3 初期化
 	NACT* nact = new NACT(game_id, font_file);
+
+	if (save_dir[0]) {
+#ifdef __ANDROID__
+		const char* gid = nact->get_game_id();
+		if (gid) {
+			strcat(save_dir, gid);
+			mkdir(save_dir, 0777);
+			strcat(save_dir, "/");
+		}
+#endif
+		FILEIO::SetSaveDir(save_dir);
+	}
 
 	const _TCHAR* title = nact->get_title();
 	if (title) {

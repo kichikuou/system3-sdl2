@@ -5,6 +5,7 @@
 */
 
 #include "fileio.h"
+#include <string.h>
 #include <sys/types.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -15,7 +16,7 @@ const char* g_savedir;
 
 void FILEIO::SetSaveDir(const char* savedir)
 {
-	g_savedir = savedir;
+	g_savedir = strdup(savedir);
 }
 
 int FILEIO::StatSavedata(const char* filename, struct stat* buf)

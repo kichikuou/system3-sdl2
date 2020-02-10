@@ -242,6 +242,7 @@ public:
 	void select_cursor();
 	void select_sound(int dev);
 
+	const char* get_game_id();
 	const _TCHAR* get_title();
 
 	bool text_skip_enb;	// メッセージスキップ

@@ -124,6 +124,15 @@ uint32 NACT::calc_crc32(const char* game_id)
 	return crc;
 }
 
+const char* NACT::get_game_id()
+{
+	for (const CRCTable* t = crc_table; t->id; t++) {
+		if (crc32 == t->crc32)
+			return t->id;
+	}
+	return NULL;
+}
+
 const _TCHAR* NACT::get_title()
 {
 	for (const CRCTable* t = crc_table; t->id; t++) {
