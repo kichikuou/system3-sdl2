@@ -48,6 +48,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   include(FindPkgConfig)
   pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
   pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
+  pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
 
   set(DEFAULT_FONT_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/fonts/)
   set(SRC_MAKO
@@ -57,7 +58,6 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	set(SRC_PLATFORM
 	  win/nact_win.cpp
-	  win/mako_win.cpp
 	  )
 	set(RES1 res1/Script1.rc)
 	set(RES3 res3/Script1.rc)
@@ -65,7 +65,6 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   else()
 	set(SRC_PLATFORM
 	  linux/nact_linux.cpp
-	  linux/mako_linux.cpp
 	  )
   endif()
 
@@ -84,7 +83,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   target_compile_definitions(prog_omake PRIVATE _PROG_OMAKE)
   target_link_libraries(prog_omake PRIVATE common)
 
-  target_link_libraries(common INTERFACE PkgConfig::SDL2 PkgConfig::SDL2TTF)
+  target_link_libraries(common INTERFACE PkgConfig::SDL2 PkgConfig::SDL2TTF PkgConfig::SDL2MIXER)
 
   install(TARGETS system1 system2 system3 prog_omake RUNTIME DESTINATION bin)
   install(FILES ../fonts/MTLc3m.ttf ../fonts/MTLc3m.ttf.license

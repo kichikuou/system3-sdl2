@@ -4,8 +4,17 @@
 	[ MAKO ]
 */
 
+#include <SDL.h>
+#include <SDL_mixer.h>
+
 #include "mako.h"
+#include "mako_midi.h"
 #include "dri.h"
+
+// MIX_INIT_FLUIDSYNTH was renamed to MIX_INIT_MID in SDL_mixer 2.0.2
+#if (SDL_MIXER_MAJOR_VERSION == 2) && (SDL_MIXER_MINOR_VERSION == 0) && (SDL_MIXER_PATCHLEVEL < 2)
+#define MIX_INIT_MID MIX_INIT_FLUIDSYNTH
+#endif
 
 MAKO::MAKO(NACT* parent) : nact(parent)
 {
@@ -14,7 +23,7 @@ MAKO::MAKO(NACT* parent) : nact(parent)
 	_tcscpy_s(amse, 16, _T("AMSE.DAT"));	// 実際には使わない
 
 	// 再生状況
-	current_music = current_mark = current_loop = 0;
+	current_music = current_loop = 0;
 	current_max = next_loop = 0;
 
 	// CD-DA
@@ -22,76 +31,23 @@ MAKO::MAKO(NACT* parent) : nact(parent)
 		cd_track[i] = 0;
 	}
 	cdda_play = false;
-
-	// MIDI再生スレッド起動
-	params.mako = this;
-	params.current_music = params.next_music = 0;
-	params.request_fill = params.terminate = false;
-	hThread = SDL_CreateThread(thread, "MidiThread", &params);
+	if (Mix_Init(MIX_INIT_MID) != MIX_INIT_MID) {
+		WARNING("Mix_Init failed");
+	}
+	if (Mix_OpenAudio(44100, AUDIO_S16LSB, 2, 4096) < 0) {
+		WARNING("Mix_OpenAudio failed: %s", Mix_GetError());
+	}
 }
 
 MAKO::~MAKO()
 {
-	// MIDI再生スレッド終了
-	params.terminate = true;
-	if(hThread) {
-		SDL_WaitThread(hThread, NULL);
-	}
-	hThread = NULL;
+	Mix_CloseAudio();
+	Mix_Quit();
 
 	// PCM停止
 #if defined(_USE_PCM)
 	PlaySound(NULL, NULL, SND_PURGE);
 #endif
-}
-
-int MAKO::thread(void* pvoid)
-{
-	volatile PPARAMS pparams;
-	pparams = (PPARAMS)pvoid;
-
-	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
-
-	// MIDI初期化
-	pparams->mako->initialize_midi();
-
-	while(!pparams->terminate) {
-		int current_music = pparams->current_music;
-		int next_music = pparams->next_music;
-		int next_music_bak = next_music;
-		if(current_music != next_music) {
-			// 停止
-			pparams->mako->stop_midi();
-			current_music = 0;
-
-			// 次の再生準備
-			if(next_music) {
-				if(pparams->mako->load_mml(next_music)) {
-					pparams->mako->load_mda(next_music);
-					pparams->mako->start_midi();
-					current_music = next_music;
-					SDL_Delay(100);
-				} else {
-					next_music = 0;
-				}
-			}
-		}
-		if(current_music) {
-			pparams->mako->play_midi();
-		}
-
-		pparams->current_music = current_music;
-		if(pparams->next_music == next_music_bak) {
-			pparams->next_music = next_music;
-		}
-		SDL_Delay(10);
-	}
-
-	// MIDI開放
-	pparams->mako->stop_midi();
-	pparams->mako->release_midi();
-
-	return 0;
 }
 
 void MAKO::play_music(int page)
@@ -101,20 +57,10 @@ void MAKO::play_music(int page)
 		return;
 	}
 
-	// 演奏するデバイスが変更される場合は停止する
-	if(current_music) {
-		bool next_cdda = (page < 100 && cd_track[page]) ? true : false;
-		if(cdda_play && !next_cdda) {
-			// TODO: fix
-			// PostMessage(g_hwnd, WM_USER, 0, 0);
-		} else if(!cdda_play && next_cdda) {
-			params.next_music = 0;
-		}
-	}
+	stop_music();
 
 	current_music = page;
 	current_max = next_loop;
-	current_mark = current_loop = next_loop = 0;
 
 	if(page < 100 && cd_track[page]) {
 		// CD-DAで再生
@@ -122,8 +68,21 @@ void MAKO::play_music(int page)
 		// PostMessage(g_hwnd, WM_USER, cd_track[page] + 1, 0);
 		cdda_play = true;
 	} else {
-		// MIDIで再生
-		params.next_music = page;
+		MAKOMidi midi(nact, amus);
+		if (midi.load_mml(page)) {
+			midi.load_mda(page);
+			smf = midi.generate_smf(current_max);
+			SDL_RWops *rwops = SDL_RWFromConstMem(smf.data(), smf.size());
+			mix_music = Mix_LoadMUSType_RW(rwops, MUS_MID, SDL_TRUE /* freesrc */);
+			if (!mix_music) {
+				WARNING("Mix_LoadMUS failed: %s", Mix_GetError());
+				return;
+			}
+			if (Mix_PlayMusic(mix_music, -1) != 0) {
+				WARNING("Mix_PlayMusic failed: %s", Mix_GetError());
+				return;
+			}
+		}
 		cdda_play = false;
 	}
 }
@@ -136,22 +95,31 @@ void MAKO::stop_music()
 			// TODO: fix
 			// PostMessage(g_hwnd, WM_USER, 0, 0);
 		} else {
-			params.next_music = 0;
+			if (mix_music) {
+				Mix_FreeMusic(mix_music);
+				mix_music = NULL;
+				smf.clear();
+			}
 		}
 	}
 	cdda_play = false;
-	current_music = current_mark = current_loop = 0;
+	current_music = current_loop = 0;
 }
 
 bool MAKO::check_music()
 {
 	// 再生中でtrue
-	return current_music ? true : false;
+	if (!current_music)
+		return false;
+	if (mix_music)
+		return Mix_PlayingMusic();
+	return true;
 }
 
 void MAKO::get_mark(int* mark, int* loop)
 {
-	*mark = cdda_play ? 0 : current_mark;
+	// TODO: fix
+	*mark = 0;
 	*loop = cdda_play ? 0 : current_loop;
 }
 
@@ -159,7 +127,7 @@ void MAKO::notify_mci(int status)
 {
 	if(status == -1) {
 		// 再生に失敗
-		current_music = current_mark = current_loop = 0;
+		current_music = current_loop = 0;
 		return;
 	}
 
@@ -169,7 +137,7 @@ void MAKO::notify_mci(int status)
 			// TODO: fix
 			// PostMessage(g_hwnd, WM_USER, cd_track[current_music] + 1, 0);
 		} else {
-			current_music = current_mark = current_loop = 0;
+			current_music = current_loop = 0;
 			cdda_play = false;
 		}
 	}

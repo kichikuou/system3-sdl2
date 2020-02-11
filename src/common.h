@@ -10,6 +10,11 @@
 #include <SDL.h>
 #include <assert.h>
 #include <limits.h>
+#include <stdio.h>
+
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -33,6 +38,25 @@ typedef int8_t int8;
 typedef int16_t int16;
 typedef int32_t int32;
 
+#ifdef __ANDROID__
+
+#define ERROR(fmt, ...) \
+	__android_log_vprint(ANDROID_LOG_ERROR, "(%s:%d): " fmt, __func__, __LINE__, ##__VA_ARGS__)
+#define WARNING(fmt, ...) \
+	__android_log_vprint(ANDROID_LOG_WARN, "(%s:%d): " fmt, __func__, __LINE__, ##__VA_ARGS__)
+#define NOTICE(fmt, ...) \
+	__android_log_vprint(ANDROID_LOG_INFO, fmt, ##__VA_ARGS__)
+
+#else // __ANDROID__
+
+#define ERROR(fmt, ...) \
+	fprintf(stderr, "*ERROR*(%s:%d): " fmt "\n", __func__, __LINE__, ##__VA_ARGS__)
+#define WARNING(fmt, ...) \
+	fprintf(stderr, "*WARNING*(%s:%d): " fmt "\n", __func__, __LINE__, ##__VA_ARGS__)
+#define NOTICE(fmt, ...) \
+	fprintf(stderr, fmt "\n", ##__VA_ARGS__)
+
+#endif // __ANDROID__
 
 #ifndef WIN32
 

@@ -4,28 +4,126 @@
 	[ MAKO - midi ]
 */
 
-#include "mako.h"
+#include "mako_midi.h"
+#include "nact.h"
 #include "dri.h"
 #include "crc32.h"
 
 #define next_mml(p) mml[p].data[mml[p].addr++]
 
-void MAKO::stop_midi()
-{
-	for(int i = 0; i < 10; i++) {
-		send_3bytes(0xb0 + i, 0x78, 0x00);
-	}
-	for(int i = 0; i < 10; i++) {
-		send_3bytes(0xb0 + i, 0x79, 0x00);
-	}
-}
+namespace {
 
-void MAKO::start_midi()
+// MIDI playing status
+struct Play {
+	int timbre;
+	int timbre_type;
+	int level;
+	int reverb;
+	int chorus;
+	int pan;
+	int key_shift;
+	int velocity;
+	int channel;
+	int note;
+	int loop_cnt;
+	int wait_time;
+	bool loop_flag;
+	bool note_flag;
+};
+
+// Standard MIDI File header, where 1 time unit is 10 milliseconds.
+const uint8 smf_header[] = {
+	0x4d, 0x54, 0x68, 0x64, // "MThd"
+	0x00, 0x00, 0x00, 0x06, // Header length
+	0x00, 0x00,             // Format
+	0x00, 0x01,             // Number of tracks
+	0x00, 0x32,             // Division (50 ticks per beat)
+	0x4d, 0x54, 0x72, 0x6b, // "MTrk"
+	0x00, 0x00, 0x00, 0x00, // Track length (to be filled later)
+	0x00, 0xff, 0x51, 0x03, 0x07, 0xa1, 0x20 // Tempo (120 BPM)
+};
+const size_t TRACK_LENGTH_OFFSET = 18;
+
+const size_t MIDI_SIZE_SOFT_LIMIT = 50000;
+
+class SmfWriter {
+public:
+	SmfWriter() :
+		dt(0), total_ticks(0), buf(smf_header, smf_header + sizeof(smf_header)) {}
+
+	std::vector<uint8> get_smf() {
+		// "End of track" event
+		buf.push_back(0x00);
+		buf.push_back(0xFF);
+		buf.push_back(0x2F);
+		buf.push_back(0x00);
+
+		size_t length = buf.size() - (TRACK_LENGTH_OFFSET + 4);
+		buf[TRACK_LENGTH_OFFSET] = length >> 24;
+		buf[TRACK_LENGTH_OFFSET + 1] = length >> 16 & 0xff;
+		buf[TRACK_LENGTH_OFFSET + 2] = length >> 8 & 0xff;
+		buf[TRACK_LENGTH_OFFSET + 3] = length & 0xff;
+
+		NOTICE("Generated %d seconds of MIDI data", total_ticks / 100);
+
+		return std::move(buf);
+	}
+
+	bool tick() {
+		dt++;
+		total_ticks++;
+		return buf.size() < MIDI_SIZE_SOFT_LIMIT;
+	}
+
+	void send_2bytes(uint8 d1, uint8 d2) {
+		write_delta_time();
+		buf.push_back(d1);
+		buf.push_back(d2);
+	}
+
+	void send_3bytes(uint8 d1, uint8 d2, uint8 d3) {
+		write_delta_time();
+		buf.push_back(d1);
+		buf.push_back(d2);
+		buf.push_back(d3);
+	}
+
+private:
+	void write_delta_time() {
+		if (dt < 0x80) {
+			buf.push_back(dt);
+		} else if (dt < 0x4000) {
+			buf.push_back((dt >> 7) | 0x80);
+			buf.push_back(dt & 0x7f);
+		} else if (dt < 0x200000) {
+			buf.push_back((dt >> 14) | 0x80);
+			buf.push_back((dt >> 7 & 0x7f) | 0x80);
+			buf.push_back(dt & 0x7f);
+		} else {
+			buf.push_back((dt >> 21) | 0x80);
+			buf.push_back((dt >> 14 & 0x7f) | 0x80);
+			buf.push_back((dt >> 7 & 0x7f) | 0x80);
+			buf.push_back(dt & 0x7f);
+		}
+		dt = 0;
+	}
+
+	std::vector<uint8> buf;
+	int dt;
+	int total_ticks;
+};
+
+} // namespace
+
+std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 {
+	SmfWriter w;
+	Play play[9];
+
 	for(int i = 0; i < 9; i++) {
 		play[i].loop_flag = true;
 	}
-	mute_flag = false;
+	bool mute_flag = false;
 
 	// 再生情報の初期化
 	for(int i = 0; i < 9; i++) {
@@ -63,202 +161,188 @@ void MAKO::start_midi()
 		play[i + 3].pan = mda[i + 256].pan;
 	}
 
-	reset_midi();
-
 	// システムリセット、ボリュームリセット
 	for(int i = 0; i < 10; i++) {
-		send_3bytes(0xb0 + i, 0x79, 0x00);
+		w.send_3bytes(0xb0 + i, 0x79, 0x00);
 	}
 	for(int i = 0; i < 10; i++) {
-		send_3bytes(0xb0 + i, 0x07, 0x64);
+		w.send_3bytes(0xb0 + i, 0x07, 0x64);
 	}
 
 	// SSG 1-3 の音色
 	for(int i = 0; i < 3; i++) {
 		if(mda[i + 256].bank_select < 128) {
-			send_3bytes(0xb3 + i, 0x00, mda[i + 256].bank_select);
-			send_3bytes(0xb3 + i, 0x20, 0x00);
-			send_2bytes(0xc3 + i, mda[i + 256].program_change);
-			send_3bytes(0xb3 + i, 0x07, mda[i + 256].level);
-			send_3bytes(0xb3 + i, 0x5b, mda[i + 256].reverb);
-			send_3bytes(0xb3 + i, 0x5d, mda[i + 256].chorus);
-			send_3bytes(0xb3 + i, 0x0a, mda[i + 256].pan);
+			w.send_3bytes(0xb3 + i, 0x00, mda[i + 256].bank_select);
+			w.send_3bytes(0xb3 + i, 0x20, 0x00);
+			w.send_2bytes(0xc3 + i, mda[i + 256].program_change);
+			w.send_3bytes(0xb3 + i, 0x07, mda[i + 256].level);
+			w.send_3bytes(0xb3 + i, 0x5b, mda[i + 256].reverb);
+			w.send_3bytes(0xb3 + i, 0x5d, mda[i + 256].chorus);
+			w.send_3bytes(0xb3 + i, 0x0a, mda[i + 256].pan);
 		} else {
-			send_3bytes(0xb9, 0x07, mda[i + 256].level);
-			send_3bytes(0xb9, 0x5b, mda[i + 256].reverb);
-			send_3bytes(0xb9, 0x5d, mda[i + 256].chorus);
-			send_3bytes(0xb9, 0x0a, mda[i + 256].pan);
+			w.send_3bytes(0xb9, 0x07, mda[i + 256].level);
+			w.send_3bytes(0xb9, 0x5b, mda[i + 256].reverb);
+			w.send_3bytes(0xb9, 0x5d, mda[i + 256].chorus);
+			w.send_3bytes(0xb9, 0x0a, mda[i + 256].pan);
 		}
 	}
 
-	// タイマーリセット
-	prev_time = SDL_GetTicks();
-	play_time = 0;
-}
-
-void MAKO::play_midi()
-{
-	// 経過時間の取得
-	Uint32 current_time = SDL_GetTicks();
-	if(current_time > prev_time) {
-		play_time += (float)(current_time - prev_time);
-		prev_time = current_time;
-	}
-
-	// 各パートの更新
-	while((play[0].loop_flag || play[1].loop_flag || play[2].loop_flag ||
-	       play[3].loop_flag || play[4].loop_flag || play[5].loop_flag ||
-	       play[6].loop_flag || play[7].loop_flag || play[8].loop_flag) && play_time > 0.0) {
-		// 1単位時間だけ経過時間を更新する
-		for(int i = 0; i < 9; i++) {
-			if(play[i].loop_flag && play[i].wait_time) {
-				play[i].wait_time--;
-			}
-		}
-		play_time -= (float)(545455.0 / 480.0 / (float)(tempo + 0x40 - tempo_dif));
-
-		// 1単位時間だけ各パートを更新
-		for(int i = 0; i < 9; i++) {
-			if(!play[i].loop_flag) {
-				play[i].wait_time = 1;
-			}
-			while(play[i].wait_time == 0) {
-				int d0 = next_mml(i), d1, d2, d3;
-				if(d0 == 0xff) {
-					d1 = next_mml(i);
-					d2 = next_mml(i);
-					d3 = next_mml(i);
-					mml[i].addr = d1 | (d2 << 8) | (d3 << 16);
-					if(!play[i].note_flag || mute_flag) {
-						// 再生停止または未使用
-						play[i].loop_flag = false;
-						if(!play[0].loop_flag && !play[1].loop_flag && !play[2].loop_flag &&
-						   !play[3].loop_flag && !play[4].loop_flag && !play[5].loop_flag &&
-						   !play[6].loop_flag && !play[7].loop_flag && !play[8].loop_flag) {
-							// 全チャンネルが再生停止 (ループしない曲)
-							for(int j = 0; j < 10; j++) {
-								send_3bytes(0xb0 + j, 0x78, 0x00);
-							}
-							for(int j = 0; j < 10; j++) {
-								send_3bytes(0xb0 + j, 0x79, 0x00);
-							}
-							current_loop = 1;
-							current_music = 0;
-							params.current_music = params.next_music = 0;
-							return;
-						}
-						play[i].wait_time = 1;
-					} else {
-						// 全体としてのループ数を取得
-						int loop = ++play[i].loop_cnt;
-						for(int j = 0; j < 9; j++) {
-							if(loop > play[j].loop_cnt && play[j].loop_flag) {
-								loop = play[j].loop_cnt;
-							}
-						}
-						current_loop = loop;
-						if(current_loop >= current_max && current_max) {
-							// 指定回数だけ再生完了
-							for(int j = 0; j < 10; j++) {
-								send_3bytes(0xb0 + j, 0x78, 0x00);
-							}
-							for(int j = 0; j < 10; j++) {
-								send_3bytes(0xb0 + j, 0x79, 0x00);
-							}
-							current_music = 0;
-							params.current_music = params.next_music = 0;
-							return;
-						}
-					}
-				} else if(d0 < 0x80) {
-					int note = d0;
-					play[i].wait_time = next_mml(i);
-					play[i].wait_time |= next_mml(i) << 8;
-					if(play[i].timbre_type != 128) {
-						note = drum_map[play[i].timbre_type][note];
-					} else {
-						note = (note + play[i].key_shift) - 64;
-					}
-					play[i].note_flag = true;
-					play[i].note = note;
-					send_3bytes(0x90 + play[i].channel, note, play[i].velocity);
-				} else if(d0 == 0x80) {
-					play[i].wait_time = next_mml(i);
-					play[i].wait_time |= next_mml(i) << 8;
-					if(play[i].note != 128) {
-						send_3bytes(0x90 + play[i].channel, play[i].note, 0x00);
-					}
-					play[i].note = 128;
-				} else if(d0 == 0xe0) {
-					current_mark = next_mml(i);
-				} else if(d0 == 0xe1) {
-					d1 = next_mml(i);
-					play[i].velocity += (d1 > 127) ? (d1 - 256) : d1;
-				} else if(d0 == 0xeb) {
-					play[i].pan = next_mml(i);
-					send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
+	float play_time = 0;
+	int current_loop = 0;
+	int current_mark = 0;
+	while (w.tick()) {
+		play_time += 10;  // elapse 10ms
+		// 各パートの更新
+		while((play[0].loop_flag || play[1].loop_flag || play[2].loop_flag ||
+			   play[3].loop_flag || play[4].loop_flag || play[5].loop_flag ||
+			   play[6].loop_flag || play[7].loop_flag || play[8].loop_flag) && play_time > 0.0) {
+			// 1単位時間だけ経過時間を更新する
+			for(int i = 0; i < 9; i++) {
+				if(play[i].loop_flag && play[i].wait_time) {
+					play[i].wait_time--;
 				}
-				else if(d0 == 0xec) {
-#ifdef _SYSTEM1
-					if (nact->crc32 != CRC32_DPS)
-#endif
-					mute_flag = true;
+			}
+			play_time -= (float)(545455.0 / 480.0 / (float)(tempo + 0x40 - tempo_dif));
+
+			// 1単位時間だけ各パートを更新
+			for(int i = 0; i < 9; i++) {
+				if(!play[i].loop_flag) {
+					play[i].wait_time = 1;
 				}
-				else if(d0 == 0xf5) {
-					int n = next_mml(i);
-					if(n != play[i].timbre) {
-						if(mda[n].bank_select < 128) {
-							// 通常のパート
-							play[i].timbre_type = 128;
-							play[i].channel = i;
-							send_3bytes(0xb0 + play[i].channel, 0x00, mda[n].bank_select);
-							send_3bytes(0xb0 + play[i].channel, 0x20, 0x00);
-							send_2bytes(0xc0 + play[i].channel, mda[n].program_change);
+				while(play[i].wait_time == 0) {
+					int d0 = next_mml(i), d1, d2, d3;
+					if(d0 == 0xff) {
+						d1 = next_mml(i);
+						d2 = next_mml(i);
+						d3 = next_mml(i);
+						mml[i].addr = d1 | (d2 << 8) | (d3 << 16);
+						if(!play[i].note_flag || mute_flag) {
+							// 再生停止または未使用
+							play[i].loop_flag = false;
+							if(!play[0].loop_flag && !play[1].loop_flag && !play[2].loop_flag &&
+							   !play[3].loop_flag && !play[4].loop_flag && !play[5].loop_flag &&
+							   !play[6].loop_flag && !play[7].loop_flag && !play[8].loop_flag) {
+								// 全チャンネルが再生停止 (ループしない曲)
+								for(int j = 0; j < 10; j++) {
+									w.send_3bytes(0xb0 + j, 0x78, 0x00);
+								}
+								for(int j = 0; j < 10; j++) {
+									w.send_3bytes(0xb0 + j, 0x79, 0x00);
+								}
+								return w.get_smf();
+							}
+							play[i].wait_time = 1;
 						} else {
-							// ドラムパート (ch.10)
-							play[i].timbre_type = 255 - mda[n].bank_select;
-							play[i].channel = 9;
+							// 全体としてのループ数を取得
+							int loop = ++play[i].loop_cnt;
+							for(int j = 0; j < 9; j++) {
+								if(loop > play[j].loop_cnt && play[j].loop_flag) {
+									loop = play[j].loop_cnt;
+								}
+							}
+							current_loop = loop;
+							if(current_loop >= current_max && current_max) {
+								// 指定回数だけ再生完了
+								for(int j = 0; j < 10; j++) {
+									w.send_3bytes(0xb0 + j, 0x78, 0x00);
+								}
+								for(int j = 0; j < 10; j++) {
+									w.send_3bytes(0xb0 + j, 0x79, 0x00);
+								}
+								return w.get_smf();
+							}
 						}
-						if(play[i].level != mda[n].level) {
-							send_3bytes(0xb0 + play[i].channel, 0x07, mda[n].level);
+					} else if(d0 < 0x80) {
+						int note = d0;
+						play[i].wait_time = next_mml(i);
+						play[i].wait_time |= next_mml(i) << 8;
+						if(play[i].timbre_type != 128) {
+							note = drum_map[play[i].timbre_type][note];
+						} else {
+							note = (note + play[i].key_shift) - 64;
 						}
-						if(play[i].reverb != mda[n].reverb) {
-							send_3bytes(0xb0 + play[i].channel, 0x5b, mda[n].reverb);
+						play[i].note_flag = true;
+						play[i].note = note;
+						w.send_3bytes(0x90 + play[i].channel, note, play[i].velocity);
+					} else if(d0 == 0x80) {
+						play[i].wait_time = next_mml(i);
+						play[i].wait_time |= next_mml(i) << 8;
+						if(play[i].note != 128) {
+							w.send_3bytes(0x90 + play[i].channel, play[i].note, 0x00);
 						}
-						if(play[i].chorus != mda[n].chorus) {
-							send_3bytes(0xb0 + play[i].channel, 0x5d, mda[n].chorus);
-						}
-						if(play[i].pan != mda[n].pan) {
-							send_3bytes(0xb0 + play[i].channel, 0x0a, mda[n].pan);
-						}
+						play[i].note = 128;
+					} else if(d0 == 0xe0) {
+						current_mark = next_mml(i);
+					} else if(d0 == 0xe1) {
+						d1 = next_mml(i);
+						play[i].velocity += (d1 > 127) ? (d1 - 256) : d1;
+					} else if(d0 == 0xeb) {
+						play[i].pan = next_mml(i);
+						w.send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
 					}
-					play[i].timbre = n;
-					play[i].level = mda[n].level;
-					play[i].reverb = mda[n].reverb;
-					play[i].chorus = mda[n].chorus;
-					play[i].key_shift = mda[n].key_shift;
-					play[i].pan = mda[n].pan;
-					play[i].velocity = 120;
-				} else if(d0 == 0xf9) {
-					play[i].velocity = next_mml(i);
-				} else if(d0 == 0xfc) {
-					d1 = next_mml(i);
-					if(d1 > 127) {
-						d1 = 256 - d1;
-						d1 = 0x40 - (d1 > 63 ? 63 : d1);
-					} else {
-						d1 = 0x40 + (d1 > 63 ? 63 : d1);
+					else if(d0 == 0xec) {
+#ifdef _SYSTEM1
+						if (nact->crc32 != CRC32_DPS)
+#endif
+							mute_flag = true;
 					}
-					send_3bytes(0xb0 + play[i].channel, 0x65, 0x00);
-					send_3bytes(0xb0 + play[i].channel, 0x64, 0x01);
-					send_3bytes(0xb0 + play[i].channel, 0x06, d1);
+					else if(d0 == 0xf5) {
+						int n = next_mml(i);
+						if(n != play[i].timbre) {
+							if(mda[n].bank_select < 128) {
+								// 通常のパート
+								play[i].timbre_type = 128;
+								play[i].channel = i;
+								w.send_3bytes(0xb0 + play[i].channel, 0x00, mda[n].bank_select);
+								w.send_3bytes(0xb0 + play[i].channel, 0x20, 0x00);
+								w.send_2bytes(0xc0 + play[i].channel, mda[n].program_change);
+							} else {
+								// ドラムパート (ch.10)
+								play[i].timbre_type = 255 - mda[n].bank_select;
+								play[i].channel = 9;
+							}
+							if(play[i].level != mda[n].level) {
+								w.send_3bytes(0xb0 + play[i].channel, 0x07, mda[n].level);
+							}
+							if(play[i].reverb != mda[n].reverb) {
+								w.send_3bytes(0xb0 + play[i].channel, 0x5b, mda[n].reverb);
+							}
+							if(play[i].chorus != mda[n].chorus) {
+								w.send_3bytes(0xb0 + play[i].channel, 0x5d, mda[n].chorus);
+							}
+							if(play[i].pan != mda[n].pan) {
+								w.send_3bytes(0xb0 + play[i].channel, 0x0a, mda[n].pan);
+							}
+						}
+						play[i].timbre = n;
+						play[i].level = mda[n].level;
+						play[i].reverb = mda[n].reverb;
+						play[i].chorus = mda[n].chorus;
+						play[i].key_shift = mda[n].key_shift;
+						play[i].pan = mda[n].pan;
+						play[i].velocity = 120;
+					} else if(d0 == 0xf9) {
+						play[i].velocity = next_mml(i);
+					} else if(d0 == 0xfc) {
+						d1 = next_mml(i);
+						if(d1 > 127) {
+							d1 = 256 - d1;
+							d1 = 0x40 - (d1 > 63 ? 63 : d1);
+						} else {
+							d1 = 0x40 + (d1 > 63 ? 63 : d1);
+						}
+						w.send_3bytes(0xb0 + play[i].channel, 0x65, 0x00);
+						w.send_3bytes(0xb0 + play[i].channel, 0x64, 0x01);
+						w.send_3bytes(0xb0 + play[i].channel, 0x06, d1);
+					}
 				}
 			}
 		}
 	}
+	return w.get_smf();
 }
 
-bool MAKO::load_mml(int page)
+bool MAKOMidi::load_mml(int page)
 {
 	// データ読み込み
 	DRI* dri = new DRI();
@@ -428,7 +512,7 @@ bool MAKO::load_mml(int page)
 	return true;
 }
 
-void MAKO::load_mda(int page)
+void MAKOMidi::load_mda(int page)
 {
 	// 未設定時の音色設定 (Piano, Acoustic Bass Drum)
 	for(int i = 0; i < 256 + 3; i++) {
