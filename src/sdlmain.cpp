@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 	g_window = SDL_CreateWindow(buf, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 
 	const char* font_file = DEFAULT_FONT_PATH "MTLc3m.ttf";
+	const char* playlist = NULL;
 	const char* game_id = NULL;
 	char save_dir[256] = "";
 
@@ -48,12 +49,14 @@ int main(int argc, char *argv[])
 			strcpy(save_dir, argv[++i]);
 		else if (strcmp(argv[i], "-fontfile") == 0)
 			font_file = argv[++i];
+		else if (strcmp(argv[i], "-playlist") == 0)
+			playlist = argv[++i];
 		else if (strcmp(argv[i], "-game") == 0)
 			game_id = argv[++i];
 	}
 
 	// system3 初期化
-	NACT* nact = new NACT(game_id, font_file);
+	NACT* nact = new NACT(game_id, font_file, playlist);
 
 	if (save_dir[0]) {
 #ifdef __ANDROID__

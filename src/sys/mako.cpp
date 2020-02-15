@@ -16,27 +16,26 @@
 #define MIX_INIT_MID MIX_INIT_FLUIDSYNTH
 #endif
 
-MAKO::MAKO(NACT* parent) : nact(parent)
+MAKO::MAKO(NACT* parent, const char* playlist) :
+	current_music(0),
+	next_loop(0),
+	nact(parent)
 {
-	// AMUS.DAT, AMSE.DAT
+	int mix_init_flags = MIX_INIT_MID;
+
+	if (playlist && load_playlist(playlist))
+		mix_init_flags |= MIX_INIT_MP3 | MIX_INIT_OGG;
+
 	_tcscpy_s(amus, 16, _T("AMUS.DAT"));
 	_tcscpy_s(amse, 16, _T("AMSE.DAT"));	// é¿ç€Ç…ÇÕégÇÌÇ»Ç¢
 
-	// çƒê∂èÛãµ
-	current_music = current_loop = 0;
-	current_max = next_loop = 0;
-
-	// CD-DA
 	for(int i = 1; i <= 99; i++) {
 		cd_track[i] = 0;
 	}
-	cdda_play = false;
-	if (Mix_Init(MIX_INIT_MID) != MIX_INIT_MID) {
-		WARNING("Mix_Init failed");
-	}
-	if (Mix_OpenAudio(44100, AUDIO_S16LSB, 2, 4096) < 0) {
+	if (Mix_Init(mix_init_flags) != mix_init_flags)
+		WARNING("Mix_Init(0x%x) failed", mix_init_flags);
+	if (Mix_OpenAudio(44100, AUDIO_S16LSB, 2, 4096) < 0)
 		WARNING("Mix_OpenAudio failed: %s", Mix_GetError());
-	}
 }
 
 MAKO::~MAKO()
@@ -44,34 +43,55 @@ MAKO::~MAKO()
 	Mix_CloseAudio();
 	Mix_Quit();
 
-	// PCMí‚é~
 #if defined(_USE_PCM)
 	PlaySound(NULL, NULL, SND_PURGE);
 #endif
 }
 
+bool MAKO::load_playlist(const char* path)
+{
+	FILE* fp = fopen(path, "rt");
+	if (!fp) {
+		WARNING("Cannot open %s", path);
+		return false;
+	}
+	char buf[256];
+	while (fgets(buf, sizeof(buf) - 1, fp)) {
+		char *p = &buf[strlen(buf) - 1];
+		if (*p == '\n')
+			*p = '\0';
+		playlist.push_back(buf[0] ? strdup(buf) : NULL);
+	}
+	fclose(fp);
+	return true;
+}
+
 void MAKO::play_music(int page)
 {
-	// ä˘Ç…ìØÇ∂ã»Ççƒê∂ÇµÇƒÇ¢ÇÈ
-	if(current_music == page) {
+	if(current_music == page)
 		return;
-	}
 
 	stop_music();
 
-	current_music = page;
-	current_max = next_loop;
-
-	if(page < 100 && cd_track[page]) {
-		// CD-DAÇ≈çƒê∂
-		// TODO: fix
-		// PostMessage(g_hwnd, WM_USER, cd_track[page] + 1, 0);
-		cdda_play = true;
+	int track = page < 100 ? cd_track[page] : 0;
+	if(track) {
+		if (track < playlist.size() && playlist[track]) {
+			mix_music = Mix_LoadMUS(playlist[track]);
+			if (!mix_music) {
+				WARNING("Mix_LoadMUS failed: %s: %s", playlist[track], Mix_GetError());
+				return;
+			}
+			if (Mix_PlayMusic(mix_music, next_loop ? next_loop : -1) != 0) {
+				WARNING("Mix_PlayMusic failed: %s", Mix_GetError());
+				Mix_FreeMusic(mix_music);
+				return;
+			}
+		}
 	} else {
 		MAKOMidi midi(nact, amus);
 		if (midi.load_mml(page)) {
 			midi.load_mda(page);
-			smf = midi.generate_smf(current_max);
+			smf = midi.generate_smf(next_loop);
 			SDL_RWops *rwops = SDL_RWFromConstMem(smf.data(), smf.size());
 			mix_music = Mix_LoadMUSType_RW(rwops, MUS_MID, SDL_TRUE /* freesrc */);
 			if (!mix_music) {
@@ -80,67 +100,34 @@ void MAKO::play_music(int page)
 			}
 			if (Mix_PlayMusic(mix_music, -1) != 0) {
 				WARNING("Mix_PlayMusic failed: %s", Mix_GetError());
+				Mix_FreeMusic(mix_music);
 				return;
 			}
 		}
-		cdda_play = false;
 	}
+	current_music = page;
 }
 
 void MAKO::stop_music()
 {
-	// åªç›çƒê∂íÜÇÃèÍçáÇÕí‚é~Ç∑ÇÈ
-	if(current_music) {
-		if(cdda_play) {
-			// TODO: fix
-			// PostMessage(g_hwnd, WM_USER, 0, 0);
-		} else {
-			if (mix_music) {
-				Mix_FreeMusic(mix_music);
-				mix_music = NULL;
-				smf.clear();
-			}
-		}
+	if (mix_music) {
+		Mix_FreeMusic(mix_music);
+		mix_music = NULL;
+		smf.clear();
 	}
-	cdda_play = false;
-	current_music = current_loop = 0;
+	current_music = 0;
 }
 
 bool MAKO::check_music()
 {
-	// çƒê∂íÜÇ≈true
-	if (!current_music)
-		return false;
-	if (mix_music)
-		return Mix_PlayingMusic();
-	return true;
+	return Mix_PlayingMusic();
 }
 
 void MAKO::get_mark(int* mark, int* loop)
 {
 	// TODO: fix
 	*mark = 0;
-	*loop = cdda_play ? 0 : current_loop;
-}
-
-void MAKO::notify_mci(int status)
-{
-	if(status == -1) {
-		// çƒê∂Ç…é∏îs
-		current_music = current_loop = 0;
-		return;
-	}
-
-	if(cdda_play) {
-		current_loop++;
-		if(current_loop < current_max || current_max == 0) {
-			// TODO: fix
-			// PostMessage(g_hwnd, WM_USER, cd_track[current_music] + 1, 0);
-		} else {
-			current_music = current_loop = 0;
-			cdda_play = false;
-		}
-	}
+	*loop = 0;
 }
 
 void MAKO::play_pcm(int page, bool loop)

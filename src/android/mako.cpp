@@ -3,7 +3,7 @@
 #include <jni.h>
 #include "mako.h"
 
-MAKO::MAKO(NACT* parent)
+MAKO::MAKO(NACT* parent, const char* playlist)
 	: current_music(0)
 	, next_loop(0)
 {

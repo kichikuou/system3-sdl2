@@ -23,27 +23,14 @@
 
 class MAKO
 {
-protected:
-	NACT* nact;
-
-private:
-	// FM, CD-DA
-	bool cdda_play;
-	int current_loop;
-	int current_max;	// Y19
-
-	// PCM
-	char wav[MAX_SAMPLES];
-
 public:
-	MAKO(NACT* parent);
+	MAKO(NACT* parent, const char* playlist);
 	~MAKO();
 
 	void play_music(int page);
 	void stop_music();
 	bool check_music();
 	void get_mark(int* mark, int* loop);
-	void notify_mci(int status);
 
 	void play_pcm(int page, bool loop);
 	void stop_pcm();
@@ -62,22 +49,27 @@ public:
 	int current_music;
 	int next_loop;		// Y19
 	int cd_track[100];	// Z
+
 private:
+	bool load_playlist(const char* path);
+
+	NACT* nact;
+	std::vector<const char*> playlist;
 	Mix_Music *mix_music;
 	std::vector<uint8> smf;
+	char wav[MAX_SAMPLES];
 };
 
 #else // Emscripten or Android
 
 class MAKO {
 public:
-	MAKO(NACT* parent);
+	MAKO(NACT* parent, const char* playlist);
 
 	void play_music(int page);
 	void stop_music();
 	bool check_music() { return current_music != 0; }
 	void get_mark(int* mark, int* loop) {}
-	void notify_mci(int status) {}
 
 	void play_pcm(int page, bool loop) {}
 	void stop_pcm() {}

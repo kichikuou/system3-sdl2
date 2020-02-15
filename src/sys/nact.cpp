@@ -16,7 +16,7 @@ extern SDL_Window* g_window;
 
 // ‰Šú‰»
 
-NACT::NACT(const char* game_id, const char* font_file)
+NACT::NACT(const char* game_id, const char* font_file, const char* playlist)
 {
 	mouse_x = mouse_y = 0;
 
@@ -114,7 +114,7 @@ NACT::NACT(const char* game_id, const char* font_file)
 
 	// ŠeŽíƒNƒ‰ƒX¶¬
 	ags = new AGS(this, font_file);
-	mako = new MAKO(this);
+	mako = new MAKO(this, playlist);
 
 #ifdef USE_JOY
 	// “ü—Í‰Šú‰»
@@ -407,11 +407,6 @@ uint16 NACT::random(uint16 range)
 int NACT::get_screen_height()
 {
 	return ags->screen_height;
-}
-
-void NACT::notify_mci(int status)
-{
-	mako->notify_mci(status);
 }
 
 void NACT::select_cursor()

@@ -231,13 +231,12 @@ private:
 	void release_console();
 
 public:
-	NACT(const char* game_id, const char* font_file);
+	NACT(const char* game_id, const char* font_file, const char* playlist);
 	~NACT();
 
 	void mainloop();
 
 	int get_screen_height();
-	void notify_mci(int status);
 
 	void select_cursor();
 	void select_sound(int dev);
