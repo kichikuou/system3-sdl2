@@ -79,7 +79,7 @@ class GameActivity : SDLActivity() {
     @Suppress("unused") fun cddaStart(track: Int, loop: Boolean) = cdda.start(track, loop)
     @Suppress("unused") fun cddaStop() = cdda.stop()
     @Suppress("unused") fun cddaCurrentPosition() = cdda.currentPosition()
-    @Suppress("unused") fun midiStart(buf: ByteArray, loop: Int) = midi.start(buf, loop)
+    @Suppress("unused") fun midiStart(buf: ByteArray, loop: Boolean) = midi.start(buf, loop)
     @Suppress("unused") fun midiStop() = midi.stop()
     @Suppress("unused") fun midiCurrentPosition() = midi.currentPosition()
 }
@@ -152,13 +152,13 @@ private class MidiPlayer {
     private var playing = false
     private var playerPaused = false
 
-    fun start(buf: ByteArray, loop: Int) {
+    fun start(buf: ByteArray, loop: Boolean) {
         val url = "data:audio/midi;base64," + Base64.encodeToString(buf, Base64.DEFAULT)
         try {
             player.apply {
                 reset()
                 setDataSource(url)
-                isLooping = loop == 0
+                isLooping = loop
                 prepare()
                 start()
             }

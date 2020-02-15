@@ -41,11 +41,11 @@ typedef int32_t int32;
 #ifdef __ANDROID__
 
 #define ERROR(fmt, ...) \
-	__android_log_vprint(ANDROID_LOG_ERROR, "(%s:%d): " fmt, __func__, __LINE__, ##__VA_ARGS__)
+	__android_log_print(ANDROID_LOG_ERROR, "System3", "(%s:%d): " fmt, __func__, __LINE__, ##__VA_ARGS__)
 #define WARNING(fmt, ...) \
-	__android_log_vprint(ANDROID_LOG_WARN, "(%s:%d): " fmt, __func__, __LINE__, ##__VA_ARGS__)
+	__android_log_print(ANDROID_LOG_WARN, "System3", "(%s:%d): " fmt, __func__, __LINE__, ##__VA_ARGS__)
 #define NOTICE(fmt, ...) \
-	__android_log_vprint(ANDROID_LOG_INFO, fmt, ##__VA_ARGS__)
+	__android_log_print(ANDROID_LOG_INFO, "System3", fmt, ##__VA_ARGS__)
 
 #else // __ANDROID__
 

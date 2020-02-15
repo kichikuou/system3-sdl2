@@ -13,6 +13,7 @@ add_library(common INTERFACE)
 if (ANDROID)
   add_library(system3 SHARED)
 
+  set(SRC_MAKO sys/mako_midi.cpp)
   set(SRC_PLATFORM
 	linux/nact_linux.cpp
 	android/mako.cpp

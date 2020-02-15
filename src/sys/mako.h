@@ -91,6 +91,9 @@ public:
 	int current_music;
 	int next_loop;		// Y19
 	int cd_track[100];	// Z
+
+private:
+	NACT* nact;
 };
 
 #endif // EMSCRIPTEN
