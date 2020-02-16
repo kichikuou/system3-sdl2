@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(System3 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 14)
 
 # In msys, `pkg-config --libs` returns `-lmingw32` but find_library() cannot
 # find it in default search paths.
@@ -23,6 +24,7 @@ if (ANDROID)
 elseif (EMSCRIPTEN)
   add_executable(system3)
 
+  set(SRC_MAKO sys/mako_midi.cpp)
   set(SRC_PLATFORM
 	linux/nact_linux.cpp
 	emscripten/mako.cpp
