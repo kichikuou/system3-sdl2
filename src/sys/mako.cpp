@@ -19,7 +19,9 @@
 MAKO::MAKO(NACT* parent, const char* playlist) :
 	current_music(0),
 	next_loop(0),
-	nact(parent)
+	nact(parent),
+	mix_music(NULL),
+	mix_chunk(NULL)
 {
 	int mix_init_flags = MIX_INIT_MID;
 
@@ -40,12 +42,9 @@ MAKO::MAKO(NACT* parent, const char* playlist) :
 
 MAKO::~MAKO()
 {
+	stop_pcm();
 	Mix_CloseAudio();
 	Mix_Quit();
-
-#if defined(_USE_PCM)
-	PlaySound(NULL, NULL, SND_PURGE);
-#endif
 }
 
 bool MAKO::load_playlist(const char* path)
@@ -132,16 +131,13 @@ void MAKO::get_mark(int* mark, int* loop)
 
 void MAKO::play_pcm(int page, bool loop)
 {
-	assert(false);
-#if defined(_USE_PCM)
 	static char header[44] = {
 		'R' , 'I' , 'F' , 'F' , 0x00, 0x00, 0x00, 0x00, 'W' , 'A' , 'V' , 'E' , 'f' , 'm' , 't' , ' ' ,
 		0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x40, 0x1f, 0x00, 0x00, 0x40, 0x1f, 0x00, 0x00,
 		0x01, 0x00, 0x08, 0x00, 'd' , 'a' , 't' , 'a' , 0x00, 0x00, 0x00, 0x00
 	};
 
-	// Œ»ÝÄ¶’†‚ÌPCM‚ð’âŽ~
-	PlaySound(NULL, NULL, SND_PURGE);
+	stop_pcm();
 
 	uint8* buffer = NULL;
 	int size;
@@ -149,19 +145,15 @@ void MAKO::play_pcm(int page, bool loop)
 
 	if((buffer = dri->load(_T("AWAV.DAT"), page, &size)) != NULL) {
 		// WAVŒ`Ž® (Only You)
-		memcpy(wav, buffer, (size < MAX_SAMPLES) ? size : MAX_SAMPLES);
-
-		if(loop) {
-			PlaySound(wav, NULL, SND_ASYNC | SND_MEMORY | SND_LOOP);
-		} else {
-			PlaySound(wav, NULL, SND_ASYNC | SND_MEMORY);
-		}
+		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(buffer, size), 1 /* freesrc */);
 		free(buffer);
+		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
 	} else if((buffer = dri->load(_T("AMSE.DAT"), page, &size)) != NULL) {
 		// AMSEŒ`Ž® (‰³—í‹L)
 		int total = (size - 12) * 2 + 0x24;
 		int samples = (size - 12) * 2;
 
+		uint8* wav = (uint8*)malloc(total + 8);
 		memcpy(wav, header, 44);
 		wav[ 4] = (total >>  0) & 0xff;
 		wav[ 5] = (total >>  8) & 0xff;
@@ -171,40 +163,30 @@ void MAKO::play_pcm(int page, bool loop)
 		wav[41] = (samples >>  8) & 0xff;
 		wav[42] = (samples >> 16) & 0xff;
 		wav[43] = (samples >> 24) & 0xff;
-		for(int i = 12, p = 44; i < size && p < MAX_SAMPLES - 2; i++) {
+		for(int i = 12, p = 44; i < size; i++) {
 			wav[p++] = buffer[i] & 0xf0;
 			wav[p++] = (buffer[i] & 0x0f) << 4;
 		}
-
-		if(loop) {
-			PlaySound(wav, NULL, SND_ASYNC | SND_MEMORY | SND_LOOP);
-		} else {
-			PlaySound(wav, NULL, SND_ASYNC | SND_MEMORY);
-		}
 		free(buffer);
+
+		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(wav, total + 8), 1 /* freesrc */);
+		free(wav);
+		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
 	}
-#endif
 }
 
 void MAKO::stop_pcm()
 {
-#if defined(_USE_PCM)
-	PlaySound(NULL, NULL, SND_PURGE);
-#endif
+	Mix_HaltChannel(-1);
+	if (mix_chunk) {
+		Mix_FreeChunk(mix_chunk);
+		mix_chunk = NULL;
+	}
 }
 
 bool MAKO::check_pcm()
 {
 	// Ä¶’†‚Åtrue
-#if defined(_USE_PCM)
-	static char null_wav[45] =  {
-		'R' , 'I' , 'F' , 'F' , 0x25, 0x00, 0x00, 0x00, 'W' , 'A' , 'V' , 'E' , 'f' , 'm' , 't' , ' ' ,
-		0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x40, 0x1f, 0x00, 0x00, 0x40, 0x1f, 0x00, 0x00,
-		0x01, 0x00, 0x08, 0x00, 'd' , 'a' , 't' , 'a' , 0x01, 0x00, 0x00, 0x00, 0x00
-	};
-	return PlaySound(null_wav, NULL, SND_ASYNC | SND_MEMORY | SND_NOSTOP) ? false : true;
-#else
-	return false;
-#endif
+	return Mix_Playing(-1) != 0;
 }
 

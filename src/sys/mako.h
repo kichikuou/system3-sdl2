@@ -17,10 +17,6 @@
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 #include <SDL_mixer.h>
 
-#define MAX_SAMPLES (128 * 1024)
-
-//#define _USE_PCM
-
 class MAKO
 {
 public:
@@ -55,9 +51,9 @@ private:
 
 	NACT* nact;
 	std::vector<const char*> playlist;
-	Mix_Music *mix_music;
 	std::vector<uint8> smf;
-	char wav[MAX_SAMPLES];
+	Mix_Music *mix_music;
+	Mix_Chunk *mix_chunk;
 };
 
 #else // Emscripten or Android
