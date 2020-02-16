@@ -944,9 +944,9 @@ void NACT::cmd_l()
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 1;
+		char path[_MAX_PATH];
+		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
+		path[7] = 'A' + index - 1;
 
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen(path, FILEIO_READ_BINARY)) {
@@ -1098,9 +1098,9 @@ void NACT::cmd_q()
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 1;
+		char path[_MAX_PATH];
+		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
+		path[7] = 'A' + index - 1;
 
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen(path, FILEIO_WRITE_BINARY)) {

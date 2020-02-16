@@ -30,7 +30,7 @@ NACT::NACT(const char* game_id, const char* font_file, const char* playlist)
 
 	// AG00.DAT読み込み
 	FILEIO* fio = new FILEIO();
-	if(fio->Fopen(_T("AG00.DAT"), FILEIO_READ_BINARY)) {
+	if(fio->Fopen("AG00.DAT", FILEIO_READ_BINARY)) {
 		int d0, d1, d2, d3;
 		char string[MAX_CAPTION];
 		fio->Fgets(string);
@@ -51,9 +51,9 @@ NACT::NACT(const char* game_id, const char* font_file, const char* playlist)
 
 	// ADISK.DAT
 #if defined(_PROG_OMAKE)
-	_tcscpy_s(adisk, 16, _T("AGAME.DAT"));
+	strcpy_s(adisk, 16, "AGAME.DAT");
 #else
-	_tcscpy_s(adisk, 16, _T("ADISK.DAT"));
+	strcpy_s(adisk, 16, "ADISK.DAT");
 #endif
 
 	// シナリオ管理
@@ -97,13 +97,13 @@ NACT::NACT(const char* game_id, const char* font_file, const char* playlist)
 	switch (crc32) {
 	case CRC32_DPS:
 		text_refresh = false;
-		_tcscpy_s(tvar[0], 22, _T("カスタム"));
-		_tcscpy_s(tvar[1], 22, _T("リーナス"));
-		_tcscpy_s(tvar[2], 22, _T("かつみ"));
-		_tcscpy_s(tvar[3], 22, _T("由美子"));
-		_tcscpy_s(tvar[4], 22, _T("いつみ"));
-		_tcscpy_s(tvar[5], 22, _T("ひとみ"));
-		_tcscpy_s(tvar[6], 22, _T("真理子"));
+		strcpy_s(tvar[0], 22, "カスタム");
+		strcpy_s(tvar[1], 22, "リーナス");
+		strcpy_s(tvar[2], 22, "かつみ");
+		strcpy_s(tvar[3], 22, "由美子");
+		strcpy_s(tvar[4], 22, "いつみ");
+		strcpy_s(tvar[5], 22, "ひとみ");
+		strcpy_s(tvar[6], 22, "真理子");
 		break;
 	case CRC32_INTRUDER:
 		menu_max = 11;

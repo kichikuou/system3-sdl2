@@ -8,7 +8,7 @@
 #include "dri.h"
 #include "crc32.h"
 
-extern _TCHAR g_root[_MAX_PATH];
+extern char g_root[_MAX_PATH];
 
 void AGS::load_cg(int page, int transparent)
 {
@@ -16,12 +16,12 @@ void AGS::load_cg(int page, int transparent)
 	// Ç†Ç‰Ç›ÇøÇ·ÇÒï®åÍ ÉtÉãÉJÉâÅ[é¿é î≈
 	if(strncmp(acg, "CGA000.BMP", 10) == 0) {
 		char file_path[_MAX_PATH];
-		_stprintf_s(file_path, _MAX_PATH, _T("%sCGA%03d.BMP"), g_root, page);
+		sprintf_s(file_path, _MAX_PATH, "%sCGA%03d.BMP", g_root, page);
 		load_bmp(file_path);
 		return;
 	} else if(strncmp(acg, "CGB000.BMP", 10) == 0) {
 		char file_path[_MAX_PATH];
-		_stprintf_s(file_path, _MAX_PATH, _T("%sCGB%03d.BMP"), g_root, page);
+		sprintf_s(file_path, _MAX_PATH, "%sCGB%03d.BMP", g_root, page);
 		load_bmp(file_path);
 		return;
 	}

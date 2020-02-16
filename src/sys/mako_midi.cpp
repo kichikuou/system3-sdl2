@@ -532,12 +532,12 @@ void MAKOMidi::load_mda(int page)
 	tempo_dif = 0x40;
 
 	// MDAÉfÅ[É^ÇÃì«Ç›çûÇ›
-	_TCHAR path[16];
-	_tcscpy_s(path, 16, amus);
-	int p = _tcslen(path);
-	path[p - 3] = _T('M');
-	path[p - 2] = _T('D');
-	path[p - 1] = _T('A');
+	char path[16];
+	strcpy_s(path, 16, amus);
+	int p = strlen(path);
+	path[p - 3] = 'M';
+	path[p - 2] = 'D';
+	path[p - 1] = 'A';
 
 	DRI* dri = new DRI();
 	int size;

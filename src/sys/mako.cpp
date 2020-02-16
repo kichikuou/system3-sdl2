@@ -28,8 +28,8 @@ MAKO::MAKO(NACT* parent, const char* playlist) :
 	if (playlist && load_playlist(playlist))
 		mix_init_flags |= MIX_INIT_MP3 | MIX_INIT_OGG;
 
-	_tcscpy_s(amus, 16, _T("AMUS.DAT"));
-	_tcscpy_s(amse, 16, _T("AMSE.DAT"));	// 実際には使わない
+	strcpy_s(amus, 16, "AMUS.DAT");
+	strcpy_s(amse, 16, "AMSE.DAT");	// 実際には使わない
 
 	for(int i = 1; i <= 99; i++) {
 		cd_track[i] = 0;
@@ -143,12 +143,12 @@ void MAKO::play_pcm(int page, bool loop)
 	int size;
 	DRI* dri = new DRI();
 
-	if((buffer = dri->load(_T("AWAV.DAT"), page, &size)) != NULL) {
+	if((buffer = dri->load("AWAV.DAT", page, &size)) != NULL) {
 		// WAV形式 (Only You)
 		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(buffer, size), 1 /* freesrc */);
 		free(buffer);
 		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
-	} else if((buffer = dri->load(_T("AMSE.DAT"), page, &size)) != NULL) {
+	} else if((buffer = dri->load("AMSE.DAT", page, &size)) != NULL) {
 		// AMSE形式 (乙女戦記)
 		int total = (size - 12) * 2 + 0x24;
 		int samples = (size - 12) * 2;

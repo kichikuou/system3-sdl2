@@ -6,7 +6,7 @@
 
 #include "ags.h"
 
-void AGS::load_bmp(const _TCHAR *file_path)
+void AGS::load_bmp(const char *file_path)
 {
 	// ƒwƒbƒ_Žæ“¾
 	int sx = 0, sy = 0;

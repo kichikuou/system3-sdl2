@@ -95,7 +95,7 @@ private:
 	bool post_quit;
 
 	// ADISK.DAT, ASLEEP.DAT
-	_TCHAR adisk[16];
+	char adisk[16];
 
 	// シナリオデータ
 	uint8* scenario_data;
@@ -242,7 +242,7 @@ public:
 	void select_sound(int dev);
 
 	const char* get_game_id();
-	const _TCHAR* get_title();
+	const char* get_title();
 
 	bool text_skip_enb;	// メッセージスキップ
 	bool text_wait_enb;	// テキスト表示のウェイト有効／無効

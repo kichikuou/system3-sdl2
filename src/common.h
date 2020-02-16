@@ -21,15 +21,6 @@
 #define SDL_Delay emscripten_sleep
 #endif
 
-// tchar.h shim
-typedef char _TCHAR;
-#ifndef _T
-#define _T(s) s
-#endif
-#define _tcscpy_s strcpy_s
-#define _tcslen strlen
-#define _stprintf_s sprintf_s
-
 // type definition
 typedef uint8_t uint8;
 typedef uint16_t uint16;

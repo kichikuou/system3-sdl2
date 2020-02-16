@@ -30,7 +30,7 @@ public:
 
 	static void SetSaveDir(const char* savedir);
 	static int StatSavedata(const char* filename, struct stat* buf);
-	bool Fopen(const _TCHAR *filename, int mode);
+	bool Fopen(const char *filename, int mode);
 	void Fclose();
 	uint32 Fseek(long offset, int origin);
 	uint32 Ftell();

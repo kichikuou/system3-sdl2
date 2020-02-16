@@ -10,14 +10,14 @@ class NACT;
 
 class MAKOMidi {
 public:
-	MAKOMidi(NACT* nact, _TCHAR* amus) : nact(nact), amus(amus) {}
+	MAKOMidi(NACT* nact, char* amus) : nact(nact), amus(amus) {}
 	bool load_mml(int page);
 	void load_mda(int page);
 	std::vector<uint8> generate_smf(int current_max);
 
 private:
 	NACT* nact;
-	_TCHAR* amus;
+	char* amus;
 
 	struct MML {
 		uint8 data[MAX_MMLS];

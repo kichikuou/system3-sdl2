@@ -18,13 +18,13 @@ int main(int argc, char *argv[])
 	SDL_Init(SDL_INIT_VIDEO);
 
 	// ウィンドウ表示
-	_TCHAR buf[128];
+	char buf[128];
 #if defined(_SYSTEM1)
-	_tcscpy_s(buf, 128, _T("Scenario Decoder SYSTEM1"));
+	strcpy_s(buf, 128, "Scenario Decoder SYSTEM1");
 #elif defined(_SYSTEM2)
-	_tcscpy_s(buf, 128, _T("Scenario Decoder SYSTEM2"));
+	strcpy_s(buf, 128, "Scenario Decoder SYSTEM2");
 #else
-	_tcscpy_s(buf, 128, _T("Scenario Decoder SYSTEM3"));
+	strcpy_s(buf, 128, "Scenario Decoder SYSTEM3");
 #endif
 
 #ifdef __ANDROID__
@@ -70,14 +70,14 @@ int main(int argc, char *argv[])
 		FILEIO::SetSaveDir(save_dir);
 	}
 
-	const _TCHAR* title = nact->get_title();
+	const char* title = nact->get_title();
 	if (title) {
 #if defined(_SYSTEM1)
-		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM1: %s"), title);
+		sprintf_s(buf, 128, "Scenario Decoder SYSTEM1: %s", title);
 #elif defined(_SYSTEM2)
-		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM2: %s"), title);
+		sprintf_s(buf, 128, "Scenario Decoder SYSTEM2: %s", title);
 #else
-		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM3: %s"), title);
+		sprintf_s(buf, 128, "Scenario Decoder SYSTEM3: %s", title);
 #endif
 #ifdef __EMSCRIPTEN__
 		EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, buf);

@@ -768,7 +768,7 @@ void NACT::cmd_l()
 	if(index == 0) {
 		// 特殊セーブ
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(_T("ASLEEP.DAT"), FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
+		if(fio->Fopen("ASLEEP.DAT", FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
 			// U01 - U20
 			for(int i = 21; i <= 40; i++) {
 				var[i] = fio->Fgetw();
@@ -782,9 +782,9 @@ void NACT::cmd_l()
 		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 1;
+		char path[_MAX_PATH];
+		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
+		path[7] = 'A' + index - 1;
 
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen(path, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
@@ -875,9 +875,9 @@ void NACT::cmd_l()
 		delete fio;
 	} else if(101 <= index && index <= 126) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 101;
+		char path[_MAX_PATH];
+		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
+		path[7] = 'A' + index - 101;
 
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen(path, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
@@ -914,13 +914,13 @@ void NACT::cmd_m()
 	if(1 <= tvar_index && tvar_index <= 10) {
 		memcpy(tvar[tvar_index - 1], string, 22);
 	} else if(tvar_index == 31) {
-		_tcscpy_s(adisk, 16, string);
+		strcpy_s(adisk, 16, string);
 	} else if(tvar_index == 32) {
-		_tcscpy_s(ags->acg, 16, string);
+		strcpy_s(ags->acg, 16, string);
 	} else if(tvar_index == 33) {
-		_tcscpy_s(mako->amus, 16, string);
+		strcpy_s(mako->amus, 16, string);
 	} else if(tvar_index == 34) {
-		_tcscpy_s(mako->amse, 16, string);
+		strcpy_s(mako->amse, 16, string);
 	}
 }
 
@@ -1055,7 +1055,7 @@ void NACT::cmd_q()
 	if(index == 0) {
 		// 特殊セーブ
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(_T("ASLEEP.DAT"), FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
+		if(fio->Fopen("ASLEEP.DAT", FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
 			// U01 - U20
 			for(int i = 21; i <= 40; i++) {
 				fio->Fputw(var[i]);
@@ -1069,9 +1069,9 @@ void NACT::cmd_q()
 		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 1;
+		char path[_MAX_PATH];
+		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
+		path[7] = 'A' + index - 1;
 
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen(path, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
@@ -1591,9 +1591,9 @@ void NACT::cmd_y()
 			break;
 		case 239:
 			{
-				_TCHAR path[_MAX_PATH];
-				_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-				path[7] = _T('A') + param - 1;
+				char path[_MAX_PATH];
+				strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
+				path[7] = 'A' + param - 1;
 
 				struct stat statbuf;
 				if (FILEIO::StatSavedata(path, &statbuf) != -1) {
@@ -1617,11 +1617,11 @@ void NACT::cmd_y()
 		case 250:
 			{
 #if 0
-				_TCHAR path[4];
+				char path[4];
 				path[0] = g_root[0];
-				path[1] = _T(':');
-				path[2] = _T('\\');
-				path[3] = _T('\0');
+				path[1] = ':';
+				path[2] = '\\';
+				path[3] = '\0';
 				UINT t = GetDriveType(path);
 				// フロッピーから起動した場合は0が返る
 				//RND = (t == DRIVE_REMOVABLE) ? 0 : (t == DRIVE_CDROM) ? 2 : 1;

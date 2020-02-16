@@ -70,7 +70,7 @@ private:
 	void load_pms(uint8* data, int page, int transparent);
 #endif
 #if defined(_SYSTEM3)
-	void load_bmp(const _TCHAR *file_path);
+	void load_bmp(const char *file_path);
 #endif
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
@@ -141,7 +141,7 @@ public:
 	void select_cursor();
 
 	// ACG.DAT
-	_TCHAR acg[16];
+	char acg[16];
 
 	// ‰æ–Ê‘I‘ð
 	int src_screen;

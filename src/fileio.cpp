@@ -11,7 +11,7 @@
 #include <emscripten.h>
 #endif
 
-_TCHAR g_root[_MAX_PATH];
+char g_root[_MAX_PATH];
 const char* g_savedir;
 
 void FILEIO::SetSaveDir(const char* savedir)
@@ -21,8 +21,8 @@ void FILEIO::SetSaveDir(const char* savedir)
 
 int FILEIO::StatSavedata(const char* filename, struct stat* buf)
 {
-	_TCHAR path[_MAX_PATH];
-	_stprintf_s(path, _MAX_PATH, _T("%s%s"), g_savedir ? g_savedir : g_root, filename);
+	char path[_MAX_PATH];
+	sprintf_s(path, _MAX_PATH, "%s%s", g_savedir ? g_savedir : g_root, filename);
 	return stat(path, buf);
 }
 
@@ -40,13 +40,13 @@ FILEIO::~FILEIO(void)
 	}
 }
 
-bool FILEIO::Fopen(const _TCHAR *filename, int mode)
+bool FILEIO::Fopen(const char *filename, int mode)
 {
 	mode_ = mode;
-	_TCHAR path[_MAX_PATH];
-	_stprintf_s(path, _MAX_PATH, _T("%s%s"),
-				(g_savedir && mode & FILEIO_SAVEDATA) ? g_savedir : g_root,
-				filename);
+	char path[_MAX_PATH];
+	sprintf_s(path, _MAX_PATH, "%s%s",
+			  (g_savedir && mode & FILEIO_SAVEDATA) ? g_savedir : g_root,
+			  filename);
 
 	mode &= ~FILEIO_SAVEDATA;
 
@@ -56,9 +56,9 @@ bool FILEIO::Fopen(const _TCHAR *filename, int mode)
 	fp = NULL;
 	
 	if(mode == FILEIO_READ_BINARY) {
-		fp = fopen(path, _T("rb"));
+		fp = fopen(path, "rb");
 	} else if(mode == FILEIO_WRITE_BINARY) {
-		fp = fopen(path, _T("wb"));
+		fp = fopen(path, "wb");
 	}
 	return (fp != NULL);
 }

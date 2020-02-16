@@ -8,15 +8,15 @@
 #include "crc32.h"
 #include "../fileio.h"
 
-uint8* DRI::load(_TCHAR path[], int page, int* size)
+uint8* DRI::load(const char* path, int page, int* size)
 {
-	_TCHAR base_path[_MAX_PATH];
-	_tcscpy_s(base_path, _MAX_PATH, path);
+	char base_path[_MAX_PATH];
+	strcpy_s(base_path, _MAX_PATH, path);
 
 	FILEIO* fio = new FILEIO();
 
 	// ページの位置を取得
-	base_path[0] = _T('A');
+	base_path[0] = 'A';
 
 	if(!fio->Fopen(base_path, FILEIO_READ_BINARY)) {
 		delete fio;
@@ -48,7 +48,7 @@ uint8* DRI::load(_TCHAR path[], int page, int* size)
 
 	// A??.DAT以外にリンクされている場合はファイルを開き直す
 	if(disk_index != 1) {
-		base_path[0] = _T('A') + disk_index - 1;
+		base_path[0] = 'A' + disk_index - 1;
 		fio->Fclose();
 		if(!fio->Fopen(base_path, FILEIO_READ_BINARY)) {
 			delete fio;

@@ -78,7 +78,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	memset(gaiji, 0, sizeof(gaiji));
 
 	FILEIO* fio = new FILEIO();
-	if(fio->Fopen(_T("GAIJI.DAT"), FILEIO_READ_BINARY)) {
+	if(fio->Fopen("GAIJI.DAT", FILEIO_READ_BINARY)) {
 		int d1, d2;
 		while((d1 = fio->Fgetc()) != EOF) {
 			d2 = fio->Fgetc();
@@ -108,7 +108,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	// SYSTEM3 ‰Šú‰»
 
 	// ACG.DAT
-	_tcscpy_s(acg, 16, _T("ACG.DAT"));
+	strcpy_s(acg, 16, "ACG.DAT");
 
 	// ƒpƒŒƒbƒg
 	memset(program_palette, 0, sizeof(program_palette));

@@ -34,8 +34,8 @@ public:
 	bool check_pcm();
 
 	// AMUS.DAT, AMSE.DAT
-	_TCHAR amus[16];
-	_TCHAR amse[16];
+	char amus[16];
+	char amse[16];
 
 	int current_music;
 	int next_loop;		// Y19
