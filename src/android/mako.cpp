@@ -62,16 +62,24 @@ void MAKO::play_music(int page)
 		}
 		midi->load_mda(page);
 		std::vector<uint8_t> smf = midi->generate_smf(next_loop);
-		jbyteArray array = jni.env()->NewByteArray(smf.size());
-		if (!array) {
-			WARNING("Failed to allocate an array");
+
+		char path[PATH_MAX];
+		snprintf(path, PATH_MAX, "%s/tmp.mid", SDL_AndroidGetInternalStoragePath());
+		FILE* fp = fopen(path, "w");
+		if (!fp) {
+			WARNING("Failed to create temporary file");
 			return;
 		}
-		jbyte *buf = jni.env()->GetByteArrayElements(array, NULL);
-		memcpy(buf, smf.data(), smf.size());
-		jni.env()->ReleaseByteArrayElements(array, buf, 0);
-		jmethodID mid = jni.GetMethodID("midiStart", "([BZ)V");
-		jni.env()->CallVoidMethod(jni.context(), mid, array, next_loop ? 0 : 1);
+		fwrite(smf.data(), smf.size(), 1, fp);
+		fclose(fp);
+
+		jstring path_str = jni.env()->NewStringUTF(path);
+		if (!path_str) {
+			WARNING("Failed to allocate a string");
+			return;
+		}
+		jmethodID mid = jni.GetMethodID("midiStart", "(Ljava/lang/String;Z)V");
+		jni.env()->CallVoidMethod(jni.context(), mid, path_str, next_loop ? 0 : 1);
 	}
 
 	current_music = page;
