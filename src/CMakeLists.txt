@@ -14,8 +14,7 @@ add_library(common INTERFACE)
 if (ANDROID)
   add_library(system3 SHARED)
 
-  set(SRC_MAKO sys/mako_midi.cpp)
-  set(SRC_PLATFORM
+  target_sources(common INTERFACE
 	linux/nact_linux.cpp
 	android/mako.cpp
 	)
@@ -24,8 +23,7 @@ if (ANDROID)
 elseif (EMSCRIPTEN)
   add_executable(system3)
 
-  set(SRC_MAKO sys/mako_midi.cpp)
-  set(SRC_PLATFORM
+  target_sources(common INTERFACE
 	linux/nact_linux.cpp
 	emscripten/mako.cpp
 	)
@@ -54,21 +52,14 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
 
   set(DEFAULT_FONT_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/fonts/)
-  set(SRC_MAKO
-	sys/mako.cpp
-	sys/mako_midi.cpp
-	)
+  target_sources(common INTERFACE sys/mako.cpp)
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	set(SRC_PLATFORM
-	  win/nact_win.cpp
-	  )
+	target_sources(common INTERFACE win/nact_win.cpp)
 	set(RES1 res1/Script1.rc)
 	set(RES3 res3/Script1.rc)
     target_link_libraries(common INTERFACE winmm)
   else()
-	set(SRC_PLATFORM
-	  linux/nact_linux.cpp
-	  )
+	target_sources(common INTERFACE linux/nact_linux.cpp)
   endif()
 
   add_executable(system1)
@@ -94,7 +85,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
 endif()
 
-set(SRC_COMMON
+target_sources(common INTERFACE
   sdlmain.cpp
   fileio.cpp
   utfsjis.cpp
@@ -106,6 +97,7 @@ set(SRC_COMMON
   sys/ags_vsp.cpp
   sys/ags_window.cpp
   sys/dri.cpp
+  sys/mako_midi.cpp
   sys/nact.cpp
   sys/nact_crc32.cpp
   sys/nact_input.cpp
@@ -115,7 +107,6 @@ target_compile_definitions(common INTERFACE
   $<$<CONFIG:Debug>:_DEBUG_CONSOLE>
   DEFAULT_FONT_PATH="${DEFAULT_FONT_PATH}")
 target_include_directories(common INTERFACE . sys)
-target_sources(common INTERFACE ${SRC_COMMON} ${SRC_PLATFORM} ${SRC_MAKO})
 target_sources(system3 PRIVATE sys/nact_sys3.cpp ${RES3} sys/ags_bmp.cpp sys/ags_pms.cpp)
 target_compile_definitions(system3 PRIVATE _SYSTEM3)
 target_link_libraries(system3 PRIVATE common)

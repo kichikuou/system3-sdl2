@@ -41,6 +41,8 @@ MAKO::MAKO(NACT* parent, const char* playlist) :
 		cd_track[i] = 0;
 }
 
+MAKO::~MAKO() {}
+
 void MAKO::play_music(int page)
 {
 	if (current_music == page)
@@ -104,4 +106,27 @@ void MAKO::stop_music()
 	}
 
 	current_music = 0;
+}
+
+bool MAKO::check_music()
+{
+	return current_music != 0;
+}
+
+void MAKO::get_mark(int* mark, int* loop)
+{
+	WARNING("not implemented");
+	*mark = *loop = 0;
+}
+
+void MAKO::play_pcm(int page, bool loop)
+{
+	WARNING("not implemented");
+}
+
+void MAKO::stop_pcm() {}
+
+bool MAKO::check_pcm()
+{
+	return false;
 }
