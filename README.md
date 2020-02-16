@@ -6,7 +6,7 @@
 
 ### Linux (Debian, Ubuntu)
 
-    $ sudo apt install cmake libsdl2-dev libsdl-ttf2.0-0
+    $ sudo apt install cmake libsdl2-dev libsdl-ttf2.0-dev libsdl2-mixer-dev
     $ mkdir -p out/debug
     $ cd out/debug
     $ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
@@ -15,7 +15,7 @@
 
 ### MacOS
 
-    $ brew install cmake pkg-config sdl2 sdl2_ttf
+    $ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer
     $ mkdir -p out/debug
     $ cd out/debug
     $ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
@@ -24,7 +24,7 @@
 
 ### Windows (MSYS2 mingw64)
 
-    $ pacman -S cmake mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
+    $ pacman -S cmake mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2_mixer
     $ mkdir -p out/debug
     $ cd out/debug
     $ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
