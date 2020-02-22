@@ -6,7 +6,7 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### Linux (Debian, Ubuntu)
 
-    $ sudo apt install cmake libsdl2-dev libsdl-ttf2.0-dev libsdl2-mixer-dev
+    $ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
     $ mkdir -p out/debug
     $ cd out/debug
     $ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
