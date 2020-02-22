@@ -33,6 +33,7 @@
 #define CRC32_ONLYYOU		0x832aeb97	// Only You
 #define CRC32_ONLYYOU_DEMO	0xc1d13e44	// Only You (DEMO)
 #define CRC32_PROSTUDENTG_CD	0xfb0e4a63	// Prostudent -G- (CD)
+#define CRC32_PROG_OMAKE	0x8ba18bff	// Prostudent G ‚¨‚Ü‚¯ (CRC32 of AGAME.DAT)
 #define CRC32_RANCE41		0xa43fb4b6	// Rance 4.1
 #define CRC32_RANCE42		0x04d24d1e	// Rance 4.2
 #define CRC32_AYUMI_CD		0xd2bed9ee	// ‚ ‚ä‚Ý‚¿‚á‚ñ•¨Œê (CD)

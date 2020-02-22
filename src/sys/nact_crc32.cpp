@@ -27,7 +27,7 @@ const struct CRCTable {
 	{"sdps_maria",      2, CRC32_SDPS_MARIA,        "Super D.P.S"},
 	{"sdps_tono",       2, CRC32_SDPS_TONO,         "Super D.P.S"},
 	{"sdps_kaizoku",    2, CRC32_SDPS_KAIZOKU,      "Super D.P.S"},
-	{"prog_fd",         2, CRC32_PROSTUDENTG_FD,    "prostudent G"},
+	{"prog_fd",         2, CRC32_PROSTUDENTG_FD,    "Prostudent G"},
 
 	{"ambivalenz_fd",   3, CRC32_AMBIVALENZ_FD,     "AmbivalenZ −二律背反−"},
 	{"ambivalenz_cd",   3, CRC32_AMBIVALENZ_CD,     "AmbivalenZ −二律背反−"},
@@ -37,7 +37,8 @@ const struct CRCTable {
 	{"funnybee_fd",     3, CRC32_FUNNYBEE_FD,       "宇宙快盗ファニーBee"},
 	{"onlyyou",         3, CRC32_ONLYYOU,           "Only You −世紀末のジュリエット達−"},
 	{"onlyyou_demo",    3, CRC32_ONLYYOU_DEMO,      "Only You −世紀末のジュリエット達− デモ版"},
-	{"prog_cd",         3, CRC32_PROSTUDENTG_CD,    "prostudent G"},
+	{"prog_cd",         3, CRC32_PROSTUDENTG_CD,    "Prostudent G"},
+	{"prog_omake",      3, CRC32_PROG_OMAKE,        "Prostudent G おまけ"},
 	{"rance41",         3, CRC32_RANCE41,           "ランス 4.1 〜お薬工場を救え！〜"},
 	{"rance42",         3, CRC32_RANCE42,           "ランス 4.2 〜エンジェル組〜"},
 	{"ayumi_cd",        3, CRC32_AYUMI_CD,          "あゆみちゃん物語"},

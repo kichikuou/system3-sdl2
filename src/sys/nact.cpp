@@ -44,11 +44,10 @@ NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlis
 	delete fio;
 
 	// ADISK.DAT
-#if defined(_PROG_OMAKE)
-	strcpy_s(adisk, 16, "AGAME.DAT");
-#else
-	strcpy_s(adisk, 16, "ADISK.DAT");
-#endif
+	if (crc32 == CRC32_PROG_OMAKE)
+		strcpy_s(adisk, 16, "AGAME.DAT");
+	else
+		strcpy_s(adisk, 16, "ADISK.DAT");
 
 	// ÉVÉiÉäÉIä«óù
 	scenario_data = NULL;
