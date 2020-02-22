@@ -104,6 +104,7 @@ IDR_PSG                 MDA     DISCARDABLE     "AMUS_PSG.MDA"
 IDR_R41                 MDA     DISCARDABLE     "AMUS_R41.MDA"
 IDR_R42                 MDA     DISCARDABLE     "AMUS_R42.MDA"
 IDR_RG2                 MDA     DISCARDABLE     "AMUS_RG2.MDA"
+IDR_T2                  MDA     DISCARDABLE     "AMUS_T2.MDA"
 
 /////////////////////////////////////////////////////////////////////////////
 //
