@@ -1,8 +1,8 @@
 # System3 for SDL2
 
-武田俊也さんの [System3 for Win32](http://takeda-toshiya.my.coocan.jp/alice/) をSDL2に移植して、emscriptenでコンパイルできるようにしたものです。
+This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/alice/) by Takeda Toshiya that supports multiple platforms, including Android and Emscripten.
 
-## ビルド方法
+## Building
 
 ### Linux (Debian, Ubuntu)
 
@@ -37,43 +37,72 @@
     $ emcmake cmake -DCMAKE_BUILD_TYPE=MinSizeRel ../../src/
     $ make
 
+To use the Emscripten build, check out https://github.com/kichikuou/web and copy `out/wasm/system3.*` into its `docs` directory.
+
 ### Android
 
-[android/README.md](android/) を参照してください。
+See [android/README.md](android/).
 
-## 実行方法
+## Running
+Usage:
+```
+system3 [options]
+```
 
-ビルドすると4つの実行可能ファイル `system1`, `system2`, `system3`, `prog_omake` が生成されます。実行ファイルとゲームとの対応は以下のとおりです。
+### Options
 
-- system1
-  - クレセントムーンがぁる
-  - D.P.S. - Dream Program System
-  - 婦警さんＶＸ (ALICEの館3 UNITBASE/Y_SYUREN.LZH)
-  - Intruder -桜屋敷の探索-
-  - あぶないてんぐ伝説
-  - Little Vampire
-- system2
-  - あゆみちゃん物語 PROTO
-  - Super D.P.S
-  - Prostudent -G- (FD)
-- system3
-  - AmbivalenZ
-  - DPS全部
-  - Funny Bee
-  - Only You
-  - Prostudent -G- (CD)
-  - Rance 4.1
-  - Rance 4.2
-  - あゆみちゃん物語 (CD)
-  - あゆみちゃん物語 実写版
-  - あゆみちゃん物語 フルカラー実写版
-  - アリスの館３
-  - 走り女２ (Rance 4.x ヒントディスク)
-  - 闘神都市２ 〜そして、それから〜
-  - 乙女戦記
-  - 人魚 -蘿子-
-  - 夢幻泡影
-- prog_omake
-  - prostudent G おまけ
+#### `-antialias`
+Enables text anti-aliasing.
 
-Emscripten版を実行するには、[鬼畜王 on Webのリポジトリ](https://github.com/kichikuou/web)をチェックアウトして、`docs`ディレクトリに `out/wasm/system3.*` をすべてコピーしてください。
+#### `-fontfile` _filename_
+Specifies a font file used to render text. `.ttf` and `.otf` files are supported.
+
+#### `-playlist` _filename_
+_filename_ is a text file that specifies audio files to be played instead of CD audio tracks, one per line. For example:
+
+```
+# This line is ignored
+BGM/track02.ogg
+BGM/track03.ogg
+...
+```
+The first line is not used, because track 1 of game CD is usually a data track.
+
+#### `-game` _game_id_
+Since System1-3 behave slightly differently depending on the game, `system3` uses fingerprint of the scenario file (ADISK.DAT) to determine which game you are playing. This option allows you to override this. This is useful when running patched games.
+
+Here's the list of available game IDs and corresponding titles:
+| game_id | Title |
+----------|--------
+| `crescent` | クレセントムーンがぁる |
+| `dps` | D.P.S - Dream Program System |
+| `fukei` | 婦警さんＶＸ |
+| `intruder` | Intruder -桜屋敷の探索- |
+| `tengu` | あぶないてんぐ伝説 |
+| `little_vampire` | Little Vampire |
+| `ayumi_proto` | あゆみちゃん物語 PROTO |
+| `sdps_maria` | Super D.P.S マリアとカンパン |
+| `sdps_tono` | Super D.P.S 遠野の森 |
+| `sdps_kaizoku` | Super D.P.S 海賊家業 |
+| `prog_fd` | Prostudent G (FD) |
+| `ambivalenz_fd` | AmbivalenZ −二律背反− (FD) |
+| `ambivalenz_cd` | AmbivalenZ −二律背反− (CD) |
+| `dps_all` | D.P.S. 全部 |
+| `funnybee_cd` | 宇宙快盗ファニーBee (CD) |
+| `funnybee_fd` | 宇宙快盗ファニーBee (FD) |
+| `onlyyou` | Only You −世紀末のジュリエット達− |
+| `onlyyou_demo` | Only You −世紀末のジュリエット達− デモ版 |
+| `prog_cd` | Prostudent G (CD) |
+| `prog_omake` | Prostudent G おまけ |
+| `rance41` | ランス 4.1 〜お薬工場を救え！〜 |
+| `rance42` | ランス 4.2 〜エンジェル組〜 |
+| `ayumi_cd` | あゆみちゃん物語 (CD) |
+| `ayumi_live_256` | あゆみちゃん物語 実写版 |
+| `ayumi_live_full` | あゆみちゃん物語 フルカラー実写版 |
+| `yakata3_cd` | アリスの館3 (CD) |
+| `yakata3_fd` | アリスの館3 (FD) |
+| `hashirionna2` | 走り女2 |
+| `toushin2_sp` | 闘神都市2 そして、それから… |
+| `otome` | 乙女戦記 |
+| `ningyo` | 人魚 -蘿子- |
+| `mugen` | 夢幻泡影 |
