@@ -77,11 +77,6 @@ uint8* DRI::load(const char* path, int page, int* size)
 
 uint8* DRI::load_mda(uint32 crc32, int page, int* size)
 {
-#if defined(_SYSTEM1)
-	return NULL;
-#elif defined(_SYSTEM2)
-	return NULL;
-#else
 	// ƒf[ƒ^æ“¾
 	const char* fname = NULL;
 
@@ -175,6 +170,5 @@ uint8* DRI::load_mda(uint32 crc32, int page, int* size)
 
 	*size = buffer_size;
 	return buffer;
-#endif
 }
 

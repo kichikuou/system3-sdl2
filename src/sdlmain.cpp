@@ -17,23 +17,13 @@ int main(int argc, char *argv[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	// ウィンドウ表示
-	char buf[128];
-#if defined(_SYSTEM1)
-	strcpy_s(buf, 128, "Scenario Decoder SYSTEM1");
-#elif defined(_SYSTEM2)
-	strcpy_s(buf, 128, "Scenario Decoder SYSTEM2");
-#else
-	strcpy_s(buf, 128, "Scenario Decoder SYSTEM3");
-#endif
-
 #ifdef __ANDROID__
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 	Uint32 flags = SDL_WINDOW_FULLSCREEN;
 #else
 	Uint32 flags = 0;
 #endif
-	g_window = SDL_CreateWindow(buf, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
+	g_window = SDL_CreateWindow("Scenario Decoder SYSTEM3", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 
 	const char* font_file = DEFAULT_FONT_PATH "MTLc3m.ttf";
 	const char* playlist = NULL;
@@ -56,7 +46,7 @@ int main(int argc, char *argv[])
 	}
 
 	// system3 初期化
-	NACT* nact = new NACT(game_id, font_file, playlist);
+	NACT* nact = NACT::create(game_id, font_file, playlist);
 
 	if (save_dir[0]) {
 #ifdef __ANDROID__
@@ -72,13 +62,8 @@ int main(int argc, char *argv[])
 
 	const char* title = nact->get_title();
 	if (title) {
-#if defined(_SYSTEM1)
-		sprintf_s(buf, 128, "Scenario Decoder SYSTEM1: %s", title);
-#elif defined(_SYSTEM2)
-		sprintf_s(buf, 128, "Scenario Decoder SYSTEM2: %s", title);
-#else
-		sprintf_s(buf, 128, "Scenario Decoder SYSTEM3: %s", title);
-#endif
+		char buf[128];
+		sprintf_s(buf, 128, "Scenario Decoder SYSTEM%d: %s", nact->sys_ver, title);
 #ifdef __EMSCRIPTEN__
 		EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, buf);
 #else

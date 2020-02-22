@@ -59,19 +59,12 @@ private:
 	SDL_Cursor* hCursor[10];
 
 	// AGS
-#if defined(_SYSTEM1)
 	void load_vsp2l(uint8* data, int page, int transparent);	// Little Vampire
 	void load_gl3(uint8* data, int page, int transparent);		// ‚ ‚Ô‚È‚¢“V‹ç“`à
 	void load_gm3(uint8* data, int page, int transparent);		// Intruder
 	void load_vsp(uint8* data, int page, int transparent);
-#else
-	void load_gl3(uint8* data, int page, int transparent);		// ‚ ‚Ô‚È‚¢“V‹ç“`à
-	void load_vsp(uint8* data, int page, int transparent);
 	void load_pms(uint8* data, int page, int transparent);
-#endif
-#if defined(_SYSTEM3)
 	void load_bmp(const char *file_path);
-#endif
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color, uint8 cache[]);

@@ -40,7 +40,6 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 				tmp_palette[i * 16 + j] = SETPALETTE256(r, g, b);
 			}
 		}
-#if defined(_SYSTEM3)
 		if(nact->crc32 == CRC32_RANCE41 || nact->crc32 == CRC32_RANCE42 || nact->crc32 == CRC32_HASHIRIONNA2) {
 			// 上下16色は取得しない
 			for(int i = 1; i < 15; i++) {
@@ -60,7 +59,6 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 				}
 			}
 		} else {
-#endif
 			for(int i = 0; i < 16; i++) {
 				for(int j = 0; j < 16; j++) {
 					if(!(mask & (0x01 << i))) {
@@ -68,44 +66,41 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 					}
 				}
 			}
-#if defined(_SYSTEM3)
 		}
-#endif
 	}
 
 	// パレット展開
-#if defined(_SYSTEM3)
-	if((extract_palette && extract_palette_cg[page]) || nact->crc32 == CRC32_FUNNYBEE_CD) {
-		if(nact->crc32 == CRC32_RANCE41 || nact->crc32 == CRC32_RANCE42 || nact->crc32 == CRC32_HASHIRIONNA2) {
-			// 上下16色は展開しない
-			for(int i = 1; i < 15; i++) {
-				for(int j = 0; j < 16; j++) {
-					if(!(mask & (0x01 << i))) {
-						screen_palette[i * 16 + j] = program_palette[i * 16 + j];
+	if (nact->sys_ver == 3) {
+		if((extract_palette && extract_palette_cg[page]) || nact->crc32 == CRC32_FUNNYBEE_CD) {
+			if(nact->crc32 == CRC32_RANCE41 || nact->crc32 == CRC32_RANCE42 || nact->crc32 == CRC32_HASHIRIONNA2) {
+				// 上下16色は展開しない
+				for(int i = 1; i < 15; i++) {
+					for(int j = 0; j < 16; j++) {
+						if(!(mask & (0x01 << i))) {
+							screen_palette[i * 16 + j] = program_palette[i * 16 + j];
+						}
 					}
 				}
-			}
-		} else if(nact->crc32 == CRC32_MUGENHOUYOU && transparent != -1) {
-			// Uコマンドでは上下32色は展開しない
-			for(int i = 2; i < 14; i++) {
-				for(int j = 0; j < 16; j++) {
-					if(!(mask & (0x01 << i))) {
-						screen_palette[i * 16 + j] = program_palette[i * 16 + j];
+			} else if(nact->crc32 == CRC32_MUGENHOUYOU && transparent != -1) {
+				// Uコマンドでは上下32色は展開しない
+				for(int i = 2; i < 14; i++) {
+					for(int j = 0; j < 16; j++) {
+						if(!(mask & (0x01 << i))) {
+							screen_palette[i * 16 + j] = program_palette[i * 16 + j];
+						}
 					}
 				}
-			}
-		} else {
-			for(int i = 0; i < 16; i++) {
-				for(int j = 0; j < 16; j++) {
-					if(!(mask & (0x01 << i))) {
-						screen_palette[i * 16 + j] = program_palette[i * 16 + j];
+			} else {
+				for(int i = 0; i < 16; i++) {
+					for(int j = 0; j < 16; j++) {
+						if(!(mask & (0x01 << i))) {
+							screen_palette[i * 16 + j] = program_palette[i * 16 + j];
+						}
 					}
 				}
 			}
 		}
-	}
-#else
-	if(extract_palette && extract_palette_cg[page]) {
+	} else if(extract_palette && extract_palette_cg[page]) {
 		for(int i = 0; i < 16; i++) {
 			for(int j = 0; j < 16; j++) {
 				if(!(mask & (0x01 << i))) {
@@ -114,7 +109,6 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 			}
 		}
 	}
-#endif
 
 	// PMS展開
 	uint8 cgdata[3][640];

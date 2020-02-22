@@ -12,61 +12,65 @@ extern char g_root[_MAX_PATH];
 
 void AGS::load_cg(int page, int transparent)
 {
-#if defined(_SYSTEM3)
-	// あゆみちゃん物語 フルカラー実写版
-	if(strncmp(acg, "CGA000.BMP", 10) == 0) {
-		char file_path[_MAX_PATH];
-		sprintf_s(file_path, _MAX_PATH, "%sCGA%03d.BMP", g_root, page);
-		load_bmp(file_path);
-		return;
-	} else if(strncmp(acg, "CGB000.BMP", 10) == 0) {
-		char file_path[_MAX_PATH];
-		sprintf_s(file_path, _MAX_PATH, "%sCGB%03d.BMP", g_root, page);
-		load_bmp(file_path);
-		return;
+	if (nact->sys_ver == 3) {
+		// あゆみちゃん物語 フルカラー実写版
+		if(strncmp(acg, "CGA000.BMP", 10) == 0) {
+			char file_path[_MAX_PATH];
+			sprintf_s(file_path, _MAX_PATH, "%sCGA%03d.BMP", g_root, page);
+			load_bmp(file_path);
+			return;
+		} else if(strncmp(acg, "CGB000.BMP", 10) == 0) {
+			char file_path[_MAX_PATH];
+			sprintf_s(file_path, _MAX_PATH, "%sCGB%03d.BMP", g_root, page);
+			load_bmp(file_path);
+			return;
+		}
 	}
-#endif
 	DRI* dri = new DRI();
 	int size;
 	uint8* data = dri->load(acg, page, &size);
 	if(data && size > 0) {
-#if defined(_SYSTEM1)
-		switch (nact->crc32) {
-		case CRC32_BUNKASAI:
-			load_vsp(data, page, transparent);
+		switch (nact->sys_ver) {
+		case 1:
+			switch (nact->crc32) {
+			case CRC32_BUNKASAI:
+				load_vsp(data, page, transparent);
+				break;
+			case CRC32_INTRUDER:
+				// load_gm3(data, page, transparent);
+				load_vsp(data, page, transparent);	// 暫定
+				break;
+			case CRC32_VAMPIRE:
+				load_vsp2l(data, page, transparent);
+				break;
+			default:
+				load_gl3(data, page, transparent);
+				break;
+			}
 			break;
-		case CRC32_INTRUDER:
-			// load_gm3(data, page, transparent);
-			load_vsp(data, page, transparent);	// 暫定
+		case 2:
+			if(nact->crc32 == CRC32_AYUMI_PROTO) {
+				// あゆみちゃん物語 PROTO
+				load_gl3(data, page, transparent);
+			} else if(nact->crc32 == CRC32_SDPS_MARIA || nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
+				// Super D.P.S
+				load_pms(data, page, transparent);
+			} else {
+				if(data[0x8] == 0) {
+					load_vsp(data, page, transparent);
+				} else {
+					load_pms(data, page, transparent);
+				}
+			}
 			break;
-		case CRC32_VAMPIRE:
-			load_vsp2l(data, page, transparent);
-			break;
-		default:
-			load_gl3(data, page, transparent);
-			break;
-		}
-#elif defined(_SYSTEM2)
-		if(nact->crc32 == CRC32_AYUMI_PROTO) {
-			// あゆみちゃん物語 PROTO
-			load_gl3(data, page, transparent);
-		} else if(nact->crc32 == CRC32_SDPS_MARIA || nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
-			// Super D.P.S
-			load_pms(data, page, transparent);
-		} else {
+		case 3:
 			if(data[0x8] == 0) {
 				load_vsp(data, page, transparent);
 			} else {
 				load_pms(data, page, transparent);
 			}
+			break;
 		}
-#else
-		if(data[0x8] == 0) {
-			load_vsp(data, page, transparent);
-		} else {
-			load_pms(data, page, transparent);
-		}
-#endif
 	}
 	if (data)
 		free(data);

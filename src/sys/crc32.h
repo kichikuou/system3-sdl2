@@ -8,7 +8,6 @@
 #define _CRC32_H_
 
 // ADISK.DATの先頭256bytes
-#if defined(_SYSTEM1)
 
 #define CRC32_CRESCENT	0x42351f2c	// クレセントムーンがぁる
 #define CRC32_DPS		0x69ea4865	// D.P.S. - Dream Program System
@@ -18,16 +17,12 @@
 #define CRC32_VAMPIRE	0x957bcfbf	// Little Vampire
 #define CRC32_BUNKASAI	0			// あぶない文化祭前夜? (未確認)
 
-#elif defined(_SYSTEM2)
-
 #define CRC32_AYUMI_PROTO	0x4e2f5678	// あゆみちゃん物語 PROTO
 #define CRC32_SDPS		0xc7a20cdf	// Super D.P.S
 #define CRC32_SDPS_MARIA	0x80d4eaca	//	マリアとカンパン
 #define CRC32_SDPS_TONO		0xbb1edff1	//	遠野の森
 #define CRC32_SDPS_KAIZOKU	0xf81829e3	//	海賊家業
 #define CRC32_PROSTUDENTG_FD	0x5ffbfee7	// Prostudent -G- (FD)
-
-#else
 
 #define CRC32_AMBIVALENZ_FD	0xa6b48dfe	// AmbivalenZ (FD)
 #define CRC32_AMBIVALENZ_CD	0x4b10db69	// AmbivalenZ (CD)
@@ -50,7 +45,5 @@
 #define CRC32_OTOMESENKI	0x49a4db15	// 乙女戦記
 #define CRC32_NINGYO		0xd491e7ab	// 人魚 -蘿子-
 #define CRC32_MUGENHOUYOU	0xbb27d1ba	// 夢幻泡影
-
-#endif
 
 #endif

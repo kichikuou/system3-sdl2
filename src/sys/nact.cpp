@@ -16,17 +16,11 @@ extern SDL_Window* g_window;
 
 // 初期化
 
-NACT::NACT(const char* game_id, const char* font_file, const char* playlist)
+NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlist)
+	: sys_ver(sys_ver), crc32(crc32)
 {
-	mouse_x = mouse_y = 0;
-
 	// デバッグコンソール起動
 	initialize_console();
-
-	// SYSTEM3 初期化
-
-	crc32 = calc_crc32(game_id);
-	fatal_error = post_quit = false;
 
 	// AG00.DAT読み込み
 	FILEIO* fio = new FILEIO();
@@ -91,26 +85,26 @@ NACT::NACT(const char* game_id, const char* font_file, const char* playlist)
 	pcm_index = 0;
 	memset(pcm, 0, sizeof(pcm));
 
-#ifdef _SYSTEM1
-	// SYETEM1 初期化
-	menu_max = 6;
-	switch (crc32) {
-	case CRC32_DPS:
-		text_refresh = false;
-		strcpy_s(tvar[0], 22, "カスタム");
-		strcpy_s(tvar[1], 22, "リーナス");
-		strcpy_s(tvar[2], 22, "かつみ");
-		strcpy_s(tvar[3], 22, "由美子");
-		strcpy_s(tvar[4], 22, "いつみ");
-		strcpy_s(tvar[5], 22, "ひとみ");
-		strcpy_s(tvar[6], 22, "真理子");
-		break;
-	case CRC32_INTRUDER:
-		menu_max = 11;
-		paint_x = paint_y = map_page = 0;
-		break;
+	if (sys_ver == 1) {
+		// SYETEM1 初期化
+		menu_max = 6;
+		switch (crc32) {
+		case CRC32_DPS:
+			text_refresh = false;
+			strcpy_s(tvar[0], 22, "カスタム");
+			strcpy_s(tvar[1], 22, "リーナス");
+			strcpy_s(tvar[2], 22, "かつみ");
+			strcpy_s(tvar[3], 22, "由美子");
+			strcpy_s(tvar[4], 22, "いつみ");
+			strcpy_s(tvar[5], 22, "ひとみ");
+			strcpy_s(tvar[6], 22, "真理子");
+			break;
+		case CRC32_INTRUDER:
+			menu_max = 11;
+			paint_x = paint_y = map_page = 0;
+			break;
+		}
 	}
-#endif
 
 	// 各種クラス生成
 	ags = new AGS(this, font_file);
@@ -177,11 +171,9 @@ void NACT::execute()
 		return;
 	}
 
-#if defined(_SYSTEM1)
-	if(scenario_page == 0 && scenario_addr == 2) {
+	if(sys_ver == 1 && scenario_page == 0 && scenario_addr == 2) {
 		opening();
 	}
-#endif
 
 	// １コマンド実行
 	uint8 cmd = getd();
@@ -313,11 +305,9 @@ void NACT::execute()
 				string[0] = cmd;
 				string[1] = '\0';
 				ags->draw_text(string);
-#if defined(_SYSTEM1)
 				if(crc32 == CRC32_DPS && !ags->draw_menu) {
 					text_refresh = false;
 				}
-#endif
 				
 				if(!ags->draw_menu && text_wait_enb && cmd != 0x20) {
 					Uint32 dwTime = SDL_GetTicks() + text_wait_time;
@@ -346,11 +336,9 @@ void NACT::execute()
 				string[1] = getd();
 				string[2] = '\0';
 				ags->draw_text(string);
-#if defined(_SYSTEM1)
 				if(crc32 == CRC32_DPS && !ags->draw_menu) {
 					text_refresh = false;
 				}
-#endif
 				
 				if(!ags->draw_menu && text_wait_enb) {
 					Uint32 dwTime = SDL_GetTicks() + text_wait_time;
@@ -438,4 +426,17 @@ void NACT::fatal(const char* format, ...) {
 	vsnprintf(buf, sizeof buf, format, args);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3", buf, g_window);
 	fatal_error = true;
+}
+
+NACT* NACT::create(const char* game_id, const char* font_file, const char* playlist) {
+	uint32 crc32 = NACT::calc_crc32(game_id);
+	int sys_ver = NACT::get_sys_ver(crc32);
+	switch (sys_ver) {
+	case 1:
+		return new NACT_Sys1(crc32, font_file, playlist);
+	case 2:
+		return new NACT_Sys2(crc32, font_file, playlist);
+	default:
+		return new NACT_Sys3(crc32, font_file, playlist);
+	}
 }

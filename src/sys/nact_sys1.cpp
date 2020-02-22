@@ -60,7 +60,12 @@
 	} \
 }
 
-void NACT::opening()
+NACT_Sys1::NACT_Sys1(uint32 crc32, const char* font_file, const char* playlist)
+	: NACT(1, crc32, font_file, playlist)
+{
+}
+
+void NACT_Sys1::opening()
 {
 	switch (crc32) {
 	case CRC32_CRESCENT:
@@ -85,7 +90,7 @@ void NACT::opening()
 	}
 }
 
-void NACT::cmd_calc()
+void NACT_Sys1::cmd_calc()
 {
 	int index = getd();
 	if(0x80 <= index && index <= 0xbf) {
@@ -102,7 +107,7 @@ void NACT::cmd_calc()
 #endif
 }
 
-void NACT::cmd_branch()
+void NACT_Sys1::cmd_branch()
 {
 	int condition = cali();
 	int nest = 0;
@@ -204,7 +209,7 @@ void NACT::cmd_branch()
 #endif
 }
 
-void NACT::cmd_label_jump()
+void NACT_Sys1::cmd_label_jump()
 {
 	int next_addr = getw();
 	scenario_addr = next_addr;
@@ -216,7 +221,7 @@ void NACT::cmd_label_jump()
 #endif
 }
 
-void NACT::cmd_label_call()
+void NACT_Sys1::cmd_label_call()
 {
 	int next_addr = getw();
 
@@ -239,7 +244,7 @@ void NACT::cmd_label_call()
 	}
 }
 
-void NACT::cmd_page_jump()
+void NACT_Sys1::cmd_page_jump()
 {
 	int next_page = cali();
 	load_scenario(next_page);
@@ -253,7 +258,7 @@ void NACT::cmd_page_jump()
 #endif
 }
 
-void NACT::cmd_page_call()
+void NACT_Sys1::cmd_page_call()
 {
 	int next_page = cali(), next_addr;
 
@@ -281,7 +286,7 @@ void NACT::cmd_page_call()
 	scenario_addr = next_addr;
 }
 
-void NACT::cmd_set_menu()
+void NACT_Sys1::cmd_set_menu()
 {
 	if(ags->draw_menu) {
 		ags->menu_dest_x = 2;
@@ -311,7 +316,7 @@ void NACT::cmd_set_menu()
 	}
 }
 
-void NACT::cmd_open_menu()
+void NACT_Sys1::cmd_open_menu()
 {
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
@@ -422,7 +427,7 @@ void NACT::cmd_open_menu()
 	menu_index = 0;
 }
 
-void NACT::cmd_set_verbobj()
+void NACT_Sys1::cmd_set_verbobj()
 {
 	int verb = getd();
 	int obj = getd();
@@ -440,7 +445,7 @@ void NACT::cmd_set_verbobj()
 #endif
 }
 
-void NACT::cmd_set_verbobj2()
+void NACT_Sys1::cmd_set_verbobj2()
 {
 	int condition = cali();
 	int verb = getd();
@@ -461,7 +466,7 @@ void NACT::cmd_set_verbobj2()
 #endif
 }
 
-void NACT::cmd_open_verb()
+void NACT_Sys1::cmd_open_verb()
 {
 	// 動詞メニューの表示
 #if defined(_DEBUG_CONSOLE)
@@ -630,7 +635,7 @@ top2:
 	menu_index = 0;
 }
 
-void NACT::cmd_open_obj(int verb)
+void NACT_Sys1::cmd_open_obj(int verb)
 {
 	// 目的語メニューの表示
 	verb_obj = false;
@@ -817,7 +822,7 @@ top2:
 	}
 }
 
-void NACT::cmd_a()
+void NACT_Sys1::cmd_a()
 {
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
@@ -860,22 +865,22 @@ void NACT::cmd_a()
 		text_refresh = true;
 }
 
-void NACT::cmd_b()
+void NACT_Sys1::cmd_b()
 {
 	// 未使用
 }
 
-void NACT::cmd_d()
+void NACT_Sys1::cmd_d()
 {
 	// 未使用
 }
 
-void NACT::cmd_e()
+void NACT_Sys1::cmd_e()
 {
 	// 未使用
 }
 
-void NACT::cmd_f()
+void NACT_Sys1::cmd_f()
 {
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
@@ -886,7 +891,7 @@ void NACT::cmd_f()
 	scenario_addr = 2;
 }
 
-void NACT::cmd_g()
+void NACT_Sys1::cmd_g()
 {
 	int page = getd();
 
@@ -912,27 +917,27 @@ void NACT::cmd_g()
 	}
 }
 
-void NACT::cmd_h()
+void NACT_Sys1::cmd_h()
 {
 	// 未使用
 }
 
-void NACT::cmd_i()
+void NACT_Sys1::cmd_i()
 {
 	// 未使用
 }
 
-void NACT::cmd_j()
+void NACT_Sys1::cmd_j()
 {
 	// 未使用
 }
 
-void NACT::cmd_k()
+void NACT_Sys1::cmd_k()
 {
 	// 未使用
 }
 
-void NACT::cmd_l()
+void NACT_Sys1::cmd_l()
 {
 	int index = getd();
 
@@ -1038,22 +1043,22 @@ void NACT::cmd_l()
 	}
 }
 
-void NACT::cmd_m()
+void NACT_Sys1::cmd_m()
 {
 	// 未使用
 }
 
-void NACT::cmd_n()
+void NACT_Sys1::cmd_n()
 {
 	// 未使用
 }
 
-void NACT::cmd_o()
+void NACT_Sys1::cmd_o()
 {
 	// 未使用
 }
 
-void NACT::cmd_p()
+void NACT_Sys1::cmd_p()
 {
 	int param = getd();
 
@@ -1076,7 +1081,7 @@ void NACT::cmd_p()
 	buffer[p++] = (tmp >> 8) & 0xff; \
 }
 
-void NACT::cmd_q()
+void NACT_Sys1::cmd_q()
 {
 	static char header[112] = {
 		'T', 'h', 'i', 's', ' ', 'i', 's', ' ', 's', 'a', 'v', 'e', ' ', 'd', 'a', 't',
@@ -1169,7 +1174,7 @@ void NACT::cmd_q()
 	}
 }
 
-void NACT::cmd_r()
+void NACT_Sys1::cmd_r()
 {
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
@@ -1183,7 +1188,7 @@ void NACT::cmd_r()
 	}
 }
 
-void NACT::cmd_s()
+void NACT_Sys1::cmd_s()
 {
 	int page = getd();
 
@@ -1200,12 +1205,12 @@ void NACT::cmd_s()
 	}
 }
 
-void NACT::cmd_t()
+void NACT_Sys1::cmd_t()
 {
 	// 未使用
 }
 
-void NACT::cmd_u()
+void NACT_Sys1::cmd_u()
 {
 	int page = getd();
 	int transparent = getd();
@@ -1227,17 +1232,17 @@ void NACT::cmd_u()
 	}
 }
 
-void NACT::cmd_v()
+void NACT_Sys1::cmd_v()
 {
 	// 未使用
 }
 
-void NACT::cmd_w()
+void NACT_Sys1::cmd_w()
 {
 	// 未使用
 }
 
-void NACT::cmd_x()
+void NACT_Sys1::cmd_x()
 {
 	int index = getd();
 
@@ -1252,7 +1257,7 @@ void NACT::cmd_x()
 	}
 }
 
-void NACT::cmd_y()
+void NACT_Sys1::cmd_y()
 {
 	int cmd = cali();
 	int param = cali();
@@ -1417,7 +1422,7 @@ void NACT::cmd_y()
 	}
 }
 
-void NACT::cmd_z()
+void NACT_Sys1::cmd_z()
 {
 	if (crc32 == CRC32_CRESCENT) {
 		cmd_y();
@@ -1495,7 +1500,7 @@ void NACT::cmd_z()
 
 // 下位関数
 
-uint16 NACT::cali()
+uint16 NACT_Sys1::cali()
 {
 	uint32 cali[256];
 	int p = 1;
@@ -1557,7 +1562,7 @@ uint16 NACT::cali()
 	return (uint16)(cali[1] & 0xffff);
 }
 
-uint16 NACT::cali2()
+uint16 NACT_Sys1::cali2()
 {
 	uint16 val = 0;
 	uint16 dat = getd();
@@ -1575,12 +1580,12 @@ uint16 NACT::cali2()
 	return val;
 }
 
-uint8 NACT::getd()
+uint8 NACT_Sys1::getd()
 {
 	return scenario_data[scenario_addr++];
 }
 
-uint16 NACT::getw()
+uint16 NACT_Sys1::getw()
 {
 	uint16 val = scenario_data[scenario_addr] | (scenario_data[scenario_addr + 1] << 8);
 	scenario_addr += 2;

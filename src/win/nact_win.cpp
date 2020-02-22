@@ -2,13 +2,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include "SDL_syswm.h"
-#if defined(_SYSTEM1)
-#include "../res1/resource.h"
-#elif defined(_SYSTEM2)
-#include "../res2/resource.h"
-#else
 #include "../res3/resource.h"
-#endif
 
 extern SDL_Window* g_window;
 
@@ -84,13 +78,9 @@ void NACT::initialize_console()
 #if defined(_DEBUG_CONSOLE)
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
-#if defined(_SYSTEM1)
-	SetConsoleTitle("SYSTEM1 NACT Tracer");
-#elif defined(_SYSTEM2)
-	SetConsoleTitle("SYSTEM2 NACT Tracer");
-#else
-	SetConsoleTitle("SYSTEM3 NACT Tracer");
-#endif
+	char title[] = "SYSTEM1 NACT Tracer";
+	title[6] = '0' + sys_ver;
+	SetConsoleTitle(title);
 #endif
 }
 

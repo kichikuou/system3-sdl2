@@ -13,7 +13,12 @@
 #include "../fileio.h"
 #include "texthook.h"
 
-void NACT::cmd_calc()
+NACT_Sys3::NACT_Sys3(uint32 crc32, const char* font_file, const char* playlist)
+	: NACT(3, crc32, font_file, playlist)
+{
+}
+
+void NACT_Sys3::cmd_calc()
 {
 	int index = getd();
 	if(0x80 <= index && index <= 0xbf) {
@@ -30,7 +35,7 @@ void NACT::cmd_calc()
 #endif
 }
 
-void NACT::cmd_branch()
+void NACT_Sys3::cmd_branch()
 {
 	int condition = cali();
 	int t_addr = scenario_addr + 2;
@@ -46,7 +51,7 @@ void NACT::cmd_branch()
 #endif
 }
 
-void NACT::cmd_label_jump()
+void NACT_Sys3::cmd_label_jump()
 {
 	int next_addr = getw();
 	scenario_addr = next_addr;
@@ -58,7 +63,7 @@ void NACT::cmd_label_jump()
 #endif
 }
 
-void NACT::cmd_label_call()
+void NACT_Sys3::cmd_label_call()
 {
 	int next_addr = getw();
 
@@ -81,7 +86,7 @@ void NACT::cmd_label_call()
 	}
 }
 
-void NACT::cmd_page_jump()
+void NACT_Sys3::cmd_page_jump()
 {
 	int next_page = cali();
 	load_scenario(next_page);
@@ -95,7 +100,7 @@ void NACT::cmd_page_jump()
 #endif
 }
 
-void NACT::cmd_page_call()
+void NACT_Sys3::cmd_page_call()
 {
 	int next_page = cali(), next_addr;
 
@@ -123,7 +128,7 @@ void NACT::cmd_page_call()
 	scenario_addr = next_addr;
 }
 
-void NACT::cmd_set_menu()
+void NACT_Sys3::cmd_set_menu()
 {
 	if(ags->draw_menu) {
 		ags->menu_dest_x = 2;
@@ -153,7 +158,7 @@ void NACT::cmd_set_menu()
 	}
 }
 
-int NACT::menu_select(int num_items)
+int NACT_Sys3::menu_select(int num_items)
 {
 	// クリック中の間は待機
 	for(;;) {
@@ -253,7 +258,7 @@ int NACT::menu_select(int num_items)
 	return current_index;
 }
 
-void NACT::cmd_open_menu()
+void NACT_Sys3::cmd_open_menu()
 {
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
@@ -276,7 +281,7 @@ void NACT::cmd_open_menu()
 	menu_index = 0;
 }
 
-void NACT::cmd_set_verbobj()
+void NACT_Sys3::cmd_set_verbobj()
 {
 	int verb = getd();
 	int obj = getd();
@@ -294,7 +299,7 @@ void NACT::cmd_set_verbobj()
 #endif
 }
 
-void NACT::cmd_set_verbobj2()
+void NACT_Sys3::cmd_set_verbobj2()
 {
 	int condition = cali();
 	int verb = getd();
@@ -315,7 +320,7 @@ void NACT::cmd_set_verbobj2()
 #endif
 }
 
-void NACT::cmd_open_verb()
+void NACT_Sys3::cmd_open_verb()
 {
 	// 動詞メニューの表示
 #if defined(_DEBUG_CONSOLE)
@@ -363,7 +368,7 @@ void NACT::cmd_open_verb()
 	menu_index = 0;
 }
 
-void NACT::cmd_open_obj(int verb)
+void NACT_Sys3::cmd_open_obj(int verb)
 {
 	// 目的語メニューの表示
 	verb_obj = false;
@@ -422,7 +427,7 @@ void NACT::cmd_open_obj(int verb)
 	}
 }
 
-void NACT::cmd_a()
+void NACT_Sys3::cmd_a()
 {
 	texthook_nextpage();
 
@@ -464,7 +469,7 @@ void NACT::cmd_a()
 	ags->clear_text_window(text_window, true);
 }
 
-void NACT::cmd_b()
+void NACT_Sys3::cmd_b()
 {
 	int cmd = getd();
 	int index = cali();
@@ -537,12 +542,12 @@ void NACT::cmd_b()
 	}
 }
 
-void NACT::cmd_d()
+void NACT_Sys3::cmd_d()
 {
 	// 未使用
 }
 
-void NACT::cmd_e()
+void NACT_Sys3::cmd_e()
 {
 	int index = cali();
 	uint8 color = (uint8)cali();
@@ -564,7 +569,7 @@ void NACT::cmd_e()
 	ags->box[index - 1].ey = ey;
 }
 
-void NACT::cmd_f()
+void NACT_Sys3::cmd_f()
 {
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
@@ -575,7 +580,7 @@ void NACT::cmd_f()
 	scenario_addr = 2;
 }
 
-void NACT::cmd_g()
+void NACT_Sys3::cmd_g()
 {
 	int page = cali();
 
@@ -588,7 +593,7 @@ void NACT::cmd_g()
 	ags->load_cg(page, -1);
 }
 
-void NACT::cmd_h()
+void NACT_Sys3::cmd_h()
 {
 	int length = getd();
 	int val = cali();
@@ -639,7 +644,7 @@ void NACT::cmd_h()
 	ags->draw_text(string);
 }
 
-void NACT::cmd_i()
+void NACT_Sys3::cmd_i()
 {
 	int sx = cali();
 	int sy = cali();
@@ -661,7 +666,7 @@ void NACT::cmd_i()
 	ags->copy(sx, sy, ex, ey, dx, dy);
 }
 
-void NACT::cmd_j()
+void NACT_Sys3::cmd_j()
 {
 	int x = cali();
 	int y = cali();
@@ -678,7 +683,7 @@ void NACT::cmd_j()
 	ags->set_cg_dest = true;
 }
 
-void NACT::cmd_k()
+void NACT_Sys3::cmd_k()
 {
 	int cmd = getd(), val;
 
@@ -755,7 +760,7 @@ void NACT::cmd_k()
 	}
 }
 
-void NACT::cmd_l()
+void NACT_Sys3::cmd_l()
 {
 	int index = cali();
 
@@ -889,7 +894,7 @@ void NACT::cmd_l()
 	}
 }
 
-void NACT::cmd_m()
+void NACT_Sys3::cmd_m()
 {
 	char string[22];
 	int d, p = 0;
@@ -924,7 +929,7 @@ void NACT::cmd_m()
 	}
 }
 
-void NACT::cmd_n()
+void NACT_Sys3::cmd_n()
 {
 	int cmd = getd();
 	int src = cali();
@@ -937,7 +942,7 @@ void NACT::cmd_n()
 #endif
 }
 
-void NACT::cmd_o()
+void NACT_Sys3::cmd_o()
 {
 	int cmd = cali();
 	if(cmd == 0) {
@@ -993,7 +998,7 @@ void NACT::cmd_o()
 	}
 }
 
-void NACT::cmd_p()
+void NACT_Sys3::cmd_p()
 {
 	int index =cali();
 	int r = cali();
@@ -1020,7 +1025,7 @@ void NACT::cmd_p()
 	buffer[p++] = (tmp >> 8) & 0xff; \
 }
 
-void NACT::cmd_q()
+void NACT_Sys3::cmd_q()
 {
 	static char header[112] = {
 #if 0
@@ -1140,7 +1145,7 @@ void NACT::cmd_q()
 	}
 }
 
-void NACT::cmd_r()
+void NACT_Sys3::cmd_r()
 {
 	texthook_newline();
 
@@ -1156,7 +1161,7 @@ void NACT::cmd_r()
 	}
 }
 
-void NACT::cmd_s()
+void NACT_Sys3::cmd_s()
 {
 	int page = getd();
 
@@ -1173,7 +1178,7 @@ void NACT::cmd_s()
 	}
 }
 
-void NACT::cmd_t()
+void NACT_Sys3::cmd_t()
 {
 	int x = cali();
 	int y = cali();
@@ -1189,7 +1194,7 @@ void NACT::cmd_t()
 	ags->text_dest_y = y;
 }
 
-void NACT::cmd_u()
+void NACT_Sys3::cmd_u()
 {
 	int page = cali();
 	int transparent = cali();
@@ -1206,7 +1211,7 @@ void NACT::cmd_u()
 	ags->load_cg(page, transparent);
 }
 
-void NACT::cmd_v()
+void NACT_Sys3::cmd_v()
 {
 	int cmd = cali();
 	int index = cali();
@@ -1234,7 +1239,7 @@ void NACT::cmd_v()
 	}
 }
 
-void NACT::cmd_w()
+void NACT_Sys3::cmd_w()
 {
 	int x = cali();
 	int y = cali();
@@ -1249,7 +1254,7 @@ void NACT::cmd_w()
 	ags->paint(x, y, color);
 }
 
-void NACT::cmd_x()
+void NACT_Sys3::cmd_x()
 {
 	int index = getd();
 
@@ -1264,7 +1269,7 @@ void NACT::cmd_x()
 	}
 }
 
-void NACT::cmd_y()
+void NACT_Sys3::cmd_y()
 {
 	int cmd = cali();
 	int param = cali();
@@ -1650,7 +1655,7 @@ void NACT::cmd_y()
 	}
 }
 
-void NACT::cmd_z()
+void NACT_Sys3::cmd_z()
 {
 	int cmd = cali();
 	int param = cali();
@@ -1685,7 +1690,7 @@ void NACT::cmd_z()
 
 // 下位関数
 
-uint16 NACT::cali()
+uint16 NACT_Sys3::cali()
 {
 	uint32 cali[256];
 	int p = 1;
@@ -1753,7 +1758,7 @@ uint16 NACT::cali()
 	return (uint16)(cali[1] & 0xffff);
 }
 
-uint16 NACT::cali2()
+uint16 NACT_Sys3::cali2()
 {
 	uint16 val = 0;
 	uint16 dat = getd();
@@ -1771,12 +1776,12 @@ uint16 NACT::cali2()
 	return val;
 }
 
-uint8 NACT::getd()
+uint8 NACT_Sys3::getd()
 {
 	return scenario_data[scenario_addr++];
 }
 
-uint16 NACT::getw()
+uint16 NACT_Sys3::getw()
 {
 	uint16 val = scenario_data[scenario_addr] | (scenario_data[scenario_addr + 1] << 8);
 	scenario_addr += 2;

@@ -281,9 +281,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 						w.send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
 					}
 					else if(d0 == 0xec) {
-#ifdef _SYSTEM1
 						if (nact->crc32 != CRC32_DPS)
-#endif
 							mute_flag = true;
 					}
 					else if(d0 == 0xf5) {

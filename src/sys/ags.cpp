@@ -128,23 +128,23 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	program_palette[0x0d] = SETPALETTE16(0x0, 0xf, 0xf);
 	program_palette[0x0e] = SETPALETTE16(0xf, 0xf, 0x0);
 	program_palette[0x0f] = SETPALETTE16(0xf, 0xf, 0xf);
-#if defined(_SYSTEM1)
-	program_palette[0x10] = SETPALETTE16(0x0, 0x0, 0x0);
-	program_palette[0x11] = SETPALETTE16(0x0, 0x0, 0xf);
-	program_palette[0x12] = SETPALETTE16(0xf, 0x0, 0x0);
-	program_palette[0x13] = SETPALETTE16(0xf, 0x0, 0xf);
-	program_palette[0x14] = SETPALETTE16(0x0, 0xf, 0x0);
-	program_palette[0x15] = SETPALETTE16(0x0, 0xf, 0xf);
-	program_palette[0x16] = SETPALETTE16(0xf, 0xf, 0x0);
-	program_palette[0x17] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0x18] = SETPALETTE16(0x0, 0x0, 0x0);
-	program_palette[0x19] = SETPALETTE16(0x0, 0x0, 0xf);
-	program_palette[0x1a] = SETPALETTE16(0xf, 0x0, 0x0);
-	program_palette[0x1b] = SETPALETTE16(0xf, 0x0, 0xf);
-	program_palette[0x1c] = SETPALETTE16(0x0, 0xf, 0x0);
-	program_palette[0x1d] = SETPALETTE16(0x0, 0xf, 0xf);
-	program_palette[0x1e] = SETPALETTE16(0xf, 0xf, 0x0);
-#endif
+	if (nact->sys_ver == 1) {
+		program_palette[0x10] = SETPALETTE16(0x0, 0x0, 0x0);
+		program_palette[0x11] = SETPALETTE16(0x0, 0x0, 0xf);
+		program_palette[0x12] = SETPALETTE16(0xf, 0x0, 0x0);
+		program_palette[0x13] = SETPALETTE16(0xf, 0x0, 0xf);
+		program_palette[0x14] = SETPALETTE16(0x0, 0xf, 0x0);
+		program_palette[0x15] = SETPALETTE16(0x0, 0xf, 0xf);
+		program_palette[0x16] = SETPALETTE16(0xf, 0xf, 0x0);
+		program_palette[0x17] = SETPALETTE16(0xf, 0xf, 0xf);
+		program_palette[0x18] = SETPALETTE16(0x0, 0x0, 0x0);
+		program_palette[0x19] = SETPALETTE16(0x0, 0x0, 0xf);
+		program_palette[0x1a] = SETPALETTE16(0xf, 0x0, 0x0);
+		program_palette[0x1b] = SETPALETTE16(0xf, 0x0, 0xf);
+		program_palette[0x1c] = SETPALETTE16(0x0, 0xf, 0x0);
+		program_palette[0x1d] = SETPALETTE16(0x0, 0xf, 0xf);
+		program_palette[0x1e] = SETPALETTE16(0xf, 0xf, 0x0);
+	}
 	program_palette[0x1f] = SETPALETTE16(0xf, 0xf, 0xf);
 	program_palette[0x2f] = SETPALETTE16(0xf, 0xf, 0xf);
 	program_palette[0x3f] = SETPALETTE16(0xf, 0xf, 0xf);
@@ -170,7 +170,6 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	for(int i = 0; i < 10; i++) {
 		// ウィンドウの初期位置はシステムによって異なる
 		switch (nact->crc32) {
-#if defined(_SYSTEM1)
 		case CRC32_BUNKASAI:
 			SET_TEXT(i, 24, 304, 616, 384, false);
 			SET_MENU(i, 440, 18, 620, 178, true);
@@ -201,7 +200,6 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 			SET_TEXT(i, 8, 255, 615, 383, false);
 			SET_MENU(i, 448, 11, 615, 224, false);
 			break;
-#endif
 		default:
 			SET_TEXT(i, 8, 311, 623, 391, true);
 			SET_MENU(i, 464, 80, 623, 240, true);
@@ -221,22 +219,22 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 //		SET_BOX(i, 0, 0, 0, 631, 399);
 		SET_BOX(i, 0, 0, 0, 639, 399);
 	}
-#if defined(_SYSTEM2)
-	if(nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
-		SET_BOX(0, 0, 40, 8, 598, 271);
-	} else if(nact->crc32 == CRC32_PROSTUDENTG_FD) {
-		SET_BOX(0, 0, 64, 13, 407, 289);
-		SET_BOX(1, 0, 24, 298, 111, 390);
-		SET_BOX(2, 0, 0, 0, 639, 307);
-		SET_BOX(3, 0, 0, 0, 319, 399);
-		SET_BOX(4, 0, (16*8), 310, ((77*8)-1), 390);
-		SET_BOX(5, 0, (4*8), 310, ((76*8)-1), 390);
-		SET_BOX(6, 0, (2*8), 317, ((56*8)-1), 389);
-		SET_BOX(7, 15, 64, 13, 407, 289);
-		SET_BOX(8, 0, 0, 0, 319, 399);
-		SET_BOX(9, 0, 320, 0, 639, 40);
+	if (nact->sys_ver == 2) {
+		if (nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
+			SET_BOX(0, 0, 40, 8, 598, 271);
+		} else if (nact->crc32 == CRC32_PROSTUDENTG_FD) {
+			SET_BOX(0, 0, 64, 13, 407, 289);
+			SET_BOX(1, 0, 24, 298, 111, 390);
+			SET_BOX(2, 0, 0, 0, 639, 307);
+			SET_BOX(3, 0, 0, 0, 319, 399);
+			SET_BOX(4, 0, (16*8), 310, ((77*8)-1), 390);
+			SET_BOX(5, 0, (4*8), 310, ((76*8)-1), 390);
+			SET_BOX(6, 0, (2*8), 317, ((56*8)-1), 389);
+			SET_BOX(7, 15, 64, 13, 407, 289);
+			SET_BOX(8, 0, 0, 0, 319, 399);
+			SET_BOX(9, 0, 320, 0, 639, 40);
+		}
 	}
-#endif
 
 	// 画面選択
 	src_screen = dest_screen = 0;
@@ -250,29 +248,29 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	text_dest_y = text_w[0].sy + 2;
 	text_space = 2;
 	text_font_size = 16;
-#if defined(_SYSTEM1)
-	text_font_color = 15 + 16;
-	text_frame_color = 15 + 16;
-	text_back_color = 0 + 16;
-#else
-	text_font_color = 15;
-	text_frame_color = 15;
-	text_back_color = 0;
-#endif
+	if (nact->sys_ver == 1) {
+		text_font_color = 15 + 16;
+		text_frame_color = 15 + 16;
+		text_back_color = 0 + 16;
+	} else {
+		text_font_color = 15;
+		text_frame_color = 15;
+		text_back_color = 0;
+	}
 
 	// メニュー表示
 	menu_dest_x = 2;
 	menu_dest_y = 0;
 	menu_font_size = 16;
-#if defined(_SYSTEM1)
-	menu_font_color = 15 + 16;
-	menu_frame_color = 15 + 16;
-	menu_back_color = 0 + 16;
-#else
-	menu_font_color = 15;
-	menu_frame_color = 15;
-	menu_back_color = 0;
-#endif
+	if (nact->sys_ver == 1) {
+		menu_font_color = 15 + 16;
+		menu_frame_color = 15 + 16;
+		menu_back_color = 0 + 16;
+	} else {
+		menu_font_color = 15;
+		menu_frame_color = 15;
+		menu_back_color = 0;
+	}
 	menu_fix = false;
 
 	draw_hankaku = false;
@@ -413,13 +411,12 @@ void AGS::flush_screen(bool update)
 			uint32* src = vram[0][y];
 			uint32* dest = surface_line(hBmpDest, y);
 			for(int x = 0; x < 640; x++) {
-#if defined(_SYSTEM3)
-				// あゆみちゃん物語 フルカラー実写版
-				if(src[x] & 0x80000000) {
+				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
+					// あゆみちゃん物語 フルカラー実写版
 					dest[x] = src[x] & 0xffffff;
-				} else
-#endif
-				dest[x] = screen_palette[src[x] & 0xff];
+				} else {
+					dest[x] = screen_palette[src[x] & 0xff];
+				}
 			}
 		}
 	}
@@ -434,13 +431,12 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 			uint32* dest = &fader_screen[640 * y];
 			for(int x = sx; x < (sx + width) && x < 640; x++) {
 				uint32 a=src[x];
-#if defined(_SYSTEM3)
-				// あゆみちゃん物語 フルカラー実写版
-				if(src[x] & 0x80000000) {
+				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
+					// あゆみちゃん物語 フルカラー実写版
 					dest[x] = src[x] & 0xffffff;
-				} else
-#endif
-				dest[x] = screen_palette[src[x] & 0xff];
+				} else {
+					dest[x] = screen_palette[src[x] & 0xff];
+				}
 			}
 		}
 	} else {
@@ -449,13 +445,12 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 			uint32* dest = surface_line(hBmpDest, y);
 			for(int x = sx; x < (sx + width) && x < 640; x++) {
 				uint32 a=src[x];
-#if defined(_SYSTEM3)
-				// あゆみちゃん物語 フルカラー実写版
-				if(src[x] & 0x80000000) {
+				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
+					// あゆみちゃん物語 フルカラー実写版
 					dest[x] = src[x] & 0xffffff;
-				} else
-#endif
-				dest[x] = screen_palette[src[x] & 0xff];
+				} else {
+					dest[x] = screen_palette[src[x] & 0xff];
+				}
 			}
 		}
 		invalidate_screen(sx, sy, width, height);

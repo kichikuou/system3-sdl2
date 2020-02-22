@@ -82,17 +82,21 @@ class MAKO;
 
 class NACT
 {
+public:
+	static NACT* create(const char* game_id, const char* font_file, const char* playlist);
+	NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlist);
+	virtual ~NACT();
+
 protected:
 	AGS* ags;
 	MAKO* mako;
 
-private:
 	// コマンドパーサ
 	void execute();
 	void load_scenario(int page);
 
-	bool fatal_error;
-	bool post_quit;
+	bool fatal_error = false;
+	bool post_quit = false;
 
 	// ADISK.DAT, ASLEEP.DAT
 	char adisk[16];
@@ -118,52 +122,50 @@ private:
 //	int tvar_index;
 
 	// コマンド
-	void cmd_calc();
+	virtual void cmd_calc() = 0;
 
-	void cmd_branch();
-	void cmd_label_jump();
-	void cmd_label_call();
-	void cmd_page_jump();
-	void cmd_page_call();
+	virtual void cmd_branch() = 0;
+	virtual void cmd_label_jump() = 0;
+	virtual void cmd_label_call() = 0;
+	virtual void cmd_page_jump() = 0;
+	virtual void cmd_page_call() = 0;
 
-	void cmd_set_menu();
-	void cmd_open_menu();
-	int menu_select(int num_items);
+	virtual void cmd_set_menu() = 0;
+	virtual void cmd_open_menu() = 0;
 
-	void cmd_set_verbobj();
-	void cmd_set_verbobj2();
-	void cmd_open_verb();
-	void cmd_open_obj(int verb);
+	virtual void cmd_set_verbobj() = 0;
+	virtual void cmd_set_verbobj2() = 0;
+	virtual void cmd_open_verb() = 0;
+	virtual void cmd_open_obj(int verb) = 0;
 
-	void cmd_a();
-	void cmd_b();
-	void cmd_d();
-	void cmd_e();
-	void cmd_f();
-	void cmd_g();
-	void cmd_h();
-	void cmd_i();
-	void cmd_j();
-	void cmd_k();
-	void cmd_l();
-	void cmd_m();
-	void cmd_n();
-	void cmd_o();
-	void cmd_p();
-	void cmd_q();
-	void cmd_r();
-	void cmd_s();
-	void cmd_t();
-	void cmd_u();
-	void cmd_v();
-	void cmd_w();
-	void cmd_x();
-	void cmd_y();
-	void cmd_z();
+	virtual void cmd_a() = 0;
+	virtual void cmd_b() = 0;
+	virtual void cmd_d() = 0;
+	virtual void cmd_e() = 0;
+	virtual void cmd_f() = 0;
+	virtual void cmd_g() = 0;
+	virtual void cmd_h() = 0;
+	virtual void cmd_i() = 0;
+	virtual void cmd_j() = 0;
+	virtual void cmd_k() = 0;
+	virtual void cmd_l() = 0;
+	virtual void cmd_m() = 0;
+	virtual void cmd_n() = 0;
+	virtual void cmd_o() = 0;
+	virtual void cmd_p() = 0;
+	virtual void cmd_q() = 0;
+	virtual void cmd_r() = 0;
+	virtual void cmd_s() = 0;
+	virtual void cmd_t() = 0;
+	virtual void cmd_u() = 0;
+	virtual void cmd_v() = 0;
+	virtual void cmd_w() = 0;
+	virtual void cmd_x() = 0;
+	virtual void cmd_y() = 0;
+	virtual void cmd_z() = 0;
 
-#if defined(_SYSTEM1)
-	void opening();
-
+	// SYSTEM1 ----
+	virtual void opening() {}
 	int menu_max;	// メニューの改ページ
 
 	// DPS
@@ -173,7 +175,7 @@ private:
 	int paint_x;
 	int paint_y;
 	int map_page;
-#endif
+	// ------------
 
 	bool column;		// 座標モード
 	bool wait_keydown;	// ウェイト時のキー受付
@@ -200,10 +202,10 @@ private:
 	int pcm[MAX_PCM];
 
 	// 下位関数
-	uint16 cali();
-	uint16 cali2();
-	uint8 getd();
-	uint16 getw();
+	virtual uint16 cali() = 0;
+	virtual uint16 cali2() = 0;
+	virtual uint8 getd() = 0;
+	virtual uint16 getw() = 0;
 
 	uint16 random(uint16 range);
 	uint32 seed;
@@ -216,9 +218,9 @@ private:
 	int joy_num;
 	JOYCAPS joycaps;
 #endif
-	int mouse_x, mouse_y;
+	int mouse_x = 0, mouse_y = 0;
 
-	uint32 calc_crc32(const char* game_id);
+	static uint32 calc_crc32(const char* game_id);
 
 	// Y27 ダイアログ
 	void text_dialog();
@@ -231,9 +233,6 @@ private:
 	void release_console();
 
 public:
-	NACT(const char* game_id, const char* font_file, const char* playlist);
-	~NACT();
-
 	void mainloop();
 
 	int get_screen_height();
@@ -242,10 +241,12 @@ public:
 	void select_sound(int dev);
 
 	const char* get_game_id();
+	static const int get_sys_ver(uint32 crc32);
 	const char* get_title();
 
 	bool text_skip_enb;	// メッセージスキップ
 	bool text_wait_enb;	// テキスト表示のウェイト有効／無効
+	int sys_ver;
 	uint32 crc32;
 
 	// for Y27
@@ -260,5 +261,145 @@ public:
 	void fatal(const char* msg, ...);
 };
 
-#endif
+class NACT_Sys1 : public NACT {
+public:
+	NACT_Sys1(uint32 crc32, const char* font_file, const char* playlist);
+	void cmd_calc() override;
+	void cmd_branch() override;
+	void cmd_label_jump() override;
+	void cmd_label_call() override;
+	void cmd_page_jump() override;
+	void cmd_page_call() override;
+	void cmd_set_menu() override;
+	void cmd_open_menu() override;
+	void cmd_set_verbobj() override;
+	void cmd_set_verbobj2() override;
+	void cmd_open_verb() override;
+	void cmd_open_obj(int verb) override;
+	void cmd_a() override;
+	void cmd_b() override;
+	void cmd_d() override;
+	void cmd_e() override;
+	void cmd_f() override;
+	void cmd_g() override;
+	void cmd_h() override;
+	void cmd_i() override;
+	void cmd_j() override;
+	void cmd_k() override;
+	void cmd_l() override;
+	void cmd_m() override;
+	void cmd_n() override;
+	void cmd_o() override;
+	void cmd_p() override;
+	void cmd_q() override;
+	void cmd_r() override;
+	void cmd_s() override;
+	void cmd_t() override;
+	void cmd_u() override;
+	void cmd_v() override;
+	void cmd_w() override;
+	void cmd_x() override;
+	void cmd_y() override;
+	void cmd_z() override;
+	void opening() override;
+	uint16 cali() override;
+	uint16 cali2() override;
+	uint8 getd() override;
+	uint16 getw() override;
+};
 
+class NACT_Sys2 : public NACT {
+public:
+	NACT_Sys2(uint32 crc32, const char* font_file, const char* playlist);
+	void cmd_calc() override;
+	void cmd_branch() override;
+	void cmd_label_jump() override;
+	void cmd_label_call() override;
+	void cmd_page_jump() override;
+	void cmd_page_call() override;
+	void cmd_set_menu() override;
+	void cmd_open_menu() override;
+	void cmd_set_verbobj() override;
+	void cmd_set_verbobj2() override;
+	void cmd_open_verb() override;
+	void cmd_open_obj(int verb) override;
+	void cmd_a() override;
+	void cmd_b() override;
+	void cmd_d() override;
+	void cmd_e() override;
+	void cmd_f() override;
+	void cmd_g() override;
+	void cmd_h() override;
+	void cmd_i() override;
+	void cmd_j() override;
+	void cmd_k() override;
+	void cmd_l() override;
+	void cmd_m() override;
+	void cmd_n() override;
+	void cmd_o() override;
+	void cmd_p() override;
+	void cmd_q() override;
+	void cmd_r() override;
+	void cmd_s() override;
+	void cmd_t() override;
+	void cmd_u() override;
+	void cmd_v() override;
+	void cmd_w() override;
+	void cmd_x() override;
+	void cmd_y() override;
+	void cmd_z() override;
+	uint16 cali() override;
+	uint16 cali2() override;
+	uint8 getd() override;
+	uint16 getw() override;
+};
+
+class NACT_Sys3 : public NACT {
+public:
+	NACT_Sys3(uint32 crc32, const char* font_file, const char* playlist);
+	void cmd_calc() override;
+	void cmd_branch() override;
+	void cmd_label_jump() override;
+	void cmd_label_call() override;
+	void cmd_page_jump() override;
+	void cmd_page_call() override;
+	void cmd_set_menu() override;
+	void cmd_open_menu() override;
+	void cmd_set_verbobj() override;
+	void cmd_set_verbobj2() override;
+	void cmd_open_verb() override;
+	void cmd_open_obj(int verb) override;
+	void cmd_a() override;
+	void cmd_b() override;
+	void cmd_d() override;
+	void cmd_e() override;
+	void cmd_f() override;
+	void cmd_g() override;
+	void cmd_h() override;
+	void cmd_i() override;
+	void cmd_j() override;
+	void cmd_k() override;
+	void cmd_l() override;
+	void cmd_m() override;
+	void cmd_n() override;
+	void cmd_o() override;
+	void cmd_p() override;
+	void cmd_q() override;
+	void cmd_r() override;
+	void cmd_s() override;
+	void cmd_t() override;
+	void cmd_u() override;
+	void cmd_v() override;
+	void cmd_w() override;
+	void cmd_x() override;
+	void cmd_y() override;
+	void cmd_z() override;
+	uint16 cali() override;
+	uint16 cali2() override;
+	uint8 getd() override;
+	uint16 getw() override;
+private:
+	int menu_select(int num_items);
+};
+
+#endif // _NACT_H_
