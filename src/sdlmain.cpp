@@ -1,7 +1,8 @@
+#include <string>
+#include <unistd.h>
 #include "common.h"
 #include "fileio.h"
 #include "sys/nact.h"
-#include <unistd.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
 	const char* font_file = DEFAULT_FONT_PATH "MTLc3m.ttf";
 	const char* playlist = NULL;
 	const char* game_id = NULL;
-	char save_dir[256] = "";
+	const char* save_dir = NULL;
 
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-gamedir") == 0)
@@ -36,7 +37,7 @@ int main(int argc, char *argv[])
 		else if (strcmp(argv[i], "-antialias") == 0)
 			ags_setAntialiasedStringMode(1);
 		else if (strcmp(argv[i], "-savedir") == 0)
-			strcpy(save_dir, argv[++i]);
+			save_dir = argv[++i];
 		else if (strcmp(argv[i], "-fontfile") == 0)
 			font_file = argv[++i];
 		else if (strcmp(argv[i], "-playlist") == 0)
@@ -48,16 +49,20 @@ int main(int argc, char *argv[])
 	// system3 初期化
 	NACT* nact = NACT::create(game_id, font_file, playlist);
 
-	if (save_dir[0]) {
-#ifdef __ANDROID__
-		const char* gid = nact->get_game_id();
-		if (gid) {
-			strcat(save_dir, gid);
-			mkdir(save_dir, 0777);
-			strcat(save_dir, "/");
+	if (save_dir && save_dir[0]) {
+		std::string path(save_dir);
+		if (path[path.size() - 1] == '@') {
+			path.pop_back();
+			const char* gid = nact->get_game_id();
+			if (gid) {
+				path += gid;
+				mkdir(path.c_str(), 0777);
+			}
 		}
-#endif
-		FILEIO::SetSaveDir(save_dir);
+		if (path[path.size() - 1] != '/') {
+			path += '/';
+		}
+		FILEIO::SetSaveDir(path.c_str());
 	}
 
 	const char* title = nact->get_title();

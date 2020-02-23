@@ -62,7 +62,7 @@ class GameActivity : SDLActivity() {
     override fun getArguments(): Array<String> {
         return arrayOf("-antialias",
                 "-gamedir", intent.getStringExtra(EXTRA_GAME_ROOT),
-                "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR) + "/")
+                "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR) + "/@")
     }
 
     override fun setTitle(title: CharSequence?) {
