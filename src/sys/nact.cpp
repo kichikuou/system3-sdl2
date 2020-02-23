@@ -144,7 +144,17 @@ void NACT::mainloop()
 	int sleep_cnt = 0;
 
 	while(!terminate) {
-		execute();
+		switch (sys_ver) {
+		case 1:
+			execute(static_cast<NACT_Sys1*>(this));
+			break;
+		case 2:
+			execute(static_cast<NACT_Sys2*>(this));
+			break;
+		case 3:
+			execute(static_cast<NACT_Sys3*>(this));
+			break;
+		}
 		// 512コマンド実行毎にSleep(10)
 		if(!(sleep_cnt = (sleep_cnt + 1) & 0x1ff)) {
 			SDL_Delay(10);
@@ -154,7 +164,8 @@ void NACT::mainloop()
 
 // コマンドパーサ
 
-void NACT::execute()
+template <class T>
+void NACT::execute(T* impl)
 {
 	// アドレスの確認
 	if(scenario_addr < 2 || scenario_addr >= scenario_size) {
@@ -171,7 +182,7 @@ void NACT::execute()
 	}
 
 	if(sys_ver == 1 && scenario_page == 0 && scenario_addr == 2) {
-		opening();
+		impl->opening();
 	}
 
 	// １コマンド実行
@@ -185,117 +196,117 @@ void NACT::execute()
 	if(verb_obj && cmd != '[' && cmd != ':') {
 		// 動詞-目的語メニューの表示
 		scenario_addr--;
-		cmd_open_verb();
+		impl->cmd_open_verb();
 		return;
 	}
 
 	switch(cmd) {
 		case '!':
-			cmd_calc();
+			impl->cmd_calc();
 			break;
 		case '{':
-			cmd_branch();
+			impl->cmd_branch();
 			break;
 		case '}':
 			break;
 		case '@':
-			cmd_label_jump();
+			impl->cmd_label_jump();
 			break;
 		case '\\':
-			cmd_label_call();
+			impl->cmd_label_call();
 			break;
 		case '&':
-			cmd_page_jump();
+			impl->cmd_page_jump();
 			break;
 		case '%':
-			cmd_page_call();
+			impl->cmd_page_call();
 			break;
 		case '$':
-			cmd_set_menu();
+			impl->cmd_set_menu();
 			break;
 		case '[':
-			cmd_set_verbobj();
+			impl->cmd_set_verbobj();
 			break;
 		case ':':
-			cmd_set_verbobj2();
+			impl->cmd_set_verbobj2();
 			break;
 		case ']':
-			cmd_open_menu();
+			impl->cmd_open_menu();
 			break;
 		case 'A':
-			cmd_a();
+			impl->cmd_a();
 			break;
 		case 'B':
-			cmd_b();
+			impl->cmd_b();
 			break;
 		case 'D':
-			cmd_d();
+			impl->cmd_d();
 			break;
 		case 'E':
-			cmd_e();
+			impl->cmd_e();
 			break;
 		case 'F':
-			cmd_f();
+			impl->cmd_f();
 			break;
 		case 'G':
-			cmd_g();
+			impl->cmd_g();
 			break;
 		case 'H':
-			cmd_h();
+			impl->cmd_h();
 			break;
 		case 'I':
-			cmd_i();
+			impl->cmd_i();
 			break;
 		case 'J':
-			cmd_j();
+			impl->cmd_j();
 			break;
 		case 'K':
-			cmd_k();
+			impl->cmd_k();
 			break;
 		case 'L':
-			cmd_l();
+			impl->cmd_l();
 			break;
 		case 'M':
-			cmd_m();
+			impl->cmd_m();
 			break;
 		case 'N':
-			cmd_n();
+			impl->cmd_n();
 			break;
 		case 'O':
-			cmd_o();
+			impl->cmd_o();
 			break;
 		case 'P':
-			cmd_p();
+			impl->cmd_p();
 			break;
 		case 'Q':
-			cmd_q();
+			impl->cmd_q();
 			break;
 		case 'R':
-			cmd_r();
+			impl->cmd_r();
 			break;
 		case 'S':
-			cmd_s();
+			impl->cmd_s();
 			break;
 		case 'T':
-			cmd_t();
+			impl->cmd_t();
 			break;
 		case 'U':
-			cmd_u();
+			impl->cmd_u();
 			break;
 		case 'V':
-			cmd_v();
+			impl->cmd_v();
 			break;
 		case 'W':
-			cmd_w();
+			impl->cmd_w();
 			break;
 		case 'X':
-			cmd_x();
+			impl->cmd_x();
 			break;
 		case 'Y':
-			cmd_y();
+			impl->cmd_y();
 			break;
 		case 'Z':
-			cmd_z();
+			impl->cmd_z();
 			break;
 		default:
 			if(cmd == 0x20 || (0xa1 <= cmd && cmd <= 0xdd)) {

@@ -1775,16 +1775,3 @@ uint16 NACT_Sys3::cali2()
 	}
 	return val;
 }
-
-uint8 NACT_Sys3::getd()
-{
-	return scenario_data[scenario_addr++];
-}
-
-uint16 NACT_Sys3::getw()
-{
-	uint16 val = scenario_data[scenario_addr] | (scenario_data[scenario_addr + 1] << 8);
-	scenario_addr += 2;
-	return val;
-}
-
