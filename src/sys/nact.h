@@ -85,7 +85,7 @@ class NACT
 public:
 	static NACT* create(const char* game_id, const char* font_file, const char* playlist);
 	NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlist);
-	~NACT();
+	virtual ~NACT();
 
 protected:
 	AGS* ags;
@@ -121,17 +121,8 @@ protected:
 	char tvar_stack[30][10][22];
 //	int tvar_index;
 
-	// SYSTEM1 ----
-	int menu_max;	// メニューの改ページ
-
 	// DPS
 	bool text_refresh;
-
-	// Intruder Zコマンド
-	int paint_x;
-	int paint_y;
-	int map_page;
-	// ------------
 
 	bool column;		// 座標モード
 	bool wait_keydown;	// ウェイト時のキー受付
@@ -263,6 +254,13 @@ public:
 private:
 	uint16 cali();
 	uint16 cali2();
+
+	int menu_max;	// メニューの改ページ
+
+	// Intruder Zコマンド
+	int paint_x;
+	int paint_y;
+	int map_page;
 };
 
 class NACT_Sys2 : public NACT {

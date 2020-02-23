@@ -84,27 +84,6 @@ NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlis
 	pcm_index = 0;
 	memset(pcm, 0, sizeof(pcm));
 
-	if (sys_ver == 1) {
-		// SYETEM1 初期化
-		menu_max = 6;
-		switch (crc32) {
-		case CRC32_DPS:
-			text_refresh = false;
-			strcpy_s(tvar[0], 22, "カスタム");
-			strcpy_s(tvar[1], 22, "リーナス");
-			strcpy_s(tvar[2], 22, "かつみ");
-			strcpy_s(tvar[3], 22, "由美子");
-			strcpy_s(tvar[4], 22, "いつみ");
-			strcpy_s(tvar[5], 22, "ひとみ");
-			strcpy_s(tvar[6], 22, "真理子");
-			break;
-		case CRC32_INTRUDER:
-			menu_max = 11;
-			paint_x = paint_y = map_page = 0;
-			break;
-		}
-	}
-
 	// 各種クラス生成
 	ags = new AGS(this, font_file);
 	mako = new MAKO(this, playlist);
