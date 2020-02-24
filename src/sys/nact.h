@@ -77,6 +77,9 @@
 #define MAX_CAPTION 32
 #define MAX_PCM 256
 
+constexpr char SJIS_BACK[] = "\x96\xDF\x82\xE9"; // "戻る" in SJIS
+constexpr char SJIS_NEXT_PAGE [] = "\x8E\x9F\x82\xCC\x83\x79\x81\x5B\x83\x57"; // "次のページ" in SJIS
+
 class AGS;
 class MAKO;
 
