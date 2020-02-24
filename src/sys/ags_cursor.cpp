@@ -8,7 +8,7 @@
 
 void AGS::load_cursor(int page)
 {
-	// ƒJ[ƒ\ƒ‹CG‚ğƒ[ƒh‚·‚é
+	// ã‚«ãƒ¼ã‚½ãƒ«CGã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹
 	bool j_set = set_cg_dest;
 	int j_x = cg_dest_x;
 	int j_y = cg_dest_y;
@@ -26,9 +26,9 @@ void AGS::load_cursor(int page)
 	cg_dest_y = j_y;
 	dest_screen = dest;
 
-	// ƒtƒHƒ“ƒg‚Ì¶¬
+	// ãƒ•ã‚©ãƒ³ãƒˆã®ç”Ÿæˆ
 	for(int i = 0; i < 10; i++) {
-		// ƒpƒ^[ƒ““Ç‚İ‚İ
+		// ãƒ‘ã‚¿ãƒ¼ãƒ³èª­ã¿è¾¼ã¿
 		uint8 pat[34][34];
 		memset(pat, 0, sizeof(pat));
 
@@ -38,7 +38,7 @@ void AGS::load_cursor(int page)
 			}
 		}
 
-		// ƒpƒ^[ƒ“‰æ‚è
+		// ãƒ‘ã‚¿ãƒ¼ãƒ³ç¸å–ã‚Š
 		for(int y = 1; y <= 32; y++) {
 			for(int x = 1; x <= 32; x++) {
 				if(pat[y][x] == 0 && (pat[y - 1][x] == 1 || pat[y + 1][x] == 1 || pat[y][x - 1] == 1 || pat[y][x + 1] == 1)) {
@@ -47,7 +47,7 @@ void AGS::load_cursor(int page)
 			}
 		}
 
-		// ƒtƒHƒ“ƒg¶¬
+		// ãƒ•ã‚©ãƒ³ãƒˆç”Ÿæˆ
 		uint8 amask[128], xmask[128];
 		memset(amask, 0, sizeof(amask));
 		memset(xmask, 0, sizeof(xmask));

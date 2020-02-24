@@ -13,7 +13,7 @@ extern char g_root[_MAX_PATH];
 void AGS::load_cg(int page, int transparent)
 {
 	if (nact->sys_ver == 3) {
-		// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ƒtƒ‹ƒJƒ‰[ÀÊ”Å
+		// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª ãƒ•ãƒ«ã‚«ãƒ©ãƒ¼å®Ÿå†™ç‰ˆ
 		if(strncmp(acg, "CGA000.BMP", 10) == 0) {
 			char file_path[_MAX_PATH];
 			sprintf_s(file_path, _MAX_PATH, "%sCGA%03d.BMP", g_root, page);
@@ -38,7 +38,7 @@ void AGS::load_cg(int page, int transparent)
 				break;
 			case CRC32_INTRUDER:
 				// load_gm3(data, page, transparent);
-				load_vsp(data, page, transparent);	// b’è
+				load_vsp(data, page, transparent);	// æš«å®š
 				break;
 			case CRC32_VAMPIRE:
 				load_vsp2l(data, page, transparent);
@@ -50,7 +50,7 @@ void AGS::load_cg(int page, int transparent)
 			break;
 		case 2:
 			if(nact->crc32 == CRC32_AYUMI_PROTO) {
-				// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê PROTO
+				// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª PROTO
 				load_gl3(data, page, transparent);
 			} else if(nact->crc32 == CRC32_SDPS_MARIA || nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
 				// Super D.P.S
@@ -118,7 +118,7 @@ void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)
 
 void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 {
-	// N88-BASIC‘ã‚ÌƒRƒs[ƒRƒ}ƒ“ƒh
+	// N88-BASICæ™‚ä»£ã®ã‚³ãƒ”ãƒ¼ã‚³ãƒãƒ³ãƒ‰
 	int src = (gsw == 0 || gsw == 2) ? 0 : 1;
 	int dest = (gsw == 0 || gsw == 3) ? 0 : 1;
 	int sx = (gsc % 80) * 8;
@@ -155,7 +155,7 @@ void AGS::paint(int x, int y, uint8 color)
 void AGS::draw_box(int index)
 {
 	if(index == 0) {
-		// ‘S‰æ–ÊÁ‹
+		// å…¨ç”»é¢æ¶ˆå»
 		box_fill(dest_screen, 0, 0, 639, 479, 0);
 		return;
 	}

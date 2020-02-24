@@ -8,7 +8,7 @@
 
 void AGS::load_vsp2l(uint8* data, int page, int transparent)
 {
-	// ƒwƒbƒ_æ“¾
+	// ãƒ˜ãƒƒãƒ€å–å¾—
 	int sx = data[0] | (data[1] << 8);
 	int sy = data[2] | (data[3] << 8);
 	int ex = data[4] | (data[5] << 8);
@@ -17,7 +17,7 @@ void AGS::load_vsp2l(uint8* data, int page, int transparent)
 	int height = ey - sy;
 	uint8 base = 0;//(data[9] & 0x0f) << 4;
 
-	// JƒRƒ}ƒ“ƒh‚Ìˆ—
+	// Jã‚³ãƒãƒ³ãƒ‰ã®å‡¦ç†
 	if(set_cg_dest) {
 		sx = cg_dest_x >> 3;
 		sy = cg_dest_y;
@@ -26,12 +26,12 @@ void AGS::load_vsp2l(uint8* data, int page, int transparent)
 		set_cg_dest = false;
 	}
 
-	// ZƒRƒ}ƒ“ƒh‚Ìˆ—
+	// Zã‚³ãƒãƒ³ãƒ‰ã®å‡¦ç†
 	if(palette_bank != -1) {
 		base = (palette_bank & 0x0f) << 4;
 	}
 
-	// ƒpƒŒƒbƒgæ“¾
+	// ãƒ‘ãƒ¬ãƒƒãƒˆå–å¾—
 	screen_palette[base + 0] = SETPALETTE16(0x0, 0x0, 0x0);
 	screen_palette[base + 1] = SETPALETTE16(0x0, 0x0, 0xf);
 	screen_palette[base + 2] = SETPALETTE16(0xf, 0x0, 0x0);
@@ -41,7 +41,7 @@ void AGS::load_vsp2l(uint8* data, int page, int transparent)
 	screen_palette[base + 6] = SETPALETTE16(0xf, 0xf, 0x0);
 	screen_palette[base + 7] = SETPALETTE16(0xf, 0xf, 0xf);
 
-	// VSP2L“WŠJ
+	// VSP2Lå±•é–‹
 	uint8 cgdata[3][2][200], mask = 0;
 	int p = 0x1a;
 	memset(cgdata, 0, sizeof(cgdata));
@@ -102,7 +102,7 @@ void AGS::load_vsp2l(uint8* data, int page, int transparent)
 			}
 		}
 
-		// VRAM‚É“]‘—
+		// VRAMã«è»¢é€
 		if(extract_cg) {
 			for(int y = 0; y < height; y++) {
 				uint8 b0, b1, b2, c[8];
@@ -135,7 +135,7 @@ void AGS::load_vsp2l(uint8* data, int page, int transparent)
 		}
 	}
 
-	// ‰æ–ÊXV
+	// ç”»é¢æ›´æ–°
 	if(dest_screen == 0 && extract_cg) {
 		draw_screen(sx * 8, sy * 2, width * 8, height * 2);
 	}

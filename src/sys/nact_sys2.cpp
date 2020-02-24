@@ -266,7 +266,7 @@ void NACT_Sys2::cmd_label_call()
 #endif
 
 	if(next_addr == 0) {
-		// ƒŠƒ^[ƒ“
+		// ãƒªã‚¿ãƒ¼ãƒ³
 		if(label_depth == 0) {
 //			fatal_error = true;
 			return;
@@ -303,7 +303,7 @@ void NACT_Sys2::cmd_page_call()
 #endif
 
 	if(next_page == 0) {
-		// ƒŠƒ^[ƒ“
+		// ãƒªã‚¿ãƒ¼ãƒ³
 		if(page_depth == 0) {
 //			fatal_error = true;
 			return;
@@ -363,7 +363,7 @@ void NACT_Sys2::cmd_open_menu()
 		return;
 	}
 
-	// ƒNƒŠƒbƒN’†‚ÌŠÔ‚Í‘Ò‹@
+	// ã‚¯ãƒªãƒƒã‚¯ä¸­ã®é–“ã¯å¾…æ©Ÿ
 	for(;;) {
 		if(terminate) {
 			return;
@@ -375,11 +375,11 @@ void NACT_Sys2::cmd_open_menu()
 		SDL_Delay(10);
 	}
 
-	// ƒƒjƒ…[•\¦
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
 	ags->open_menu_window(menu_window);
 	int current_index = 0;
 
-	// ƒ}ƒEƒXˆÚ“®
+	// ãƒã‚¦ã‚¹ç§»å‹•
 	int sx = ags->menu_w[menu_window - 1].sx;
 	int sy = ags->menu_w[menu_window - 1].sy;
 	int ex = ags->menu_w[menu_window - 1].ex;
@@ -388,9 +388,9 @@ void NACT_Sys2::cmd_open_menu()
 	int height = ags->menu_font_size + 4;
 	set_cursor(mx, my);
 
-	// ƒƒjƒ…[‘I‘ğ
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é¸æŠ
 	for(;;) {
-		// “ü—Í‘Ò‹@
+		// å…¥åŠ›å¾…æ©Ÿ
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(terminate) {
@@ -419,7 +419,7 @@ void NACT_Sys2::cmd_open_menu()
 		}
 
 		if(val == 0) {
-			// ƒ}ƒEƒX‘€ì
+			// ãƒã‚¦ã‚¹æ“ä½œ
 			mx = current_mx; my = current_my;
 			int index = (my - sy) / height;
 			if(sx <= mx && mx <= ex && 0 <= index && index < menu_index) {
@@ -445,7 +445,7 @@ void NACT_Sys2::cmd_open_menu()
 		}
 	}
 
-	// ‰æ–ÊXV
+	// ç”»é¢æ›´æ–°
 	ags->close_menu_window(menu_window);
 	if(clear_text) {
 		ags->clear_text_window(text_window, true);
@@ -498,7 +498,7 @@ void NACT_Sys2::cmd_set_verbobj2()
 
 void NACT_Sys2::cmd_open_verb()
 {
-	// “®Œƒƒjƒ…[‚Ì•\¦
+	// å‹•è©ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤º
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
 	sprintf_s(log, 128, "\nopen verb-obj menu");
@@ -506,7 +506,7 @@ void NACT_Sys2::cmd_open_verb()
 #endif
 	verb_obj = false;
 
-	// •\¦‚·‚é“®Œ‚Ìƒ`ƒFƒbƒN
+	// è¡¨ç¤ºã™ã‚‹å‹•è©ã®ãƒã‚§ãƒƒã‚¯
 	int chk[MAX_VERB], page = 0;
 	
 	memset(chk, 0, sizeof(chk));
@@ -514,7 +514,7 @@ void NACT_Sys2::cmd_open_verb()
 		chk[menu_verb[i]] = 1;
 	}
 
-	// ƒƒjƒ…[€–Ú‚Ì€”õ
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã®æº–å‚™
 	int id[32], index = 0;
 
 	ags->clear_menu_window();
@@ -532,7 +532,7 @@ void NACT_Sys2::cmd_open_verb()
 	}
 	ags->draw_menu = false;
 
-	// ƒNƒŠƒbƒN’†‚ÌŠÔ‚Í‘Ò‹@
+	// ã‚¯ãƒªãƒƒã‚¯ä¸­ã®é–“ã¯å¾…æ©Ÿ
 	for(;;) {
 		if(terminate) {
 			return;
@@ -544,11 +544,11 @@ void NACT_Sys2::cmd_open_verb()
 		SDL_Delay(10);
 	}
 
-	// ƒƒjƒ…[•\¦
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
 	ags->open_menu_window(menu_window);
 	int current_index = 0;
 
-	// ƒ}ƒEƒXˆÚ“®
+	// ãƒã‚¦ã‚¹ç§»å‹•
 	int sx = ags->menu_w[menu_window - 1].sx;
 	int sy = ags->menu_w[menu_window - 1].sy;
 	int ex = ags->menu_w[menu_window - 1].ex;
@@ -557,9 +557,9 @@ void NACT_Sys2::cmd_open_verb()
 	int height = ags->menu_font_size + 4;
 	set_cursor(mx, my);
 
-	// ƒƒjƒ…[‘I‘ğ
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é¸æŠ
 	for(;;) {
-		// “ü—Í‘Ò‹@
+		// å…¥åŠ›å¾…æ©Ÿ
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(terminate) {
@@ -588,7 +588,7 @@ void NACT_Sys2::cmd_open_verb()
 		}
 
 		if(val == 0) {
-			// ƒ}ƒEƒX‘€ì
+			// ãƒã‚¦ã‚¹æ“ä½œ
 			mx = current_mx; my = current_my;
 			int mindex = (my - sy) / height;
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
@@ -614,7 +614,7 @@ void NACT_Sys2::cmd_open_verb()
 		}
 	}
 
-	// ‰æ–ÊXV
+	// ç”»é¢æ›´æ–°
 	ags->close_menu_window(menu_window);
 	if(clear_text) {
 		ags->clear_text_window(text_window, true);
@@ -630,10 +630,10 @@ void NACT_Sys2::cmd_open_verb()
 
 void NACT_Sys2::cmd_open_obj(int verb)
 {
-	// –Ú“IŒêƒƒjƒ…[‚Ì•\¦
+	// ç›®çš„èªãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤º
 	verb_obj = false;
 
-	// •\¦‚·‚é–Ú“IŒê‚Ìƒ`ƒFƒbƒN
+	// è¡¨ç¤ºã™ã‚‹ç›®çš„èªã®ãƒã‚§ãƒƒã‚¯
 	int chk[MAX_OBJ], addr[MAX_OBJ], page = 0;
 	
 	memset(chk, 0, sizeof(chk));
@@ -643,16 +643,16 @@ void NACT_Sys2::cmd_open_obj(int verb)
 			addr[menu_obj[i]] = menu_addr[i];
 		}
 	}
-	// –Ú“IŒê‚ª‚È‚¢ê‡
+	// ç›®çš„èªãŒãªã„å ´åˆ
 	if(chk[0]) {
 		scenario_addr = addr[0];
 		return;
 	}
-	// ˆÈŒãAobj=0‚Í–ß‚é‚Æ‚µ‚Äˆµ‚¤
+	// ä»¥å¾Œã€obj=0ã¯æˆ»ã‚‹ã¨ã—ã¦æ‰±ã†
 	chk[0] = 0;
 	addr[0] = scenario_data[0] | (scenario_data[1] << 8);
 
-	// ƒƒjƒ…[€–Ú‚Ì€”õ
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã®æº–å‚™
 	int id[32], index = 0;
 
 	ags->clear_menu_window();
@@ -668,15 +668,15 @@ void NACT_Sys2::cmd_open_obj(int verb)
 			ags->menu_dest_y += ags->menu_font_size + 2;
 		}
 	}
-	// –ß‚é‚ğ’Ç‰Á
+	// æˆ»ã‚‹ã‚’è¿½åŠ 
 	ags->menu_dest_x = 2;
 	ags->menu_dest_y += 2;
-	ags->draw_text("–ß‚é");
+	ags->draw_text("æˆ»ã‚‹");
 	id[index++] = 0;
 	ags->menu_dest_y += ags->menu_font_size + 2;
 	ags->draw_menu = false;
 
-	// ƒNƒŠƒbƒN’†‚ÌŠÔ‚Í‘Ò‹@
+	// ã‚¯ãƒªãƒƒã‚¯ä¸­ã®é–“ã¯å¾…æ©Ÿ
 	for(;;) {
 		if(terminate) {
 			return;
@@ -688,11 +688,11 @@ void NACT_Sys2::cmd_open_obj(int verb)
 		SDL_Delay(10);
 	}
 
-	// ƒƒjƒ…[•\¦
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
 	ags->open_menu_window(menu_window);
 	int current_index = 0;
 
-	// ƒ}ƒEƒXˆÚ“®
+	// ãƒã‚¦ã‚¹ç§»å‹•
 	int sx = ags->menu_w[menu_window - 1].sx;
 	int sy = ags->menu_w[menu_window - 1].sy;
 	int ex = ags->menu_w[menu_window - 1].ex;
@@ -701,9 +701,9 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	int height = ags->menu_font_size + 4;
 	set_cursor(mx, my);
 
-	// ƒƒjƒ…[‘I‘ğ
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é¸æŠ
 	for(;;) {
-		// “ü—Í‘Ò‹@
+		// å…¥åŠ›å¾…æ©Ÿ
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(terminate) {
@@ -732,7 +732,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 		}
 
 		if(val == 0) {
-			// ƒ}ƒEƒX‘€ì
+			// ãƒã‚¦ã‚¹æ“ä½œ
 			mx = current_mx; my = current_my;
 			int mindex = (my - sy) / height;
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
@@ -758,7 +758,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 		}
 	}
 
-	// ‰æ–ÊXV
+	// ç”»é¢æ›´æ–°
 	ags->close_menu_window(menu_window);
 	if(clear_text) {
 		ags->clear_text_window(text_window, true);
@@ -780,12 +780,12 @@ void NACT_Sys2::cmd_a()
 #endif
 
 	if(!text_skip_enb) {
-		// Pushƒ}[ƒN‚Ì•\¦
+		// Pushãƒãƒ¼ã‚¯ã®è¡¨ç¤º
 		if(show_push) {
 			ags->draw_push(text_window);
 		}
 
-		// ƒL[‚ª‰Ÿ‚³‚ê‚Ä—£‚³‚ê‚é‚Ü‚Å‘Ò‹@
+		// ã‚­ãƒ¼ãŒæŠ¼ã•ã‚Œã¦é›¢ã•ã‚Œã‚‹ã¾ã§å¾…æ©Ÿ
 		for(;;) {
 			if(terminate) {
 				return;
@@ -807,7 +807,7 @@ void NACT_Sys2::cmd_a()
 		}
 	}
 
-	// ƒEƒBƒ“ƒhƒEXV
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦æ›´æ–°
 	ags->clear_text_window(text_window, true);
 }
 
@@ -834,7 +834,7 @@ void NACT_Sys2::cmd_b()
 		ags->menu_w[index - 1].ey = p4;
 		ags->menu_w[index - 1].push = p5 ? true : false;
 
-		// ‘Ş”ğ‰æ–Ê‚Ì”jŠü
+		// é€€é¿ç”»é¢ã®ç ´æ£„
 		if(ags->menu_w[index - 1].screen) {
 			free(ags->menu_w[index - 1].screen);
 			ags->menu_w[index - 1].screen = NULL;
@@ -852,19 +852,19 @@ void NACT_Sys2::cmd_b()
 		ags->text_w[index - 1].ey = p4;
 		ags->text_w[index - 1].push = p5 ? true : false;
 
-		// ‘Ş”ğ‰æ–Ê‚Ì”jŠü
+		// é€€é¿ç”»é¢ã®ç ´æ£„
 		if(ags->text_w[index - 1].screen) {
 			free(ags->text_w[index - 1].screen);
 			ags->text_w[index - 1].screen = NULL;
 		}
-		// ‘Ş”ğ‘‹‚Ì”jŠü
+		// é€€é¿çª“ã®ç ´æ£„
 		if(ags->text_w[index - 1].window) {
 			free(ags->text_w[index - 1].window);
 			ags->text_w[index - 1].window = NULL;
 		}
 	} else if(cmd == 4) {
 		if(p5 == 0) {
-			// ƒEƒBƒ“ƒhƒE‘Ş”ğ
+			// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦é€€é¿
 //			if(crc32 == CRC32_PROSTUDENTG_FD) {
 //				ags->text_w[index - 1].frame = (index == 1 || index == 3) ? true : false;
 //			} else
@@ -872,7 +872,7 @@ void NACT_Sys2::cmd_b()
 			ags->open_text_window(index, p4 ? false : true);
 			text_window = index;
 		} else {
-			// ƒEƒBƒ“ƒhƒE•œ‹A
+			// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦å¾©å¸°
 			ags->close_text_window(index, text_window == index ? true : false);
 		}
 	}
@@ -949,7 +949,7 @@ void NACT_Sys2::cmd_h()
 	output_console(log);
 #endif
 
-	// 8Œ…‚Ì•¶š—ñ‚ğ¶¬
+	// 8æ¡ã®æ–‡å­—åˆ—ã‚’ç”Ÿæˆ
 	char tmp[8];
 	tmp[0] = '0';
 	tmp[1] = '0';
@@ -965,7 +965,7 @@ void NACT_Sys2::cmd_h()
 		tmp[i] = ' ';
 	}
 
-	// w’è‚µ‚½Œ…”‚¾‚¯o—Í
+	// æŒ‡å®šã—ãŸæ¡æ•°ã ã‘å‡ºåŠ›
 	char string[9];
 	int p = 0;
 	if(length == 0) {
@@ -1010,7 +1010,7 @@ void NACT_Sys2::cmd_j()
 
 void NACT_Sys2::cmd_k()
 {
-	// –¢g—p
+	// æœªä½¿ç”¨
 	cmd_r();
 }
 
@@ -1301,7 +1301,7 @@ void NACT_Sys2::cmd_r()
 	output_console(log);
 #endif
 
-	// ƒEƒBƒ“ƒhƒE‚Ì•\¦”ÍˆÍŠO‚Ìê‡‚Í‰üƒy[ƒW
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®è¡¨ç¤ºç¯„å›²å¤–ã®å ´åˆã¯æ”¹ãƒšãƒ¼ã‚¸
 	if(ags->return_text_line(text_window)) {
 		cmd_a();
 	}
@@ -1574,7 +1574,7 @@ void NACT_Sys2::cmd_z()
 }
 
 
-// ‰ºˆÊŠÖ”
+// ä¸‹ä½é–¢æ•°
 
 uint16 NACT_Sys2::cali()
 {

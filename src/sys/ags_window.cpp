@@ -36,13 +36,13 @@ bool AGS::return_text_line(int index)
 	text_dest_y += text_space;
 	text_font_maxsize = 0;
 
-	// Ÿ‚Ìs‚ª•\¦‚µ‚«‚ê‚é‚©H
+	// æ¬¡ã®è¡ŒãŒè¡¨ç¤ºã—ãã‚Œã‚‹ã‹ï¼Ÿ
 	return (text_dest_y + text_font_size) > ey ? true : false;
 }
 
 void AGS::draw_push(int index)
 {
-	// Push‚Ìƒpƒ^[ƒ“ƒf[ƒ^
+	// Pushã®ãƒ‘ã‚¿ãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿
 	static uint16 pattern[16] = {
 		0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xe000,
 		0x9000, 0x9974, 0xe944, 0x8977, 0x8915, 0x8775, 0x0000, 0xffff
@@ -81,7 +81,7 @@ void AGS::open_text_window(int index, bool erase)
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 
-	// ‰æ–Ê‘Ş”ğ
+	// ç”»é¢é€€é¿
 	if(text_w[index - 1].push) {
 		if(text_w[index - 1].screen) {
 			free(text_w[index - 1].screen);
@@ -106,10 +106,10 @@ void AGS::open_text_window(int index, bool erase)
 	}
 
 	if(erase) {
-		// ‘‹‰Šú‰»
+		// çª“åˆæœŸåŒ–
 		draw_window(sx, sy, ex, ey, text_w[index - 1].frame, text_frame_color, text_back_color);
 	} else if(text_w[index - 1].push && text_w[index - 1].window) {
-		// ‘‹•œ‹A
+		// çª“å¾©å¸°
 		sx = text_w[index - 1].window_x;
 		sy = text_w[index - 1].window_y;
 		width = text_w[index - 1].window_width;
@@ -128,7 +128,7 @@ void AGS::open_text_window(int index, bool erase)
 		memcpy(screen_palette, palette, sizeof(screen_palette));
 	}
 
-	// ƒeƒLƒXƒg•`‰æˆÊ’uXV
+	// ãƒ†ã‚­ã‚¹ãƒˆæç”»ä½ç½®æ›´æ–°
 	text_dest_x = text_w[index - 1].sx;
 	text_dest_y = text_w[index - 1].sy + text_space;;
 	text_font_maxsize = 0;
@@ -143,7 +143,7 @@ void AGS::close_text_window(int index, bool update)
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 
-	// ‘‹‘Ş”ğ
+	// çª“é€€é¿
 	if(text_w[index - 1].push) {
 		if(text_w[index - 1].window) {
 			free(text_w[index - 1].window);
@@ -167,7 +167,7 @@ void AGS::close_text_window(int index, bool update)
 		}
 	}
 
-	// ‰æ–Ê•œ‹A
+	// ç”»é¢å¾©å¸°
 	if(text_w[index - 1].push && text_w[index - 1].screen) {
 		sx = text_w[index - 1].screen_x;
 		sy = text_w[index - 1].screen_y;
@@ -187,7 +187,7 @@ void AGS::close_text_window(int index, bool update)
 		memcpy(screen_palette, palette, sizeof(screen_palette));
 	}
 
-	// ƒeƒLƒXƒg•`‰æˆÊ’uXV
+	// ãƒ†ã‚­ã‚¹ãƒˆæç”»ä½ç½®æ›´æ–°
 	if(update) {
 		text_dest_x = text_w[index - 1].sx;
 		text_dest_y = text_w[index - 1].sy + text_space;;
@@ -216,7 +216,7 @@ void AGS::open_menu_window(int index)
 	int wwidth = wex - wsx + 1;
 	int wheight = wey - wsy + 1;
 
-	// ‰æ–Ê‘Ş”ğ
+	// ç”»é¢é€€é¿
 	if(menu_w[index - 1].push) {
 		if(menu_w[index - 1].screen) {
 			free(menu_w[index - 1].screen);
@@ -240,7 +240,7 @@ void AGS::open_menu_window(int index)
 		}
 	}
 
-	// ƒƒjƒ…[•\¦
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
 	draw_window(wsx, wsy, wex, wey, menu_w[index - 1].frame, menu_frame_color, menu_back_color);
 	for(int y = 0; y < height && y + sy < 480; y++) {
 		for(int x = 0; x < width && x + sx < 640; x++) {
@@ -271,7 +271,7 @@ void AGS::redraw_menu_window(int index, int selected)
 
 void AGS::close_menu_window(int index)
 {
-	// ‰æ–Ê•œ‹A
+	// ç”»é¢å¾©å¸°
 	if(menu_w[index - 1].push && menu_w[index - 1].screen) {
 		int sx = menu_w[index - 1].screen_x;
 		int sy = menu_w[index - 1].screen_y;
@@ -294,7 +294,7 @@ void AGS::close_menu_window(int index)
 
 void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color)
 {
-	// —Ìˆæ‚Ì“h‚è’×‚µ
+	// é ˜åŸŸã®å¡—ã‚Šæ½°ã—
 	for(int y = sy; y <= ey && y < 480; y++) {
 		uint32* dest = vram[0][y];
 		for(int x = sx; x <= ex && x < 640; x++) {
@@ -302,7 +302,7 @@ void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_co
 		}
 	}
 
-	// ˜g•\¦
+	// æ è¡¨ç¤º
 	if(frame) {
 		for(int x = sx + 1; x <= ex - 1; x++) {
 			vram[0][sy + 1][x] = frame_color;

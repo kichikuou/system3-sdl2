@@ -48,7 +48,7 @@ uint8 NACT::get_key()
 	if (pump_events(ags))
 		terminate = true;
 
-	// ƒL[ƒ{[ƒh•ƒ}ƒEƒX
+	// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ï¼†ãƒžã‚¦ã‚¹
 	const Uint8* key = SDL_GetKeyboardState(NULL);
 	Uint32 mouse;
 	if (fingers) {
@@ -66,10 +66,10 @@ uint8 NACT::get_key()
 	if(key[SDL_SCANCODE_ESCAPE]                            ) val |= 0x40;
 	if(key[SDL_SCANCODE_TAB   ]                            ) val |= 0x80;
 
-	// ƒ}ƒEƒXˆÚ“®‚Å•ûŒü“ü—Í‚ÍƒTƒ|[ƒg‚µ‚È‚¢
+	// ãƒžã‚¦ã‚¹ç§»å‹•ã§æ–¹å‘å…¥åŠ›ã¯ã‚µãƒãƒ¼ãƒˆã—ãªã„
 
 #ifdef USE_JOY
-	// ƒWƒ‡ƒCƒXƒeƒBƒbƒN
+	// ã‚¸ãƒ§ã‚¤ã‚¹ãƒ†ã‚£ãƒƒã‚¯
 	if(joy_num > 0) {
 		JOYINFO joyinfo;
 		if(joyGetPos(JOYSTICKID1, &joyinfo) == JOYERR_NOERROR) {

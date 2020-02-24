@@ -41,7 +41,7 @@ void NACT_Sys3::cmd_branch()
 	int t_addr = scenario_addr + 2;
 	int f_addr = getw();
 
-	// sigmarion3 Å“K‰»Œë”š‚Ì‘Îô
+	// sigmarion3 æœ€é©åŒ–èª¤çˆ†ã®å¯¾ç­–
 	scenario_addr = condition ? t_addr : f_addr;
 
 #if defined(_DEBUG_CONSOLE)
@@ -74,7 +74,7 @@ void NACT_Sys3::cmd_label_call()
 #endif
 
 	if(next_addr == 0) {
-		// ƒŠƒ^[ƒ“
+		// ãƒªã‚¿ãƒ¼ãƒ³
 		if(label_depth == 0) {
 //			fatal_error = true;
 			return;
@@ -111,7 +111,7 @@ void NACT_Sys3::cmd_page_call()
 #endif
 
 	if(next_page == 0) {
-		// ƒŠƒ^[ƒ“
+		// ãƒªã‚¿ãƒ¼ãƒ³
 		if(page_depth == 0) {
 //			fatal_error = true;
 			return;
@@ -160,7 +160,7 @@ void NACT_Sys3::cmd_set_menu()
 
 int NACT_Sys3::menu_select(int num_items)
 {
-	// ƒNƒŠƒbƒN’†‚ÌŠÔ‚Í‘Ò‹@
+	// ã‚¯ãƒªãƒƒã‚¯ä¸­ã®é–“ã¯å¾…æ©Ÿ
 	for(;;) {
 		if(terminate) {
 			return -1;
@@ -172,11 +172,11 @@ int NACT_Sys3::menu_select(int num_items)
 		SDL_Delay(16);
 	}
 
-	// ƒƒjƒ…[•\¦
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
 	ags->open_menu_window(menu_window);
 	int current_index = 0;
 
-	// ƒ}ƒEƒXˆÚ“®
+	// ãƒã‚¦ã‚¹ç§»å‹•
 	int sx = ags->menu_w[menu_window - 1].sx;
 	int sy = ags->menu_w[menu_window - 1].sy;
 	int ex = ags->menu_w[menu_window - 1].ex;
@@ -187,9 +187,9 @@ int NACT_Sys3::menu_select(int num_items)
 
 	bool selectable = true;
 
-	// ƒƒjƒ…[‘I‘ğ
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é¸æŠ
 	for(;;) {
-		// “ü—Í‘Ò‹@
+		// å…¥åŠ›å¾…æ©Ÿ
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(terminate) {
@@ -219,7 +219,7 @@ int NACT_Sys3::menu_select(int num_items)
 		}
 
 		if(val == 0) {
-			// ƒ}ƒEƒX‘€ì
+			// ãƒã‚¦ã‚¹æ“ä½œ
 			mx = current_mx; my = current_my;
 			int index = (my - sy) / height;
 			if(sx <= mx && mx <= ex && 0 <= index && index < num_items) {
@@ -249,7 +249,7 @@ int NACT_Sys3::menu_select(int num_items)
 		}
 	}
 
-	// ‰æ–ÊXV
+	// ç”»é¢æ›´æ–°
 	ags->close_menu_window(menu_window);
 	if(clear_text) {
 		ags->clear_text_window(text_window, true);
@@ -322,7 +322,7 @@ void NACT_Sys3::cmd_set_verbobj2()
 
 void NACT_Sys3::cmd_open_verb()
 {
-	// “®Œƒƒjƒ…[‚Ì•\¦
+	// å‹•è©ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤º
 #if defined(_DEBUG_CONSOLE)
 	char log[128];
 	sprintf_s(log, 128, "\nopen verb-obj menu");
@@ -330,7 +330,7 @@ void NACT_Sys3::cmd_open_verb()
 #endif
 	verb_obj = false;
 
-	// •\¦‚·‚é“®Œ‚Ìƒ`ƒFƒbƒN
+	// è¡¨ç¤ºã™ã‚‹å‹•è©ã®ãƒã‚§ãƒƒã‚¯
 	int chk[MAX_VERB], page = 0;
 	
 	memset(chk, 0, sizeof(chk));
@@ -338,7 +338,7 @@ void NACT_Sys3::cmd_open_verb()
 		chk[menu_verb[i]] = 1;
 	}
 
-	// ƒƒjƒ…[€–Ú‚Ì€”õ
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã®æº–å‚™
 	int id[32], index = 0;
 
 	ags->clear_menu_window();
@@ -370,10 +370,10 @@ void NACT_Sys3::cmd_open_verb()
 
 void NACT_Sys3::cmd_open_obj(int verb)
 {
-	// –Ú“IŒêƒƒjƒ…[‚Ì•\¦
+	// ç›®çš„èªãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤º
 	verb_obj = false;
 
-	// •\¦‚·‚é–Ú“IŒê‚Ìƒ`ƒFƒbƒN
+	// è¡¨ç¤ºã™ã‚‹ç›®çš„èªã®ãƒã‚§ãƒƒã‚¯
 	int chk[MAX_OBJ], addr[MAX_OBJ], page = 0;
 	
 	memset(chk, 0, sizeof(chk));
@@ -383,16 +383,16 @@ void NACT_Sys3::cmd_open_obj(int verb)
 			addr[menu_obj[i]] = menu_addr[i];
 		}
 	}
-	// –Ú“IŒê‚ª‚È‚¢ê‡
+	// ç›®çš„èªãŒãªã„å ´åˆ
 	if(chk[0]) {
 		scenario_addr = addr[0];
 		return;
 	}
-	// ˆÈŒãAobj=0‚Í–ß‚é‚Æ‚µ‚Äˆµ‚¤
+	// ä»¥å¾Œã€obj=0ã¯æˆ»ã‚‹ã¨ã—ã¦æ‰±ã†
 	chk[0] = 0;
 	addr[0] = scenario_data[0] | (scenario_data[1] << 8);
 
-	// ƒƒjƒ…[€–Ú‚Ì€”õ
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼é …ç›®ã®æº–å‚™
 	int id[32], index = 0;
 
 	ags->clear_menu_window();
@@ -408,10 +408,10 @@ void NACT_Sys3::cmd_open_obj(int verb)
 			ags->menu_dest_y += ags->menu_font_size + 2;
 		}
 	}
-	// –ß‚é‚ğ’Ç‰Á
+	// æˆ»ã‚‹ã‚’è¿½åŠ 
 	ags->menu_dest_x = 2;
 	ags->menu_dest_y += 2;
-	ags->draw_text("–ß‚é");
+	ags->draw_text("æˆ»ã‚‹");
 	id[index++] = 0;
 	ags->menu_dest_y += ags->menu_font_size + 2;
 	ags->draw_menu = false;
@@ -438,12 +438,12 @@ void NACT_Sys3::cmd_a()
 #endif
 
 	if(!text_skip_enb) {
-		// Pushƒ}[ƒN‚Ì•\¦
+		// Pushãƒãƒ¼ã‚¯ã®è¡¨ç¤º
 		if(show_push) {
 			ags->draw_push(text_window);
 		}
 
-		// ƒL[‚ª‰Ÿ‚³‚ê‚Ä—£‚³‚ê‚é‚Ü‚Å‘Ò‹@
+		// ã‚­ãƒ¼ãŒæŠ¼ã•ã‚Œã¦é›¢ã•ã‚Œã‚‹ã¾ã§å¾…æ©Ÿ
 		for(;;) {
 			if(terminate) {
 				return;
@@ -465,7 +465,7 @@ void NACT_Sys3::cmd_a()
 		}
 	}
 
-	// ƒEƒBƒ“ƒhƒEXV
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦æ›´æ–°
 	ags->clear_text_window(text_window, true);
 }
 
@@ -486,7 +486,7 @@ void NACT_Sys3::cmd_b()
 #endif
 
 	if(cmd == 1) {
-		// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê
+		// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª
 		if(crc32 == CRC32_AYUMI_CD || crc32 == CRC32_AYUMI_JISSHA_256 || crc32 == CRC32_AYUMI_JISSHA_FULL) {
 			p5 = 1;
 		}
@@ -497,7 +497,7 @@ void NACT_Sys3::cmd_b()
 		ags->menu_w[index - 1].ey = p4;
 		ags->menu_w[index - 1].push = p5 ? true : false;
 
-		// ‘Ş”ğ‰æ–Ê‚Ì”jŠü
+		// é€€é¿ç”»é¢ã®ç ´æ£„
 		if(ags->menu_w[index - 1].screen) {
 			free(ags->menu_w[index - 1].screen);
 			ags->menu_w[index - 1].screen = NULL;
@@ -512,21 +512,21 @@ void NACT_Sys3::cmd_b()
 		ags->text_w[index - 1].ey = p4;
 		ags->text_w[index - 1].push = p5 ? true : false;
 
-		// ‘Ş”ğ‰æ–Ê‚Ì”jŠü
+		// é€€é¿ç”»é¢ã®ç ´æ£„
 		if(ags->text_w[index - 1].screen) {
 			free(ags->text_w[index - 1].screen);
 			ags->text_w[index - 1].screen = NULL;
 		}
-		// ‘Ş”ğ‘‹‚Ì”jŠü
+		// é€€é¿çª“ã®ç ´æ£„
 		if(ags->text_w[index - 1].window) {
 			free(ags->text_w[index - 1].window);
 			ags->text_w[index - 1].window = NULL;
 		}
 	} else if(cmd == 4) {
 		if(p5 == 0) {
-			// ƒEƒBƒ“ƒhƒE‘Ş”ğ
+			// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦é€€é¿
 			if(crc32 == CRC32_PROSTUDENTG_CD && p4) {
-				// prostudent G ƒI[ƒvƒjƒ“ƒO‰æ–Ê‰»‚¯‘Îô
+				// prostudent G ã‚ªãƒ¼ãƒ—ãƒ‹ãƒ³ã‚°ç”»é¢åŒ–ã‘å¯¾ç­–
 				if(ags->text_w[index - 1].window) {
 					free(ags->text_w[index - 1].window);
 					ags->text_w[index - 1].window = NULL;
@@ -536,7 +536,7 @@ void NACT_Sys3::cmd_b()
 			ags->open_text_window(index, p4 ? false : true);
 			text_window = index;
 		} else {
-			// ƒEƒBƒ“ƒhƒE•œ‹A
+			// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦å¾©å¸°
 			ags->close_text_window(index, text_window == index ? true : false);
 		}
 	}
@@ -544,7 +544,7 @@ void NACT_Sys3::cmd_b()
 
 void NACT_Sys3::cmd_d()
 {
-	// –¢g—p
+	// æœªä½¿ç”¨
 }
 
 void NACT_Sys3::cmd_e()
@@ -604,12 +604,12 @@ void NACT_Sys3::cmd_h()
 	output_console(log);
 #endif
 
-	// ‰B‚µƒRƒ}ƒ“ƒhH
+	// éš ã—ã‚³ãƒãƒ³ãƒ‰ï¼Ÿ
 	if(length >= 9) {
 		return;
 	}
 
-	// 8Œ…‚Ì•¶š—ñ‚ğ¶¬
+	// 8æ¡ã®æ–‡å­—åˆ—ã‚’ç”Ÿæˆ
 	char tmp[8];
 	tmp[0] = '0';
 	tmp[1] = '0';
@@ -626,7 +626,7 @@ void NACT_Sys3::cmd_h()
 		tmp[i] = ' ';
 	}
 
-	// w’è‚µ‚½Œ…”‚¾‚¯o—Í
+	// æŒ‡å®šã—ãŸæ¡æ•°ã ã‘å‡ºåŠ›
 	char string[9];
 	int p = 0;
 	if(length == 0) {
@@ -659,7 +659,7 @@ void NACT_Sys3::cmd_i()
 	output_console(log);
 #endif
 
-	// X•ûŒü‚ÍƒJƒ‰ƒ€’PˆÊ‚ÅØ‚èÌ‚Ä
+	// Xæ–¹å‘ã¯ã‚«ãƒ©ãƒ å˜ä½ã§åˆ‡ã‚Šæ¨ã¦
 	sx = column ? sx * 8 : sx & 0xfff8;
 	ex = column ? ex * 8 - 1 : (crc32 == CRC32_NINGYO) ? (ex & 0xfff8) + 7 : (ex & 0xfff8) - 1;
 	dx = column ? dx * 8 : dx & 0xfff8;
@@ -677,7 +677,7 @@ void NACT_Sys3::cmd_j()
 	output_console(log);
 #endif
 
-	// x•ûŒü‚ÍƒJƒ‰ƒ€’PˆÊ‚ÅØ‚èÌ‚Ä
+	// xæ–¹å‘ã¯ã‚«ãƒ©ãƒ å˜ä½ã§åˆ‡ã‚Šæ¨ã¦
 	ags->cg_dest_x = column ? x * 8 : x & 0xfff8;
 	ags->cg_dest_y = y;
 	ags->set_cg_dest = true;
@@ -693,17 +693,17 @@ void NACT_Sys3::cmd_k()
 	output_console(log);
 #endif
 
-	// K6‚Ìê‡‚ÍA‚·‚®‚É•Ô‚é
+	// K6ã®å ´åˆã¯ã€ã™ãã«è¿”ã‚‹
 	if(cmd == 6) {
 		RND = get_key();
 		return;
 	}
 
-	// ƒ}ƒEƒX‚Ì‰Šúæ“¾
+	// ãƒã‚¦ã‚¹ã®åˆæœŸå–å¾—
 	int mx, my;
 	get_cursor(&mx, &my);
 
-	// ƒL[‚ª‰Ÿ‚³‚ê‚é‚Ü‚Å‘Ò‹@
+	// ã‚­ãƒ¼ãŒæŠ¼ã•ã‚Œã‚‹ã¾ã§å¾…æ©Ÿ
 	for(;;) {
 		if(terminate) {
 			return;
@@ -712,7 +712,7 @@ void NACT_Sys3::cmd_k()
 			break;
 		}
 		if(1 <= cmd && cmd <= 3) {
-			// ƒ}ƒEƒX‘Î‰
+			// ãƒã‚¦ã‚¹å¯¾å¿œ
 			int x, y, dx, dy;
 			get_cursor(&x, &y);
 			dx = (x < mx) ? mx - x : x - mx;
@@ -740,7 +740,7 @@ void NACT_Sys3::cmd_k()
 		RND = val;
 	}
 
-	// ƒL[‚ª—£‚³‚ê‚é‚Ü‚Å‘Ò‹@
+	// ã‚­ãƒ¼ãŒé›¢ã•ã‚Œã‚‹ã¾ã§å¾…æ©Ÿ
 	if(cmd != 1) {
 		SDL_Delay(100);
 		for(;;) {
@@ -754,7 +754,7 @@ void NACT_Sys3::cmd_k()
 		}
 	}
 
-	// K0‚Ìê‡‚Í‰üs
+	// K0ã®å ´åˆã¯æ”¹è¡Œ
 	if(cmd == 0) {
 		cmd_r();
 	}
@@ -771,7 +771,7 @@ void NACT_Sys3::cmd_l()
 #endif
 
 	if(index == 0) {
-		// “ÁêƒZ[ƒu
+		// ç‰¹æ®Šã‚»ãƒ¼ãƒ–
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen("ASLEEP.DAT", FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
 			// U01 - U20
@@ -1029,7 +1029,7 @@ void NACT_Sys3::cmd_q()
 {
 	static char header[112] = {
 #if 0
-		// –²Œ¶–A‰e‚É‚Â‚¢‚Ä‚«‚½ASLEEP_A.DAT‚Ìƒwƒbƒ_
+		// å¤¢å¹»æ³¡å½±ã«ã¤ã„ã¦ããŸASLEEP_A.DATã®ãƒ˜ãƒƒãƒ€
 		'T', 'h', 'i', 's', ' ', 'i', 's', ' ', 's', 'a', 'v', 'e', ' ', 'd', 'a', 't',
 		'a', ' ', 'f', 'o', 'r', ' ', 'S', 'y', 's', 't', 'e', 'm', '3', ' ', ' ', 'U',
 		'n', 'i', 'o', 'n', ' ', '[', 'P', 'C', '9', '8', '0', '1', ':', 'F', 'M', 'T',
@@ -1038,7 +1038,7 @@ void NACT_Sys3::cmd_q()
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '(', 'C', ')', '1', '9', '9',
 		'4', ' ', 'A', 'L', 'I', 'C', 'E', '-', 'S', 'O', 'F', 'T', ' ', ' ', ' ', ' '
 #else
-		// ‹Uƒwƒbƒ_
+		// å½ãƒ˜ãƒƒãƒ€
 		'T', 'h', 'i', 's', ' ', 'i', 's', ' ', 's', 'a', 'v', 'e', ' ', 'd', 'a', 't',
 		'a', ' ', 'f', 'o', 'r', ' ', 'S', 'y', 's', 't', 'e', 'm', '3', ' ', ' ', 'U',
 		'n', 'i', 'o', 'n', ' ', '[', 'W', 'i', 'n', '9', 'x', '/', 'N', 'T', '4', '0',
@@ -1058,7 +1058,7 @@ void NACT_Sys3::cmd_q()
 #endif
 
 	if(index == 0) {
-		// “ÁêƒZ[ƒu
+		// ç‰¹æ®Šã‚»ãƒ¼ãƒ–
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen("ASLEEP.DAT", FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
 			// U01 - U20
@@ -1155,7 +1155,7 @@ void NACT_Sys3::cmd_r()
 	output_console(log);
 #endif
 
-	// ƒEƒBƒ“ƒhƒE‚Ì•\¦”ÍˆÍŠO‚Ìê‡‚Í‰üƒy[ƒW
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®è¡¨ç¤ºç¯„å›²å¤–ã®å ´åˆã¯æ”¹ãƒšãƒ¼ã‚¸
 	if(ags->return_text_line(text_window)) {
 		cmd_a();
 	}
@@ -1189,7 +1189,7 @@ void NACT_Sys3::cmd_t()
 	output_console(log);
 #endif
 
-	// x•ûŒü‚ÍƒJƒ‰ƒ€’PˆÊ‚ÅØ‚èÌ‚Ä
+	// xæ–¹å‘ã¯ã‚«ãƒ©ãƒ å˜ä½ã§åˆ‡ã‚Šæ¨ã¦
 	ags->text_dest_x = column ? x * 8 : x & 0xfff8;
 	ags->text_dest_y = y;
 }
@@ -1454,7 +1454,7 @@ void NACT_Sys3::cmd_y()
 				M_X = (x < 0) ? x : (x > 639) ? 639 : x;
 				M_Y = (y < 0) ? 0 : (y > 479) ? 479 : y;
 				if((RND = get_key())) {
-					// ƒL[“ü—Í‚ª‚ ‚Á‚½ê‡‚ÍA—£‚·‚Ü‚Å‘Ò‹@
+					// ã‚­ãƒ¼å…¥åŠ›ãŒã‚ã£ãŸå ´åˆã¯ã€é›¢ã™ã¾ã§å¾…æ©Ÿ
 					for(;;) {
 						if(terminate) {
 							return;
@@ -1523,8 +1523,8 @@ void NACT_Sys3::cmd_y()
 			RND = mako->check_pcm() ? 1 : 0;
 			break;
 		case 106:
-			// ‰³—í‹L‚Åg—p‚µ‚Ä‚¢‚é“ä‚ÌƒRƒ}ƒ“ƒh
-			// ‘½•ªPCMŠÖ˜A
+			// ä¹™å¥³æˆ¦è¨˜ã§ä½¿ç”¨ã—ã¦ã„ã‚‹è¬ã®ã‚³ãƒãƒ³ãƒ‰
+			// å¤šåˆ†PCMé–¢é€£
 			break;
 		case 221:
 		case 222:
@@ -1628,7 +1628,7 @@ void NACT_Sys3::cmd_y()
 				path[2] = '\\';
 				path[3] = '\0';
 				UINT t = GetDriveType(path);
-				// ƒtƒƒbƒs[‚©‚ç‹N“®‚µ‚½ê‡‚Í0‚ª•Ô‚é
+				// ãƒ•ãƒ­ãƒƒãƒ”ãƒ¼ã‹ã‚‰èµ·å‹•ã—ãŸå ´åˆã¯0ãŒè¿”ã‚‹
 				//RND = (t == DRIVE_REMOVABLE) ? 0 : (t == DRIVE_CDROM) ? 2 : 1;
 				RND = (t == DRIVE_CDROM) ? 2 : 1;
 #else
@@ -1688,7 +1688,7 @@ void NACT_Sys3::cmd_z()
 }
 
 
-// ‰ºˆÊŠÖ”
+// ä¸‹ä½é–¢æ•°
 
 uint16 NACT_Sys3::cali()
 {

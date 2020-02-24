@@ -20,7 +20,7 @@ static INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARA
 			// get this pointer
 			nact = (NACT *)lParam;
 			// init dialog
-			sprintf_s(string, 64, "•¶š—ñ‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢iÅ‘å%d•¶šj", nact->tvar_maxlen);
+			sprintf_s(string, 64, "æ–‡å­—åˆ—ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ï¼ˆæœ€å¤§%dæ–‡å­—ï¼‰", nact->tvar_maxlen);
 			Edit_SetText(GetDlgItem(hDlg, IDC_TEXT), string);
 			Edit_SetText(GetDlgItem(hDlg, IDC_EDITBOX), nact->tvar[nact->tvar_index - 1]);
 			if(nact->tvar[nact->tvar_index - 1][0] == '\0') {

@@ -29,7 +29,7 @@ MAKO::MAKO(NACT* parent, const char* playlist) :
 		mix_init_flags |= MIX_INIT_MP3 | MIX_INIT_OGG;
 
 	strcpy_s(amus, 16, "AMUS.DAT");
-	strcpy_s(amse, 16, "AMSE.DAT");	// ÀÛ‚É‚Íg‚í‚È‚¢
+	strcpy_s(amse, 16, "AMSE.DAT");	// å®Ÿéš›ã«ã¯ä½¿ã‚ãªã„
 
 	for(int i = 1; i <= 99; i++) {
 		cd_track[i] = 0;
@@ -144,12 +144,12 @@ void MAKO::play_pcm(int page, bool loop)
 	DRI* dri = new DRI();
 
 	if((buffer = dri->load("AWAV.DAT", page, &size)) != NULL) {
-		// WAVŒ`® (Only You)
+		// WAVå½¢å¼ (Only You)
 		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(buffer, size), 1 /* freesrc */);
 		free(buffer);
 		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
 	} else if((buffer = dri->load("AMSE.DAT", page, &size)) != NULL) {
-		// AMSEŒ`® (‰³—í‹L)
+		// AMSEå½¢å¼ (ä¹™å¥³æˆ¦è¨˜)
 		int total = (size - 12) * 2 + 0x24;
 		int samples = (size - 12) * 2;
 
@@ -186,7 +186,7 @@ void MAKO::stop_pcm()
 
 bool MAKO::check_pcm()
 {
-	// Ä¶’†‚Åtrue
+	// å†ç”Ÿä¸­ã§true
 	return Mix_Playing(-1) != 0;
 }
 

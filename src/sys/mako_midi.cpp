@@ -125,7 +125,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 	}
 	bool mute_flag = false;
 
-	// Ä¶î•ñ‚Ì‰Šú‰»
+	// å†ç”Ÿæƒ…å ±ã®åˆæœŸåŒ–
 	for(int i = 0; i < 9; i++) {
 		play[i].timbre = 255;
 		play[i].timbre_type = 128;
@@ -161,7 +161,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 		play[i + 3].pan = mda[i + 256].pan;
 	}
 
-	// ƒVƒXƒeƒ€ƒŠƒZƒbƒgAƒ{ƒŠƒ…[ƒ€ƒŠƒZƒbƒg
+	// ã‚·ã‚¹ãƒ†ãƒ ãƒªã‚»ãƒƒãƒˆã€ãƒœãƒªãƒ¥ãƒ¼ãƒ ãƒªã‚»ãƒƒãƒˆ
 	for(int i = 0; i < 10; i++) {
 		w.send_3bytes(0xb0 + i, 0x79, 0x00);
 	}
@@ -169,7 +169,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 		w.send_3bytes(0xb0 + i, 0x07, 0x64);
 	}
 
-	// SSG 1-3 ‚Ì‰¹F
+	// SSG 1-3 ã®éŸ³è‰²
 	for(int i = 0; i < 3; i++) {
 		if(mda[i + 256].bank_select < 128) {
 			w.send_3bytes(0xb3 + i, 0x00, mda[i + 256].bank_select);
@@ -192,11 +192,11 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 	int current_mark = 0;
 	while (w.tick()) {
 		play_time += 10;  // elapse 10ms
-		// Šeƒp[ƒg‚ÌXV
+		// å„ãƒ‘ãƒ¼ãƒˆã®æ›´æ–°
 		while((play[0].loop_flag || play[1].loop_flag || play[2].loop_flag ||
 			   play[3].loop_flag || play[4].loop_flag || play[5].loop_flag ||
 			   play[6].loop_flag || play[7].loop_flag || play[8].loop_flag) && play_time > 0.0) {
-			// 1’PˆÊŠÔ‚¾‚¯Œo‰ßŠÔ‚ğXV‚·‚é
+			// 1å˜ä½æ™‚é–“ã ã‘çµŒéæ™‚é–“ã‚’æ›´æ–°ã™ã‚‹
 			for(int i = 0; i < 9; i++) {
 				if(play[i].loop_flag && play[i].wait_time) {
 					play[i].wait_time--;
@@ -204,7 +204,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 			}
 			play_time -= (float)(545455.0 / 480.0 / (float)(tempo + 0x40 - tempo_dif));
 
-			// 1’PˆÊŠÔ‚¾‚¯Šeƒp[ƒg‚ğXV
+			// 1å˜ä½æ™‚é–“ã ã‘å„ãƒ‘ãƒ¼ãƒˆã‚’æ›´æ–°
 			for(int i = 0; i < 9; i++) {
 				if(!play[i].loop_flag) {
 					play[i].wait_time = 1;
@@ -217,12 +217,12 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 						d3 = next_mml(i);
 						mml[i].addr = d1 | (d2 << 8) | (d3 << 16);
 						if(!play[i].note_flag || mute_flag) {
-							// Ä¶’â~‚Ü‚½‚Í–¢g—p
+							// å†ç”Ÿåœæ­¢ã¾ãŸã¯æœªä½¿ç”¨
 							play[i].loop_flag = false;
 							if(!play[0].loop_flag && !play[1].loop_flag && !play[2].loop_flag &&
 							   !play[3].loop_flag && !play[4].loop_flag && !play[5].loop_flag &&
 							   !play[6].loop_flag && !play[7].loop_flag && !play[8].loop_flag) {
-								// ‘Sƒ`ƒƒƒ“ƒlƒ‹‚ªÄ¶’â~ (ƒ‹[ƒv‚µ‚È‚¢‹È)
+								// å…¨ãƒãƒ£ãƒ³ãƒãƒ«ãŒå†ç”Ÿåœæ­¢ (ãƒ«ãƒ¼ãƒ—ã—ãªã„æ›²)
 								for(int j = 0; j < 10; j++) {
 									w.send_3bytes(0xb0 + j, 0x78, 0x00);
 								}
@@ -233,7 +233,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 							}
 							play[i].wait_time = 1;
 						} else {
-							// ‘S‘Ì‚Æ‚µ‚Ä‚Ìƒ‹[ƒv”‚ğæ“¾
+							// å…¨ä½“ã¨ã—ã¦ã®ãƒ«ãƒ¼ãƒ—æ•°ã‚’å–å¾—
 							int loop = ++play[i].loop_cnt;
 							for(int j = 0; j < 9; j++) {
 								if(loop > play[j].loop_cnt && play[j].loop_flag) {
@@ -242,7 +242,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 							}
 							current_loop = loop;
 							if(current_loop >= current_max && current_max) {
-								// w’è‰ñ”‚¾‚¯Ä¶Š®—¹
+								// æŒ‡å®šå›æ•°ã ã‘å†ç”Ÿå®Œäº†
 								for(int j = 0; j < 10; j++) {
 									w.send_3bytes(0xb0 + j, 0x78, 0x00);
 								}
@@ -288,14 +288,14 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 						int n = next_mml(i);
 						if(n != play[i].timbre) {
 							if(mda[n].bank_select < 128) {
-								// ’Êí‚Ìƒp[ƒg
+								// é€šå¸¸ã®ãƒ‘ãƒ¼ãƒˆ
 								play[i].timbre_type = 128;
 								play[i].channel = i;
 								w.send_3bytes(0xb0 + play[i].channel, 0x00, mda[n].bank_select);
 								w.send_3bytes(0xb0 + play[i].channel, 0x20, 0x00);
 								w.send_2bytes(0xc0 + play[i].channel, mda[n].program_change);
 							} else {
-								// ƒhƒ‰ƒ€ƒp[ƒg (ch.10)
+								// ãƒ‰ãƒ©ãƒ ãƒ‘ãƒ¼ãƒˆ (ch.10)
 								play[i].timbre_type = 255 - mda[n].bank_select;
 								play[i].channel = 9;
 							}
@@ -342,7 +342,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 
 bool MAKOMidi::load_mml(int page)
 {
-	// ƒf[ƒ^“Ç‚İ‚İ
+	// ãƒ‡ãƒ¼ã‚¿èª­ã¿è¾¼ã¿
 	DRI* dri = new DRI();
 	int size;
 	uint8* data = dri->load(amus, page, &size);
@@ -351,7 +351,7 @@ bool MAKOMidi::load_mml(int page)
 		return false;
 	}
 
-	// FM‰¹Œ¹ƒf[ƒ^‚Ì”»’è
+	// FMéŸ³æºãƒ‡ãƒ¼ã‚¿ã®åˆ¤å®š
 	int p, d0, d1, d2;
 
 	p = data[0] + 1;
@@ -361,7 +361,7 @@ bool MAKOMidi::load_mml(int page)
 		return false;
 	}
 
-	// MML•” “Ç‚İ‚İ••ÏŠ·
+	// MMLéƒ¨ èª­ã¿è¾¼ã¿ï¼†å¤‰æ›
 	for(int i = 0; i < 9; i++) {
 		p = 4 * (i + 1);
 		int block_offset_top = data[p++];
@@ -370,7 +370,7 @@ bool MAKOMidi::load_mml(int page)
 		mml[i].addr = 0;
 
 		if(block_offset_top) {
-			// ƒuƒƒbƒN‚Ì’Tõ
+			// ãƒ–ãƒ­ãƒƒã‚¯ã®æ¢ç´¢
 			int last_block = 0;
 			p = block_offset_top;
 			d0 = data[p++];
@@ -512,7 +512,7 @@ bool MAKOMidi::load_mml(int page)
 
 void MAKOMidi::load_mda(int page)
 {
-	// –¢İ’è‚Ì‰¹Fİ’è (Piano, Acoustic Bass Drum)
+	// æœªè¨­å®šæ™‚ã®éŸ³è‰²è¨­å®š (Piano, Acoustic Bass Drum)
 	for(int i = 0; i < 256 + 3; i++) {
 		mda[i].bank_select = 0;
 		mda[i].program_change = 0;
@@ -529,7 +529,7 @@ void MAKOMidi::load_mda(int page)
 	}
 	tempo_dif = 0x40;
 
-	// MDAƒf[ƒ^‚Ì“Ç‚İ‚İ
+	// MDAãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿
 	char path[16];
 	strcpy_s(path, 16, amus);
 	int p = strlen(path);
@@ -550,7 +550,7 @@ void MAKOMidi::load_mda(int page)
 		int inst_num = data[25];
 		int drum_format = data[26];
 
-		// SSGƒp[ƒg‚Ì‰¹Fİ’è
+		// SSGãƒ‘ãƒ¼ãƒˆã®éŸ³è‰²è¨­å®š
 		for(int i = 0; i < 3; i++) {
 			uint8* buf = &data[map_wide * i + 27];
 			mda[i + 256].bank_select = buf[0];
@@ -562,7 +562,7 @@ void MAKOMidi::load_mda(int page)
 			mda[i + 256].pan = buf[6];
 		}
 
-		// ’Êí‚Ì‰¹Fİ’è
+		// é€šå¸¸ã®éŸ³è‰²è¨­å®š
 		for(int i = 0; i < inst_num; i++) {
 			uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * i];
 			int n = buf[0];
@@ -575,7 +575,7 @@ void MAKOMidi::load_mda(int page)
 			mda[n].pan = buf[7];
 		}
 
-		// ƒhƒ‰ƒ€ƒp[ƒg‚Ì‰¹Fİ’è
+		// ãƒ‰ãƒ©ãƒ ãƒ‘ãƒ¼ãƒˆã®éŸ³è‰²è¨­å®š
 		if(drum_format) {
 			uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * inst_num];
 			int drum_num = buf[0];

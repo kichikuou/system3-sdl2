@@ -12,7 +12,7 @@
 #include "nact.h"
 #include <SDL_ttf.h>
 
-// ƒtƒF[ƒhˆ—
+// ãƒ•ã‚§ãƒ¼ãƒ‰å‡¦ç†
 static const int fade_x[16] = {0, 2, 2, 0, 1, 3, 3, 1, 1, 3, 3, 1, 0, 2, 2, 0};
 static const int fade_y[16] = {0, 2, 0, 2, 1, 3, 1, 3, 0, 2, 0, 2, 1, 3, 1, 3};
 
@@ -45,22 +45,22 @@ private:
 	SDL_Texture* sdlTexture;
 
 	// Surface
-	SDL_Surface* hBmpScreen[3]; // 8bpp * 3 (•\, — , ƒƒjƒ…[)
-	SDL_Surface* hBmpDest; // DIBSection 24bpp (ÅIo—Íæ)
+	SDL_Surface* hBmpScreen[3]; // 8bpp * 3 (è¡¨, è£, ãƒ¡ãƒ‹ãƒ¥ãƒ¼)
+	SDL_Surface* hBmpDest; // DIBSection 24bpp (æœ€çµ‚å‡ºåŠ›å…ˆ)
 
-	// ƒtƒHƒ“ƒg
+	// ãƒ•ã‚©ãƒ³ãƒˆ
 	TTF_Font* hFont16;
 	TTF_Font* hFont24;
 	TTF_Font* hFont32;
 	TTF_Font* hFont48;
 	TTF_Font* hFont64;
 
-	// ƒJ[ƒ\ƒ‹
+	// ã‚«ãƒ¼ã‚½ãƒ«
 	SDL_Cursor* hCursor[10];
 
 	// AGS
 	void load_vsp2l(uint8* data, int page, int transparent);	// Little Vampire
-	void load_gl3(uint8* data, int page, int transparent);		// ‚ ‚Ô‚È‚¢“V‹ç“`à
+	void load_gl3(uint8* data, int page, int transparent);		// ã‚ã¶ãªã„å¤©ç‹—ä¼èª¬
 	void load_gm3(uint8* data, int page, int transparent);		// Intruder
 	void load_vsp(uint8* data, int page, int transparent);
 	void load_pms(uint8* data, int page, int transparent);
@@ -82,13 +82,13 @@ private:
 	uint8 palB(uint8 col) { return screen_palette[col] & 0xff; }
 	int nearest_color(int r, int g, int b);
 
-	uint32* vram[3][480];	// ‰¼‘zVRAM‚Ö‚Ìƒ|ƒCƒ“ƒ^
+	uint32* vram[3][480];	// ä»®æƒ³VRAMã¸ã®ãƒã‚¤ãƒ³ã‚¿
 
 	uint32 program_palette[256];
 	uint32 screen_palette[256];
 	uint8 gaiji[188][32];
 
-	bool fader;	// ƒtƒF[ƒh‚Ìó‘Ô
+	bool fader;	// ãƒ•ã‚§ãƒ¼ãƒ‰ã®çŠ¶æ…‹
 	uint32 fader_screen[640 * 480];
 
 public:
@@ -136,14 +136,14 @@ public:
 	// ACG.DAT
 	char acg[16];
 
-	// ‰æ–Ê‘I‘ğ
+	// ç”»é¢é¸æŠ
 	int src_screen;
 	int dest_screen;
 
 	int scroll;
 	int screen_height;
 
-	// ƒƒbƒZ[ƒW•\¦
+	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸è¡¨ç¤º
 	int text_dest_x;
 	int text_dest_y;
 	int text_space;
@@ -151,9 +151,9 @@ public:
 	uint8 text_font_color;
 	uint8 text_frame_color;
 	uint8 text_back_color;
-	int text_font_maxsize;	// ‚»‚Ìs‚Å‚ÌÅ‘åƒtƒHƒ“ƒgƒTƒCƒY
+	int text_font_maxsize;	// ãã®è¡Œã§ã®æœ€å¤§ãƒ•ã‚©ãƒ³ãƒˆã‚µã‚¤ã‚º
 
-	// ƒƒjƒ…[•\¦
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
 	int menu_dest_x;
 	int menu_dest_y;
 	int menu_font_size;
@@ -165,7 +165,7 @@ public:
 	bool draw_hankaku;
 	bool draw_menu;
 
-	// ƒEƒBƒ“ƒhƒE (BƒRƒ}ƒ“ƒh)
+	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ (Bã‚³ãƒãƒ³ãƒ‰)
 	typedef struct {
 		int sx;
 		int sy;
@@ -189,7 +189,7 @@ public:
 	WINDOW menu_w[10];
 	WINDOW text_w[10];
 
-	// ƒ{ƒbƒNƒX (E, Y7ƒRƒ}ƒ“ƒh)
+	// ãƒœãƒƒã‚¯ã‚¹ (E, Y7ã‚³ãƒãƒ³ãƒ‰)
 	typedef struct {
 		uint8 color;
 		int sx;
@@ -199,7 +199,7 @@ public:
 	} BOX;
 	BOX box[20];
 
-	// CG•\¦
+	// CGè¡¨ç¤º
 	bool set_cg_dest;
 	int cg_dest_x;
 	int cg_dest_y;
@@ -209,7 +209,7 @@ public:
 	bool extract_palette_cg[MAX_CG];
 	int palette_bank;
 
-	// ƒ}ƒEƒXƒJ[ƒ\ƒ‹
+	// ãƒã‚¦ã‚¹ã‚«ãƒ¼ã‚½ãƒ«
 	uint8 cursor_color;
 	int cursor_index;
 };

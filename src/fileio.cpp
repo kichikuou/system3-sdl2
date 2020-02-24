@@ -28,13 +28,13 @@ int FILEIO::StatSavedata(const char* filename, struct stat* buf)
 
 FILEIO::FILEIO()
 {
-	// ‰Šú‰»
+	// åˆæœŸåŒ–
 	fp = NULL;
 }
 
 FILEIO::~FILEIO(void)
 {
-	// Œãn––
+	// å¾Œå§‹æœ«
 	if(fp != NULL) {
 		Fclose();
 	}

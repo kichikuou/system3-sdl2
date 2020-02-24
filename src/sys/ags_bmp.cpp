@@ -8,10 +8,10 @@
 
 void AGS::load_bmp(const char *file_path)
 {
-	// ƒwƒbƒ_Žæ“¾
+	// ãƒ˜ãƒƒãƒ€å–å¾—
 	int sx = 0, sy = 0;
 
-	// JƒRƒ}ƒ“ƒh‚Ìˆ—
+	// Jã‚³ãƒžãƒ³ãƒ‰ã®å‡¦ç†
 	if(set_cg_dest) {
 		sx = cg_dest_x;
 		sy = cg_dest_y;
@@ -21,7 +21,7 @@ void AGS::load_bmp(const char *file_path)
 	if(extract_cg) {
 		assert(false);
 #if 0
-		// BMP“Ç‚Ýž‚Ý
+		// BMPèª­ã¿è¾¼ã¿
 		WCHAR wszFilePath[_MAX_PATH];
 		MultiByteToWideChar(CP_ACP, 0, file_path, -1, wszFilePath, _MAX_PATH);
 		Gdiplus::Bitmap *pBitmap = Gdiplus::Bitmap::FromFile(wszFilePath);
@@ -33,12 +33,12 @@ void AGS::load_bmp(const char *file_path)
 			}
 		}
 
-		// ‰æ–ÊXV
+		// ç”»é¢æ›´æ–°
 		if(dest_screen == 0) {
 			draw_screen(sx, sy, pBitmap->GetWidth(), pBitmap->GetHeight());
 		}
 
-		// BMPŠJ•ú
+		// BMPé–‹æ”¾
 		delete pBitmap;
 #endif
 	}

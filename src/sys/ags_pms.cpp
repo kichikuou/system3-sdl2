@@ -9,7 +9,7 @@
 
 void AGS::load_pms(uint8* data, int page, int transparent)
 {
-	// ƒwƒbƒ_æ“¾
+	// ãƒ˜ãƒƒãƒ€å–å¾—
 	int sx = data[0x0] | (data[0x1] << 8);
 	int sy = data[0x2] | (data[0x3] << 8);
 	int ex = data[0x4] | (data[0x5] << 8);
@@ -18,7 +18,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 	int height = ey - sy + 1;
 	uint8 mask = data[0xa];
 
-	// JƒRƒ}ƒ“ƒh‚Ìˆ—
+	// Jã‚³ãƒãƒ³ãƒ‰ã®å‡¦ç†
 	if(set_cg_dest) {
 		sx = cg_dest_x;
 		sy = cg_dest_y;
@@ -27,7 +27,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 		set_cg_dest = false;
 	}
 
-	// ƒpƒŒƒbƒgæ“¾
+	// ãƒ‘ãƒ¬ãƒƒãƒˆå–å¾—
 	uint32 tmp_palette[256];
 
 	if(get_palette) {
@@ -41,7 +41,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 			}
 		}
 		if(nact->crc32 == CRC32_RANCE41 || nact->crc32 == CRC32_RANCE42 || nact->crc32 == CRC32_HASHIRIONNA2) {
-			// ã‰º16F‚Íæ“¾‚µ‚È‚¢
+			// ä¸Šä¸‹16è‰²ã¯å–å¾—ã—ãªã„
 			for(int i = 1; i < 15; i++) {
 				for(int j = 0; j < 16; j++) {
 					if(!(mask & (0x01 << i))) {
@@ -50,7 +50,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 				}
 			}
 		} else if(nact->crc32 == CRC32_MUGENHOUYOU && transparent != -1) {
-			// UƒRƒ}ƒ“ƒh‚Å‚Íã‰º32F‚Íæ“¾‚µ‚È‚¢
+			// Uã‚³ãƒãƒ³ãƒ‰ã§ã¯ä¸Šä¸‹32è‰²ã¯å–å¾—ã—ãªã„
 			for(int i = 2; i < 14; i++) {
 				for(int j = 0; j < 16; j++) {
 					if(!(mask & (0x01 << i))) {
@@ -69,11 +69,11 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 		}
 	}
 
-	// ƒpƒŒƒbƒg“WŠJ
+	// ãƒ‘ãƒ¬ãƒƒãƒˆå±•é–‹
 	if (nact->sys_ver == 3) {
 		if((extract_palette && extract_palette_cg[page]) || nact->crc32 == CRC32_FUNNYBEE_CD) {
 			if(nact->crc32 == CRC32_RANCE41 || nact->crc32 == CRC32_RANCE42 || nact->crc32 == CRC32_HASHIRIONNA2) {
-				// ã‰º16F‚Í“WŠJ‚µ‚È‚¢
+				// ä¸Šä¸‹16è‰²ã¯å±•é–‹ã—ãªã„
 				for(int i = 1; i < 15; i++) {
 					for(int j = 0; j < 16; j++) {
 						if(!(mask & (0x01 << i))) {
@@ -82,7 +82,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 					}
 				}
 			} else if(nact->crc32 == CRC32_MUGENHOUYOU && transparent != -1) {
-				// UƒRƒ}ƒ“ƒh‚Å‚Íã‰º32F‚Í“WŠJ‚µ‚È‚¢
+				// Uã‚³ãƒãƒ³ãƒ‰ã§ã¯ä¸Šä¸‹32è‰²ã¯å±•é–‹ã—ãªã„
 				for(int i = 2; i < 14; i++) {
 					for(int j = 0; j < 16; j++) {
 						if(!(mask & (0x01 << i))) {
@@ -110,7 +110,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 		}
 	}
 
-	// PMS“WŠJ
+	// PMSå±•é–‹
 	uint8 cgdata[3][640];
 	int p = 0x320;
 	memset(cgdata, 0, sizeof(cgdata));
@@ -147,7 +147,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 			}
 		}
 
-		// VRAM‚É“]‘—
+		// VRAMã«è»¢é€
 		if(extract_cg) {
 			uint32* dest = &vram[dest_screen][y + sy][sx];
 			if(transparent == -1) {
@@ -168,7 +168,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 		}
 	}
 
-	// ‰æ–ÊXV
+	// ç”»é¢æ›´æ–°
 	if(dest_screen == 0 && extract_cg) {
 		draw_screen(sx, sy, width, height);
 	}

@@ -14,15 +14,15 @@
 
 extern SDL_Window* g_window;
 
-// ‰Šú‰»
+// åˆæœŸåŒ–
 
 NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlist)
 	: sys_ver(sys_ver), crc32(crc32)
 {
-	// ƒfƒoƒbƒOƒRƒ“ƒ\[ƒ‹‹N“®
+	// ãƒ‡ãƒãƒƒã‚°ã‚³ãƒ³ã‚½ãƒ¼ãƒ«èµ·å‹•
 	initialize_console();
 
-	// AG00.DAT“Ç‚İ‚İ
+	// AG00.DATèª­ã¿è¾¼ã¿
 	FILEIO* fio = new FILEIO();
 	if(fio->Fopen("AG00.DAT", FILEIO_READ_BINARY)) {
 		int d0, d1, d2, d3;
@@ -30,12 +30,12 @@ NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlis
 		fio->Fgets(string);
 		sscanf_s(string, "%d,%d,%d,%d", &d0, &d1, &d2, &d3);
 		for(int i = 0; i < d1; i++) {
-			// “®Œ‚Ì“Ç‚İ‚İ
+			// å‹•è©ã®èª­ã¿è¾¼ã¿
 			fio->Fgets(string);
 			memcpy(caption_verb[i], string, sizeof(string));
 		}
 		for(int i = 0; i < d2; i++) {
-			// –Ú“IŒê‚Ì“Ç‚İ‚İ
+			// ç›®çš„èªã®èª­ã¿è¾¼ã¿
 			fio->Fgets(string);
 			memcpy(caption_obj[i], string, sizeof(string));
 		}
@@ -49,27 +49,27 @@ NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlis
 	else
 		strcpy_s(adisk, 16, "ADISK.DAT");
 
-	// ƒVƒiƒŠƒIŠÇ—
+	// ã‚·ãƒŠãƒªã‚ªç®¡ç†
 	scenario_data = NULL;
 	load_scenario(0);
 	scenario_page = 0;
 	scenario_addr = 2;
 	label_depth = page_depth = 0;
 
-	// •Ï”‰Šú‰»
+	// å¤‰æ•°åˆæœŸåŒ–
 	memset(var, 0, sizeof(var));
 	memset(var_stack, 0, sizeof(var_stack));
 	memset(tvar, 0, sizeof(tvar));
 	memset(tvar_stack, 0, sizeof(tvar_stack));
 
-	// ƒRƒ}ƒ“ƒh‰Šú‰»
-	column = true;		// À•Wƒ‚[ƒh
-	wait_keydown = true;	// ƒEƒFƒCƒg‚ÌƒL[ó•t
-	seed = SDL_GetTicks();	// —”‚Ìí
-	text_wait_time = 100;	// ƒƒbƒZ[ƒW•\¦‚ÌƒEƒFƒCƒg
+	// ã‚³ãƒãƒ³ãƒ‰åˆæœŸåŒ–
+	column = true;		// åº§æ¨™ãƒ¢ãƒ¼ãƒ‰
+	wait_keydown = true;	// ã‚¦ã‚§ã‚¤ãƒˆæ™‚ã®ã‚­ãƒ¼å—ä»˜
+	seed = SDL_GetTicks();	// ä¹±æ•°ã®ç¨®
+	text_wait_time = 100;	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸è¡¨ç¤ºã®ã‚¦ã‚§ã‚¤ãƒˆ
 	text_wait_enb = false;
 	text_skip_enb = false;
-	mouse_sence = 16;	// ƒ}ƒEƒXˆÚ“®Š´’m
+	mouse_sence = 16;	// ãƒã‚¦ã‚¹ç§»å‹•æ„ŸçŸ¥
 
 	menu_window = text_window = 1;
 	menu_index = 0;
@@ -84,12 +84,12 @@ NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlis
 	pcm_index = 0;
 	memset(pcm, 0, sizeof(pcm));
 
-	// ŠeíƒNƒ‰ƒX¶¬
+	// å„ç¨®ã‚¯ãƒ©ã‚¹ç”Ÿæˆ
 	ags = new AGS(this, font_file);
 	mako = new MAKO(this, playlist);
 
 #ifdef USE_JOY
-	// “ü—Í‰Šú‰»
+	// å…¥åŠ›åˆæœŸåŒ–
 	joy_num = joyGetNumDevs();
 	if(joy_num) {
 		joyGetDevCaps(JOYSTICKID1, &joycaps, sizeof(JOYCAPS));
@@ -101,7 +101,7 @@ NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlis
 
 NACT::~NACT()
 {
-	// ŠeíƒNƒ‰ƒXŠJ•ú
+	// å„ç¨®ã‚¯ãƒ©ã‚¹é–‹æ”¾
 	if(ags) {
 		delete ags;
 	}
@@ -109,12 +109,12 @@ NACT::~NACT()
 		delete mako;
 	}
 
-	// ƒVƒiƒŠƒIŠJ•ú
+	// ã‚·ãƒŠãƒªã‚ªé–‹æ”¾
 	if(scenario_data) {
 		free(scenario_data);
 	}
 
-	// ƒfƒoƒbƒOƒRƒ“ƒ\[ƒ‹ŠJ•ú
+	// ãƒ‡ãƒãƒƒã‚°ã‚³ãƒ³ã‚½ãƒ¼ãƒ«é–‹æ”¾
 	release_console();
 }
 
@@ -134,24 +134,24 @@ void NACT::mainloop()
 			execute(static_cast<NACT_Sys3*>(this));
 			break;
 		}
-		// 512ƒRƒ}ƒ“ƒhÀs–ˆ‚ÉSleep(10)
+		// 512ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œæ¯ã«Sleep(10)
 		if(!(sleep_cnt = (sleep_cnt + 1) & 0x1ff)) {
 			SDL_Delay(10);
 		}
 	}
 }
 
-// ƒRƒ}ƒ“ƒhƒp[ƒT
+// ã‚³ãƒãƒ³ãƒ‰ãƒ‘ãƒ¼ã‚µ
 
 template <class T>
 void NACT::execute(T* impl)
 {
-	// ƒAƒhƒŒƒX‚ÌŠm”F
+	// ã‚¢ãƒ‰ãƒ¬ã‚¹ã®ç¢ºèª
 	if(scenario_addr < 2 || scenario_addr >= scenario_size) {
 		fatal("Scenario error");
 	}
 
-	// ’v–½“I‚ÈƒGƒ‰[”­¶ or ³íI—¹
+	// è‡´å‘½çš„ãªã‚¨ãƒ©ãƒ¼ç™ºç”Ÿ or æ­£å¸¸çµ‚äº†
 	if(fatal_error) {
 		if(!post_quit) {
 			terminate = true;
@@ -164,16 +164,16 @@ void NACT::execute(T* impl)
 		impl->opening();
 	}
 
-	// ‚PƒRƒ}ƒ“ƒhÀs
+	// ï¼‘ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œ
 	uint8 cmd = getd();
 
 	if(set_palette && cmd != 'P') {
-		// ƒpƒŒƒbƒgİ’è‚ªI‚í‚Á‚½
+		// ãƒ‘ãƒ¬ãƒƒãƒˆè¨­å®šãŒçµ‚ã‚ã£ãŸ
 		ags->flush_screen(true);
 		set_palette = false;
 	}
 	if(verb_obj && cmd != '[' && cmd != ':') {
-		// “®Œ-–Ú“IŒêƒƒjƒ…[‚Ì•\¦
+		// å‹•è©-ç›®çš„èªãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¡¨ç¤º
 		scenario_addr--;
 		impl->cmd_open_verb();
 		return;
@@ -368,7 +368,7 @@ void NACT::load_scenario(int page)
 	delete dri;
 }
 
-// ‰ºˆÊŠÖ”
+// ä¸‹ä½é–¢æ•°
 
 uint16 NACT::random(uint16 range)
 {
@@ -379,7 +379,7 @@ uint16 NACT::random(uint16 range)
 	return (uint16)(((uint32)range * (seed & 0xffff)) >> 16) + 1;
 }
 
-// WinMain‚Æ‚ÌƒCƒ“ƒ^[ƒtƒF[ƒX
+// WinMainã¨ã®ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹
 
 int NACT::get_screen_height()
 {
@@ -393,7 +393,7 @@ void NACT::select_cursor()
 
 void NACT::select_sound(int dev)
 {
-	// ‹­§“I‚É‰¹Œ¹‚ğ•ÏX‚·‚é
+	// å¼·åˆ¶çš„ã«éŸ³æºã‚’å¤‰æ›´ã™ã‚‹
 	int page = mako->current_music;
 	int old_dev = (1 <= page && page <= 99 && mako->cd_track[page]) ? 1 : 0;
 
@@ -401,7 +401,7 @@ void NACT::select_sound(int dev)
 		mako->cd_track[i] = dev ? i : 0;
 	}
 
-	// ƒfƒoƒCƒX‚ª•ÏX‚³‚ê‚½ê‡‚ÍÄ‰‰‘t‚·‚é
+	// ãƒ‡ãƒã‚¤ã‚¹ãŒå¤‰æ›´ã•ã‚ŒãŸå ´åˆã¯å†æ¼”å¥ã™ã‚‹
 	if(dev != old_dev && page) {
 		mako->stop_music();
 		mako->play_music(page);

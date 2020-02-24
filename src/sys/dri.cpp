@@ -15,7 +15,7 @@ uint8* DRI::load(const char* path, int page, int* size)
 
 	FILEIO* fio = new FILEIO();
 
-	// ƒy[ƒW‚ÌˆÊ’u‚ğæ“¾
+	// ãƒšãƒ¼ã‚¸ã®ä½ç½®ã‚’å–å¾—
 	base_path[0] = 'A';
 
 	if(!fio->Fopen(base_path, FILEIO_READ_BINARY)) {
@@ -29,7 +29,7 @@ uint8* DRI::load(const char* path, int page, int* size)
 	data_sector |= fio->Fgetc() << 8;
 
 	if(page > (data_sector - link_sector) * 128 - 1) {
-		// ƒy[ƒW”Ô†•s³
+		// ãƒšãƒ¼ã‚¸ç•ªå·ä¸æ­£
 		fio->Fclose();
 		delete fio;
 		return NULL;
@@ -40,13 +40,13 @@ uint8* DRI::load(const char* path, int page, int* size)
 	int link_index = fio->Fgetc();
 
 	if(disk_index == 0 || disk_index == 0x1a) {
-		// Œ‡”Ô
+		// æ¬ ç•ª
 		fio->Fclose();
 		delete fio;
 		return NULL;
 	}
 
-	// A??.DATˆÈŠO‚ÉƒŠƒ“ƒN‚³‚ê‚Ä‚¢‚éê‡‚Íƒtƒ@ƒCƒ‹‚ğŠJ‚«’¼‚·
+	// A??.DATä»¥å¤–ã«ãƒªãƒ³ã‚¯ã•ã‚Œã¦ã„ã‚‹å ´åˆã¯ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ãç›´ã™
 	if(disk_index != 1) {
 		base_path[0] = 'A' + disk_index - 1;
 		fio->Fclose();
@@ -56,7 +56,7 @@ uint8* DRI::load(const char* path, int page, int* size)
 		}
 	}
 
-	// ƒf[ƒ^æ“¾
+	// ãƒ‡ãƒ¼ã‚¿å–å¾—
 	fio->Fseek(link_index * 2, FILEIO_SEEK_SET);
 	int start_sector = fio->Fgetc();
 	start_sector |= fio->Fgetc() << 8;
@@ -77,7 +77,7 @@ uint8* DRI::load(const char* path, int page, int* size)
 
 uint8* DRI::load_mda(uint32 crc32, int page, int* size)
 {
-	// ƒf[ƒ^æ“¾
+	// ãƒ‡ãƒ¼ã‚¿å–å¾—
 	const char* fname = NULL;
 
 	switch(crc32) {
@@ -85,7 +85,7 @@ uint8* DRI::load_mda(uint32 crc32, int page, int* size)
 		case CRC32_AMBIVALENZ_CD:	// AmbivalenZ (CD)
 			fname = "AMUS_AMB.MDA";
 			break;
-		case CRC32_DPSALL:		// DPS‘S•”
+		case CRC32_DPSALL:		// DPSå…¨éƒ¨
 			fname = "AMUS_ALL.MDA";
 			break;
 		case CRC32_FUNNYBEE_CD:		// Funny Bee (CD)
@@ -106,22 +106,22 @@ uint8* DRI::load_mda(uint32 crc32, int page, int* size)
 		case CRC32_RANCE42:		// Rance 4.2
 			fname = "AMUS_R42.MDA";
 			break;
-		case CRC32_AYUMI_CD:		// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê (CD)
-		case CRC32_AYUMI_JISSHA_256:	// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ÀÊ”Å
-		case CRC32_AYUMI_JISSHA_FULL:	// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ƒtƒ‹ƒJƒ‰[ÀÊ”Å
+		case CRC32_AYUMI_CD:		// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª (CD)
+		case CRC32_AYUMI_JISSHA_256:	// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª å®Ÿå†™ç‰ˆ
+		case CRC32_AYUMI_JISSHA_FULL:	// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª ãƒ•ãƒ«ã‚«ãƒ©ãƒ¼å®Ÿå†™ç‰ˆ
 			fname = "AMUS_AYM.MDA";
 			break;
-		case CRC32_YAKATA3_CD:		// ƒAƒŠƒX‚ÌŠÙ‚R (CD)
-		case CRC32_YAKATA3_FD:		// ƒAƒŠƒX‚ÌŠÙ‚R (FD)
+		case CRC32_YAKATA3_CD:		// ã‚¢ãƒªã‚¹ã®é¤¨ï¼“ (CD)
+		case CRC32_YAKATA3_FD:		// ã‚¢ãƒªã‚¹ã®é¤¨ï¼“ (FD)
 			fname = "AMUS_AL3.MDA";
 			break;
-		case CRC32_HASHIRIONNA2:	// ‘–‚è—‚Q (Rance 4.x ƒqƒ“ƒgƒfƒBƒXƒN)
+		case CRC32_HASHIRIONNA2:	// èµ°ã‚Šå¥³ï¼’ (Rance 4.x ãƒ’ãƒ³ãƒˆãƒ‡ã‚£ã‚¹ã‚¯)
 			fname = "AMUS_RG2.MDA";
 			break;
-		case CRC32_OTOMESENKI:		// ‰³—í‹L
+		case CRC32_OTOMESENKI:		// ä¹™å¥³æˆ¦è¨˜
 			fname = "AMUS_OTM.MDA";
 			break;
-		case CRC32_MUGENHOUYOU:		// –²Œ¶–A‰e
+		case CRC32_MUGENHOUYOU:		// å¤¢å¹»æ³¡å½±
 			fname = "AMUS_MGN.MDA";
 			break;
 	}
@@ -135,13 +135,13 @@ uint8* DRI::load_mda(uint32 crc32, int page, int* size)
 		return NULL;
 	uint8 buf[4];
 
-	// ƒy[ƒW‚ÌˆÊ’u‚ğæ“¾
+	// ãƒšãƒ¼ã‚¸ã®ä½ç½®ã‚’å–å¾—
 	fread(buf, 4, 1, fp);
 	int link_sector = buf[0] | (buf[1] << 8);
 	int data_sector = buf[2] | (buf[3] << 8);
 
 	if(page > (data_sector - link_sector) * 128 - 1) {
-		// ƒy[ƒW”Ô†•s³
+		// ãƒšãƒ¼ã‚¸ç•ªå·ä¸æ­£
 		return NULL;
 	}
 
@@ -151,11 +151,11 @@ uint8* DRI::load_mda(uint32 crc32, int page, int* size)
 	int link_index = buf[1];
 
 	if(disk_index == 0 || disk_index == 0x1a) {
-		// Œ‡”Ô
+		// æ¬ ç•ª
 		return NULL;
 	}
 
-	// ƒf[ƒ^æ“¾
+	// ãƒ‡ãƒ¼ã‚¿å–å¾—
 	fseek(fp, link_index * 2, SEEK_SET);
 	fread(buf, 4, 1, fp);
 	int start_sector = buf[0] | (buf[1] << 8);

@@ -7,44 +7,44 @@
 #ifndef _CRC32_H_
 #define _CRC32_H_
 
-// ADISK.DAT‚Ìæ“ª256bytes
+// ADISK.DATã®å…ˆé ­256bytes
 
-#define CRC32_CRESCENT	0x42351f2c	// ƒNƒŒƒZƒ“ƒgƒ€[ƒ“‚ª‚Ÿ‚é
+#define CRC32_CRESCENT	0x42351f2c	// ã‚¯ãƒ¬ã‚»ãƒ³ãƒˆãƒ ãƒ¼ãƒ³ãŒãã‚‹
 #define CRC32_DPS		0x69ea4865	// D.P.S. - Dream Program System
-#define CRC32_FUKEI		0x026de326	// •wŒx‚³‚ñ‚u‚w (ALICE‚ÌŠÙ3 UNITBASE/Y_SYUREN.LZH)
-#define CRC32_INTRUDER	0xa7520fb2	// Intruder -÷‰®•~‚Ì’Tõ-
-#define CRC32_TENGU		0xc942ff58	// ‚ ‚Ô‚È‚¢‚Ä‚ñ‚®“`à
+#define CRC32_FUKEI		0x026de326	// å©¦è­¦ã•ã‚“ï¼¶ï¼¸ (ALICEã®é¤¨3 UNITBASE/Y_SYUREN.LZH)
+#define CRC32_INTRUDER	0xa7520fb2	// Intruder -æ¡œå±‹æ•·ã®æ¢ç´¢-
+#define CRC32_TENGU		0xc942ff58	// ã‚ã¶ãªã„ã¦ã‚“ãä¼èª¬
 #define CRC32_VAMPIRE	0x957bcfbf	// Little Vampire
-#define CRC32_BUNKASAI	0			// ‚ ‚Ô‚È‚¢•¶‰»Õ‘O–é? (–¢Šm”F)
+#define CRC32_BUNKASAI	0			// ã‚ã¶ãªã„æ–‡åŒ–ç¥­å‰å¤œ? (æœªç¢ºèª)
 
-#define CRC32_AYUMI_PROTO	0x4e2f5678	// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê PROTO
+#define CRC32_AYUMI_PROTO	0x4e2f5678	// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª PROTO
 #define CRC32_SDPS		0xc7a20cdf	// Super D.P.S
-#define CRC32_SDPS_MARIA	0x80d4eaca	//	ƒ}ƒŠƒA‚ÆƒJƒ“ƒpƒ“
-#define CRC32_SDPS_TONO		0xbb1edff1	//	‰“–ì‚ÌX
-#define CRC32_SDPS_KAIZOKU	0xf81829e3	//	ŠC‘¯‰Æ‹Æ
+#define CRC32_SDPS_MARIA	0x80d4eaca	//	ãƒãƒªã‚¢ã¨ã‚«ãƒ³ãƒ‘ãƒ³
+#define CRC32_SDPS_TONO		0xbb1edff1	//	é é‡ã®æ£®
+#define CRC32_SDPS_KAIZOKU	0xf81829e3	//	æµ·è³Šå®¶æ¥­
 #define CRC32_PROSTUDENTG_FD	0x5ffbfee7	// Prostudent -G- (FD)
 
 #define CRC32_AMBIVALENZ_FD	0xa6b48dfe	// AmbivalenZ (FD)
 #define CRC32_AMBIVALENZ_CD	0x4b10db69	// AmbivalenZ (CD)
-#define CRC32_DPSALL		0xd48b4ec6	// DPS‘S•”
+#define CRC32_DPSALL		0xd48b4ec6	// DPSå…¨éƒ¨
 #define CRC32_FUNNYBEE_CD	0xe14e3971	// Funny Bee (CD)
 #define CRC32_FUNNYBEE_PATCH	0xe14e3971	// Funny Bee (CD + Patch)
 #define CRC32_FUNNYBEE_FD	0x731267fa	// Funny Bee (FD)
 #define CRC32_ONLYYOU		0x832aeb97	// Only You
 #define CRC32_ONLYYOU_DEMO	0xc1d13e44	// Only You (DEMO)
 #define CRC32_PROSTUDENTG_CD	0xfb0e4a63	// Prostudent -G- (CD)
-#define CRC32_PROG_OMAKE	0x8ba18bff	// Prostudent G ‚¨‚Ü‚¯ (CRC32 of AGAME.DAT)
+#define CRC32_PROG_OMAKE	0x8ba18bff	// Prostudent G ãŠã¾ã‘ (CRC32 of AGAME.DAT)
 #define CRC32_RANCE41		0xa43fb4b6	// Rance 4.1
 #define CRC32_RANCE42		0x04d24d1e	// Rance 4.2
-#define CRC32_AYUMI_CD		0xd2bed9ee	// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê (CD)
-#define CRC32_AYUMI_JISSHA_256	0x00d15a2b	// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ÀÊ”Å
-#define CRC32_AYUMI_JISSHA_FULL	0x5f66ff1d	// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ƒtƒ‹ƒJƒ‰[ÀÊ”Å
-#define CRC32_YAKATA3_CD	0x7f8f5e2a	// ƒAƒŠƒX‚ÌŠÙ‚R (CD)
-#define CRC32_YAKATA3_FD	0x58ebcc99	// ƒAƒŠƒX‚ÌŠÙ‚R (FD)
-#define CRC32_HASHIRIONNA2	0x09f47cbd	// ‘–‚è—‚Q (Rance 4.x ƒqƒ“ƒgƒfƒBƒXƒN)
-#define CRC32_TOUSHIN2_SP	0x2172c7b2	// “¬_“ss‚Q `‚»‚µ‚ÄA‚»‚ê‚©‚ç`
-#define CRC32_OTOMESENKI	0x49a4db15	// ‰³—í‹L
-#define CRC32_NINGYO		0xd491e7ab	// l‹› -åfq-
-#define CRC32_MUGENHOUYOU	0xbb27d1ba	// –²Œ¶–A‰e
+#define CRC32_AYUMI_CD		0xd2bed9ee	// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª (CD)
+#define CRC32_AYUMI_JISSHA_256	0x00d15a2b	// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª å®Ÿå†™ç‰ˆ
+#define CRC32_AYUMI_JISSHA_FULL	0x5f66ff1d	// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª ãƒ•ãƒ«ã‚«ãƒ©ãƒ¼å®Ÿå†™ç‰ˆ
+#define CRC32_YAKATA3_CD	0x7f8f5e2a	// ã‚¢ãƒªã‚¹ã®é¤¨ï¼“ (CD)
+#define CRC32_YAKATA3_FD	0x58ebcc99	// ã‚¢ãƒªã‚¹ã®é¤¨ï¼“ (FD)
+#define CRC32_HASHIRIONNA2	0x09f47cbd	// èµ°ã‚Šå¥³ï¼’ (Rance 4.x ãƒ’ãƒ³ãƒˆãƒ‡ã‚£ã‚¹ã‚¯)
+#define CRC32_TOUSHIN2_SP	0x2172c7b2	// é—˜ç¥éƒ½å¸‚ï¼’ ã€œãã—ã¦ã€ãã‚Œã‹ã‚‰ã€œ
+#define CRC32_OTOMESENKI	0x49a4db15	// ä¹™å¥³æˆ¦è¨˜
+#define CRC32_NINGYO		0xd491e7ab	// äººé­š -è˜¿å­-
+#define CRC32_MUGENHOUYOU	0xbb27d1ba	// å¤¢å¹»æ³¡å½±
 
 #endif

@@ -1,26 +1,26 @@
-GPL�����ŁA�K���ɁB
-���̃A�[�J�C�u�ɂ��Ă͈�؃T�|�[�g�O�ł��B
+GPL扱いで、適当に。
+このアーカイブについては一切サポート外です。
 
-�R���p�C�����͈ȉ��̒ʂ�ł��B
+コンパイル環境は以下の通りです。
 
 	Visual C++ 2008 SP1
 
-�v���W�F�N�g�t�@�C���͈ȉ��̒ʂ�ł��B
+プロジェクトファイルは以下の通りです。
 
-	crescent.vcproj		�N���Z���g���[��������
+	crescent.vcproj		クレセントムーンがぁる
 	dsp.vcproj		D.P.S. - Dream Program System
-	fukei.vcproj		�w�x���񕨌�u�w
-	intruder.vcproj		Intruder -�����~�̒T��-
-	maria.vcproj		Super D.P.S. �}���A�ƃJ���p��
-	prog_omake.vcproj	prostudent G ���܂�
+	fukei.vcproj		婦警さん物語ＶＸ
+	intruder.vcproj		Intruder -桜屋敷の探索-
+	maria.vcproj		Super D.P.S. マリアとカンパン
+	prog_omake.vcproj	prostudent G おまけ
 	sdps.vcproj		Super D.P.S.
-	system3.vcproj		SYSTEM3�ėp
-	tengu.vcproj		���ԂȂ��Ă񂮓`��
+	system3.vcproj		SYSTEM3汎用
+	tengu.vcproj		あぶないてんぐ伝説
 	vampire.vcproj		Little Vampire
 
-������ł́A�ߊԂ����xsystem35���Q�l�ɂ��Ă��܂��B
-����̎����ɂ��ẮARyu1���񂪈ڐA���ꂽDOS�ł�A
-unitbase������system35�ɈڐA���ꂽ���̂��Q�l�ɂ��Ă��܂��B
+実装上では、近間さんのxsystem35を参考にしています。
+旧作の実装については、Ryu1さんが移植されたDOS版や、
+unitbase内部でsystem35に移植されたものを参考にしています。
 
-alsmidi�́ANasty����Ateru����̍�i�ł��B
-REITHUS����̍쐬���ꂽMDA�f�[�^��������Ă��܂��B
+alsmidiは、Nastyさん、teruさんの作品です。
+REITHUSさんの作成されたMDAデータを内蔵しています。

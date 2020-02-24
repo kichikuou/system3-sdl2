@@ -91,7 +91,7 @@ protected:
 	AGS* ags;
 	MAKO* mako;
 
-	// ƒRƒ}ƒ“ƒhƒp[ƒT
+	// ã‚³ãƒãƒ³ãƒ‰ãƒ‘ãƒ¼ã‚µ
 	template <class T> void execute(T* impl);
 	void load_scenario(int page);
 
@@ -101,11 +101,11 @@ protected:
 	// ADISK.DAT, ASLEEP.DAT
 	char adisk[16];
 
-	// ƒVƒiƒŠƒIƒf[ƒ^
+	// ã‚·ãƒŠãƒªã‚ªãƒ‡ãƒ¼ã‚¿
 	uint8* scenario_data;
 	int scenario_size;
 
-	// ƒAƒhƒŒƒXAƒy[ƒWŠÇ—
+	// ã‚¢ãƒ‰ãƒ¬ã‚¹ã€ãƒšãƒ¼ã‚¸ç®¡ç†
 	int scenario_addr;
 	int scenario_page;
 	int label_depth;
@@ -114,7 +114,7 @@ protected:
 	int page_stack[MAX_STACK];
 	int addr_stack[MAX_STACK];
 
-	// •Ï”
+	// å¤‰æ•°
 	uint16 var[512];
 	uint16 var_stack[30][20];
 //	char tvar[10][22];
@@ -124,31 +124,31 @@ protected:
 	// DPS
 	bool text_refresh;
 
-	bool column;		// À•Wƒ‚[ƒh
-	bool wait_keydown;	// ƒEƒFƒCƒg‚ÌƒL[ó•t
-	int text_wait_time;	// ƒeƒLƒXƒg•\¦‚ÌƒEƒFƒCƒg
-	int mouse_sence;	// ƒ}ƒEƒXŠ´“x
+	bool column;		// åº§æ¨™ãƒ¢ãƒ¼ãƒ‰
+	bool wait_keydown;	// ã‚¦ã‚§ã‚¤ãƒˆæ™‚ã®ã‚­ãƒ¼å—ä»˜
+	int text_wait_time;	// ãƒ†ã‚­ã‚¹ãƒˆè¡¨ç¤ºã®ã‚¦ã‚§ã‚¤ãƒˆ
+	int mouse_sence;	// ãƒã‚¦ã‚¹æ„Ÿåº¦
 
-	int menu_window;	// ƒƒjƒ…[ƒEƒBƒ“ƒhƒE”Ô†
-	int text_window;	// ƒƒbƒZ[ƒWƒEƒBƒ“ƒhƒE”Ô†
-	bool show_push;		// Push•\¦
-	bool clear_text;	// ƒƒjƒ…[Œã‚ÌƒƒbƒZ[ƒWƒEƒBƒ“ƒhƒEÁ‹
+	int menu_window;	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ç•ªå·
+	int text_window;	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ç•ªå·
+	bool show_push;		// Pushè¡¨ç¤º
+	bool clear_text;	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼å¾Œã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦æ¶ˆå»
 
-	int menu_index;			// ƒƒjƒ…[“o˜^‚ÌƒCƒ“ƒfƒbƒNƒX
-	int menu_addr[64];		// ƒWƒƒƒ“ƒvæ‚ÌƒAƒhƒŒƒX
-	int menu_verb[64];		// “o˜^‚³‚ê‚½“®Œ
-	int menu_obj[64];		// “o˜^‚³‚ê‚½–Ú“IŒê
+	int menu_index;			// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ç™»éŒ²ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+	int menu_addr[64];		// ã‚¸ãƒ£ãƒ³ãƒ—å…ˆã®ã‚¢ãƒ‰ãƒ¬ã‚¹
+	int menu_verb[64];		// ç™»éŒ²ã•ã‚ŒãŸå‹•è©
+	int menu_obj[64];		// ç™»éŒ²ã•ã‚ŒãŸç›®çš„èª
 
 	char caption_verb[MAX_VERB][MAX_CAPTION];
 	char caption_obj[MAX_OBJ][MAX_CAPTION];
 
-	bool verb_obj;	// “®Œ-Œ`—eŒŒ^ƒƒjƒ…[‚Ì’è‹`’†
+	bool verb_obj;	// å‹•è©-å½¢å®¹è©å‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®å®šç¾©ä¸­
 	bool set_palette;
 
 	int pcm_index;
 	int pcm[MAX_PCM];
 
-	// ‰ºˆÊŠÖ”
+	// ä¸‹ä½é–¢æ•°
 	uint8 getd() { return scenario_data[scenario_addr++]; }
 	uint16 getw() {
 		uint16 val = scenario_data[scenario_addr] | (scenario_data[scenario_addr + 1] << 8);
@@ -171,13 +171,13 @@ protected:
 
 	static uint32 calc_crc32(const char* game_id);
 
-	// Y27 ƒ_ƒCƒAƒƒO
+	// Y27 ãƒ€ã‚¤ã‚¢ãƒ­ã‚°
 	void text_dialog();
 
-	// I—¹ƒtƒ‰ƒO
+	// çµ‚äº†ãƒ•ãƒ©ã‚°
 	bool terminate;
 
-	// ƒfƒoƒbƒOƒƒO
+	// ãƒ‡ãƒãƒƒã‚°ãƒ­ã‚°
 	void initialize_console();
 	void release_console();
 
@@ -193,8 +193,8 @@ public:
 	static const int get_sys_ver(uint32 crc32);
 	const char* get_title();
 
-	bool text_skip_enb;	// ƒƒbƒZ[ƒWƒXƒLƒbƒv
-	bool text_wait_enb;	// ƒeƒLƒXƒg•\¦‚ÌƒEƒFƒCƒg—LŒø^–³Œø
+	bool text_skip_enb;	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚¹ã‚­ãƒƒãƒ—
+	bool text_wait_enb;	// ãƒ†ã‚­ã‚¹ãƒˆè¡¨ç¤ºã®ã‚¦ã‚§ã‚¤ãƒˆæœ‰åŠ¹ï¼ç„¡åŠ¹
 	int sys_ver;
 	uint32 crc32;
 
@@ -202,7 +202,7 @@ public:
 	char tvar[10][22];
 	int tvar_index, tvar_maxlen;
 
-	// ƒfƒoƒbƒOƒƒO
+	// ãƒ‡ãƒãƒƒã‚°ãƒ­ã‚°
 	void output_console(char log[]);
 
 	int get_scenario_page() const { return scenario_page; }
@@ -255,9 +255,9 @@ private:
 	uint16 cali();
 	uint16 cali2();
 
-	int menu_max;	// ƒƒjƒ…[‚Ì‰üƒy[ƒW
+	int menu_max;	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®æ”¹ãƒšãƒ¼ã‚¸
 
-	// Intruder ZƒRƒ}ƒ“ƒh
+	// Intruder Zã‚³ãƒãƒ³ãƒ‰
 	int paint_x;
 	int paint_y;
 	int map_page;

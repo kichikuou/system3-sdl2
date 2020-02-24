@@ -8,7 +8,7 @@
 
 void AGS::load_gm3(uint8* data, int page, int transparent)
 {
-	// ƒwƒbƒ_æ“¾
+	// ãƒ˜ãƒƒãƒ€å–å¾—
 	uint16 tmp = (data[0x30] | (data[0x31] << 8)) - 0x8000;
 	int sx = tmp % 80;
 	int sy = tmp / 80;
@@ -16,20 +16,20 @@ void AGS::load_gm3(uint8* data, int page, int transparent)
 	int height = data[0x34] | (data[0x35] << 8);
 	uint8 base = 0;
 
-	// JƒRƒ}ƒ“ƒh‚Ìˆ—
+	// Jã‚³ãƒãƒ³ãƒ‰ã®å‡¦ç†
 	if(set_cg_dest) {
 		sx = cg_dest_x >> 3;
 		sy = cg_dest_y;
 		set_cg_dest = false;
 	}
 
-	// ZƒRƒ}ƒ“ƒh‚Ìˆ—
+	// Zã‚³ãƒãƒ³ãƒ‰ã®å‡¦ç†
 	if(palette_bank != -1) {
 		base = (palette_bank & 0x0f) << 4;
 	}
 
 /*
-	// ƒpƒŒƒbƒgæ“¾
+	// ãƒ‘ãƒ¬ãƒƒãƒˆå–å¾—
 	if(get_palette) {
 		for(int i = 0; i < 16; i++) {
 			uint32 b = data[i * 3 + 0] & 0xf;
@@ -39,7 +39,7 @@ void AGS::load_gm3(uint8* data, int page, int transparent)
 		}
 	}
 
-	// ƒpƒŒƒbƒg“WŠJ
+	// ãƒ‘ãƒ¬ãƒƒãƒˆå±•é–‹
 	if(extract_palette && extract_palette_cg[page]) {
 		for(int i = 0; i < 16; i++) {
 			screen_palette[base + i] = program_palette[base + i];
@@ -47,7 +47,7 @@ void AGS::load_gm3(uint8* data, int page, int transparent)
 	}
 */
 
-	// GM3“WŠJ
+	// GM3å±•é–‹
 	uint8 cgdata[3][80][3];
 	int p = 0x36;
 	memset(cgdata, 0, sizeof(cgdata));
@@ -107,7 +107,7 @@ void AGS::load_gm3(uint8* data, int page, int transparent)
 			}
 		}
 
-		// VRAM‚É“]‘—
+		// VRAMã«è»¢é€
 		if(extract_cg) {
 			for(int x = 0; x < width; x++) {
 				for(int pl = 0; pl < 3; pl++) {
@@ -144,7 +144,7 @@ void AGS::load_gm3(uint8* data, int page, int transparent)
 		}
 	}
 
-	// ‰æ–ÊXV
+	// ç”»é¢æ›´æ–°
 	if(dest_screen == 0 && extract_cg) {
 		draw_screen(sx * 8, sy * 2, width * 8, height * 2);
 	}

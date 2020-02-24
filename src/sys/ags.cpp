@@ -39,7 +39,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	SDL_RenderSetLogicalSize(sdlRenderer, 640, 400);
 	sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, 640, 400); // TOOD: pixelformat?
 
-	// DIBSection 8bpp * 3 (•\, — , ƒƒjƒ…[)
+	// DIBSection 8bpp * 3 (è¡¨, è£, ãƒ¡ãƒ‹ãƒ¥ãƒ¼)
 	for(int i = 0; i < 3; i++) {
 		hBmpScreen[i] = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
 		SDL_LockSurface(hBmpScreen[i]);
@@ -47,18 +47,18 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 		// TODO: clear surface
 		// memset(lpBmpScreen[i], 0, 640 * 480 * sizeof(DWORD));
 
-		// ‰¼‘zVRAM‚Ö‚Ìƒ|ƒCƒ“ƒ^æ“¾
+		// ä»®æƒ³VRAMã¸ã®ãƒã‚¤ãƒ³ã‚¿å–å¾—
 		for(int j = 0; j < 480; j++) {
 			vram[i][j] = surface_line(hBmpScreen[i], j);
 		}
 	}
 
-	// DIBSection 24bpp * 1 (ÅIo—Íæ)
+	// DIBSection 24bpp * 1 (æœ€çµ‚å‡ºåŠ›å…ˆ)
 	display_surface = hBmpDest = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
 	SDL_LockSurface(hBmpDest);
 	// TODO: clear surface
 
-	// ƒtƒHƒ“ƒg
+	// ãƒ•ã‚©ãƒ³ãƒˆ
 	TTF_Init();
 	hFont16 = TTF_OpenFont(fontfile, 16);
 	hFont24 = TTF_OpenFont(fontfile, 24);
@@ -69,12 +69,12 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 		parent->fatal("Cannot open font file %s", fontfile);
 	}
 
-	// ƒJ[ƒ\ƒ‹‰Šú‰»
+	// ã‚«ãƒ¼ã‚½ãƒ«åˆæœŸåŒ–
 	for(int i = 0; i < 10; i++) {
 		hCursor[i] = NULL;
 	}
 
-	// GAIJI.DAT“Ç‚İ‚İ
+	// GAIJI.DATèª­ã¿è¾¼ã¿
 	memset(gaiji, 0, sizeof(gaiji));
 
 	FILEIO* fio = new FILEIO();
@@ -105,12 +105,12 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	}
 	delete fio;
 
-	// SYSTEM3 ‰Šú‰»
+	// SYSTEM3 åˆæœŸåŒ–
 
 	// ACG.DAT
 	strcpy_s(acg, 16, "ACG.DAT");
 
-	// ƒpƒŒƒbƒg
+	// ãƒ‘ãƒ¬ãƒƒãƒˆ
 	memset(program_palette, 0, sizeof(program_palette));
 	program_palette[0x00] = SETPALETTE16(0x0, 0x0, 0x0);
 	program_palette[0x01] = SETPALETTE16(0x0, 0x0, 0xa);
@@ -166,9 +166,9 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 
 	memcpy(screen_palette, program_palette, sizeof(program_palette));
 
-	// BƒRƒ}ƒ“ƒh
+	// Bã‚³ãƒãƒ³ãƒ‰
 	for(int i = 0; i < 10; i++) {
-		// ƒEƒBƒ“ƒhƒE‚Ì‰ŠúˆÊ’u‚ÍƒVƒXƒeƒ€‚É‚æ‚Á‚ÄˆÙ‚È‚é
+		// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®åˆæœŸä½ç½®ã¯ã‚·ã‚¹ãƒ†ãƒ ã«ã‚ˆã£ã¦ç•°ãªã‚‹
 		switch (nact->crc32) {
 		case CRC32_BUNKASAI:
 			SET_TEXT(i, 24, 304, 616, 384, false);
@@ -176,7 +176,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 			break;
 		case CRC32_CRESCENT:
 			SET_TEXT(i, 24, 288, 616, 378, false);
-			// –{—ˆ‚Í‰¡ƒƒjƒ…[
+			// æœ¬æ¥ã¯æ¨ªãƒ¡ãƒ‹ãƒ¥ãƒ¼
 			SET_MENU(i, 464, 50, 623, 240, true);
 			break;
 		case CRC32_DPS:
@@ -214,7 +214,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 
 	}
 
-	// EƒRƒ}ƒ“ƒh
+	// Eã‚³ãƒãƒ³ãƒ‰
 	for(int i = 0; i < 20; i++) {
 //		SET_BOX(i, 0, 0, 0, 631, 399);
 		SET_BOX(i, 0, 0, 0, 639, 399);
@@ -236,14 +236,14 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 		}
 	}
 
-	// ‰æ–Ê‘I‘ğ
+	// ç”»é¢é¸æŠ
 	src_screen = dest_screen = 0;
 
-	// ‰æ–ÊƒTƒCƒY
+	// ç”»é¢ã‚µã‚¤ã‚º
 	screen_height = 400;
 	scroll = 400;
 
-	// ƒƒbƒZ[ƒW•\¦
+	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸è¡¨ç¤º
 	text_dest_x = text_w[0].sx;
 	text_dest_y = text_w[0].sy + 2;
 	text_space = 2;
@@ -258,7 +258,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 		text_back_color = 0;
 	}
 
-	// ƒƒjƒ…[•\¦
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
 	menu_dest_x = 2;
 	menu_dest_y = 0;
 	menu_font_size = 16;
@@ -276,7 +276,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	draw_hankaku = false;
 	draw_menu = false;
 
-	// CG•\¦
+	// CGè¡¨ç¤º
 	set_cg_dest = false;
 	cg_dest_x = cg_dest_y = 0;
 	for(int i = 0; i < MAX_CG; i++) {
@@ -285,18 +285,18 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	get_palette = extract_palette = extract_cg = true;
 	palette_bank = -1;
 
-	// ƒ}ƒEƒXƒJ[ƒ\ƒ‹
+	// ãƒã‚¦ã‚¹ã‚«ãƒ¼ã‚½ãƒ«
 	cursor_color = 15;
 	cursor_index = 0;
 
-	// ƒtƒF[ƒhó‘Ô
+	// ãƒ•ã‚§ãƒ¼ãƒ‰çŠ¶æ…‹
 	fader = false;
 	memset(fader_screen, 0, sizeof(fader_screen));
 }
 
 AGS::~AGS()
 {
-	// ‘Ş”ğ—Ìˆæ‚ÌŠJ•ú
+	// é€€é¿é ˜åŸŸã®é–‹æ”¾
 	for(int i = 0; i < 10; i++) {
 		if(menu_w[i].screen) {
 			free(menu_w[i].screen);
@@ -312,21 +312,21 @@ AGS::~AGS()
 		}
 	}
 
-	// ƒJ[ƒ\ƒ‹ŠJ•ú
+	// ã‚«ãƒ¼ã‚½ãƒ«é–‹æ”¾
 	for(int i = 0; i < 10; i++) {
 		if(hCursor[i]) {
 			SDL_FreeCursor(hCursor[i]);
 		}
 	}
 
-	// ƒtƒHƒ“ƒgŠJ•ú
+	// ãƒ•ã‚©ãƒ³ãƒˆé–‹æ”¾
 	TTF_CloseFont(hFont16);
 	TTF_CloseFont(hFont24);
 	TTF_CloseFont(hFont32);
 	TTF_CloseFont(hFont48);
 	TTF_CloseFont(hFont64);
 
-	// surfaceŠJ•ú
+	// surfaceé–‹æ”¾
 	for(int i = 0; i < 3; i++) {
 		SDL_FreeSurface(hBmpScreen[i]);
 	}
@@ -369,7 +369,7 @@ void AGS::fade_end()
 
 void AGS::fade_out(int depth, bool white)
 {
-	// ’Êí‰æ–Ê ¨ ”’•‰æ–Ê
+	// é€šå¸¸ç”»é¢ â†’ ç™½é»’ç”»é¢
 	int fx = fade_x[depth];
 	int fy = fade_y[depth];
 	fader = true;
@@ -381,13 +381,13 @@ void AGS::fade_out(int depth, bool white)
 		}
 	}
 
-	// ‰æ–ÊXV
+	// ç”»é¢æ›´æ–°
 	invalidate_screen(0, 0, 640, screen_height);
 }
 
 void AGS::fade_in(int depth)
 {
-	// ”’•‰æ–Ê ¨ ’Êí‰æ–Ê
+	// ç™½é»’ç”»é¢ â†’ é€šå¸¸ç”»é¢
 	int fx = fade_x[depth];
 	int fy = fade_y[depth];
 	fader = (depth == 15) ? false : true;
@@ -400,7 +400,7 @@ void AGS::fade_in(int depth)
 		}
 	}
 
-	// ‰æ–ÊXV
+	// ç”»é¢æ›´æ–°
 	invalidate_screen(0, 0, 640, screen_height);
 }
 
@@ -412,7 +412,7 @@ void AGS::flush_screen(bool update)
 			uint32* dest = surface_line(hBmpDest, y);
 			for(int x = 0; x < 640; x++) {
 				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
-					// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ƒtƒ‹ƒJƒ‰[ÀÊ”Å
+					// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª ãƒ•ãƒ«ã‚«ãƒ©ãƒ¼å®Ÿå†™ç‰ˆ
 					dest[x] = src[x] & 0xffffff;
 				} else {
 					dest[x] = screen_palette[src[x] & 0xff];
@@ -432,7 +432,7 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 			for(int x = sx; x < (sx + width) && x < 640; x++) {
 				uint32 a=src[x];
 				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
-					// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ƒtƒ‹ƒJƒ‰[ÀÊ”Å
+					// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª ãƒ•ãƒ«ã‚«ãƒ©ãƒ¼å®Ÿå†™ç‰ˆ
 					dest[x] = src[x] & 0xffffff;
 				} else {
 					dest[x] = screen_palette[src[x] & 0xff];
@@ -446,7 +446,7 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 			for(int x = sx; x < (sx + width) && x < 640; x++) {
 				uint32 a=src[x];
 				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
-					// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ƒtƒ‹ƒJƒ‰[ÀÊ”Å
+					// ã‚ã‚†ã¿ã¡ã‚ƒã‚“ç‰©èª ãƒ•ãƒ«ã‚«ãƒ©ãƒ¼å®Ÿå†™ç‰ˆ
 					dest[x] = src[x] & 0xffffff;
 				} else {
 					dest[x] = screen_palette[src[x] & 0xff];
