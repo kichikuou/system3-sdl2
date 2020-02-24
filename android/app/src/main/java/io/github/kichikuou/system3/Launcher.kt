@@ -201,9 +201,6 @@ class Launcher private constructor(private val rootDir: File) {
             handler.sendMessage(handler.obtainMessage(SUCCESS, outDir))
         } catch (e: InstallFailureException) {
             handler.sendMessage(handler.obtainMessage(FAILURE, e.msgId))
-        } catch (e: UTFDataFormatException) {
-            // Attempted to read Shift_JIS zip in Android < 7
-            handler.sendMessage(handler.obtainMessage(FAILURE, R.string.unsupported_zip))
         } catch (e: IOException) {
             Log.e("launcher", "Failed to extract ZIP", e)
             handler.sendMessage(handler.obtainMessage(FAILURE, R.string.zip_extraction_error))
@@ -249,8 +246,13 @@ private fun forEachZipEntry(input: InputStream, action: (ZipEntry, ZipInputStrea
     }
     zip.use {
         while (true) {
-            val zipEntry = zip.nextEntry ?: break
-            action(zipEntry, zip)
+            try {
+                val zipEntry = zip.nextEntry ?: break
+                action(zipEntry, zip)
+            } catch (e: UTFDataFormatException) {
+                Log.w("forEachZipEntry", "UTFDataFormatException: skipping a zip entry")
+                zip.closeEntry()
+            }
         }
     }
 }
