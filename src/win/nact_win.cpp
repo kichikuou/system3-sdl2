@@ -10,6 +10,7 @@ static INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARA
 {
 	static NACT* nact;
 	char string[64];
+	wchar_t wstring[64];
 	int pnt, cnt;
 	
 	switch(msg) {
@@ -20,8 +21,8 @@ static INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARA
 			// get this pointer
 			nact = (NACT *)lParam;
 			// init dialog
-			sprintf_s(string, 64, "文字列を入力してください（最大%d文字）", nact->tvar_maxlen);
-			Edit_SetText(GetDlgItem(hDlg, IDC_TEXT), string);
+			swprintf_s(wstring, 64, L"文字列を入力してください（最大%d文字）", nact->tvar_maxlen);
+			SetWindowTextW(GetDlgItem(hDlg, IDC_TEXT), wstring);
 			Edit_SetText(GetDlgItem(hDlg, IDC_EDITBOX), nact->tvar[nact->tvar_index - 1]);
 			if(nact->tvar[nact->tvar_index - 1][0] == '\0') {
 				EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);

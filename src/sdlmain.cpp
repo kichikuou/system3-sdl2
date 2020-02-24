@@ -56,7 +56,11 @@ int main(int argc, char *argv[])
 			const char* gid = nact->get_game_id();
 			if (gid) {
 				path += gid;
+#ifdef WIN32
+				mkdir(path.c_str());
+#else
 				mkdir(path.c_str(), 0777);
+#endif
 			}
 		}
 		if (path[path.size() - 1] != '/') {
