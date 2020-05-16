@@ -16,12 +16,18 @@
 #define MIX_INIT_MID MIX_INIT_FLUIDSYNTH
 #endif
 
+namespace {
+
+std::vector<uint8> smf;
+Mix_Music *mix_music;
+Mix_Chunk *mix_chunk;
+
+} // namespace
+
 MAKO::MAKO(NACT* parent, const char* playlist) :
 	current_music(0),
 	next_loop(0),
-	nact(parent),
-	mix_music(NULL),
-	mix_chunk(NULL)
+	nact(parent)
 {
 	int mix_init_flags = MIX_INIT_MID;
 

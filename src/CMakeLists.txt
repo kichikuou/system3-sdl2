@@ -47,23 +47,22 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   include(FindPkgConfig)
   pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
   pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
-  pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
+  target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
 
   set(DEFAULT_FONT_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/fonts/)
-  target_sources(system3 PRIVATE sys/mako.cpp)
-  if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	target_sources(system3 PRIVATE win/nact_win.cpp res3/Script1.rc)
-    target_link_libraries(system3 PRIVATE winmm)
-  else()
-	target_sources(system3 PRIVATE linux/nact_linux.cpp)
-  endif()
-
-  target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF PkgConfig::SDL2MIXER)
 
   install(TARGETS system3 RUNTIME DESTINATION bin)
   install(FILES ../fonts/MTLc3m.ttf ../fonts/MTLc3m.ttf.license
 	DESTINATION share/system3/fonts)
 
+  if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	target_sources(system3 PRIVATE win/nact_win.cpp win/mako.cpp res3/Script1.rc)
+	target_link_libraries(system3 PRIVATE winmm)
+  else()
+	pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
+	target_sources(system3 PRIVATE linux/nact_linux.cpp sys/mako.cpp)
+	target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
+  endif()
 endif()
 
 target_sources(system3 PRIVATE

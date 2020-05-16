@@ -4,13 +4,19 @@
 	[ NACT - input ]
 */
 
+#ifdef _WIN32
+#include <windows.h>
+#undef ERROR
+#endif
+#include <SDL_syswm.h>
 #include "nact.h"
 #include "ags.h"
+#include "mako.h"
 #include "texthook.h"
 
 static int mousex, mousey, fingers;
 
-static bool pump_events(AGS* ags)
+static bool pump_events(AGS* ags, MAKO* mako)
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
@@ -34,6 +40,13 @@ static bool pump_events(AGS* ags)
 		case SDL_APP_DIDENTERFOREGROUND:
 			ags->flush_screen(false);
 			break;
+
+#ifdef _WIN32
+		case SDL_SYSWMEVENT:
+			if (e.syswm.msg->msg.win.msg == MM_MCINOTIFY)
+				mako->on_mci_notify(e.syswm.msg);
+			break;
+#endif
 		}
 	}
 	return false;
@@ -45,7 +58,7 @@ uint8 NACT::get_key()
 
 	texthook_keywait();
 
-	if (pump_events(ags))
+	if (pump_events(ags, mako))
 		terminate = true;
 
 	// キーボード＆マウス
@@ -90,7 +103,7 @@ uint8 NACT::get_key()
 
 void NACT::get_cursor(int* x, int* y)
 {
-	if (pump_events(ags))
+	if (pump_events(ags, mako))
 		terminate = true;
 	*x = mousex;
 	*y = mousey;

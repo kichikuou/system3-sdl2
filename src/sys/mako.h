@@ -14,10 +14,6 @@
 #include "../common.h"
 #include "nact.h"
 
-#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
-#include <SDL_mixer.h>
-#endif
-
 class MAKO
 {
 public:
@@ -32,6 +28,10 @@ public:
 	void play_pcm(int page, bool loop);
 	void stop_pcm();
 	bool check_pcm();
+
+#ifdef _WIN32
+	void on_mci_notify(SDL_SysWMmsg* msg);
+#endif
 
 	// AMUS.DAT, AMSE.DAT
 	char amus[16];
@@ -48,9 +48,6 @@ private:
 	bool load_playlist(const char* path);
 
 	std::vector<const char*> playlist;
-	std::vector<uint8> smf;
-	Mix_Music *mix_music;
-	Mix_Chunk *mix_chunk;
 #endif
 };
 
