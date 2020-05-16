@@ -24,7 +24,7 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### Windows (MSYS2 mingw64)
 
-    $ pacman -S cmake mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2_mixer
+    $ pacman -S cmake mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
     $ mkdir -p out/debug
     $ cd out/debug
     $ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
@@ -62,8 +62,8 @@ _filename_ is a text file that specifies audio files to be played instead of CD 
 
 ```
 # This line is ignored
-BGM/track02.ogg
-BGM/track03.ogg
+BGM/track02.mp3
+BGM/track03.mp3
 ...
 ```
 The first line is not used, because track 1 of game CD is usually a data track.
