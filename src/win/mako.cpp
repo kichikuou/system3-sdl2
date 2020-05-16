@@ -165,6 +165,7 @@ MAKO::MAKO(NACT* parent, const char* playlist) :
 	}
 
 	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version);
 	if (!SDL_GetWindowWMInfo(g_window, &info)) {
 		WARNING("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
 	} else {
