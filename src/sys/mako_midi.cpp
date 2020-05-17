@@ -45,11 +45,16 @@ const uint8 smf_header[] = {
 const size_t TRACK_LENGTH_OFFSET = 18;
 
 const size_t MIDI_SIZE_SOFT_LIMIT = 50000;
+const size_t FADEOUT_DURATION = 100;  // 1 second
 
 class SmfWriter {
 public:
 	SmfWriter() :
-		dt(0), total_ticks(0), buf(smf_header, smf_header + sizeof(smf_header)) {}
+		dt(0), total_ticks(0), fadeout_start(-1),
+		buf(smf_header, smf_header + sizeof(smf_header)) {
+		for (int i = 0; i < 16; i++)
+			volume[i] = -1;
+	}
 
 	std::vector<uint8> get_smf() {
 		// "End of track" event
@@ -72,7 +77,12 @@ public:
 	bool tick() {
 		dt++;
 		total_ticks++;
-		return buf.size() < MIDI_SIZE_SOFT_LIMIT;
+		if (fadeout_start < 0) {
+			if (buf.size() >= MIDI_SIZE_SOFT_LIMIT)
+				fadeout_start = total_ticks;
+			return true;
+		}
+		return total_ticks < fadeout_start + FADEOUT_DURATION;
 	}
 
 	void send_2bytes(uint8 d1, uint8 d2) {
@@ -86,6 +96,21 @@ public:
 		buf.push_back(d1);
 		buf.push_back(d2);
 		buf.push_back(d3);
+	}
+
+	void set_volume(uint8 ch, uint8 level) {
+		volume[ch] = level;
+		send_3bytes(0xb0 + ch, 0x07, fade(level));
+	}
+
+	void update_fader() {
+		if (fadeout_start < 0)
+			return;
+		for (int ch = 0; ch < 16; ch++) {
+			if (volume[ch] < 0)
+				continue;
+			send_3bytes(0xb0 + ch, 0x07, fade(volume[ch]));
+		}
 	}
 
 private:
@@ -108,9 +133,17 @@ private:
 		dt = 0;
 	}
 
+	uint8 fade(uint8 level) {
+		if (fadeout_start < 0)
+			return level;
+		return level * (fadeout_start + FADEOUT_DURATION - total_ticks) / FADEOUT_DURATION;
+	}
+
 	std::vector<uint8> buf;
 	int dt;
 	int total_ticks;
+	int fadeout_start;
+	int16 volume[16];
 };
 
 } // namespace
@@ -166,7 +199,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 		w.send_3bytes(0xb0 + i, 0x79, 0x00);
 	}
 	for(int i = 0; i < 10; i++) {
-		w.send_3bytes(0xb0 + i, 0x07, 0x64);
+		w.set_volume(i, 0x64);
 	}
 
 	// SSG 1-3 の音色
@@ -175,12 +208,12 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 			w.send_3bytes(0xb3 + i, 0x00, mda[i + 256].bank_select);
 			w.send_3bytes(0xb3 + i, 0x20, 0x00);
 			w.send_2bytes(0xc3 + i, mda[i + 256].program_change);
-			w.send_3bytes(0xb3 + i, 0x07, mda[i + 256].level);
+			w.set_volume(3 + i, mda[i + 256].level);
 			w.send_3bytes(0xb3 + i, 0x5b, mda[i + 256].reverb);
 			w.send_3bytes(0xb3 + i, 0x5d, mda[i + 256].chorus);
 			w.send_3bytes(0xb3 + i, 0x0a, mda[i + 256].pan);
 		} else {
-			w.send_3bytes(0xb9, 0x07, mda[i + 256].level);
+			w.set_volume(9, mda[i + 256].level);
 			w.send_3bytes(0xb9, 0x5b, mda[i + 256].reverb);
 			w.send_3bytes(0xb9, 0x5d, mda[i + 256].chorus);
 			w.send_3bytes(0xb9, 0x0a, mda[i + 256].pan);
@@ -223,13 +256,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 							   !play[3].loop_flag && !play[4].loop_flag && !play[5].loop_flag &&
 							   !play[6].loop_flag && !play[7].loop_flag && !play[8].loop_flag) {
 								// 全チャンネルが再生停止 (ループしない曲)
-								for(int j = 0; j < 10; j++) {
-									w.send_3bytes(0xb0 + j, 0x78, 0x00);
-								}
-								for(int j = 0; j < 10; j++) {
-									w.send_3bytes(0xb0 + j, 0x79, 0x00);
-								}
-								return w.get_smf();
+								goto finish;
 							}
 							play[i].wait_time = 1;
 						} else {
@@ -243,13 +270,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 							current_loop = loop;
 							if(current_loop >= current_max && current_max) {
 								// 指定回数だけ再生完了
-								for(int j = 0; j < 10; j++) {
-									w.send_3bytes(0xb0 + j, 0x78, 0x00);
-								}
-								for(int j = 0; j < 10; j++) {
-									w.send_3bytes(0xb0 + j, 0x79, 0x00);
-								}
-								return w.get_smf();
+								goto finish;
 							}
 						}
 					} else if(d0 < 0x80) {
@@ -300,7 +321,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 								play[i].channel = 9;
 							}
 							if(play[i].level != mda[n].level) {
-								w.send_3bytes(0xb0 + play[i].channel, 0x07, mda[n].level);
+								w.set_volume(play[i].channel, mda[n].level);
 							}
 							if(play[i].reverb != mda[n].reverb) {
 								w.send_3bytes(0xb0 + play[i].channel, 0x5b, mda[n].reverb);
@@ -336,6 +357,14 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 				}
 			}
 		}
+		w.update_fader();
+	}
+ finish:
+	for(int j = 0; j < 10; j++) {
+		w.send_3bytes(0xb0 + j, 0x78, 0x00);
+	}
+	for(int j = 0; j < 10; j++) {
+		w.send_3bytes(0xb0 + j, 0x79, 0x00);
 	}
 	return w.get_smf();
 }
