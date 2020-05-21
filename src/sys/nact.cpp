@@ -315,9 +315,7 @@ void NACT::execute(T* impl)
 					}
 				}
 
-#if defined(_DEBUG_CONSOLE)
 				output_console(string);
-#endif
 			} else if((0x81 <= cmd && cmd <= 0x9f) || 0xe0 <= cmd) {
 				// message (2 bytes)
 				char string[3];
@@ -345,10 +343,7 @@ void NACT::execute(T* impl)
 						SDL_Delay(16);
 					}
 				}
-
-#if defined(_DEBUG_CONSOLE)
 				output_console(string);
-#endif
 			} else {
 				fatal("Unknown command %2x at %d", cmd, scenario_addr);
 			}

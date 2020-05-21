@@ -206,7 +206,7 @@ public:
 	int tvar_index, tvar_maxlen;
 
 	// デバッグログ
-	void output_console(char log[]);
+	void output_console(const char *format, ...);
 
 	int get_scenario_page() const { return scenario_page; }
 

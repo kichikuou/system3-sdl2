@@ -35,9 +35,13 @@ void NACT::release_console()
 {
 }
 
-void NACT::output_console(char log[])
+void NACT::output_console(const char *format, ...)
 {
 #if defined(_DEBUG_CONSOLE)
-	fputs(log, stderr);
+	va_list ap;
+
+	va_start(ap, format);
+	vfprintf(stdout, format, ap);
+	va_end(ap);
 #endif
 }

@@ -117,11 +117,7 @@ void NACT_Sys1::cmd_calc()
 	}
 	var[index] = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n!var[%d]:%d!", index, var[index]);
-	output_console(log);
-#endif
+	output_console("\n!var[%d]:%d!", index, var[index]);
 }
 
 void NACT_Sys1::cmd_branch()
@@ -219,11 +215,7 @@ void NACT_Sys1::cmd_branch()
 		}
 	}
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n{%d:", condition);
-	output_console(log);
-#endif
+	output_console("\n{%d:", condition);
 }
 
 void NACT_Sys1::cmd_label_jump()
@@ -231,22 +223,14 @@ void NACT_Sys1::cmd_label_jump()
 	int next_addr = getw();
 	scenario_addr = next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n@%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n@%x:", next_addr);
 }
 
 void NACT_Sys1::cmd_label_call()
 {
 	int next_addr = getw();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n\\%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n\\%x:", next_addr);
 
 	if(next_addr == 0) {
 		// リターン
@@ -268,22 +252,14 @@ void NACT_Sys1::cmd_page_jump()
 	scenario_page = next_page;
 	scenario_addr = 2;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n&%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n&%d:", next_page);
 }
 
 void NACT_Sys1::cmd_page_call()
 {
 	int next_page = cali(), next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n%%%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n%%%d:", next_page);
 
 	if(next_page == 0) {
 		// リターン
@@ -310,11 +286,7 @@ void NACT_Sys1::cmd_set_menu()
 		ags->menu_dest_y += ags->menu_font_size + 2;
 		ags->draw_menu = false;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "$");
-		output_console(log);
-#endif
+		output_console("$");
 	} else {
 		if(!menu_index) {
 			ags->clear_menu_window();
@@ -325,21 +297,13 @@ void NACT_Sys1::cmd_set_menu()
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "\n$%x,", menu_addr[menu_index - 1]);
-		output_console(log);
-#endif
+		output_console("\n$%x,", menu_addr[menu_index - 1]);
 	}
 }
 
 void NACT_Sys1::cmd_open_menu()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n]");
-	output_console(log);
-#endif
+	output_console("\n]");
 
 	if(!menu_index) {
 		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
@@ -455,11 +419,7 @@ void NACT_Sys1::cmd_set_verbobj()
 	menu_obj[menu_index++] = obj;
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT_Sys1::cmd_set_verbobj2()
@@ -476,21 +436,13 @@ void NACT_Sys1::cmd_set_verbobj2()
 	}
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT_Sys1::cmd_open_verb()
 {
 	// 動詞メニューの表示
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nopen verb-obj menu");
-	output_console(log);
-#endif
+	output_console("\nopen verb-obj menu");
 	verb_obj = false;
 
 	// 表示する動詞のチェック
@@ -841,11 +793,7 @@ top2:
 
 void NACT_Sys1::cmd_a()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "A\n");
-	output_console(log);
-#endif
+	output_console("A\n");
 
 	if(!text_skip_enb) {
 		// Pushマークの表示
@@ -899,11 +847,7 @@ void NACT_Sys1::cmd_e()
 
 void NACT_Sys1::cmd_f()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nF");
-	output_console(log);
-#endif
+	output_console("\nF");
 
 	scenario_addr = 2;
 }
@@ -912,11 +856,7 @@ void NACT_Sys1::cmd_g()
 {
 	int page = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nG %d:", page);
-	output_console(log);
-#endif
+	output_console("\nG %d:", page);
 
 	if (crc32 == CRC32_INTRUDER) {
 		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
@@ -958,11 +898,7 @@ void NACT_Sys1::cmd_l()
 {
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nL %d:", index);
-	output_console(log);
-#endif
+	output_console("\nL %d:", index);
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
@@ -1081,11 +1017,7 @@ void NACT_Sys1::cmd_p()
 
 	ags->text_font_color = (uint8)((param & 0x7) + 16);
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nP %d:", param);
-	output_console(log);
-#endif
+	output_console("\nP %d:", param);
 }
 
 #define FWRITE(data, size) { \
@@ -1112,11 +1044,7 @@ void NACT_Sys1::cmd_q()
 
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nQ %d:", index);
-	output_console(log);
-#endif
+	output_console("\nQ %d:", index);
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
@@ -1193,11 +1121,7 @@ void NACT_Sys1::cmd_q()
 
 void NACT_Sys1::cmd_r()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "R\n");
-	output_console(log);
-#endif
+	output_console("R\n");
 
 	// ウィンドウの表示範囲外の場合は改ページ
 	if(ags->return_text_line(text_window)) {
@@ -1209,11 +1133,7 @@ void NACT_Sys1::cmd_s()
 {
 	int page = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nS %d:", page);
-	output_console(log);
-#endif
+	output_console("\nS %d:", page);
 
 	if(page) {
 		mako->play_music(page);
@@ -1232,11 +1152,7 @@ void NACT_Sys1::cmd_u()
 	int page = getd();
 	int transparent = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nU %d,%d:", page, transparent);
-	output_console(log);
-#endif
+	output_console("\nU %d,%d:", page, transparent);
 
 	if (crc32 == CRC32_INTRUDER) {
 		ags->load_cg(page, 11);
@@ -1263,11 +1179,7 @@ void NACT_Sys1::cmd_x()
 {
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nX %d:", index);
-	output_console(log);
-#endif
+	output_console("\nX %d:", index);
 
 	if(1 <= index && index <= 10) {
 		ags->draw_text(tvar[index - 1]);
@@ -1279,11 +1191,7 @@ void NACT_Sys1::cmd_y()
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nY %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nY %d,%d:", cmd, param);
 
 	switch (crc32) {
 	case CRC32_BUNKASAI:
@@ -1448,11 +1356,7 @@ void NACT_Sys1::cmd_z()
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nZ %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nZ %d,%d:", cmd, param);
 
 	switch (crc32) {
 	case CRC32_INTRUDER:

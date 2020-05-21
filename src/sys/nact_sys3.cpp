@@ -28,11 +28,7 @@ void NACT_Sys3::cmd_calc()
 	}
 	var[index] = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n!var[%d]:%d!", index, var[index]);
-	output_console(log);
-#endif
+	output_console("\n!var[%d]:%d!", index, var[index]);
 }
 
 void NACT_Sys3::cmd_branch()
@@ -44,11 +40,7 @@ void NACT_Sys3::cmd_branch()
 	// sigmarion3 最適化誤爆の対策
 	scenario_addr = condition ? t_addr : f_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n{%d: T:%4x, F:%4x", condition, t_addr, f_addr);
-	output_console(log);
-#endif
+	output_console("\n{%d: T:%4x, F:%4x", condition, t_addr, f_addr);
 }
 
 void NACT_Sys3::cmd_label_jump()
@@ -56,22 +48,14 @@ void NACT_Sys3::cmd_label_jump()
 	int next_addr = getw();
 	scenario_addr = next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n@%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n@%x:", next_addr);
 }
 
 void NACT_Sys3::cmd_label_call()
 {
 	int next_addr = getw();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n\\%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n\\%x:", next_addr);
 
 	if(next_addr == 0) {
 		// リターン
@@ -93,22 +77,14 @@ void NACT_Sys3::cmd_page_jump()
 	scenario_page = next_page;
 	scenario_addr = 2;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n&%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n&%d:", next_page);
 }
 
 void NACT_Sys3::cmd_page_call()
 {
 	int next_page = cali(), next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n%%%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n%%%d:", next_page);
 
 	if(next_page == 0) {
 		// リターン
@@ -135,11 +111,7 @@ void NACT_Sys3::cmd_set_menu()
 		ags->menu_dest_y += ags->menu_font_size + 2;
 		ags->draw_menu = false;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "$");
-		output_console(log);
-#endif
+		output_console("$");
 	} else {
 		if(!menu_index) {
 			ags->clear_menu_window();
@@ -150,11 +122,7 @@ void NACT_Sys3::cmd_set_menu()
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "\n$%x,", menu_addr[menu_index - 1]);
-		output_console(log);
-#endif
+		output_console("\n$%x,", menu_addr[menu_index - 1]);
 	}
 }
 
@@ -260,11 +228,7 @@ int NACT_Sys3::menu_select(int num_items)
 
 void NACT_Sys3::cmd_open_menu()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n]");
-	output_console(log);
-#endif
+	output_console("\n]");
 
 	if(!menu_index) {
 		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
@@ -292,11 +256,7 @@ void NACT_Sys3::cmd_set_verbobj()
 	menu_obj[menu_index++] = obj;
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT_Sys3::cmd_set_verbobj2()
@@ -313,21 +273,13 @@ void NACT_Sys3::cmd_set_verbobj2()
 	}
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT_Sys3::cmd_open_verb()
 {
 	// 動詞メニューの表示
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nopen verb-obj menu");
-	output_console(log);
-#endif
+	output_console("\nopen verb-obj menu");
 	verb_obj = false;
 
 	// 表示する動詞のチェック
@@ -431,11 +383,7 @@ void NACT_Sys3::cmd_a()
 {
 	texthook_nextpage();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "A\n");
-	output_console(log);
-#endif
+	output_console("A\n");
 
 	if(!text_skip_enb) {
 		// Pushマークの表示
@@ -479,11 +427,7 @@ void NACT_Sys3::cmd_b()
 	int p4 = cali();
 	int p5 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
-	output_console(log);
-#endif
+	output_console("\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
 
 	if(cmd == 1) {
 		// あゆみちゃん物語
@@ -556,11 +500,7 @@ void NACT_Sys3::cmd_e()
 	int ex = cali();
 	int ey = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nE %d,%d,%d,%d,%d,%d:", index, color, sx, sy, ex, ey);
-	output_console(log);
-#endif
+	output_console("\nE %d,%d,%d,%d,%d,%d:", index, color, sx, sy, ex, ey);
 
 	ags->box[index - 1].color = color;
 	ags->box[index - 1].sx = column ? sx * 8 : sx;
@@ -571,11 +511,7 @@ void NACT_Sys3::cmd_e()
 
 void NACT_Sys3::cmd_f()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nF");
-	output_console(log);
-#endif
+	output_console("\nF");
 
 	scenario_addr = 2;
 }
@@ -584,11 +520,7 @@ void NACT_Sys3::cmd_g()
 {
 	int page = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nG %d:", page);
-	output_console(log);
-#endif
+	output_console("\nG %d:", page);
 
 	ags->load_cg(page, -1);
 }
@@ -598,11 +530,7 @@ void NACT_Sys3::cmd_h()
 	int length = getd();
 	int val = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nH %d,%d:", length, val);
-	output_console(log);
-#endif
+	output_console("\nH %d,%d:", length, val);
 
 	// 隠しコマンド？
 	if(length >= 9) {
@@ -653,11 +581,7 @@ void NACT_Sys3::cmd_i()
 	int dx = cali();
 	int dy = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nI %d,%d,%d,%d,%d,%d:", sx, sy, ex, ey, dx, dy);
-	output_console(log);
-#endif
+	output_console("\nI %d,%d,%d,%d,%d,%d:", sx, sy, ex, ey, dx, dy);
 
 	// X方向はカラム単位で切り捨て
 	sx = column ? sx * 8 : sx & 0xfff8;
@@ -671,11 +595,7 @@ void NACT_Sys3::cmd_j()
 	int x = cali();
 	int y = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nJ %d,%d:", x, y);
-	output_console(log);
-#endif
+	output_console("\nJ %d,%d:", x, y);
 
 	// x方向はカラム単位で切り捨て
 	ags->cg_dest_x = column ? x * 8 : x & 0xfff8;
@@ -687,11 +607,7 @@ void NACT_Sys3::cmd_k()
 {
 	int cmd = getd(), val;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nK %d:", cmd);
-	output_console(log);
-#endif
+	output_console("\nK %d:", cmd);
 
 	// K6の場合は、すぐに返る
 	if(cmd == 6) {
@@ -764,11 +680,7 @@ void NACT_Sys3::cmd_l()
 {
 	int index = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nL %d:", index);
-	output_console(log);
-#endif
+	output_console("\nL %d:", index);
 
 	if(index == 0) {
 		// 特殊セーブ
@@ -910,11 +822,7 @@ void NACT_Sys3::cmd_m()
 	}
 	string[p] = '\0';
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nM %s:", string);
-	output_console(log);
-#endif
+	output_console("\nM %s:", string);
 
 	if(1 <= tvar_index && tvar_index <= 10) {
 		memcpy(tvar[tvar_index - 1], string, 22);
@@ -935,11 +843,7 @@ void NACT_Sys3::cmd_n()
 	int src = cali();
 	int dest = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nN %d,%d,%d:", cmd, src, dest);
-	output_console(log);
-#endif
+	output_console("\nN %d,%d,%d:", cmd, src, dest);
 }
 
 void NACT_Sys3::cmd_o()
@@ -964,11 +868,7 @@ void NACT_Sys3::cmd_o()
 		B15 = (val & 0x4000) ? 1 : 0;
 		B16 = (val & 0x8000) ? 1 : 0;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "\nO %d,%d:", cmd, val);
-		output_console(log);
-#endif
+		output_console("\nO %d,%d:", cmd, val);
 	} else {
 		uint16 val = 0;
 		val |= B01 ? 0x0001 : 0;
@@ -990,11 +890,7 @@ void NACT_Sys3::cmd_o()
 		int index = cali2();
 		var[index] = val;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "\nO %d,var[%d]:", cmd, index);
-		output_console(log);
-#endif
+		output_console("\nO %d,var[%d]:", cmd, index);
 	}
 }
 
@@ -1005,11 +901,7 @@ void NACT_Sys3::cmd_p()
 	int g = cali();
 	int b = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nP %d,%d,%d,%d:", index, r, g, b);
-	output_console(log);
-#endif
+	output_console("\nP %d,%d,%d,%d:", index, r, g, b);
 
 	ags->set_palette(index, r, g, b);
 	set_palette = true;
@@ -1051,11 +943,7 @@ void NACT_Sys3::cmd_q()
 
 	int index = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nQ %d:", index);
-	output_console(log);
-#endif
+	output_console("\nQ %d:", index);
 
 	if(index == 0) {
 		// 特殊セーブ
@@ -1149,11 +1037,7 @@ void NACT_Sys3::cmd_r()
 {
 	texthook_newline();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "R\n");
-	output_console(log);
-#endif
+	output_console("R\n");
 
 	// ウィンドウの表示範囲外の場合は改ページ
 	if(ags->return_text_line(text_window)) {
@@ -1165,11 +1049,7 @@ void NACT_Sys3::cmd_s()
 {
 	int page = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nS %d:", page);
-	output_console(log);
-#endif
+	output_console("\nS %d:", page);
 
 	if(page) {
 		mako->play_music(page);
@@ -1183,11 +1063,7 @@ void NACT_Sys3::cmd_t()
 	int x = cali();
 	int y = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nT %d,%d:", x, y);
-	output_console(log);
-#endif
+	output_console("\nT %d,%d:", x, y);
 
 	// x方向はカラム単位で切り捨て
 	ags->text_dest_x = column ? x * 8 : x & 0xfff8;
@@ -1199,11 +1075,7 @@ void NACT_Sys3::cmd_u()
 	int page = cali();
 	int transparent = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nU %d,%d:", page, transparent);
-	output_console(log);
-#endif
+	output_console("\nU %d,%d:", page, transparent);
 
 	if(crc32 == CRC32_RANCE41 || crc32 == CRC32_RANCE42) {
 		transparent = (transparent == 28) ? 12 : transparent;
@@ -1216,11 +1088,7 @@ void NACT_Sys3::cmd_v()
 	int cmd = cali();
 	int index = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nV %d,%d:", cmd, index);
-	output_console(log);
-#endif
+	output_console("\nV %d,%d:", cmd, index);
 
 	if(cmd == 0) {
 		for(int i = 0; i < 20; i++) {
@@ -1245,11 +1113,7 @@ void NACT_Sys3::cmd_w()
 	int y = cali();
 	uint8 color = (uint8)cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nW %d,%d,%d", x, y, color);
-	output_console(log);
-#endif
+	output_console("\nW %d,%d,%d", x, y, color);
 
 	ags->paint(x, y, color);
 }
@@ -1258,11 +1122,7 @@ void NACT_Sys3::cmd_x()
 {
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nX %d:", index);
-	output_console(log);
-#endif
+	output_console("\nX %d:", index);
 
 	if(1 <= index && index <= 10) {
 		ags->draw_text(tvar[index - 1]);
@@ -1274,11 +1134,7 @@ void NACT_Sys3::cmd_y()
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nY %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nY %d,%d:", cmd, param);
 
 	switch(cmd) {
 		case 1:
@@ -1660,11 +1516,7 @@ void NACT_Sys3::cmd_z()
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nZ %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nZ %d,%d:", cmd, param);
 
 	if(cmd == 0) {
 		ags->palette_bank = (uint8)(param & 0xff);
