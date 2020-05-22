@@ -30,7 +30,7 @@ void AGS::load_cg(int page, int transparent)
 	if(data && size > 0) {
 		switch (nact->sys_ver) {
 		case 1:
-			switch (nact->crc32) {
+			switch (nact->crc32_a) {
 			case CRC32_BUNKASAI:
 				load_vsp(data, page, transparent);
 				break;
@@ -47,10 +47,10 @@ void AGS::load_cg(int page, int transparent)
 			}
 			break;
 		case 2:
-			if(nact->crc32 == CRC32_AYUMI_PROTO) {
+			if(nact->crc32_a == CRC32_AYUMI_PROTO) {
 				// あゆみちゃん物語 PROTO
 				load_gl3(data, page, transparent);
-			} else if(nact->crc32 == CRC32_SDPS_MARIA || nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
+			} else if(nact->crc32_a == CRC32_SDPS) {
 				// Super D.P.S
 				load_pms(data, page, transparent);
 			} else {

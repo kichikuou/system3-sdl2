@@ -55,8 +55,8 @@
 	} \
 }
 
-NACT_Sys2::NACT_Sys2(uint32 crc32, const char* font_file, const char* playlist)
-	: NACT(2, crc32, font_file, playlist)
+NACT_Sys2::NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist)
+	: NACT(2, crc32_a, crc32_b, font_file, playlist)
 {
 }
 
@@ -790,7 +790,7 @@ void NACT_Sys2::cmd_b()
 			ags->menu_w[index - 1].screen = NULL;
 		}
 	} else if(cmd == 2) {
-//		if(crc32 == CRC32_PROSTUDENTG_FD) {
+//		if(crc32_a == CRC32_PROSTUDENTG_FD) {
 //			ags->menu_w[index - 1].frame = (index == 1 || index == 3) ? true : false;
 //		} else
 		ags->menu_w[index - 1].frame = p1 ? true : false;
@@ -815,7 +815,7 @@ void NACT_Sys2::cmd_b()
 	} else if(cmd == 4) {
 		if(p5 == 0) {
 			// ウィンドウ退避
-//			if(crc32 == CRC32_PROSTUDENTG_FD) {
+//			if(crc32_a == CRC32_PROSTUDENTG_FD) {
 //				ags->text_w[index - 1].frame = (index == 1 || index == 3) ? true : false;
 //			} else
 			ags->text_w[index - 1].frame = p1 ? true : false;
@@ -864,7 +864,7 @@ void NACT_Sys2::cmd_g()
 
 	output_console("\nG %d:", page);
 
-	if(crc32 == CRC32_SDPS_TONO || crc32 == CRC32_SDPS_KAIZOKU) {
+	if(crc32_a == CRC32_SDPS && (crc32_b == CRC32_SDPS_TONO || crc32_b == CRC32_SDPS_KAIZOKU)) {
 		if(20 <= page && page <= 100) {
 			page--;
 		}
@@ -1308,7 +1308,7 @@ void NACT_Sys2::cmd_y()
 			RND = (param == 0 || param == 1) ? 0 : random(param);
 			break;
 		case 7:
-			if(crc32 != CRC32_SDPS_MARIA) {
+			if(!(crc32_a == CRC32_SDPS && crc32_b == CRC32_SDPS_MARIA)) {
 				ags->draw_box(param);
 			}
 			break;

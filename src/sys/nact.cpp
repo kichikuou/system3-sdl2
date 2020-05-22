@@ -16,8 +16,8 @@ extern SDL_Window* g_window;
 
 // 初期化
 
-NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlist)
-	: sys_ver(sys_ver), crc32(crc32)
+NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist)
+	: sys_ver(sys_ver), crc32_a(crc32_a), crc32_b(crc32_b)
 {
 	// デバッグコンソール起動
 	initialize_console();
@@ -44,7 +44,7 @@ NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlis
 	delete fio;
 
 	// ADISK.DAT
-	if (crc32 == CRC32_PROG_OMAKE)
+	if (crc32_a == CRC32_PROG_OMAKE)
 		strcpy_s(adisk, 16, "AGAME.DAT");
 	else
 		strcpy_s(adisk, 16, "ADISK.DAT");
@@ -295,8 +295,10 @@ void NACT::execute(T* impl)
 				string[0] = cmd;
 				string[1] = '\0';
 				ags->draw_text(string);
-				if(crc32 == CRC32_DPS && !ags->draw_menu) {
-					text_refresh = false;
+				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					if(!ags->draw_menu) {
+						text_refresh = false;
+					}
 				}
 				
 				if(!ags->draw_menu && text_wait_enb && cmd != 0x20) {
@@ -324,8 +326,10 @@ void NACT::execute(T* impl)
 				string[1] = getd();
 				string[2] = '\0';
 				ags->draw_text(string);
-				if(crc32 == CRC32_DPS && !ags->draw_menu) {
-					text_refresh = false;
+				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					if(!ags->draw_menu) {
+						text_refresh = false;
+					}
 				}
 				
 				if(!ags->draw_menu && text_wait_enb) {
@@ -418,14 +422,15 @@ void NACT::fatal(const char* format, ...) {
 }
 
 NACT* NACT::create(const char* game_id, const char* font_file, const char* playlist) {
-	uint32 crc32 = NACT::calc_crc32(game_id);
-	int sys_ver = NACT::get_sys_ver(crc32);
+	uint32 crc32_a = NACT::calc_crc32("ADISK.DAT", game_id);
+	uint32 crc32_b = NACT::calc_crc32("BDISK.DAT", game_id);
+	int sys_ver = NACT::get_sys_ver(crc32_a, crc32_b);
 	switch (sys_ver) {
 	case 1:
-		return new NACT_Sys1(crc32, font_file, playlist);
+		return new NACT_Sys1(crc32_a, crc32_b, font_file, playlist);
 	case 2:
-		return new NACT_Sys2(crc32, font_file, playlist);
+		return new NACT_Sys2(crc32_a, crc32_b, font_file, playlist);
 	default:
-		return new NACT_Sys3(crc32, font_file, playlist);
+		return new NACT_Sys3(crc32_a, crc32_b, font_file, playlist);
 	}
 }

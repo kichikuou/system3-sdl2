@@ -169,7 +169,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	// Bコマンド
 	for(int i = 0; i < 10; i++) {
 		// ウィンドウの初期位置はシステムによって異なる
-		switch (nact->crc32) {
+		switch (nact->crc32_a) {
 		case CRC32_BUNKASAI:
 			SET_TEXT(i, 24, 304, 616, 384, false);
 			SET_MENU(i, 440, 18, 620, 178, true);
@@ -220,9 +220,9 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 		SET_BOX(i, 0, 0, 0, 639, 399);
 	}
 	if (nact->sys_ver == 2) {
-		if (nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
+		if(nact->crc32_a == CRC32_SDPS && (nact->crc32_b == CRC32_SDPS_TONO || nact->crc32_b == CRC32_SDPS_KAIZOKU)) {
 			SET_BOX(0, 0, 40, 8, 598, 271);
-		} else if (nact->crc32 == CRC32_PROSTUDENTG_FD) {
+		} else if(nact->crc32_a == CRC32_PROSTUDENTG_FD) {
 			SET_BOX(0, 0, 64, 13, 407, 289);
 			SET_BOX(1, 0, 24, 298, 111, 390);
 			SET_BOX(2, 0, 0, 0, 639, 307);

@@ -17,6 +17,9 @@
 #include "crc32.h"
 #include "../fileio.h"
 
+// メニューの改ページ
+#define MENU_MAX (crc32_a == CRC32_INTRUDER ? 6 : 11)
+
 #define WAIT(tm) \
 { \
 	Uint32 dwTime = SDL_GetTicks() + (tm); \
@@ -60,12 +63,14 @@
 	} \
 }
 
-NACT_Sys1::NACT_Sys1(uint32 crc32, const char* font_file, const char* playlist)
-	: NACT(1, crc32, font_file, playlist)
+NACT_Sys1::NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist)
+	: NACT(1, crc32_a, crc32_b, font_file, playlist)
 {
-	menu_max = 6;
-	switch (crc32) {
+	switch (crc32_a) {
 	case CRC32_DPS:
+	case CRC32_DPS_SG:
+	//case CRC32_DPS_SG2:
+	case CRC32_DPS_SG3:
 		text_refresh = false;
 		strcpy_s(tvar[0], 22, "\x83\x4A\x83\x58\x83\x5E\x83\x80"); // "カスタム" in SJIS
 		strcpy_s(tvar[1], 22, "\x83\x8A\x81\x5B\x83\x69\x83\x58"); // "リーナス" in SJIS
@@ -76,7 +81,6 @@ NACT_Sys1::NACT_Sys1(uint32 crc32, const char* font_file, const char* playlist)
 		strcpy_s(tvar[6], 22, "\x90\x5E\x97\x9D\x8E\x71"); // "真理子" in SJIS
 		break;
 	case CRC32_INTRUDER:
-		menu_max = 11;
 		paint_x = paint_y = map_page = 0;
 		break;
 	}
@@ -84,7 +88,7 @@ NACT_Sys1::NACT_Sys1(uint32 crc32, const char* font_file, const char* playlist)
 
 void NACT_Sys1::opening()
 {
-	switch (crc32) {
+	switch (crc32_a) {
 	case CRC32_CRESCENT:
 		mako->play_music(2);
 		ags->load_cg(1, -1);
@@ -316,8 +320,10 @@ void NACT_Sys1::cmd_open_menu()
 		return;
 	}
 
-	if(crc32 == CRC32_DPS && !text_refresh) {
-		cmd_a();
+	if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+		if(!text_refresh) {
+			cmd_a();
+		}
 	}
 
 	// クリック中の間は待機
@@ -472,7 +478,7 @@ top:
 	ags->menu_dest_y = 0;
 	ags->draw_menu = true;
 
-	if(cnt <= menu_max) {
+	if(cnt <= MENU_MAX) {
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_VERB; i++) {
 			if(chk[i]) {
@@ -494,7 +500,7 @@ top2:
 				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
 			page = i + 1;
-			if(index == menu_max - 1) {
+			if(index == MENU_MAX - 1) {
 				break;
 			}
 		}
@@ -647,7 +653,7 @@ top:
 	ags->menu_dest_y = 0;
 	ags->draw_menu = true;
 
-	if(cnt <= menu_max - 1) {
+	if(cnt <= MENU_MAX - 1) {
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_OBJ; i++) {
 			if(chk[i]) {
@@ -675,7 +681,7 @@ top2:
 				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
 			page = i + 1;
-			if(index == menu_max - 2) {
+			if(index == MENU_MAX - 2) {
 				break;
 			}
 		}
@@ -832,8 +838,9 @@ void NACT_Sys1::cmd_a()
 	// ウィンドウ更新
 	ags->clear_text_window(text_window, true);
 
-	if (crc32 == CRC32_DPS)
+	if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
 		text_refresh = true;
+	}
 }
 
 void NACT_Sys1::cmd_b()
@@ -867,13 +874,13 @@ void NACT_Sys1::cmd_g()
 
 	output_console("\nG %d:", page);
 
-	if (crc32 == CRC32_INTRUDER) {
+	if(crc32_a == CRC32_INTRUDER) {
 		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
 	}
 
 	ags->load_cg(page, -1);
 
-	if (crc32 == CRC32_INTRUDER) {
+	if(crc32_a == CRC32_INTRUDER) {
 		if(page == 94) {
 			WAIT(400);
 		}
@@ -1169,7 +1176,7 @@ void NACT_Sys1::cmd_u()
 
 	output_console("\nU %d,%d:", page, transparent);
 
-	if (crc32 == CRC32_INTRUDER) {
+	if(crc32_a == CRC32_INTRUDER) {
 		ags->load_cg(page, 11);
 
 		if(page == 5) {
@@ -1210,7 +1217,7 @@ void NACT_Sys1::cmd_y()
 
 	output_console("\nY %d,%d:", cmd, param);
 
-	switch (crc32) {
+	switch (crc32_a) {
 	case CRC32_BUNKASAI:
 	case CRC32_CRESCENT:
 	case CRC32_DPS:
@@ -1244,7 +1251,7 @@ void NACT_Sys1::cmd_y()
 			}
 			break;
 		case 2:
-			switch (crc32) {
+			switch (crc32_a) {
 			case CRC32_CRESCENT:
 				for(int i = 39; i <= 48; i++)
 					var[i] = 0;
@@ -1266,12 +1273,12 @@ void NACT_Sys1::cmd_y()
 			RND = (param == 0 || param == 1) ? 0 : random(param);
 			break;
 		case 7:
-			if(crc32 == CRC32_DPS && param == 1) {
+			if(crc32_a == CRC32_DPS && param == 1) {
 				ags->box_fill(0, 40, 8, 598, 270, 0);
 			}
 			break;
 		case 130:
-			if (crc32 == CRC32_TENGU) {
+			if (crc32_a == CRC32_TENGU) {
 				WAIT(2000)
 				ags->load_cg(180, -1);
 
@@ -1306,7 +1313,7 @@ void NACT_Sys1::cmd_y()
 			RND = 0;
 			break;
 		case 255:
-			if (crc32 == CRC32_DPS)
+			if (crc32_a == CRC32_DPS)
 				post_quit = false;
 			else
 				post_quit = true;
@@ -1366,7 +1373,7 @@ void NACT_Sys1::cmd_y()
 
 void NACT_Sys1::cmd_z()
 {
-	if (crc32 == CRC32_CRESCENT) {
+	if (crc32_a == CRC32_CRESCENT) {
 		cmd_y();
 		return;
 	}
@@ -1375,7 +1382,7 @@ void NACT_Sys1::cmd_z()
 
 	output_console("\nZ %d,%d:", cmd, param);
 
-	switch (crc32) {
+	switch (crc32_a) {
 	case CRC32_INTRUDER:
 		if(cmd == 1 && 1 <= param && param <= 4) {
 			const char* buf[4] = {
