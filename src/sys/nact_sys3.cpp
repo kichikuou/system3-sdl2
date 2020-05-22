@@ -489,6 +489,7 @@ void NACT_Sys3::cmd_b()
 void NACT_Sys3::cmd_d()
 {
 	// 未使用
+	fatal("Unknown Command: 'D' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys3::cmd_e()

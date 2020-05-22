@@ -109,7 +109,7 @@ protected:
 	int scenario_size;
 
 	// アドレス、ページ管理
-	int scenario_addr;
+	int scenario_addr, prev_addr;
 	int scenario_page;
 	int label_depth;
 	int label_stack[MAX_STACK];

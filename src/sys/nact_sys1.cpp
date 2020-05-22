@@ -127,7 +127,9 @@ void NACT_Sys1::cmd_branch()
 	bool set_menu = false;
 
 	if(!condition) {
+		// 次の'}'命令までスキップする（ネストも考慮する）
 		for(;;) {
+			prev_addr = scenario_addr;
 			uint8 cmd = getd();
 
 			if(cmd == '!') {
@@ -209,7 +211,11 @@ void NACT_Sys1::cmd_branch()
 				// message (2 bytes)
 				getd();
 			} else {
-				fatal("cmd_branch: invalid command %2x", cmd);
+				if(cmd >= 0x20 && cmd < 0x7f) {
+					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				} else {
+					fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				}
 				break;
 			}
 		}
@@ -833,16 +839,19 @@ void NACT_Sys1::cmd_a()
 void NACT_Sys1::cmd_b()
 {
 	// 未使用
+	fatal("Unknown Command: 'B' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_d()
 {
 	// 未使用
+	fatal("Unknown Command: 'D' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_e()
 {
 	// 未使用
+	fatal("Unknown Command: 'E' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_f()
@@ -877,21 +886,25 @@ void NACT_Sys1::cmd_g()
 void NACT_Sys1::cmd_h()
 {
 	// 未使用
+	fatal("Unknown Command: 'H' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_i()
 {
 	// 未使用
+	fatal("Unknown Command: 'I' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_j()
 {
 	// 未使用
+	fatal("Unknown Command: 'J' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_k()
 {
 	// 未使用
+	fatal("Unknown Command: 'K' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_l()
@@ -999,16 +1012,19 @@ void NACT_Sys1::cmd_l()
 void NACT_Sys1::cmd_m()
 {
 	// 未使用
+	fatal("Unknown Command: 'M' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_n()
 {
 	// 未使用
+	fatal("Unknown Command: 'N' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_o()
 {
 	// 未使用
+	fatal("Unknown Command: 'O' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_p()
@@ -1145,6 +1161,7 @@ void NACT_Sys1::cmd_s()
 void NACT_Sys1::cmd_t()
 {
 	// 未使用
+	fatal("Unknown Command: 'T' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_u()
@@ -1168,11 +1185,13 @@ void NACT_Sys1::cmd_u()
 void NACT_Sys1::cmd_v()
 {
 	// 未使用
+	fatal("Unknown Command: 'V' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_w()
 {
 	// 未使用
+	fatal("Unknown Command: 'W' at page = %d, addr = %d", scenario_page, prev_addr);
 }
 
 void NACT_Sys1::cmd_x()

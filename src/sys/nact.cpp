@@ -165,6 +165,7 @@ void NACT::execute(T* impl)
 	}
 
 	// １コマンド実行
+	prev_addr = scenario_addr;
 	uint8 cmd = getd();
 
 	if(set_palette && cmd != 'P') {
@@ -345,7 +346,11 @@ void NACT::execute(T* impl)
 				}
 				output_console(string);
 			} else {
-				fatal("Unknown command %2x at %d", cmd, scenario_addr);
+				if(cmd >= 0x20 && cmd < 0x7f) {
+					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				} else {
+					fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				}
 			}
 			break;
 	}

@@ -80,7 +80,9 @@ void NACT_Sys2::cmd_branch()
 	bool set_menu = false;
 
 	if(!condition) {
+		// 次の'}'命令までスキップする（ネストも考慮する）
 		for(;;) {
+			prev_addr = scenario_addr;
 			uint8 cmd = getd();
 
 			if(cmd == '!') {
@@ -226,7 +228,11 @@ void NACT_Sys2::cmd_branch()
 				// message (2 bytes)
 				getd();
 			} else {
-				fatal("cmd_branch: invalid command %2x", cmd);
+				if(cmd >= 0x20 && cmd < 0x7f) {
+					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				} else {
+					fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				}
 				break;
 			}
 		}
