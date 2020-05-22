@@ -64,7 +64,7 @@ private:
 	void load_gm3(uint8* data, int page, int transparent);		// Intruder
 	void load_vsp(uint8* data, int page, int transparent);
 	void load_pms(uint8* data, int page, int transparent);
-	void load_bmp(const char *file_path);
+	void load_bmp(const char* file_name);				// あゆみちゃん物語 フルカラー実写版
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color, uint8 cache[]);

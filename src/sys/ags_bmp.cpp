@@ -5,8 +5,9 @@
 */
 
 #include "ags.h"
+#include "../fileio.h"
 
-void AGS::load_bmp(const char *file_path)
+void AGS::load_bmp(const char* file_name)
 {
 	// ヘッダ取得
 	int sx = 0, sy = 0;
@@ -23,7 +24,7 @@ void AGS::load_bmp(const char *file_path)
 #if 0
 		// BMP読み込み
 		WCHAR wszFilePath[_MAX_PATH];
-		MultiByteToWideChar(CP_ACP, 0, file_path, -1, wszFilePath, _MAX_PATH);
+		MultiByteToWideChar(CP_ACP, 0, FILEIO::GetFilePath(file_name), -1, wszFilePath, _MAX_PATH);
 		Gdiplus::Bitmap *pBitmap = Gdiplus::Bitmap::FromFile(wszFilePath);
 		for(unsigned int y = 0; y < pBitmap->GetHeight(); y++) {
 			for(unsigned int x = 0; x < pBitmap->GetWidth(); x++) {

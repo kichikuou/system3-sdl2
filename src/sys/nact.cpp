@@ -27,16 +27,16 @@ NACT::NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlis
 	if(fio->Fopen("AG00.DAT", FILEIO_READ_BINARY)) {
 		int d0, d1, d2, d3;
 		char string[MAX_CAPTION];
-		fio->Fgets(string);
+		fio->Fgets(string, MAX_CAPTION);
 		sscanf_s(string, "%d,%d,%d,%d", &d0, &d1, &d2, &d3);
 		for(int i = 0; i < d1; i++) {
 			// 動詞の読み込み
-			fio->Fgets(string);
+			fio->Fgets(string, MAX_CAPTION);
 			memcpy(caption_verb[i], string, sizeof(string));
 		}
 		for(int i = 0; i < d2; i++) {
 			// 目的語の読み込み
-			fio->Fgets(string);
+			fio->Fgets(string, MAX_CAPTION);
 			memcpy(caption_obj[i], string, sizeof(string));
 		}
 		fio->Fclose();

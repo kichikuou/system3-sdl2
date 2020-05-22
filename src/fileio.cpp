@@ -40,13 +40,13 @@ FILEIO::~FILEIO(void)
 	}
 }
 
-bool FILEIO::Fopen(const char *filename, int mode)
+bool FILEIO::Fopen(const char *file_name, int mode)
 {
 	mode_ = mode;
 	char path[_MAX_PATH];
 	sprintf_s(path, _MAX_PATH, "%s%s",
 			  (g_savedir && mode & FILEIO_SAVEDATA) ? g_savedir : g_root,
-			  filename);
+			  file_name);
 
 	mode &= ~FILEIO_SAVEDATA;
 
@@ -115,7 +115,7 @@ int FILEIO::Fgetw()
 	return val | (Fgetc() << 8);
 }
 
-void FILEIO::Fgets(char dest[])
+void FILEIO::Fgets(char *dest, int length)
 {
 	int p = 0;
 	
@@ -125,9 +125,13 @@ void FILEIO::Fgets(char dest[])
 			break;
 		}
 		if(c != 0x0a) {
-			dest[p++] = c;
+			if(p < length + 1) {
+				dest[p++] = c;
+			}
 			if((0x81 <= c && c <= 0x9f) || 0xe0 <= c) {
-				dest[p++] = Fgetc();
+				if(p < length + 1) {
+					dest[p++] = Fgetc();
+				}
 			}
 		}
 	}

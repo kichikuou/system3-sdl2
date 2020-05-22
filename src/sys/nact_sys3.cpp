@@ -700,12 +700,11 @@ void NACT_Sys3::cmd_l()
 		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char path[_MAX_PATH];
-		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
-		path[7] = 'A' + index - 1;
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(path, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
+		if(fio->Fopen(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
 			fio->Fseek(112, FILEIO_SEEK_SET);
 
 			int next_page = fio->Fgetw() - 1;
@@ -793,12 +792,11 @@ void NACT_Sys3::cmd_l()
 		delete fio;
 	} else if(101 <= index && index <= 126) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char path[_MAX_PATH];
-		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
-		path[7] = 'A' + index - 101;
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 101);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(path, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
+		if(fio->Fopen(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
 			fio->Fseek(112 + 16, FILEIO_SEEK_SET);
 			var[0] = fio->Fgetw();
 			fio->Fclose();
@@ -963,12 +961,11 @@ void NACT_Sys3::cmd_q()
 		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char path[_MAX_PATH];
-		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
-		path[7] = 'A' + index - 1;
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(path, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
+		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
 			uint8 buffer[9510];
 			int p = 0;
 
@@ -1452,13 +1449,12 @@ void NACT_Sys3::cmd_y()
 			}
 			break;
 		case 239:
-			{
-				char path[_MAX_PATH];
-				strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
-				path[7] = 'A' + param - 1;
+			if(1 <= param && param <= 26) {
+				char file_name[_MAX_PATH];
+				sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + param - 1);
 
 				struct stat statbuf;
-				if (FILEIO::StatSavedata(path, &statbuf) != -1) {
+				if (FILEIO::StatSavedata(file_name, &statbuf) != -1) {
 					struct tm *t = localtime(&statbuf.st_mtime);
 					D01 = t->tm_year + 1900;
 					D02 = t->tm_mon + 1;
@@ -1469,6 +1465,9 @@ void NACT_Sys3::cmd_y()
 				} else {
 					D01 = D02 = D03 = D04 = D05 = D06 = 0;
 				}
+			} else {
+				// 不正なファイル番号
+				D01 = D02 = D03 = D04 = D05 = D06 = 0;
 			}
 			break;
 		case 240:
@@ -1477,21 +1476,25 @@ void NACT_Sys3::cmd_y()
 		case 241:
 			break;
 		case 250:
-			{
 #if 0
-				char path[4];
-				path[0] = g_root[0];
-				path[1] = ':';
-				path[2] = '\\';
-				path[3] = '\0';
-				UINT t = GetDriveType(path);
+			if(FILEIO::GetRootPath()[1] == ':') {
+				_TCHAR root_path[4];
+				root_path[0] = FILEIO::GetRootPath()[0];
+				root_path[1] = ':';
+				root_path[2] = '\\';
+				root_path[3] = '\0';
+
+				UINT t = GetDriveType(root_path);
 				// フロッピーから起動した場合は0が返る
 				//RND = (t == DRIVE_REMOVABLE) ? 0 : (t == DRIVE_CDROM) ? 2 : 1;
 				RND = (t == DRIVE_CDROM) ? 2 : 1;
-#else
+			} else {
+				// ネットワークドライブ？
 				RND = 1;
-#endif
 			}
+#else
+			RND = 1;
+#endif
 			break;
 		case 251:
 			column = param ? false : true;

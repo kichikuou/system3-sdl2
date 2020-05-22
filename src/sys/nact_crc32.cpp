@@ -77,6 +77,7 @@ uint32 NACT::calc_crc32(const char* game_id)
 
 	uint32 crc = 0;
 	FILEIO* fio = new FILEIO();
+
 	if(fio->Fopen("ADISK.DAT", FILEIO_READ_BINARY)) {
 		uint32 table[256];
 		for(int i = 0; i < 256; i++) {

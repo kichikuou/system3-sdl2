@@ -915,12 +915,11 @@ void NACT_Sys1::cmd_l()
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char path[_MAX_PATH];
-		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
-		path[7] = 'A' + index - 1;
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(path, FILEIO_READ_BINARY)) {
+		if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
 			fio->Fseek(112, FILEIO_SEEK_SET);
 
 			int next_page = fio->Fgetw() - 1;
@@ -1064,12 +1063,11 @@ void NACT_Sys1::cmd_q()
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char path[_MAX_PATH];
-		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
-		path[7] = 'A' + index - 1;
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(path, FILEIO_WRITE_BINARY)) {
+		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY)) {
 			uint8 buffer[9510];
 			int p = 0;
 
