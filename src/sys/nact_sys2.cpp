@@ -101,19 +101,16 @@ void NACT_Sys2::cmd_branch()
 					break;
 				}
 			} else if(cmd == '@') {
-				getd();
-				getd();
+				getw();
 			} else if(cmd == '\\') {
-				getd();
-				getd();
+				getw();
 			} else if(cmd == '&') {
 				cali();
 			} else if(cmd == '%') {
 				cali();
 			} else if(cmd == '$') {
 				if(!set_menu) {
-					getd();
-					getd();
+					getw();
 					set_menu = true;
 				} else {
 					set_menu = false;
@@ -121,14 +118,12 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == '[') {
 				getd();
 				getd();
-				getd();
-				getd();
+				getw();
 			} else if(cmd == ':') {
 				cali();
 				getd();
 				getd();
-				getd();
-				getd();
+				getw();
 			} else if(cmd == ']') {
 				
 			} else if(cmd == 'A') {
@@ -164,7 +159,8 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'I') {
 				cali();
 				cali();
-				getd();
+//				getd();
+				cali();
 			} else if(cmd == 'J') {
 				cali();
 				cali();
@@ -204,11 +200,48 @@ void NACT_Sys2::cmd_branch()
 				cali();
 				cali();
 			} else if(cmd == 'U') {
-				getd();
-				getd();
+				if(crc32_a == CRC32_YAKATA2) {
+					cali();
+					cali();
+				} else {
+					getd();
+					getd();
+				}
 			} else if(cmd == 'V') {
+#if 1
 				cali();
 				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+#else
+				cali();
+				cali();
+#endif
 			} else if(cmd == 'W') {
 				cali();
 				cali();
@@ -760,6 +793,9 @@ void NACT_Sys2::cmd_b()
 	output_console("\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
 
 	if(cmd == 1) {
+		if(crc32_a == CRC32_AYUMI_FD || crc32_a == CRC32_AYUMI_HINT || crc32_a == CRC32_DRSTOP) {
+			p5 = 1;
+		}
 		ags->menu_w[index - 1].sx = p1 * 8;
 		ags->menu_w[index - 1].sy = p2;
 		ags->menu_w[index - 1].ex = p3 * 8 - 1;
@@ -772,6 +808,9 @@ void NACT_Sys2::cmd_b()
 			ags->menu_w[index - 1].screen = NULL;
 		}
 	} else if(cmd == 2) {
+		if(crc32_a == CRC32_AYUMI_FD || crc32_a == CRC32_AYUMI_HINT || crc32_a == CRC32_DRSTOP) {
+			p1 = 1;
+		}
 //		if(crc32_a == CRC32_PROSTUDENTG_FD) {
 //			ags->menu_w[index - 1].frame = (index == 1 || index == 3) ? true : false;
 //		} else
@@ -795,6 +834,13 @@ void NACT_Sys2::cmd_b()
 			ags->text_w[index - 1].window = NULL;
 		}
 	} else if(cmd == 4) {
+		if(crc32_a == CRC32_AYUMI_FD || crc32_a == CRC32_AYUMI_HINT) {
+			p1 = 1;
+			//p5 ? 0 : 1; // 逆？
+			p5 = 0;
+		} else if(crc32_a == CRC32_DRSTOP) {
+			p1 = 1;
+		}
 		if(p5 == 0) {
 			// ウィンドウ退避
 //			if(crc32_a == CRC32_PROSTUDENTG_FD) {
@@ -852,6 +898,16 @@ void NACT_Sys2::cmd_g()
 		}
 	}
 	ags->load_cg(page, -1);
+
+	if(crc32_a == CRC32_DALK_HINT) {
+		if(page == 3) {
+			WAIT(2000)
+		}
+	} else if(crc32_a == CRC32_RANCE3_HINT) {
+		if(page == 25) {
+			WAIT(2000)
+		}
+	}
 }
 
 void NACT_Sys2::cmd_h()
@@ -899,7 +955,8 @@ void NACT_Sys2::cmd_i()
 {
 	int p1 = cali();
 	int p2 = cali();
-	int p3 = getd();
+//	int p3 = getd();
+	int p3 = cali();
 
 	output_console("\nI %d,%d,%d:", p1, p2, p3);
 }
@@ -1021,7 +1078,7 @@ void NACT_Sys2::cmd_l()
 
 void NACT_Sys2::cmd_m()
 {
-	char string[22];
+	char string[33];
 	int d, p = 0;
 
 	while((d = getd()) != ':') {
@@ -1038,7 +1095,7 @@ void NACT_Sys2::cmd_m()
 	output_console("\nM %s:", string);
 
 	if(1 <= tvar_index && tvar_index <= 10) {
-		memcpy(tvar[tvar_index - 1], string, 22);
+		memcpy(tvar[tvar_index - 1], string, 33);
 	}
 }
 
@@ -1058,17 +1115,21 @@ void NACT_Sys2::cmd_o()
 
 	output_console("\nO %d,%d,%d:", st, width, height);
 
+#if 0
 	// white mesh
 	int sx = (st % 80) * 8;
 	int sy = (int)(st / 80);
 	ags->draw_mesh(sx, sy, width, height);
+#endif
 }
 
 void NACT_Sys2::cmd_p()
 {
 	int param = getd();
 
-	ags->text_font_color = (uint8)((param & 0x7) + 16);
+	if(crc32_a != CRC32_YAKATA2 && crc32_a != CRC32_DALK_HINT && crc32_a != CRC32_RANCE3_HINT) {
+		ags->text_font_color = (uint8)((param & 0x7) + 16);
+	}
 
 	output_console("\nP %d:", param);
 }
@@ -1205,8 +1266,15 @@ void NACT_Sys2::cmd_t()
 
 void NACT_Sys2::cmd_u()
 {
-	int page = getd();
-	int transparent = getd();
+	int page, transparent;
+
+	if(crc32_a == CRC32_YAKATA2) {
+		page = cali();
+		transparent = cali();
+	} else {
+		page = getd();
+		transparent = getd();
+	}
 
 	output_console("\nU %d,%d:", page, transparent);
 
@@ -1215,20 +1283,57 @@ void NACT_Sys2::cmd_u()
 
 void NACT_Sys2::cmd_v()
 {
+#if 1
+	int p01 = cali();
+	int p02 = cali();
+	int p03 = cali();
+	int p04 = cali();
+	int p05 = cali();
+	int p06 = cali();
+	int p07 = cali();
+	int p08 = cali();
+	int p09 = cali();
+	int p10 = cali();
+	int p11 = cali();
+	int p12 = cali();
+	int p13 = cali();
+	int p14 = cali();
+	int p15 = cali();
+	int p16 = cali();
+	int p17 = cali();
+	int p18 = cali();
+	int p19 = cali();
+	int p20 = cali();
+	int p21 = cali();
+	int p22 = cali();
+	int p23 = cali();
+	int p24 = cali();
+	int p25 = cali();
+	int p26 = cali();
+	int p27 = cali();
+	int p28 = cali();
+	int p29 = cali();
+
+	output_console("\nV %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d:",
+	p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29);
+#else
 	int p1 = cali();
 	int p2 = cali();
 
 	output_console("\nV %d,%d:", p1, p2);
+#endif
 }
 
 void NACT_Sys2::cmd_w()
 {
-	int p1 = cali();
-	int p2 = cali();
-	int p3 = cali();
-	int p4 = cali();
+	int sx = cali();
+	int sy = cali();
+	int ex = cali();
+	int ey = cali();
 
-	output_console("\nW %d,%d,%d,%d:", p1, p2, p3, p4);
+	output_console("\nW %d,%d,%d,%d:", sx, sy, ex, ey);
+
+	ags->draw_mesh(sx, sy, ex - sx, ey - sy);
 }
 
 void NACT_Sys2::cmd_x()
@@ -1306,10 +1411,18 @@ void NACT_Sys2::cmd_y()
 		case 26:
 			ags->text_font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
-#if 0 // Broken in Super D.P.S
+		case 27:
+			{
+				int tmp = tvar_index;
+				tvar_index = param;
+				tvar_maxlen = 8;//param;
+				text_dialog();
+				tvar_index = tmp;
+			}
+			break;
 		case 40:
 		case 42:
-			{
+			if(ags->now_fade()) {
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_in(i);
@@ -1324,11 +1437,13 @@ void NACT_Sys2::cmd_y()
 						SDL_Delay(0);
 					}
 				}
+				ags->fade_end();
 			}
 			break;
 		case 41:
 		case 43:
-			{
+			if(!ags->now_fade()) {
+				ags->fade_start();
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_out(i, (cmd == 41) ? false : true);
@@ -1345,7 +1460,6 @@ void NACT_Sys2::cmd_y()
 				}
 			}
 			break;
-#endif
 		case 221:
 		case 222:
 		case 223:
@@ -1375,6 +1489,28 @@ void NACT_Sys2::cmd_y()
 			break;
 		case 252:
 			RND = 8;
+			break;
+		case 253:
+			// キーが押されて離されるまで待機
+			for(;;) {
+				if(terminate) {
+					return;
+				}
+				if(get_key()) {
+					break;
+				}
+				SDL_Delay(10);
+			}
+			SDL_Delay(100);
+			for(;;) {
+				if(terminate) {
+					return;
+				}
+				if(!(get_key() & 0x18)) {
+					break;
+				}
+				SDL_Delay(10);
+			}
 			break;
 		case 254:
 			RND = 0;
