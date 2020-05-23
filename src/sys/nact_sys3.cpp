@@ -128,21 +128,8 @@ void NACT_Sys3::cmd_set_menu()
 
 int NACT_Sys3::menu_select(int num_items)
 {
-	// クリック中の間は待機
-	for(;;) {
-		if(terminate) {
-			return -1;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		SDL_Delay(16);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -151,7 +138,10 @@ int NACT_Sys3::menu_select(int num_items)
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
 	for(bool selectable = true;;) {
@@ -166,7 +156,7 @@ int NACT_Sys3::menu_select(int num_items)
 			int dy = my - current_my;
 			if (dx*dx + dy*dy > 10)
 				break;
-			if((val = get_key())) {
+			if((val = get_key()) != 0) {
 				SDL_Delay(100);
 				break;
 			}
@@ -622,7 +612,7 @@ void NACT_Sys3::cmd_k()
 		if(terminate) {
 			return;
 		}
-		if((val = get_key())) {
+		if((val = get_key()) != 0) {
 			break;
 		}
 		if(1 <= cmd && cmd <= 3) {

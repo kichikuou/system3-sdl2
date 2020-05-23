@@ -383,6 +383,37 @@ uint16 NACT::random(uint16 range)
 	return (uint16)(((uint32)range * (seed & 0xffff)) >> 16) + 1;
 }
 
+void NACT::wait_after_open_menu()
+{
+	// 連打による誤クリック防止
+	Uint32 dwTime = SDL_GetTicks();
+	Uint32 dwWait = dwTime + 400;
+
+	while(dwTime < dwWait) {
+		if(terminate) {
+			return;
+		}
+/*
+		if(get_key() == 16) {
+			break;
+		}
+*/
+		SDL_Delay(10);
+		dwTime = SDL_GetTicks();
+	}
+
+	// クリック中の間は待機
+	for(;;) {
+		if(terminate) {
+			return;
+		}
+		if(!get_key()) {
+			break;
+		}
+		SDL_Delay(10);
+	}
+}
+
 // WinMainとのインターフェース
 
 int NACT::get_screen_height()

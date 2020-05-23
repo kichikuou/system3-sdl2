@@ -326,21 +326,8 @@ void NACT_Sys1::cmd_open_menu()
 		}
 	}
 
-	// クリック中の間は待機
-	for(;;) {
-		if(terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		SDL_Delay(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -349,7 +336,10 @@ void NACT_Sys1::cmd_open_menu()
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
 	for(bool selectable = true;;) {
@@ -359,7 +349,7 @@ void NACT_Sys1::cmd_open_menu()
 			if(terminate) {
 				return;
 			}
-			if((val = get_key())) {
+			if((val = get_key()) != 0) {
 				SDL_Delay(100);
 				break;
 			}
@@ -522,21 +512,8 @@ top2:
 	}
 	ags->draw_menu = false;
 
-	// クリック中の間は待機
-	for(;;) {
-		if(terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		SDL_Delay(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -545,7 +522,10 @@ top2:
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
 	for(bool selectable = true;;) {
@@ -555,7 +535,7 @@ top2:
 			if(terminate) {
 				return;
 			}
-			if((val = get_key())) {
+			if((val = get_key()) != 0) {
 				SDL_Delay(100);
 				break;
 			}
@@ -714,21 +694,8 @@ top2:
 	}
 	ags->draw_menu = false;
 
-	// クリック中の間は待機
-	for(;;) {
-		if(terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		SDL_Delay(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -737,7 +704,10 @@ top2:
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
 	for(bool selectable = true;;) {
@@ -747,7 +717,7 @@ top2:
 			if(terminate) {
 				return;
 			}
-			if((val = get_key())) {
+			if((val = get_key()) != 0) {
 				SDL_Delay(100);
 				break;
 			}
