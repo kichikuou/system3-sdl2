@@ -152,19 +152,16 @@ void NACT_Sys1::cmd_branch()
 					break;
 				}
 			} else if(cmd == '@') {
-				getd();
-				getd();
+				getw();
 			} else if(cmd == '\\') {
-				getd();
-				getd();
+				getw();
 			} else if(cmd == '&') {
 				cali();
 			} else if(cmd == '%') {
 				cali();
 			} else if(cmd == '$') {
 				if(!set_menu) {
-					getd();
-					getd();
+					getw();
 					set_menu = true;
 				} else {
 					set_menu = false;
@@ -172,14 +169,12 @@ void NACT_Sys1::cmd_branch()
 			} else if(cmd == '[') {
 				getd();
 				getd();
-				getd();
-				getd();
+				getw();
 			} else if(cmd == ':') {
 				cali();
 				getd();
 				getd();
-				getd();
-				getd();
+				getw();
 			} else if(cmd == ']') {
 				
 			} else if(cmd == 'A') {
@@ -1199,157 +1194,152 @@ void NACT_Sys1::cmd_y()
 
 	output_console("\nY %d,%d:", cmd, param);
 
-	switch (crc32_a) {
-	case CRC32_BUNKASAI:
-	case CRC32_CRESCENT:
-	case CRC32_DPS:
-	case CRC32_FUKEI:
-	case CRC32_TENGU:
+	if(crc32_a == CRC32_INTRUDER) {
 		switch(cmd) {
-		case 0:
-			ags->clear_text_window(text_window, true);
-			break;
-		case 1:
-			{
-				char buf[16];
-				buf[0] = '0' + (int)(param / 10000);
-				param %= 10000;
-				buf[1] = '0' + (int)(param / 1000);
-				param %= 1000;
-				buf[2] = '0' + (int)(param / 100);
-				param %= 100;
-				buf[3] = '0' + (int)(param / 10);
-				buf[4] = '0' + (param % 10);
-				buf[5] = '\0';
-
-				int p = 0;
+			case 0:
+				ags->clear_text_window(text_window, true);
+				break;
+			case 1:
+				if(show_push) {
+					ags->draw_push(text_window);
+				}
 				for(;;) {
-					if(buf[p] != '0') {
+					if(terminate) {
+						return;
+					}
+					if(get_key()) {
 						break;
 					}
-					p++;
+					SDL_Delay(10);
 				}
-				ags->draw_text(&buf[p < 4 ? p : 4]);
-			}
-			break;
-		case 2:
-			switch (crc32_a) {
-			case CRC32_CRESCENT:
-				for(int i = 39; i <= 48; i++)
-					var[i] = 0;
+				SDL_Delay(100);
+				for(;;) {
+					if(terminate) {
+						return;
+					}
+					if(!(get_key() & 0x18)) {
+						break;
+					}
+					SDL_Delay(10);
+				}
+				ags->clear_text_window(text_window, true);
 				break;
-			case CRC32_DPS:
-				for(int i = 0; i <= 20; i++)
-					var[i] = 0;
+			case 2:
+				if(param == 0) {
+					post_quit = true;
+					fatal_error = true;
+				} else {
+					WAIT(100)
+				}
 				break;
-			default:
-				for(int i = 0; i <= 16; i++)
-					var[i] = 0;
+			case 3:
+				WAIT(param * 1000)
 				break;
-			}
-			break;
-		case 3:
-			WAIT(param * 1000 / 60)
-			break;
-		case 4:
-			RND = (param == 0 || param == 1) ? 0 : random(param);
-			break;
-		case 7:
-			if(crc32_a == CRC32_DPS && param == 1) {
-				ags->box_fill(0, 40, 8, 598, 270, 0);
-			}
-			break;
-		case 130:
-			if (crc32_a == CRC32_TENGU) {
-				WAIT(2000)
-				ags->load_cg(180, -1);
-
-				WAIT(2000)
-				ags->draw_box(0);
-				ags->dest_screen = 1;
-				ags->load_cg(173, -1);
-				ags->dest_screen = 0;
-				ags->gcopy(0x1ecd, 0x3a2a, 8, 60, 3);
-				WAIT(667);
-				ags->gcopy(0x1b65, 0x262e, 8, 60, 3);
-				ags->gcopy(0x2e25, 0x38ee, 7, 9, 3);
-				WAIT(667);
-				ags->gcopy(0x1914, 0x1914, 8, 63, 3);
-				WAIT(667);
-				ags->gcopy(0x182c, 0x182c, 7, 50, 3);
-				WAIT(667);
-				ags->gcopy(0x0000, 0x1ecd, 32, 60, 1);
-				WAIT(667);
-				for(int i = 12; i <= 57; i++) {
-					ags->gcopy(i + 0x2306, i + 0x2306, 1, 165, 3);
-				}
-				WAIT_KEYQUIT(6000)
-				ags->draw_box(param);
-			}
-			break;
-		case 253:
-			post_quit = false;
-			fatal_error = true;
-			break;
-		case 254:
-			RND = 0;
-			break;
-		case 255:
-			if (crc32_a == CRC32_DPS)
-				post_quit = false;
-			else
-				post_quit = true;
-			fatal_error = true;
-			break;
-		}
-		break;
-	case CRC32_INTRUDER:
-		switch(cmd) {
-		case 0:
-			ags->clear_text_window(text_window, true);
-			break;
-		case 1:
-			if(show_push) {
-				ags->draw_push(text_window);
-			}
-			for(;;) {
-				if(terminate) {
-					return;
-				}
-				if(get_key()) {
-					break;
-				}
-				SDL_Delay(10);
-			}
-			SDL_Delay(100);
-			for(;;) {
-				if(terminate) {
-					return;
-				}
-				if(!(get_key() & 0x18)) {
-					break;
-				}
-				SDL_Delay(10);
-			}
-			ags->clear_text_window(text_window, true);
-			break;
-		case 2:
-			if(param == 0) {
+			case 255:
 				post_quit = true;
 				fatal_error = true;
-			} else {
-				WAIT(100)
-			}
-			break;
-		case 3:
-			WAIT(param * 1000)
-			break;
-		case 255:
-			post_quit = true;
-			fatal_error = true;
-			break;
+				break;
 		}
-		break;
+	} else {
+		switch(cmd) {
+			case 0:
+				ags->clear_text_window(text_window, true);
+				break;
+			case 1:
+				{
+					char buf[16];
+					buf[0] = '0' + (int)(param / 10000);
+					param %= 10000;
+					buf[1] = '0' + (int)(param / 1000);
+					param %= 1000;
+					buf[2] = '0' + (int)(param / 100);
+					param %= 100;
+					buf[3] = '0' + (int)(param / 10);
+					buf[4] = '0' + (param % 10);
+					buf[5] = '\0';
+
+					int p = 0;
+					for(;;) {
+						if(buf[p] != '0') {
+							break;
+						}
+						p++;
+					}
+					ags->draw_text(&buf[p < 4 ? p : 4]);
+				}
+				break;
+			case 2:
+				if(crc32_a == CRC32_CRESCENT) {
+					for(int i = 39; i <= 48; i++) {
+						var[i] = 0;
+					}
+				} else if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					for(int i = 0; i <= 20; i++) {
+						var[i] = 0;
+					}
+				} else {
+					for(int i = 0; i <= 16; i++) {
+						var[i] = 0;
+					}
+				}
+				break;
+			case 3:
+				WAIT(param * 1000 / 60)
+				break;
+			case 4:
+				RND = (param == 0 || param == 1) ? 0 : random(param);
+				break;
+			case 7:
+				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					if(param == 1) {
+						ags->box_fill(0, 40, 8, 598, 270, 0);
+					}
+				}
+				break;
+			case 130:
+				if(crc32_a == CRC32_TENGU) {
+					WAIT(2000)
+					ags->load_cg(180, -1);
+
+					WAIT(2000)
+					ags->draw_box(0);
+					ags->dest_screen = 1;
+					ags->load_cg(173, -1);
+					ags->dest_screen = 0;
+					ags->gcopy(0x1ecd, 0x3a2a, 8, 60, 3);
+					WAIT(667);
+					ags->gcopy(0x1b65, 0x262e, 8, 60, 3);
+					ags->gcopy(0x2e25, 0x38ee, 7, 9, 3);
+					WAIT(667);
+					ags->gcopy(0x1914, 0x1914, 8, 63, 3);
+					WAIT(667);
+					ags->gcopy(0x182c, 0x182c, 7, 50, 3);
+					WAIT(667);
+					ags->gcopy(0x0000, 0x1ecd, 32, 60, 1);
+					WAIT(667);
+					for(int i = 12; i <= 57; i++) {
+						ags->gcopy(i + 0x2306, i + 0x2306, 1, 165, 3);
+					}
+					WAIT_KEYQUIT(6000)
+					ags->draw_box(param);
+				}
+				break;
+			case 253:
+				post_quit = false;
+				fatal_error = true;
+				break;
+			case 254:
+				RND = 0;
+				break;
+			case 255:
+				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					post_quit = false;
+				} else {
+					post_quit = true;
+				}
+				fatal_error = true;
+				break;
+		}
 	}
 }
 
