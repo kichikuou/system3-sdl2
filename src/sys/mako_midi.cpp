@@ -302,7 +302,7 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 						w.send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
 					}
 					else if(d0 == 0xec) {
-						if (nact->crc32 != CRC32_DPS)
+						if(!(nact->crc32_a == CRC32_DPS || nact->crc32_a == CRC32_DPS_SG || nact->crc32_a == CRC32_DPS_SG2 || nact->crc32_a == CRC32_DPS_SG3))
 							mute_flag = true;
 					}
 					else if(d0 == 0xf5) {
@@ -570,7 +570,7 @@ void MAKOMidi::load_mda(int page)
 	int size;
 	uint8* data = NULL;
 	if((data = dri->load(path, page, &size)) == NULL) {
-		data = dri->load_mda(nact->crc32, page, &size);
+		data = dri->load_mda(nact->crc32_a, nact->crc32_b, page, &size);
 	}
 
 	if(data) {

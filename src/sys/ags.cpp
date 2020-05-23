@@ -169,7 +169,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 	// Bコマンド
 	for(int i = 0; i < 10; i++) {
 		// ウィンドウの初期位置はシステムによって異なる
-		switch (nact->crc32) {
+		switch (nact->crc32_a) {
 		case CRC32_BUNKASAI:
 			SET_TEXT(i, 24, 304, 616, 384, false);
 			SET_MENU(i, 440, 18, 620, 178, true);
@@ -180,6 +180,9 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 			SET_MENU(i, 464, 50, 623, 240, true);
 			break;
 		case CRC32_DPS:
+		case CRC32_DPS_SG:
+		//case CRC32_DPS_SG2:
+		case CRC32_DPS_SG3:
 			SET_TEXT(i, 48, 288, 594, 393, false);
 			//SET_MENU(i, 48, 288, 584, 393, false);
 			SET_MENU(i, 48, 288, 594, 393, false);
@@ -196,9 +199,29 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 			SET_TEXT(i, 44, 282, 593, 396, false);
 			SET_MENU(i, 452, 14, 627, 214, false);
 			break;
+		case CRC32_TOUSHIN_HINT:
+			SET_TEXT(i, 8, 311, 623, 391, false);
+			SET_MENU(i, 452, 14, 627, 214, true);
+			break;
 		case CRC32_VAMPIRE:
 			SET_TEXT(i, 8, 255, 615, 383, false);
 			SET_MENU(i, 448, 11, 615, 224, false);
+			break;
+		case CRC32_YAKATA:
+			SET_TEXT(i, 48, 288, 594, 393, false);
+			SET_MENU(i, 452, 14, 627, 214, false);
+			break;
+		case CRC32_DALK_HINT:
+			SET_TEXT(i, 24, 308, 376, 386, false);
+			SET_MENU(i, 404, 28, 604, 244, true);
+			break;
+		case CRC32_RANCE3_HINT:
+			SET_TEXT(i, 104, 304, 615, 383, false);
+			SET_MENU(i, 464, 24, 623, 200, true);
+			break;
+		case CRC32_YAKATA2:
+			SET_TEXT(i, 104, 304, 620, 382, false);
+			SET_MENU(i, 420, 28, 620, 244, true);
 			break;
 		default:
 			SET_TEXT(i, 8, 311, 623, 391, true);
@@ -211,7 +234,6 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 		menu_w[i].push = true;
 		menu_w[i].screen = NULL;
 		menu_w[i].window = NULL;
-
 	}
 
 	// Eコマンド
@@ -220,9 +242,9 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 		SET_BOX(i, 0, 0, 0, 639, 399);
 	}
 	if (nact->sys_ver == 2) {
-		if (nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
+		if(nact->crc32_a == CRC32_SDPS && (nact->crc32_b == CRC32_SDPS_TONO || nact->crc32_b == CRC32_SDPS_KAIZOKU)) {
 			SET_BOX(0, 0, 40, 8, 598, 271);
-		} else if (nact->crc32 == CRC32_PROSTUDENTG_FD) {
+		} else if(nact->crc32_a == CRC32_PROSTUDENTG_FD) {
 			SET_BOX(0, 0, 64, 13, 407, 289);
 			SET_BOX(1, 0, 24, 298, 111, 390);
 			SET_BOX(2, 0, 0, 0, 639, 307);

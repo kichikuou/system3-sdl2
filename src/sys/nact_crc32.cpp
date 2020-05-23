@@ -13,52 +13,72 @@ namespace {
 const struct CRCTable {
 	const char* id;
 	int sys_ver;
-	uint32 crc32;
 	const char* title;
+	uint32 crc32_a;
+	uint32 crc32_b;
 } crc_table[] = {
-	{"crescent",        1, CRC32_CRESCENT,          "クレセントムーンがぁる"},
-	{"dps",             1, CRC32_DPS,               "D.P.S - Dream Program System"},
-	{"fukei",           1, CRC32_FUKEI,             "婦警さんＶＸ"},
-	{"intruder",        1, CRC32_INTRUDER,          "Intruder -桜屋敷の探索-"},
-	{"tengu",           1, CRC32_TENGU,             "あぶないてんぐ伝説"},
-	{"little_vampire",  1, CRC32_VAMPIRE,           "Little Vampire"},
+	{"bunkasai", 1, "あぶない文化祭前夜", CRC32_BUNKASAI},
+	{"crescent", 1, "クレセントムーンがぁる", CRC32_CRESCENT},
+	{"dps", 1, "D.P.S - Dream Program System", CRC32_DPS},
+	{"dps_sg_fahren", 1, "D.P.S SG - Fahren Fliegen", CRC32_DPS_SG, CRC32_DPS_SG_FAHREN},
+	{"dps_sg_katei", 1, "D.P.S SG - 家庭教師はステキなお仕事", CRC32_DPS_SG, CRC32_DPS_SG_KATEI},
+	{"dps_sg_nobunaga", 1, "D.P.S SG - 信長の淫謀", CRC32_DPS_SG, CRC32_DPS_SG_NOBUNAGA},
+	{"dps_sg2_antique", 1, "D.P.S SG set2 - ANTIQUE HOUSE", CRC32_DPS_SG2, CRC32_DPS_SG2_ANTIQUE},
+	{"dps_sg2_ikenai", 1, "D.P.S SG set2 - いけない内科検診再び", CRC32_DPS_SG2, CRC32_DPS_SG2_IKENAI},
+	{"dps_sg2_akai", 1, "D.P.S SG set2 - 朱い夜", CRC32_DPS_SG2, CRC32_DPS_SG2_AKAI},
+	{"dps_sg3_rabbit", 1, "D.P.S SG set3 - Rabbit P4P", CRC32_DPS_SG3, CRC32_DPS_SG3_RABBIT},
+	{"dps_sg3_shinkon", 1, "D.P.S SG set3 - しんこんさんものがたり", CRC32_DPS_SG3, CRC32_DPS_SG3_SHINKON},
+	{"dps_sg3_sotsugyou", 1, "D.P.S SG set3 - 卒業", CRC32_DPS_SG3, CRC32_DPS_SG3_SOTSUGYOU},
+	{"fukei", 1, "婦警さんＶＸ", CRC32_FUKEI},
+	{"intruder", 1, "Intruder -桜屋敷の探索-", CRC32_INTRUDER},
+	{"tengu", 1, "あぶないてんぐ伝説", CRC32_TENGU},
+	{"toushin_hint", 1, "闘神都市 ヒントディスク", CRC32_TOUSHIN_HINT},
+	{"little_vampire", 1, "Little Vampire", CRC32_VAMPIRE},
+	{"yakata", 1, "ALICEの館", CRC32_YAKATA},
 
-	{"ayumi_proto",     2, CRC32_AYUMI_PROTO,       "あゆみちゃん物語 PROTO"},
-	{"sdps_maria",      2, CRC32_SDPS_MARIA,        "Super D.P.S"},
-	{"sdps_tono",       2, CRC32_SDPS_TONO,         "Super D.P.S"},
-	{"sdps_kaizoku",    2, CRC32_SDPS_KAIZOKU,      "Super D.P.S"},
-	{"prog_fd",         2, CRC32_PROSTUDENTG_FD,    "Prostudent G"},
+	{"ayumi_fd", 2, "あゆみちゃん物語", CRC32_AYUMI_FD},
+	{"ayumi_hint", 2, "あゆみちゃん物語 ヒントディスク", CRC32_AYUMI_HINT},
+	{"ayumi_proto", 2, "あゆみちゃん物語 PROTO", CRC32_AYUMI_PROTO},
+	{"dalk_hint", 2, "DALK ヒントディスク", CRC32_DALK_HINT},
+	{"drstop", 2, "Dr. STOP!", CRC32_DRSTOP},
+	{"prog_fd", 2, "Prostudent G", CRC32_PROSTUDENTG_FD},
+	{"rance3_hint", 2, "Rance3 ヒントディスク", CRC32_RANCE3_HINT},
+	{"sdps_maria", 2, "Super D.P.S - マリアとカンパン", CRC32_SDPS, CRC32_SDPS_MARIA},
+	{"sdps_tono", 2, "Super D.P.S - 遠野の森", CRC32_SDPS, CRC32_SDPS_TONO},
+	{"sdps_kaizoku", 2, "Super D.P.S - うれしたのし海賊稼業", CRC32_SDPS, CRC32_SDPS_KAIZOKU},
+	{"yakata2", 2, "ALICEの館II", CRC32_YAKATA2},
 
-	{"ambivalenz_fd",   3, CRC32_AMBIVALENZ_FD,     "AmbivalenZ −二律背反−"},
-	{"ambivalenz_cd",   3, CRC32_AMBIVALENZ_CD,     "AmbivalenZ −二律背反−"},
-	{"dps_all",         3, CRC32_DPSALL,            "D.P.S. 全部"},
-	{"funnybee_cd",     3, CRC32_FUNNYBEE_CD,       "宇宙快盗ファニーBee"},
-//	{"funnybee_patch",  3, CRC32_FUNNYBEE_PATCH,    "宇宙快盗ファニーBee"},
-	{"funnybee_fd",     3, CRC32_FUNNYBEE_FD,       "宇宙快盗ファニーBee"},
-	{"onlyyou",         3, CRC32_ONLYYOU,           "Only You −世紀末のジュリエット達−"},
-	{"onlyyou_demo",    3, CRC32_ONLYYOU_DEMO,      "Only You −世紀末のジュリエット達− デモ版"},
-	{"prog_cd",         3, CRC32_PROSTUDENTG_CD,    "Prostudent G"},
-	{"prog_omake",      3, CRC32_PROG_OMAKE,        "Prostudent G おまけ"},
-	{"rance41",         3, CRC32_RANCE41,           "ランス 4.1 〜お薬工場を救え！〜"},
-	{"rance42",         3, CRC32_RANCE42,           "ランス 4.2 〜エンジェル組〜"},
-	{"ayumi_cd",        3, CRC32_AYUMI_CD,          "あゆみちゃん物語"},
-	{"ayumi_live_256",  3, CRC32_AYUMI_JISSHA_256,  "あゆみちゃん物語 実写版"},
-	{"ayumi_live_full", 3, CRC32_AYUMI_JISSHA_FULL, "あゆみちゃん物語 フルカラー実写版"},
-	{"yakata3_cd",      3, CRC32_YAKATA3_CD,        "アリスの館3"},
-	{"yakata3_fd",      3, CRC32_YAKATA3_FD,        "アリスの館3"},
-	{"hashirionna2",    3, CRC32_HASHIRIONNA2,      "走り女2"},
-	{"toushin2_sp",     3, CRC32_TOUSHIN2_SP,       "闘神都市2 そして、それから…"},
-	{"otome",           3, CRC32_OTOMESENKI,        "乙女戦記"},
-	{"ningyo",          3, CRC32_NINGYO,            "人魚 -蘿子-"},
-	{"mugen",           3, CRC32_MUGENHOUYOU,       "夢幻泡影"},
+	{"ambivalenz_fd", 3, "AmbivalenZ −二律背反−", CRC32_AMBIVALENZ_FD},
+	{"ambivalenz_cd", 3, "AmbivalenZ −二律背反−", CRC32_AMBIVALENZ_CD},
+	{"dps_all", 3, "D.P.S. 全部", CRC32_DPSALL},
+	{"funnybee_cd", 3, "宇宙快盗ファニーBee", CRC32_FUNNYBEE_CD},
+//	{"funnybee_patch", 3, "宇宙快盗ファニーBee", CRC32_FUNNYBEE_PATCH},
+	{"funnybee_fd", 3, "宇宙快盗ファニーBee", CRC32_FUNNYBEE_FD},
+	{"onlyyou", 3, "Only You −世紀末のジュリエット達−", CRC32_ONLYYOU},
+	{"onlyyou_demo", 3, "Only You −世紀末のジュリエット達− デモ版", CRC32_ONLYYOU_DEMO},
+	{"prog_cd", 3, "Prostudent G", CRC32_PROSTUDENTG_CD},
+	{"prog_omake", 3, "Prostudent G おまけ", CRC32_PROG_OMAKE},
+	{"rance41", 3, "ランス 4.1 〜お薬工場を救え！〜", CRC32_RANCE41},
+	{"rance42", 3, "ランス 4.2 〜エンジェル組〜", CRC32_RANCE42},
+	{"ayumi_cd", 3, "あゆみちゃん物語", CRC32_AYUMI_CD},
+	{"ayumi_live_256", 3, "あゆみちゃん物語 実写版", CRC32_AYUMI_JISSHA_256},
+	{"ayumi_live_full", 3, "あゆみちゃん物語 フルカラー実写版", CRC32_AYUMI_JISSHA_FULL},
+	{"yakata3_cd", 3, "アリスの館3", CRC32_YAKATA3_CD},
+	{"yakata3_fd", 3, "アリスの館3", CRC32_YAKATA3_FD},
+	{"hashirionna2", 3, "走り女2", CRC32_HASHIRIONNA2},
+	{"toushin2_gd", 3,"闘神都市2 グラフィックディスク", CRC32_TOUSHIN2_GD},
+	{"toushin2_sp", 3, "闘神都市2 そして、それから…", CRC32_TOUSHIN2_SP},
+	{"otome", 3, "乙女戦記", CRC32_OTOMESENKI},
+	{"ningyo", 3, "人魚 -蘿子-", CRC32_NINGYO},
+	{"mugen", 3, "夢幻泡影", CRC32_MUGENHOUYOU},
 
-	{NULL, 0, 0, NULL},
+	{NULL},
 };
 
-const CRCTable* lookup(uint32 crc32)
+const CRCTable* lookup(uint32 crc32_a, uint32 crc32_b)
 {
 	for (const CRCTable* t = crc_table; t->id; t++) {
-		if (crc32 == t->crc32)
+		if (crc32_a == t->crc32_a && (!t->crc32_b || crc32_b == t->crc32_b))
 			return t;
 	}
 	return NULL;
@@ -66,18 +86,19 @@ const CRCTable* lookup(uint32 crc32)
 
 } // namespace
 
-uint32 NACT::calc_crc32(const char* game_id)
+uint32 NACT::calc_crc32(const char* file_name, const char* game_id)
 {
 	if (game_id) {
 		for (const CRCTable* t = crc_table; t->id; t++) {
 			if (strcmp(t->id, game_id) == 0)
-				return t->crc32;
+				return file_name[0] == 'A' ? t->crc32_a : t->crc32_b;
 		}
 	}
 
 	uint32 crc = 0;
 	FILEIO* fio = new FILEIO();
-	if(fio->Fopen("ADISK.DAT", FILEIO_READ_BINARY)) {
+
+	if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
 		uint32 table[256];
 		for(int i = 0; i < 256; i++) {
 			uint32 c = i;
@@ -99,56 +120,27 @@ uint32 NACT::calc_crc32(const char* game_id)
 		}
 		fio->Fclose();
 	}
-	if(crc == CRC32_SDPS) {
-		// Super D.P.Sの場合はBDISK.DATのCRCを取る
-		if(fio->Fopen("BDISK.DAT", FILEIO_READ_BINARY)) {
-			uint32 table[256];
-			for(int i = 0; i < 256; i++) {
-				uint32 c = i;
-				for(int j = 0; j < 8; j++) {
-					if(c & 1) {
-						c = (c >> 1) ^ 0xedb88320;
-					} else {
-						c >>= 1;
-					}
-				}
-				table[i] = c;
-			}
-			// BDISK.DATの先頭256bytes
-			crc = 0;
-			for(int i = 0; i < 256; i++) {
-				int d = fio->Fgetc();
-				uint32 c = ~crc;
-				c = table[(c ^ d) & 0xff] ^ (c >> 8);
-				crc = ~c;
-			}
-			fio->Fclose();
-		}
-	}
 	delete fio;
-#if 0
-	printf("CRC: %x\n", crc);
-#endif
 	return crc;
 }
 
 const char* NACT::get_game_id()
 {
-	if (const CRCTable* entry = lookup(crc32))
+	if (const CRCTable* entry = lookup(crc32_a, crc32_b))
 		return entry->id;
 	return NULL;
 }
 
-const int NACT::get_sys_ver(uint32 crc32)
+const int NACT::get_sys_ver(uint32 crc32_a, uint32 crc32_b)
 {
-	if (const CRCTable* entry = lookup(crc32))
+	if (const CRCTable* entry = lookup(crc32_a, crc32_b))
 		return entry->sys_ver;
 	return 3;
 }
 
 const char* NACT::get_title()
 {
-	if (const CRCTable* entry = lookup(crc32))
+	if (const CRCTable* entry = lookup(crc32_a, crc32_b))
 		return entry->title;
 	return NULL;
 }

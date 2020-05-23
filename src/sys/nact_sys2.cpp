@@ -55,8 +55,8 @@
 	} \
 }
 
-NACT_Sys2::NACT_Sys2(uint32 crc32, const char* font_file, const char* playlist)
-	: NACT(2, crc32, font_file, playlist)
+NACT_Sys2::NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist)
+	: NACT(2, crc32_a, crc32_b, font_file, playlist)
 {
 }
 
@@ -70,11 +70,7 @@ void NACT_Sys2::cmd_calc()
 	}
 	var[index] = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n!var[%d]:%d!", index, var[index]);
-	output_console(log);
-#endif
+	output_console("\n!var[%d]:%d!", index, var[index]);
 }
 
 void NACT_Sys2::cmd_branch()
@@ -84,7 +80,9 @@ void NACT_Sys2::cmd_branch()
 	bool set_menu = false;
 
 	if(!condition) {
+		// 次の'}'命令までスキップする（ネストも考慮する）
 		for(;;) {
+			prev_addr = scenario_addr;
 			uint8 cmd = getd();
 
 			if(cmd == '!') {
@@ -103,19 +101,16 @@ void NACT_Sys2::cmd_branch()
 					break;
 				}
 			} else if(cmd == '@') {
-				getd();
-				getd();
+				getw();
 			} else if(cmd == '\\') {
-				getd();
-				getd();
+				getw();
 			} else if(cmd == '&') {
 				cali();
 			} else if(cmd == '%') {
 				cali();
 			} else if(cmd == '$') {
 				if(!set_menu) {
-					getd();
-					getd();
+					getw();
 					set_menu = true;
 				} else {
 					set_menu = false;
@@ -123,14 +118,12 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == '[') {
 				getd();
 				getd();
-				getd();
-				getd();
+				getw();
 			} else if(cmd == ':') {
 				cali();
 				getd();
 				getd();
-				getd();
-				getd();
+				getw();
 			} else if(cmd == ']') {
 				
 			} else if(cmd == 'A') {
@@ -166,7 +159,8 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'I') {
 				cali();
 				cali();
-				getd();
+//				getd();
+				cali();
 			} else if(cmd == 'J') {
 				cali();
 				cali();
@@ -206,11 +200,48 @@ void NACT_Sys2::cmd_branch()
 				cali();
 				cali();
 			} else if(cmd == 'U') {
-				getd();
-				getd();
+				if(crc32_a == CRC32_YAKATA2) {
+					cali();
+					cali();
+				} else {
+					getd();
+					getd();
+				}
 			} else if(cmd == 'V') {
+#if 1
 				cali();
 				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+				cali();
+#else
+				cali();
+				cali();
+#endif
 			} else if(cmd == 'W') {
 				cali();
 				cali();
@@ -230,17 +261,17 @@ void NACT_Sys2::cmd_branch()
 				// message (2 bytes)
 				getd();
 			} else {
-				fatal("cmd_branch: invalid command %2x", cmd);
+				if(cmd >= 0x20 && cmd < 0x7f) {
+					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				} else {
+					fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				}
 				break;
 			}
 		}
 	}
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n{%d:", condition);
-	output_console(log);
-#endif
+	output_console("\n{%d:", condition);
 }
 
 void NACT_Sys2::cmd_label_jump()
@@ -248,22 +279,14 @@ void NACT_Sys2::cmd_label_jump()
 	int next_addr = getw();
 	scenario_addr = next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n@%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n@%x:", next_addr);
 }
 
 void NACT_Sys2::cmd_label_call()
 {
 	int next_addr = getw();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n\\%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n\\%x:", next_addr);
 
 	if(next_addr == 0) {
 		// リターン
@@ -285,22 +308,14 @@ void NACT_Sys2::cmd_page_jump()
 	scenario_page = next_page;
 	scenario_addr = 2;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n&%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n&%d:", next_page);
 }
 
 void NACT_Sys2::cmd_page_call()
 {
 	int next_page = cali(), next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n%%%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n%%%d:", next_page);
 
 	if(next_page == 0) {
 		// リターン
@@ -327,11 +342,7 @@ void NACT_Sys2::cmd_set_menu()
 		ags->menu_dest_y += ags->menu_font_size + 2;
 		ags->draw_menu = false;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "$");
-		output_console(log);
-#endif
+		output_console("$");
 	} else {
 		if(!menu_index) {
 			ags->clear_menu_window();
@@ -342,42 +353,21 @@ void NACT_Sys2::cmd_set_menu()
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "\n$%x,", menu_addr[menu_index - 1]);
-		output_console(log);
-#endif
+		output_console("\n$%x,", menu_addr[menu_index - 1]);
 	}
 }
 
 void NACT_Sys2::cmd_open_menu()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n]");
-	output_console(log);
-#endif
+	output_console("\n]");
 
 	if(!menu_index) {
 		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
 		return;
 	}
 
-	// クリック中の間は待機
-	for(;;) {
-		if(terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		SDL_Delay(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -386,17 +376,20 @@ void NACT_Sys2::cmd_open_menu()
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(terminate) {
 				return;
 			}
-			if((val = get_key())) {
+			if((val = get_key()) != 0) {
 				SDL_Delay(100);
 				break;
 			}
@@ -425,6 +418,9 @@ void NACT_Sys2::cmd_open_menu()
 			if(sx <= mx && mx <= ex && 0 <= index && index < menu_index) {
 				current_index = index;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -437,7 +433,8 @@ void NACT_Sys2::cmd_open_menu()
 				current_index = menu_index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -468,11 +465,7 @@ void NACT_Sys2::cmd_set_verbobj()
 	menu_obj[menu_index++] = obj;
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT_Sys2::cmd_set_verbobj2()
@@ -489,21 +482,13 @@ void NACT_Sys2::cmd_set_verbobj2()
 	}
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT_Sys2::cmd_open_verb()
 {
 	// 動詞メニューの表示
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nopen verb-obj menu");
-	output_console(log);
-#endif
+	output_console("\nopen verb-obj menu");
 	verb_obj = false;
 
 	// 表示する動詞のチェック
@@ -532,21 +517,8 @@ void NACT_Sys2::cmd_open_verb()
 	}
 	ags->draw_menu = false;
 
-	// クリック中の間は待機
-	for(;;) {
-		if(terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		SDL_Delay(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -555,17 +527,20 @@ void NACT_Sys2::cmd_open_verb()
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(terminate) {
 				return;
 			}
-			if((val = get_key())) {
+			if((val = get_key()) != 0) {
 				SDL_Delay(100);
 				break;
 			}
@@ -594,6 +569,9 @@ void NACT_Sys2::cmd_open_verb()
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
 				current_index = mindex;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -606,7 +584,8 @@ void NACT_Sys2::cmd_open_verb()
 				current_index = index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -676,21 +655,8 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	ags->menu_dest_y += ags->menu_font_size + 2;
 	ags->draw_menu = false;
 
-	// クリック中の間は待機
-	for(;;) {
-		if(terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		SDL_Delay(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -699,17 +665,20 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(terminate) {
 				return;
 			}
-			if((val = get_key())) {
+			if((val = get_key()) != 0) {
 				SDL_Delay(100);
 				break;
 			}
@@ -738,6 +707,9 @@ void NACT_Sys2::cmd_open_obj(int verb)
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
 				current_index = mindex;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -750,7 +722,8 @@ void NACT_Sys2::cmd_open_obj(int verb)
 				current_index = index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -773,11 +746,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 
 void NACT_Sys2::cmd_a()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "A\n");
-	output_console(log);
-#endif
+	output_console("A\n");
 
 	if(!text_skip_enb) {
 		// Pushマークの表示
@@ -821,13 +790,12 @@ void NACT_Sys2::cmd_b()
 	int p4 = cali();
 	int p5 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
-	output_console(log);
-#endif
+	output_console("\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
 
 	if(cmd == 1) {
+		if(crc32_a == CRC32_AYUMI_FD || crc32_a == CRC32_AYUMI_HINT || crc32_a == CRC32_DRSTOP) {
+			p5 = 1;
+		}
 		ags->menu_w[index - 1].sx = p1 * 8;
 		ags->menu_w[index - 1].sy = p2;
 		ags->menu_w[index - 1].ex = p3 * 8 - 1;
@@ -840,7 +808,10 @@ void NACT_Sys2::cmd_b()
 			ags->menu_w[index - 1].screen = NULL;
 		}
 	} else if(cmd == 2) {
-//		if(crc32 == CRC32_PROSTUDENTG_FD) {
+		if(crc32_a == CRC32_AYUMI_FD || crc32_a == CRC32_AYUMI_HINT || crc32_a == CRC32_DRSTOP) {
+			p1 = 1;
+		}
+//		if(crc32_a == CRC32_PROSTUDENTG_FD) {
 //			ags->menu_w[index - 1].frame = (index == 1 || index == 3) ? true : false;
 //		} else
 		ags->menu_w[index - 1].frame = p1 ? true : false;
@@ -863,9 +834,16 @@ void NACT_Sys2::cmd_b()
 			ags->text_w[index - 1].window = NULL;
 		}
 	} else if(cmd == 4) {
+		if(crc32_a == CRC32_AYUMI_FD || crc32_a == CRC32_AYUMI_HINT) {
+			p1 = 1;
+			//p5 ? 0 : 1; // 逆？
+			p5 = 0;
+		} else if(crc32_a == CRC32_DRSTOP) {
+			p1 = 1;
+		}
 		if(p5 == 0) {
 			// ウィンドウ退避
-//			if(crc32 == CRC32_PROSTUDENTG_FD) {
+//			if(crc32_a == CRC32_PROSTUDENTG_FD) {
 //				ags->text_w[index - 1].frame = (index == 1 || index == 3) ? true : false;
 //			} else
 			ags->text_w[index - 1].frame = p1 ? true : false;
@@ -889,11 +867,7 @@ void NACT_Sys2::cmd_d()
 	int p7 = cali();
 	int p8 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nD %d,%d,%d,%d,%d,%d,%d,%d:", p1, p2, p3, p4, p5, p6, p7, p8);
-	output_console(log);
-#endif
+	output_console("\nD %d,%d,%d,%d,%d,%d,%d,%d:", p1, p2, p3, p4, p5, p6, p7, p8);
 }
 
 void NACT_Sys2::cmd_e()
@@ -902,20 +876,12 @@ void NACT_Sys2::cmd_e()
 	int p2 = cali();
 	int p3 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nE %d,%d,%d:", p1, p2, p3);
-	output_console(log);
-#endif
+	output_console("\nE %d,%d,%d:", p1, p2, p3);
 }
 
 void NACT_Sys2::cmd_f()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nF");
-	output_console(log);
-#endif
+	output_console("\nF");
 
 	scenario_addr = 2;
 }
@@ -924,18 +890,24 @@ void NACT_Sys2::cmd_g()
 {
 	int page = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nG %d:", page);
-	output_console(log);
-#endif
+	output_console("\nG %d:", page);
 
-	if(crc32 == CRC32_SDPS_TONO || crc32 == CRC32_SDPS_KAIZOKU) {
+	if(crc32_a == CRC32_SDPS && (crc32_b == CRC32_SDPS_TONO || crc32_b == CRC32_SDPS_KAIZOKU)) {
 		if(20 <= page && page <= 100) {
 			page--;
 		}
 	}
 	ags->load_cg(page, -1);
+
+	if(crc32_a == CRC32_DALK_HINT) {
+		if(page == 3) {
+			WAIT(2000)
+		}
+	} else if(crc32_a == CRC32_RANCE3_HINT) {
+		if(page == 25) {
+			WAIT(2000)
+		}
+	}
 }
 
 void NACT_Sys2::cmd_h()
@@ -943,11 +915,7 @@ void NACT_Sys2::cmd_h()
 	int length = getd();
 	int val = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nH %d,%d:", length, val);
-	output_console(log);
-#endif
+	output_console("\nH %d,%d:", length, val);
 
 	// 8桁の文字列を生成
 	char tmp[8];
@@ -987,13 +955,10 @@ void NACT_Sys2::cmd_i()
 {
 	int p1 = cali();
 	int p2 = cali();
-	int p3 = getd();
+//	int p3 = getd();
+	int p3 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nI %d,%d,%d:", p1, p2, p3);
-	output_console(log);
-#endif
+	output_console("\nI %d,%d,%d:", p1, p2, p3);
 }
 
 void NACT_Sys2::cmd_j()
@@ -1001,11 +966,7 @@ void NACT_Sys2::cmd_j()
 	int p1 = cali();
 	int p2 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nJ %d,%d:", p1, p2);
-	output_console(log);
-#endif
+	output_console("\nJ %d,%d:", p1, p2);
 }
 
 void NACT_Sys2::cmd_k()
@@ -1018,20 +979,15 @@ void NACT_Sys2::cmd_l()
 {
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nL %d:", index);
-	output_console(log);
-#endif
+	output_console("\nL %d:", index);
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char path[_MAX_PATH];
-		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
-		path[7] = 'A' + index - 1;
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(path, FILEIO_READ_BINARY)) {
+		if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
 			fio->Fseek(112, FILEIO_SEEK_SET);
 
 			int next_page = fio->Fgetw() - 1;
@@ -1122,7 +1078,7 @@ void NACT_Sys2::cmd_l()
 
 void NACT_Sys2::cmd_m()
 {
-	char string[22];
+	char string[33];
 	int d, p = 0;
 
 	while((d = getd()) != ':') {
@@ -1136,14 +1092,10 @@ void NACT_Sys2::cmd_m()
 	}
 	string[p] = '\0';
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nM %s:", string);
-	output_console(log);
-#endif
+	output_console("\nM %s:", string);
 
 	if(1 <= tvar_index && tvar_index <= 10) {
-		memcpy(tvar[tvar_index - 1], string, 22);
+		memcpy(tvar[tvar_index - 1], string, 33);
 	}
 }
 
@@ -1152,11 +1104,7 @@ void NACT_Sys2::cmd_n()
 	int p1 = cali();
 	int p2 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nN %d,%d:", p1, p2);
-	output_console(log);
-#endif
+	output_console("\nN %d,%d:", p1, p2);
 }
 
 void NACT_Sys2::cmd_o()
@@ -1165,29 +1113,25 @@ void NACT_Sys2::cmd_o()
 	int width = cali();
 	int height = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nO %d,%d,%d:", st, width, height);
-	output_console(log);
-#endif
+	output_console("\nO %d,%d,%d:", st, width, height);
 
+#if 0
 	// white mesh
 	int sx = (st % 80) * 8;
 	int sy = (int)(st / 80);
 	ags->draw_mesh(sx, sy, width, height);
+#endif
 }
 
 void NACT_Sys2::cmd_p()
 {
 	int param = getd();
 
-	ags->text_font_color = (uint8)((param & 0x7) + 16);
+	if(crc32_a != CRC32_YAKATA2 && crc32_a != CRC32_DALK_HINT && crc32_a != CRC32_RANCE3_HINT) {
+		ags->text_font_color = (uint8)((param & 0x7) + 16);
+	}
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nP %d:", param);
-	output_console(log);
-#endif
+	output_console("\nP %d:", param);
 }
 
 #define FWRITE(data, size) { \
@@ -1214,20 +1158,15 @@ void NACT_Sys2::cmd_q()
 
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nQ %d:", index);
-	output_console(log);
-#endif
+	output_console("\nQ %d:", index);
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char path[_MAX_PATH];
-		strcpy_s(path, _MAX_PATH, "ASLEEP_A.DAT");
-		path[7] = 'A' + index - 1;
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(path, FILEIO_WRITE_BINARY)) {
+		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY)) {
 			uint8 buffer[9510];
 			int p = 0;
 
@@ -1295,11 +1234,7 @@ void NACT_Sys2::cmd_q()
 
 void NACT_Sys2::cmd_r()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "R\n");
-	output_console(log);
-#endif
+	output_console("R\n");
 
 	// ウィンドウの表示範囲外の場合は改ページ
 	if(ags->return_text_line(text_window)) {
@@ -1311,11 +1246,7 @@ void NACT_Sys2::cmd_s()
 {
 	int page = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nS %d:", page);
-	output_console(log);
-#endif
+	output_console("\nS %d:", page);
 
 	if(page) {
 		mako->play_music(page);
@@ -1330,62 +1261,86 @@ void NACT_Sys2::cmd_t()
 	int p2 = cali();
 	int p3 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nT %d,%d,%d:", p1, p2, p3);
-	output_console(log);
-#endif
+	output_console("\nT %d,%d,%d:", p1, p2, p3);
 }
 
 void NACT_Sys2::cmd_u()
 {
-	int page = getd();
-	int transparent = getd();
+	int page, transparent;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nU %d,%d:", page, transparent);
-	output_console(log);
-#endif
+	if(crc32_a == CRC32_YAKATA2) {
+		page = cali();
+		transparent = cali();
+	} else {
+		page = getd();
+		transparent = getd();
+	}
+
+	output_console("\nU %d,%d:", page, transparent);
 
 	ags->load_cg(page, transparent);
 }
 
 void NACT_Sys2::cmd_v()
 {
+#if 1
+	int p01 = cali();
+	int p02 = cali();
+	int p03 = cali();
+	int p04 = cali();
+	int p05 = cali();
+	int p06 = cali();
+	int p07 = cali();
+	int p08 = cali();
+	int p09 = cali();
+	int p10 = cali();
+	int p11 = cali();
+	int p12 = cali();
+	int p13 = cali();
+	int p14 = cali();
+	int p15 = cali();
+	int p16 = cali();
+	int p17 = cali();
+	int p18 = cali();
+	int p19 = cali();
+	int p20 = cali();
+	int p21 = cali();
+	int p22 = cali();
+	int p23 = cali();
+	int p24 = cali();
+	int p25 = cali();
+	int p26 = cali();
+	int p27 = cali();
+	int p28 = cali();
+	int p29 = cali();
+
+	output_console("\nV %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d:",
+	p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29);
+#else
 	int p1 = cali();
 	int p2 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nV %d,%d:", p1, p2);
-	output_console(log);
+	output_console("\nV %d,%d:", p1, p2);
 #endif
 }
 
 void NACT_Sys2::cmd_w()
 {
-	int p1 = cali();
-	int p2 = cali();
-	int p3 = cali();
-	int p4 = cali();
+	int sx = cali();
+	int sy = cali();
+	int ex = cali();
+	int ey = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nW %d,%d,%d,%d:", p1, p2, p3, p4);
-	output_console(log);
-#endif
+	output_console("\nW %d,%d,%d,%d:", sx, sy, ex, ey);
+
+	ags->draw_mesh(sx, sy, ex - sx, ey - sy);
 }
 
 void NACT_Sys2::cmd_x()
 {
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nX %d:", index);
-	output_console(log);
-#endif
+	output_console("\nX %d:", index);
 
 	if(1 <= index && index <= 10) {
 		ags->draw_text(tvar[index - 1]);
@@ -1397,11 +1352,7 @@ void NACT_Sys2::cmd_y()
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nY %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nY %d,%d:", cmd, param);
 
 	switch(cmd) {
 		case 1:
@@ -1444,7 +1395,7 @@ void NACT_Sys2::cmd_y()
 			RND = (param == 0 || param == 1) ? 0 : random(param);
 			break;
 		case 7:
-			if(crc32 != CRC32_SDPS_MARIA) {
+			if(!(crc32_a == CRC32_SDPS && crc32_b == CRC32_SDPS_MARIA)) {
 				ags->draw_box(param);
 			}
 			break;
@@ -1460,10 +1411,18 @@ void NACT_Sys2::cmd_y()
 		case 26:
 			ags->text_font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
-#if 0 // Broken in Super D.P.S
+		case 27:
+			{
+				int tmp = tvar_index;
+				tvar_index = param;
+				tvar_maxlen = 8;//param;
+				text_dialog();
+				tvar_index = tmp;
+			}
+			break;
 		case 40:
 		case 42:
-			{
+			if(ags->now_fade()) {
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_in(i);
@@ -1478,11 +1437,13 @@ void NACT_Sys2::cmd_y()
 						SDL_Delay(0);
 					}
 				}
+				ags->fade_end();
 			}
 			break;
 		case 41:
 		case 43:
-			{
+			if(!ags->now_fade()) {
+				ags->fade_start();
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_out(i, (cmd == 41) ? false : true);
@@ -1499,7 +1460,6 @@ void NACT_Sys2::cmd_y()
 				}
 			}
 			break;
-#endif
 		case 221:
 		case 222:
 		case 223:
@@ -1529,6 +1489,28 @@ void NACT_Sys2::cmd_y()
 			break;
 		case 252:
 			RND = 8;
+			break;
+		case 253:
+			// キーが押されて離されるまで待機
+			for(;;) {
+				if(terminate) {
+					return;
+				}
+				if(get_key()) {
+					break;
+				}
+				SDL_Delay(10);
+			}
+			SDL_Delay(100);
+			for(;;) {
+				if(terminate) {
+					return;
+				}
+				if(!(get_key() & 0x18)) {
+					break;
+				}
+				SDL_Delay(10);
+			}
 			break;
 		case 254:
 			RND = 0;
@@ -1560,11 +1542,7 @@ void NACT_Sys2::cmd_z()
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nZ %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nZ %d,%d:", cmd, param);
 
 // Z1
 // Z2

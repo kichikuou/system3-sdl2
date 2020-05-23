@@ -8,21 +8,19 @@
 #include "dri.h"
 #include "crc32.h"
 
-extern char g_root[_MAX_PATH];
-
 void AGS::load_cg(int page, int transparent)
 {
 	if (nact->sys_ver == 3) {
 		// あゆみちゃん物語 フルカラー実写版
 		if(strncmp(acg, "CGA000.BMP", 10) == 0) {
-			char file_path[_MAX_PATH];
-			sprintf_s(file_path, _MAX_PATH, "%sCGA%03d.BMP", g_root, page);
-			load_bmp(file_path);
+			char file_name[_MAX_PATH];
+			sprintf_s(file_name, _MAX_PATH, "CGA%03d.BMP", page);
+			load_bmp(file_name);
 			return;
 		} else if(strncmp(acg, "CGB000.BMP", 10) == 0) {
-			char file_path[_MAX_PATH];
-			sprintf_s(file_path, _MAX_PATH, "%sCGB%03d.BMP", g_root, page);
-			load_bmp(file_path);
+			char file_name[_MAX_PATH];
+			sprintf_s(file_name, _MAX_PATH, "CGB%03d.BMP",  page);
+			load_bmp(file_name);
 			return;
 		}
 	}
@@ -32,7 +30,7 @@ void AGS::load_cg(int page, int transparent)
 	if(data && size > 0) {
 		switch (nact->sys_ver) {
 		case 1:
-			switch (nact->crc32) {
+			switch (nact->crc32_a) {
 			case CRC32_BUNKASAI:
 				load_vsp(data, page, transparent);
 				break;
@@ -49,10 +47,13 @@ void AGS::load_cg(int page, int transparent)
 			}
 			break;
 		case 2:
-			if(nact->crc32 == CRC32_AYUMI_PROTO) {
+			if(nact->crc32_a == CRC32_AYUMI_PROTO) {
 				// あゆみちゃん物語 PROTO
 				load_gl3(data, page, transparent);
-			} else if(nact->crc32 == CRC32_SDPS_MARIA || nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
+			} else if(nact->crc32_a == CRC32_AYUMI_FD || nact->crc32_a == CRC32_AYUMI_HINT) {
+				// あゆみちゃん物語
+				load_vsp(data, page, transparent);
+			} else if(nact->crc32_a == CRC32_SDPS) {
 				// Super D.P.S
 				load_pms(data, page, transparent);
 			} else {

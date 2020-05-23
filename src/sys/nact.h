@@ -87,7 +87,7 @@ class NACT
 {
 public:
 	static NACT* create(const char* game_id, const char* font_file, const char* playlist);
-	NACT(int sys_ver, uint32 crc32, const char* font_file, const char* playlist);
+	NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist);
 	virtual ~NACT();
 
 protected:
@@ -109,7 +109,7 @@ protected:
 	int scenario_size;
 
 	// アドレス、ページ管理
-	int scenario_addr;
+	int scenario_addr, prev_addr;
 	int scenario_page;
 	int label_depth;
 	int label_stack[MAX_STACK];
@@ -162,6 +162,8 @@ protected:
 	uint16 random(uint16 range);
 	uint32 seed;
 
+	void wait_after_open_menu();
+
 	uint8 get_key();
 	void get_cursor(int* x, int* y);
 	void set_cursor(int x, int y);
@@ -172,7 +174,7 @@ protected:
 #endif
 	int mouse_x = 0, mouse_y = 0;
 
-	static uint32 calc_crc32(const char* game_id);
+	static uint32 calc_crc32(const char* file_name, const char* game_id);
 
 	// Y27 ダイアログ
 	void text_dialog();
@@ -193,20 +195,21 @@ public:
 	void select_sound(int dev);
 
 	const char* get_game_id();
-	static const int get_sys_ver(uint32 crc32);
+	static const int get_sys_ver(uint32 crc32_a, uint32 crc32_b);
 	const char* get_title();
 
 	bool text_skip_enb;	// メッセージスキップ
 	bool text_wait_enb;	// テキスト表示のウェイト有効／無効
 	int sys_ver;
-	uint32 crc32;
+	uint32 crc32_a;		// ADISK
+	uint32 crc32_b;		// BDISK for D.P.S -SG- and Super D.P.S
 
 	// for Y27
-	char tvar[10][22];
+	char tvar[10][33];
 	int tvar_index, tvar_maxlen;
 
 	// デバッグログ
-	void output_console(char log[]);
+	void output_console(const char *format, ...);
 
 	int get_scenario_page() const { return scenario_page; }
 
@@ -215,7 +218,7 @@ public:
 
 class NACT_Sys1 : public NACT {
 public:
-	NACT_Sys1(uint32 crc32, const char* font_file, const char* playlist);
+	NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist);
 	void cmd_calc();
 	void cmd_branch();
 	void cmd_label_jump();
@@ -258,8 +261,6 @@ private:
 	uint16 cali();
 	uint16 cali2();
 
-	int menu_max;	// メニューの改ページ
-
 	// Intruder Zコマンド
 	int paint_x;
 	int paint_y;
@@ -268,7 +269,7 @@ private:
 
 class NACT_Sys2 : public NACT {
 public:
-	NACT_Sys2(uint32 crc32, const char* font_file, const char* playlist);
+	NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist);
 	void cmd_calc();
 	void cmd_branch();
 	void cmd_label_jump();
@@ -314,7 +315,7 @@ private:
 
 class NACT_Sys3 : public NACT {
 public:
-	NACT_Sys3(uint32 crc32, const char* font_file, const char* playlist);
+	NACT_Sys3(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist);
 	void cmd_calc();
 	void cmd_branch();
 	void cmd_label_jump();

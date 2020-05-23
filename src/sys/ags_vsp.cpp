@@ -28,7 +28,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	}
 
 	// Zコマンドの処理
-	if(nact->crc32 == CRC32_AMBIVALENZ_FD || nact->crc32 == CRC32_AMBIVALENZ_CD) {
+	if(nact->crc32_a == CRC32_AMBIVALENZ_FD || nact->crc32_a == CRC32_AMBIVALENZ_CD) {
 		// Z 0,numを無視する
 	} else {
 		if(palette_bank != -1) {
@@ -37,7 +37,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	}
 
 	// パレット取得
-	if(get_palette) {
+	if(get_palette && transparent != 101) {
 		int p = 0x0a;
 		for(int i = 0; i < 16; i++) {
 			uint32 b = data[p++] & 0xf;
@@ -48,7 +48,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	}
 
 	// パレット展開
-	if(nact->crc32 == CRC32_FUNNYBEE_FD || nact->crc32 == CRC32_FUNNYBEE_CD || nact->crc32 == CRC32_FUNNYBEE_PATCH) {
+	if(nact->crc32_a == CRC32_FUNNYBEE_FD || nact->crc32_a == CRC32_FUNNYBEE_CD || nact->crc32_a == CRC32_FUNNYBEE_PATCH) {
 		if(extract_palette_cg[page]) {
 			for(int i = 0; i < 16; i++) {
 				screen_palette[base + i] = program_palette[base + i];

@@ -59,18 +59,16 @@ private:
 	SDL_Cursor* hCursor[10];
 
 	// AGS
+	void load_gm3(uint8* data, int page, int transparent);		// Intruder -桜屋敷の探索-
 	void load_vsp2l(uint8* data, int page, int transparent);	// Little Vampire
-	void load_gl3(uint8* data, int page, int transparent);		// あぶない天狗伝説
-	void load_gm3(uint8* data, int page, int transparent);		// Intruder
-	void load_vsp(uint8* data, int page, int transparent);
+	void load_gl3(uint8* data, int page, int transparent);
 	void load_pms(uint8* data, int page, int transparent);
-	void load_bmp(const char *file_path);
+	void load_bmp(const char* file_name);				// あゆみちゃん物語 フルカラー実写版
+	void load_vsp(uint8* data, int page, int transparent);
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color, uint8 cache[]);
 	void draw_gaiji(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
-	uint16 convert_zenkaku(uint16 code);
-	uint16 convert_hankaku(uint16 code);
 
 	void draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color);
 
@@ -118,6 +116,8 @@ public:
 	void box_line(int dest, int sx, int sy, int ex, int ey, uint8 color);
 
 	void draw_text(const char* string);
+	uint16 convert_zenkaku(uint16 code);
+	uint16 convert_hankaku(uint16 code);
 
 	void clear_text_window(int index, bool erase);
 	bool return_text_line(int index);
