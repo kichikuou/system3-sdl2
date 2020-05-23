@@ -7,16 +7,10 @@ GPL扱いで、適当に。
 
 プロジェクトファイルは以下の通りです。
 
-	crescent.vcproj		クレセントムーンがぁる
-	dsp.vcproj		D.P.S. - Dream Program System
-	fukei.vcproj		婦警さん物語ＶＸ
-	intruder.vcproj		Intruder -桜屋敷の探索-
-	maria.vcproj		Super D.P.S. マリアとカンパン
-	prog_omake.vcproj	prostudent G おまけ
-	sdps.vcproj		Super D.P.S.
+	system1.vcproj		SYSTEM1汎用
+	system2.vcproj		SYSTEM2汎用
 	system3.vcproj		SYSTEM3汎用
-	tengu.vcproj		あぶないてんぐ伝説
-	vampire.vcproj		Little Vampire
+	prog_omake.vcproj	prostudent G おまけ
 
 実装上では、近間さんのxsystem35を参考にしています。
 旧作の実装については、Ryu1さんが移植されたDOS版や、
