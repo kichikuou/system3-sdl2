@@ -291,7 +291,7 @@ void NACT::execute(T* impl)
 		default:
 			if(cmd == 0x20 || (0xa1 <= cmd && cmd <= 0xdd)) {
 				// message (1 byte)
-				char string[2];
+				char string[3];
 				string[0] = cmd;
 				string[1] = '\0';
 				ags->draw_text(string);
@@ -317,7 +317,12 @@ void NACT::execute(T* impl)
 						SDL_Delay(16);
 					}
 				}
-
+				if(!ags->draw_hankaku) {
+					uint16 code = ags->convert_zenkaku(cmd);
+					string[0] = code >> 8;
+					string[1] = code & 0xff;
+					string[2] = '\0';
+				}
 				output_console(string);
 			} else if((0x81 <= cmd && cmd <= 0x9f) || 0xe0 <= cmd) {
 				// message (2 bytes)
@@ -376,7 +381,7 @@ void NACT::load_scenario(int page)
 
 uint16 NACT::random(uint16 range)
 {
-	// xorhift32
+	// xorshift32
 	seed = seed ^ (seed << 13);
 	seed = seed ^ (seed >> 17);
 	seed = seed ^ (seed << 15);

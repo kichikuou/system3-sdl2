@@ -205,7 +205,7 @@ public:
 	uint32 crc32_b;		// BDISK for D.P.S -SG- and Super D.P.S
 
 	// for Y27
-	char tvar[10][22];
+	char tvar[10][33];
 	int tvar_index, tvar_maxlen;
 
 	// デバッグログ
