@@ -153,10 +153,8 @@ int NACT_Sys3::menu_select(int num_items)
 	int height = ags->menu_font_size + 4;
 	set_cursor(mx, my);
 
-	bool selectable = true;
-
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {

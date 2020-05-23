@@ -359,7 +359,7 @@ void NACT_Sys2::cmd_open_menu()
 	set_cursor(mx, my);
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
@@ -395,6 +395,9 @@ void NACT_Sys2::cmd_open_menu()
 			if(sx <= mx && mx <= ex && 0 <= index && index < menu_index) {
 				current_index = index;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -407,7 +410,8 @@ void NACT_Sys2::cmd_open_menu()
 				current_index = menu_index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -516,7 +520,7 @@ void NACT_Sys2::cmd_open_verb()
 	set_cursor(mx, my);
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
@@ -552,6 +556,9 @@ void NACT_Sys2::cmd_open_verb()
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
 				current_index = mindex;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -564,7 +571,8 @@ void NACT_Sys2::cmd_open_verb()
 				current_index = index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -660,7 +668,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	set_cursor(mx, my);
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
@@ -696,6 +704,9 @@ void NACT_Sys2::cmd_open_obj(int verb)
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
 				current_index = mindex;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -708,7 +719,8 @@ void NACT_Sys2::cmd_open_obj(int verb)
 				current_index = index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
