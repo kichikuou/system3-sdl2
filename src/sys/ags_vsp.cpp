@@ -37,7 +37,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	}
 
 	// パレット取得
-	if(get_palette) {
+	if(get_palette && transparent != 101) {
 		int p = 0x0a;
 		for(int i = 0; i < 16; i++) {
 			uint32 b = data[p++] & 0xf;

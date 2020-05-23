@@ -50,6 +50,9 @@ void AGS::load_cg(int page, int transparent)
 			if(nact->crc32_a == CRC32_AYUMI_PROTO) {
 				// あゆみちゃん物語 PROTO
 				load_gl3(data, page, transparent);
+			} else if(nact->crc32_a == CRC32_AYUMI_FD || nact->crc32_a == CRC32_AYUMI_HINT) {
+				// あゆみちゃん物語
+				load_vsp(data, page, transparent);
 			} else if(nact->crc32_a == CRC32_SDPS) {
 				// Super D.P.S
 				load_pms(data, page, transparent);
