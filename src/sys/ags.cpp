@@ -60,13 +60,28 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
 
 	// フォント
 	TTF_Init();
-	hFont16 = TTF_OpenFont(fontfile, 16);
-	hFont24 = TTF_OpenFont(fontfile, 24);
-	hFont32 = TTF_OpenFont(fontfile, 32);
-	hFont48 = TTF_OpenFont(fontfile, 48);
-	hFont64 = TTF_OpenFont(fontfile, 64);
-	if (!hFont16 || !hFont24 || !hFont32 || !hFont48 || !hFont64) {
-		parent->fatal("Cannot open font file %s", fontfile);
+	if (fontfile) {
+		rw_font = SDL_RWFromFile(fontfile, "rb");
+		if (!rw_font)
+			parent->fatal("Cannot open font file %s", fontfile);
+	} else {
+		rw_font = open_resource(FONT_RESOURCE_NAME, "fonts");
+		if (!rw_font)
+			parent->fatal("Cannot open default font");
+	}
+	if (rw_font) {
+		hFont16 = TTF_OpenFontRW(rw_font, 0, 16);
+		SDL_RWseek(rw_font, 0, SEEK_SET);
+		hFont24 = TTF_OpenFontRW(rw_font, 0, 24);
+		SDL_RWseek(rw_font, 0, SEEK_SET);
+		hFont32 = TTF_OpenFontRW(rw_font, 0, 32);
+		SDL_RWseek(rw_font, 0, SEEK_SET);
+		hFont48 = TTF_OpenFontRW(rw_font, 0, 48);
+		SDL_RWseek(rw_font, 0, SEEK_SET);
+		hFont64 = TTF_OpenFontRW(rw_font, 0, 64);
+		if (!hFont16 || !hFont24 || !hFont32 || !hFont48 || !hFont64) {
+			parent->fatal("TTF_OpenFontRW failed: %s", TTF_GetError());
+		}
 	}
 
 	// カーソル初期化
@@ -342,11 +357,14 @@ AGS::~AGS()
 	}
 
 	// フォント開放
-	TTF_CloseFont(hFont16);
-	TTF_CloseFont(hFont24);
-	TTF_CloseFont(hFont32);
-	TTF_CloseFont(hFont48);
-	TTF_CloseFont(hFont64);
+	if (rw_font) {
+		TTF_CloseFont(hFont16);
+		TTF_CloseFont(hFont24);
+		TTF_CloseFont(hFont32);
+		TTF_CloseFont(hFont48);
+		TTF_CloseFont(hFont64);
+		SDL_RWclose(rw_font);
+	}
 
 	// surface開放
 	for(int i = 0; i < 3; i++) {

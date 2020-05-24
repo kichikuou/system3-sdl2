@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 #endif
 	g_window = SDL_CreateWindow("Scenario Decoder SYSTEM3", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 
-	const char* font_file = DEFAULT_FONT_PATH "MTLc3m.ttf";
+	const char* font_file = NULL;
 	const char* playlist = NULL;
 	const char* game_id = NULL;
 	const char* save_dir = NULL;

@@ -21,6 +21,8 @@
 #define SDL_Delay emscripten_sleep
 #endif
 
+#define FONT_RESOURCE_NAME "MTLc3m.ttf"
+
 // type definition
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -62,5 +64,8 @@ inline void strcpy_s(char* dst, size_t n, const char* src)
 }
 
 #endif // !WIN32
+
+// resource.cpp
+SDL_RWops* open_resource(const char* name, const char* type);
 
 #endif

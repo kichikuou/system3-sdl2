@@ -17,7 +17,6 @@ if (ANDROID)
 	android/mako.cpp
 	)
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf)
-  set(DEFAULT_FONT_PATH fonts/)
 
 elseif (EMSCRIPTEN)
   add_executable(system3)
@@ -58,7 +57,6 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 	target_sources(system3 PRIVATE linux/nact_linux.cpp linux/mako.cpp)
 	target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
 	set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
-	set(DEFAULT_FONT_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/fonts/)
 	install(TARGETS system3 RUNTIME DESTINATION bin)
 	install(DIRECTORY ../resources/
 	  DESTINATION share/system3
@@ -69,6 +67,7 @@ endif()
 target_sources(system3 PRIVATE
   sdlmain.cpp
   fileio.cpp
+  resource.cpp
   utfsjis.cpp
   texthook.cpp
   sys/ags.cpp
@@ -94,6 +93,5 @@ target_sources(system3 PRIVATE
 
 target_compile_definitions(system3 PRIVATE
   $<$<CONFIG:Debug>:_DEBUG_CONSOLE>
-  DEFAULT_FONT_PATH="${DEFAULT_FONT_PATH}"
   RESOURCE_PATH="${RESOURCE_PATH}")
 target_include_directories(system3 PRIVATE . sys)

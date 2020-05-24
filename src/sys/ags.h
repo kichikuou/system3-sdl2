@@ -49,6 +49,7 @@ private:
 	SDL_Surface* hBmpDest; // DIBSection 24bpp (最終出力先)
 
 	// フォント
+	SDL_RWops* rw_font;
 	TTF_Font* hFont16;
 	TTF_Font* hFont24;
 	TTF_Font* hFont32;
