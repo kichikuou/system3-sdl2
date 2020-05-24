@@ -17,6 +17,7 @@ if (ANDROID)
 	android/mako.cpp
 	)
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf)
+  set(DEFAULT_FONT_PATH fonts/)
 
 elseif (EMSCRIPTEN)
   add_executable(system3)
@@ -49,12 +50,6 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
   target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
 
-  set(DEFAULT_FONT_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/fonts/)
-
-  install(TARGETS system3 RUNTIME DESTINATION bin)
-  install(FILES ../fonts/MTLc3m.ttf ../fonts/MTLc3m.ttf.license
-	DESTINATION share/system3/fonts)
-
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	target_sources(system3 PRIVATE win/nact_win.cpp win/mako.cpp res3/Script1.rc)
 	target_link_libraries(system3 PRIVATE winmm)
@@ -62,6 +57,12 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 	pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
 	target_sources(system3 PRIVATE linux/nact_linux.cpp linux/mako.cpp)
 	target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
+	set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
+	set(DEFAULT_FONT_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/fonts/)
+	install(TARGETS system3 RUNTIME DESTINATION bin)
+	install(DIRECTORY ../resources/
+	  DESTINATION share/system3
+	  FILES_MATCHING PATTERN *.MDA)
   endif()
 endif()
 
@@ -93,6 +94,6 @@ target_sources(system3 PRIVATE
 
 target_compile_definitions(system3 PRIVATE
   $<$<CONFIG:Debug>:_DEBUG_CONSOLE>
-  DEFAULT_FONT_PATH="${DEFAULT_FONT_PATH}")
+  DEFAULT_FONT_PATH="${DEFAULT_FONT_PATH}"
+  RESOURCE_PATH="${RESOURCE_PATH}")
 target_include_directories(system3 PRIVATE . sys)
-target_compile_definitions(system3 PRIVATE)

@@ -7,55 +7,34 @@
 #ifdef _WIN32
 #include <windows.h>
 #undef ERROR
-#include <SDL_syswm.h>
 #endif
 #include "dri.h"
 #include "crc32.h"
 #include "../fileio.h"
 
-extern SDL_Window* g_window;
+namespace {
 
+SDL_RWops* open_resource(const char* name, const char* type) {
 #ifdef _WIN32
-
-uint8* load_resource(const char* name, const char* type) {
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
-	if (!SDL_GetWindowWMInfo(g_window, &info)) {
-		WARNING("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
-		return NULL;
-	}
-	HINSTANCE hInst = info.info.win.hinstance;
-	HGLOBAL hGlobal = LoadResource(hInst, FindResource(hInst, name, type));
+	// On Windows, read from resource.
+	HINSTANCE hInst = GetModuleHandle(NULL);
+	HRSRC hRes = FindResource(hInst, name, type);
+	HGLOBAL hGlobal = LoadResource(hInst, hRes);
 	if (!hGlobal) {
 		WARNING("Cannot load resource %s (type: %s)", name, type);
 		return NULL;
 	}
-	return (uint8*)LockResource(hGlobal);
-}
-
-void free_resource(uint8* data) {
-}
-
+	return SDL_RWFromConstMem(LockResource(hGlobal), SizeofResource(hInst, hRes));
 #else
-
-uint8* load_resource(const char* name, const char* type) {
-	FILE* fp = fopen(name, "rb");
-	if (!fp)
-		return NULL;
-	fseek(fp, 0, SEEK_END);
-	long len = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	uint8* buf = (uint8*)malloc(len);
-	fread(buf, 1, len, fp);
-	fclose(fp);
-	return buf;
-}
-
-void free_resource(uint8* data) {
-	free(data);
-}
-
+	// On Android, read from APK assets.
+	// On other platforms, read from a file under RESOURCE_PATH.
+	char path[_MAX_PATH];
+	sprintf_s(path, _MAX_PATH, "%s%s/%s", RESOURCE_PATH, type, name);
+	return SDL_RWFromFile(path, "rb");
 #endif
+}
+
+} // namespace
 
 uint8* DRI::load(const char* file_name, int page, int* size)
 {
@@ -243,33 +222,37 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 		return NULL;
 	}
 
-	uint8 *data = load_resource(name, "mda");
-	if(!data) {
+	SDL_RWops* rw = open_resource(name, "mda");
+	if (!rw)
 		return NULL;
-	}
+	uint8 buf[4];
 
 	// ページの位置を取得
-	int link_sector = data[0] | (data[1] << 8);
-	int data_sector = data[2] | (data[3] << 8);
+	SDL_RWread(rw, buf, 4, 1);
+	int link_sector = buf[0] | (buf[1] << 8);
+	int data_sector = buf[2] | (buf[3] << 8);
 
 	if(page > (data_sector - link_sector) * 128 - 1) {
 		// ページ番号不正
-		free_resource(data);
+		SDL_RWclose(rw);
 		return NULL;
 	}
 
-	int disk_index = data[(link_sector - 1) * 256 + (page - 1) * 2 + 0];
-	int link_index = data[(link_sector - 1) * 256 + (page - 1) * 2 + 1];
+	SDL_RWseek(rw, (link_sector - 1) * 256 + (page - 1) * 2, RW_SEEK_SET);
+	SDL_RWread(rw, buf, 2, 1);
+
+	int disk_index = buf[0];
+	int link_index = buf[1];
 
 	if(disk_index == 0 || disk_index == 0x1a) {
 		// 欠番
-		free_resource(data);
+		SDL_RWclose(rw);
 		return NULL;
 	}
 
 	// AMUS.MDA以外にリンクされている場合はリソースを開き直す
 	if(disk_index == 2) {
-		free_resource(data);
+		SDL_RWclose(rw);
 		switch(crc32_b) {
 			case CRC32_DPS_SG_FAHREN:	// D.P.S. SG - Fahren Fliegen
 				name = "BMUS_FAH";
@@ -314,11 +297,11 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 		if(name == NULL) {
 			return NULL;
 		}
-		if((data = load_resource(name, "mda")) == NULL) {
+		if((rw = open_resource(name, "mda")) == NULL) {
 			return NULL;
 		}
 	} else if(disk_index == 3) {
-		free_resource(data);
+		SDL_RWclose(rw);
 		switch(crc32_a) {
 			case CRC32_TOUSHIN_HINT:	// 闘神都市 ヒントディスク
 				name = "CMUS_T1";
@@ -330,28 +313,31 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 		if(name == NULL) {
 			return NULL;
 		}
-		if((data = load_resource(name, "mda")) == NULL) {
+		if((rw = open_resource(name, "mda")) == NULL) {
 			return NULL;
 		}
 	} else if(disk_index != 1) {
 		// AMUS.MDA以外にリンクされている場合は失敗
-		free_resource(data);
+		SDL_RWclose(rw);
 		return NULL;
 	}
 
 	// データ取得
-	int start_sector = data[link_index * 2 + 0] | (data[link_index * 2 + 1] << 8);
-	int end_sector = data[link_index * 2 + 2] | (data[link_index * 2 + 3] << 8);
+	SDL_RWseek(rw, link_index * 2, RW_SEEK_SET);
+	SDL_RWread(rw, buf, 4, 1);
+	int start_sector = buf[0] | (buf[1] << 8);
+	int end_sector = buf[2] | (buf[3] << 8);
 
 	if((*size = (end_sector - start_sector) * 256) == 0) {
 		// サイズ不正
-		free_resource(data);
+		SDL_RWclose(rw);
 		return NULL;
 	}
 	uint8* buffer = (uint8*)malloc(*size);
-	memcpy(buffer, &data[(start_sector - 1) * 256], *size);
+	SDL_RWseek(rw, (start_sector - 1) * 256, RW_SEEK_SET);
+	SDL_RWread(rw, buffer, *size, 1);
 
-	free_resource(data);
+	SDL_RWclose(rw);
 
 	return buffer;
 }
