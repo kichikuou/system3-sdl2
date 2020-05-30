@@ -13,18 +13,18 @@ if (ANDROID)
   add_library(system3 SHARED)
 
   target_sources(system3 PRIVATE
-	linux/nact_linux.cpp
-	android/mako.cpp
-	)
+    linux/nact_linux.cpp
+    android/mako.cpp
+    )
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf)
 
 elseif (EMSCRIPTEN)
   add_executable(system3)
 
   target_sources(system3 PRIVATE
-	linux/nact_linux.cpp
-	emscripten/mako.cpp
-	)
+    linux/nact_linux.cpp
+    emscripten/mako.cpp
+    )
   set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
   target_compile_options(system3 PRIVATE ${LIBS})
   target_link_options(system3 PRIVATE ${LIBS})
@@ -34,12 +34,12 @@ elseif (EMSCRIPTEN)
   list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG "-O1")
 
   target_link_options(system3 PRIVATE
-	"SHELL:-s ENVIRONMENT=web"
-	"SHELL:-s ASYNCIFY=1 -s ASYNCIFY_IGNORE_INDIRECT=1"
-	"SHELL:-s ALLOW_MEMORY_GROWTH=1"
-	"SHELL:-s NO_EXIT_RUNTIME=1"
-	"SHELL:-s EXPORTED_FUNCTIONS=\"['_main','_ags_setAntialiasedStringMode']\""
-	"SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['getValue','getMemory','addRunDependency','removeRunDependency']\"")
+    "SHELL:-s ENVIRONMENT=web"
+    "SHELL:-s ASYNCIFY=1 -s ASYNCIFY_IGNORE_INDIRECT=1"
+    "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+    "SHELL:-s NO_EXIT_RUNTIME=1"
+    "SHELL:-s EXPORTED_FUNCTIONS=\"['_main','_ags_setAntialiasedStringMode']\""
+    "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['getValue','getMemory','addRunDependency','removeRunDependency']\"")
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
   add_executable(system3)
@@ -50,18 +50,18 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	target_sources(system3 PRIVATE win/nact_win.cpp win/mako.cpp res3/Script1.rc)
-	target_link_libraries(system3 PRIVATE winmm)
-	set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+    target_sources(system3 PRIVATE win/nact_win.cpp win/mako.cpp res3/Script1.rc)
+    target_link_libraries(system3 PRIVATE winmm)
+    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
   else()
-	pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
-	target_sources(system3 PRIVATE linux/nact_linux.cpp linux/mako.cpp)
-	target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
-	set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
-	install(TARGETS system3 RUNTIME DESTINATION bin)
-	install(DIRECTORY ../resources/
-	  DESTINATION share/system3
-	  FILES_MATCHING PATTERN *.MDA)
+    pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
+    target_sources(system3 PRIVATE linux/nact_linux.cpp linux/mako.cpp)
+    target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
+    set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
+    install(TARGETS system3 RUNTIME DESTINATION bin)
+    install(DIRECTORY ../resources/
+      DESTINATION share/system3
+      FILES_MATCHING PATTERN *.MDA)
   endif()
 endif()
 
