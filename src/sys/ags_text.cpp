@@ -9,7 +9,7 @@
 #include "utfsjis.h"
 #include "texthook.h"
 
-static bool antialias = false;
+static bool antialias = true;
 
 void AGS::draw_text(const char* string)
 {

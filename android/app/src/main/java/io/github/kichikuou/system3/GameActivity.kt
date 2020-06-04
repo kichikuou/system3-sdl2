@@ -60,7 +60,7 @@ class GameActivity : SDLActivity() {
     }
 
     override fun getArguments(): Array<String> {
-        return arrayOf("-antialias",
+        return arrayOf(
                 "-gamedir", intent.getStringExtra(EXTRA_GAME_ROOT),
                 "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR) + "/@")
     }

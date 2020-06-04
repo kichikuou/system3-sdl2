@@ -24,7 +24,7 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### Windows (MSYS2 mingw64)
 
-    $ pacman -S cmake mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
+    $ pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
     $ mkdir -p out/debug
     $ cd out/debug
     $ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
@@ -51,8 +51,8 @@ system3 [options]
 
 ### Options
 
-#### `-antialias`
-Enables text anti-aliasing.
+#### `-noantialias`
+Disables text anti-aliasing.
 
 #### `-fontfile` _filename_
 Specifies a font file used to render text. `.ttf` and `.otf` files are supported.
