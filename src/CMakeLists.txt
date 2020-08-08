@@ -40,7 +40,7 @@ elseif (EMSCRIPTEN)
     "SHELL:-s NO_EXIT_RUNTIME=1"
     "SHELL:-s ASYNCIFY_ADD=\"['NACT::execute()']\""
     "SHELL:-s EXPORTED_FUNCTIONS=\"['_main','_ags_setAntialiasedStringMode']\""
-    "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['getValue','getMemory','addRunDependency','removeRunDependency']\"")
+    "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['getValue','addRunDependency','removeRunDependency']\"")
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
   add_executable(system3)
