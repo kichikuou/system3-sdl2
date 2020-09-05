@@ -13,7 +13,7 @@ if (ANDROID)
   add_library(system3 SHARED)
 
   target_sources(system3 PRIVATE
-    linux/nact_linux.cpp
+    android/nact_android.cpp
     android/mako.cpp
     )
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf)
