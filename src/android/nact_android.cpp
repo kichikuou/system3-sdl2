@@ -17,8 +17,8 @@ void NACT::text_dialog()
 		WARNING("Failed to allocate a string");
 		return;
 	}
-	jmethodID mid = jni.GetMethodID("inputString", "(" STRING ")" STRING);
-	jstring jnewstr = (jstring)jni.env()->CallObjectMethod(jni.context(), mid, joldstr);
+	jmethodID mid = jni.GetMethodID("inputString", "(" STRING "I)" STRING);
+	jstring jnewstr = (jstring)jni.env()->CallObjectMethod(jni.context(), mid, joldstr, tvar_maxlen);
 	if (!jnewstr)
 		return;
 	const char* newstr_utf8 = jni.env()->GetStringUTFChars(jnewstr, NULL);

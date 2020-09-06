@@ -6,6 +6,7 @@
     <string name="cannot_find_adisk">Cannot find System3 game files (*.dat).</string>
     <string name="choose_a_file">Choose a file</string>
     <string name="error_dialog_title">Error</string>
+    <string name="input_dialog_message">Enter a string (up to %d characters)</string>
     <string name="install_dialog_title">Installing…</string>
     <string name="install_from_zip">Install from ZIP</string>
     <string name="install_progress">Extracting %s</string>

@@ -7,6 +7,7 @@
     <string name="cannot_find_adisk">System3 のファイル (*.dat) が見つかりません。</string>
     <string name="choose_a_file">ファイルを選択</string>
     <string name="error_dialog_title">エラー</string>
+    <string name="input_dialog_message">文字列を入力してください（最大%d文字）</string>
     <string name="install_dialog_title">インストール中…</string>
     <string name="install_from_zip">ZIP からインストール</string>
     <string name="install_progress">%s を展開中</string>
