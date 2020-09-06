@@ -22,7 +22,7 @@ elseif (EMSCRIPTEN)
   add_executable(system3)
 
   target_sources(system3 PRIVATE
-    linux/nact_linux.cpp
+    emscripten/nact_emscripten.cpp
     emscripten/mako.cpp
     )
   set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
