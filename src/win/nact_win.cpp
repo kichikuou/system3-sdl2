@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include "SDL_syswm.h"
+#include "mako.h"
 #include "../res3/resource.h"
 
 extern SDL_Window* g_window;
@@ -83,6 +84,8 @@ void NACT::platform_initialize()
 	title[6] = '0' + sys_ver;
 	SetConsoleTitle(title);
 #endif
+
+	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 }
 
 void NACT::platform_finalize()
@@ -101,4 +104,13 @@ void NACT::output_console(const char *format, ...)
 	vfprintf(stdout, format, ap);
 	va_end(ap);
 #endif
+}
+
+void NACT::on_syswmevent(SDL_SysWMmsg* msg)
+{
+	switch (msg->msg.win.msg) {
+	case MM_MCINOTIFY:
+		mako->on_mci_notify(msg);
+		break;
+	}
 }

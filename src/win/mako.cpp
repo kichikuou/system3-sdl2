@@ -170,7 +170,6 @@ MAKO::MAKO(NACT* parent, const char* playlist) :
 		WARNING("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
 	} else {
 		Music::hwnd_notify = info.info.win.window;
-		SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 	}
 }
 
