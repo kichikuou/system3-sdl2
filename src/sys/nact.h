@@ -262,6 +262,10 @@ public:
 	int get_scenario_page() const { return scenario_page; }
 
 	void fatal(const char* msg, ...);
+
+private:
+	bool pump_events();
+	void on_syswmevent(SDL_SysWMmsg* msg);
 };
 
 class NACT_Sys1 final : public NACT {

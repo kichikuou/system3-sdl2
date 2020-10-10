@@ -41,3 +41,7 @@ void NACT::output_console(const char *format, ...)
 	va_end(ap);
 #endif
 }
+
+void NACT::on_syswmevent(SDL_SysWMmsg* msg)
+{
+}
