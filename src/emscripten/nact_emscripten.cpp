@@ -23,11 +23,11 @@ void NACT::text_dialog()
 	}
 }
 
-void NACT::initialize_console()
+void NACT::platform_initialize()
 {
 }
 
-void NACT::release_console()
+void NACT::platform_finalize()
 {
 }
 

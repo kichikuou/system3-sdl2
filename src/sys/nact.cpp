@@ -19,8 +19,7 @@ extern SDL_Window* g_window;
 NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist)
 	: sys_ver(sys_ver), crc32_a(crc32_a), crc32_b(crc32_b)
 {
-	// デバッグコンソール起動
-	initialize_console();
+	platform_initialize();
 
 	// AG00.DAT読み込み
 	FILEIO* fio = new FILEIO();
@@ -114,8 +113,7 @@ NACT::~NACT()
 		free(scenario_data);
 	}
 
-	// デバッグコンソール開放
-	release_console();
+	platform_finalize();
 }
 
 void NACT::mainloop()
