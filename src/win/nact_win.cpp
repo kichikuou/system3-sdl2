@@ -2,12 +2,40 @@
 #include <windows.h>
 #include <windowsx.h>
 #include "SDL_syswm.h"
+#include "ags.h"
 #include "mako.h"
 #include "../res3/resource.h"
 
 extern SDL_Window* g_window;
 
-static INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+namespace {
+
+HWND get_hwnd(SDL_Window* window) {
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version);
+	SDL_GetWindowWMInfo(window, &info);
+	return info.info.win.window;
+}
+
+void init_menu()
+{
+	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
+	HMENU hmenu = LoadMenu(hinst, MAKEINTRESOURCE(IDR_MENU1));
+	SetMenu(get_hwnd(g_window), hmenu);
+}
+
+void init_console(int sys_ver)
+{
+#if defined(_DEBUG_CONSOLE)
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
+	char title[] = "SYSTEM1 NACT Tracer";
+	title[6] = '0' + sys_ver;
+	SetConsoleTitle(title);
+#endif
+}
+
+INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	static NACT* nact;
 	char string[64];
@@ -67,24 +95,18 @@ static INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARA
 	return TRUE;
 }
 
+} // namespace
+
 void NACT::text_dialog()
 {
 	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
-	SDL_SysWMinfo info;
-	SDL_GetWindowWMInfo(g_window, &info);
-	int r = DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), info.info.win.window, TextDialogProc, (LPARAM)this);
+	int r = DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), get_hwnd(g_window), TextDialogProc, (LPARAM)this);
 }
 
 void NACT::platform_initialize()
 {
-#if defined(_DEBUG_CONSOLE)
-	AllocConsole();
-	freopen("CONOUT$", "w", stdout);
-	char title[] = "SYSTEM1 NACT Tracer";
-	title[6] = '0' + sys_ver;
-	SetConsoleTitle(title);
-#endif
-
+	init_menu();
+	init_console(sys_ver);
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 }
 
@@ -109,6 +131,40 @@ void NACT::output_console(const char *format, ...)
 void NACT::on_syswmevent(SDL_SysWMmsg* msg)
 {
 	switch (msg->msg.win.msg) {
+	case WM_COMMAND:
+		switch (msg->msg.win.wParam) {
+		case ID_RESTART:
+			// TODO: Implement
+			break;
+		case ID_EXIT:
+			terminate = true;
+			break;
+		case ID_SCREEN_WINDOW:
+			SDL_SetWindowFullscreen(g_window, 0);
+			ags->flush_screen(true);
+			break;
+		case ID_SCREEN_FULL:
+			SDL_SetWindowFullscreen(g_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			ags->flush_screen(true);
+			break;
+		case ID_SOUND_FM:
+			select_sound(0);
+			break;
+		case ID_SOUND_CD:
+			select_sound(1);
+			break;
+		case ID_TEXT_SKIP:
+			text_skip_enb = !text_skip_enb;
+			CheckMenuItem(GetMenu(get_hwnd(g_window)), ID_TEXT_SKIP, MF_BYCOMMAND |
+						  text_skip_enb ? MFS_CHECKED : MFS_UNCHECKED);
+			break;
+		case ID_TEXT_WAIT:
+			text_wait_enb = !text_wait_enb;
+			CheckMenuItem(GetMenu(get_hwnd(g_window)), ID_TEXT_WAIT, MF_BYCOMMAND |
+						  text_wait_enb ? MFS_CHECKED : MFS_UNCHECKED);
+			break;
+		}
+		break;
 	case MM_MCINOTIFY:
 		mako->on_mci_notify(msg);
 		break;
