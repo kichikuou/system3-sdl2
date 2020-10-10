@@ -93,16 +93,16 @@ int main(int argc, char *argv[])
 	EM_ASM( xsystem35.shell.windowSizeChanged(); );
 #endif
 
-	nact->mainloop();
+	bool restart = true;
+	while (restart) {
+		restart = nact->mainloop();
+		delete nact;
+		if (restart)
+			nact = NACT::create(game_id, font_file, playlist);
+	}
 
 	SDL_DestroyWindow(g_window);
 	SDL_Quit();
-
-	// system3 開放
-	delete nact;
-
-	// MCI 開放
-	//release_mci();
 
     return 0;
 }

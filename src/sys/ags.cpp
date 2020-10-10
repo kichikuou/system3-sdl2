@@ -372,6 +372,9 @@ AGS::~AGS()
 	}
 
 	SDL_FreeSurface(hBmpDest);
+
+	SDL_DestroyTexture(sdlTexture);
+	SDL_DestroyRenderer(sdlRenderer);
 }
 
 void AGS::set_palette(int index, int r, int g, int b)
