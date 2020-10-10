@@ -96,6 +96,7 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, c
 #endif
 
 	terminate = false;
+	restart_after_terminate = false;
 }
 
 NACT::~NACT()
@@ -116,7 +117,7 @@ NACT::~NACT()
 	platform_finalize();
 }
 
-void NACT::mainloop()
+bool NACT::mainloop()
 {
 	int sleep_cnt = 0;
 
@@ -127,6 +128,7 @@ void NACT::mainloop()
 			SDL_Delay(10);
 		}
 	}
+	return restart_after_terminate;
 }
 
 // コマンドパーサ

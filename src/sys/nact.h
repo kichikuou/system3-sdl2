@@ -229,13 +229,14 @@ protected:
 
 	// 終了フラグ
 	bool terminate;
+	bool restart_after_terminate;
 
 	// Platform-specific setup / cleanup code
 	void platform_initialize();
 	void platform_finalize();
 
 public:
-	void mainloop();
+	bool mainloop();
 
 	int get_screen_height();
 

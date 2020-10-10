@@ -134,7 +134,7 @@ void NACT::on_syswmevent(SDL_SysWMmsg* msg)
 	case WM_COMMAND:
 		switch (msg->msg.win.wParam) {
 		case ID_RESTART:
-			// TODO: Implement
+			terminate = restart_after_terminate = true;
 			break;
 		case ID_EXIT:
 			terminate = true;
