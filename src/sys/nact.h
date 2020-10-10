@@ -230,9 +230,9 @@ protected:
 	// 終了フラグ
 	bool terminate;
 
-	// デバッグログ
-	void initialize_console();
-	void release_console();
+	// Platform-specific setup / cleanup code
+	void platform_initialize();
+	void platform_finalize();
 
 public:
 	void mainloop();

@@ -74,7 +74,7 @@ void NACT::text_dialog()
 	int r = DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), info.info.win.window, TextDialogProc, (LPARAM)this);
 }
 
-void NACT::initialize_console()
+void NACT::platform_initialize()
 {
 #if defined(_DEBUG_CONSOLE)
 	AllocConsole();
@@ -85,7 +85,7 @@ void NACT::initialize_console()
 #endif
 }
 
-void NACT::release_console()
+void NACT::platform_finalize()
 {
 #if defined(_DEBUG_CONSOLE)
 	FreeConsole();

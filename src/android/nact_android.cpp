@@ -28,11 +28,11 @@ void NACT::text_dialog()
 	jni.env()->ReleaseStringUTFChars(jnewstr, newstr_utf8);
 }
 
-void NACT::initialize_console()
+void NACT::platform_initialize()
 {
 }
 
-void NACT::release_console()
+void NACT::platform_finalize()
 {
 }
 
