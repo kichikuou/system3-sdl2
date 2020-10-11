@@ -22,6 +22,8 @@ void init_menu()
 	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
 	HMENU hmenu = LoadMenu(hinst, MAKEINTRESOURCE(IDR_MENU1));
 	SetMenu(get_hwnd(g_window), hmenu);
+	// Let SDL recalc the window size, taking menu height into account.
+	SDL_SetWindowSize(g_window, 640, 400);
 }
 
 void init_console(int sys_ver)
