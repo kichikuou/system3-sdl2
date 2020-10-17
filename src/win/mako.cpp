@@ -16,6 +16,18 @@ extern SDL_Window* g_window;
 
 namespace {
 
+enum MakoThreadMessage {
+	MAKO_OPEN = WM_APP,
+	MAKO_PLAY,
+	MAKO_STOP,
+	MAKO_EXIT
+};
+
+enum MakoOpenFlags {
+	OPEN_CD = 0,
+	OPEN_MIDI = 1,
+};
+
 const char* mci_geterror(DWORD err)
 {
 	static char buf[128];
@@ -23,24 +35,121 @@ const char* mci_geterror(DWORD err)
 	return buf;
 }
 
-class Music {
+class MCIThread {
 public:
-	static HWND hwnd_notify;
+	MCIThread(NACT* nact, HWND hwnd_notify) : hwnd_notify(hwnd_notify) {
+		if (!_beginthreadex(NULL, 0, &MCIThread::run, this, 0, &thread_id))
+			nact->fatal("Cannot create thread: %s", strerror(errno));
+	}
 
-	Music(const char* fname, int loop) : devid(0) {
+	~MCIThread() {
+		post_message(MAKO_EXIT, 0, 0);
+	}
+
+	bool post_message(UINT msg, WPARAM wparam, LPARAM lparam) {
+		return PostThreadMessage(thread_id, msg, wparam, lparam);
+	}
+
+	MCIDEVICEID device_id() { return devid; }
+
+private:
+	static unsigned __stdcall run(void* param)
+	{
+		MCIThread* t = reinterpret_cast<MCIThread*>(param);
+		t->message_loop();
+		return 0;
+	}
+
+	void message_loop()
+	{
+		MSG msg;
+		while (GetMessage(&msg, NULL, 0, 0)) {
+			switch (msg.message) {
+			case MAKO_OPEN:
+				close();
+				open(reinterpret_cast<std::string*>(msg.wParam),
+					 static_cast<MakoOpenFlags>(msg.lParam));
+				break;
+
+			case MAKO_PLAY:
+				play();
+				break;
+
+			case MAKO_STOP:
+				close();
+				break;
+
+			case MAKO_EXIT:
+				close();
+				return;
+			}
+		}
+	}
+
+	void open(std::string* file, MakoOpenFlags open_flags)
+	{
+		file_playing = file;
+		is_midi = open_flags & OPEN_MIDI;
+
 		MCI_OPEN_PARMS open;
+		open.lpstrElementName = file_playing->c_str();
 		DWORD flags = MCI_OPEN_ELEMENT | MCI_WAIT;
-		open.lpstrElementName = fname;
+		if (is_midi) {
+			flags |= MCI_OPEN_TYPE | MCI_OPEN_TYPE_ID;
+			open.lpstrDeviceType = (LPCSTR)MCI_DEVTYPE_SEQUENCER;
+		}
 		MCIERROR err = mciSendCommand(0, MCI_OPEN, flags, (DWORD_PTR)&open);
 		if (err) {
-			WARNING("MCI_OPEN failed: %s: %s", fname, mci_geterror(err));
+			WARNING("MCI_OPEN failed: %s: %s",
+					file_playing->c_str(), mci_geterror(err));
 			return;
 		}
 		devid = open.wDeviceID;
-		loops = loop;
 	}
 
-	Music(MAKOMidi& midi, int loop) : devid(0) {
+	void play()
+	{
+		MCI_PLAY_PARMS play;
+		play.dwCallback = (DWORD_PTR)hwnd_notify;
+		play.dwFrom = 0;
+		DWORD flags = MCI_FROM | MCI_NOTIFY;
+		MCIERROR err = mciSendCommand(devid, MCI_PLAY, flags, (DWORD_PTR)&play);
+		if (err)
+			WARNING("MCI_PLAY failed: %s", mci_geterror(err));
+	}
+
+	void close() {
+		if (devid) {
+			mciSendCommand(devid, MCI_CLOSE, 0, 0);
+			devid = 0;
+		}
+		if (file_playing) {
+			if (is_midi)
+				DeleteFile(file_playing->c_str());  // remove temporary file
+			delete file_playing;
+			file_playing = nullptr;
+		}
+	}
+
+	HWND hwnd_notify;
+	unsigned thread_id;
+	std::string* file_playing = nullptr;
+	bool is_midi;
+	MCIDEVICEID devid = 0;
+};
+
+MCIThread* mci_thread;
+
+class Music {
+public:
+	Music(const char* fname, int loop) : loops(loop) {
+		std::string* fname_str = new std::string(fname);
+		mci_thread->post_message(MAKO_OPEN, (WPARAM)fname_str, OPEN_CD);
+		mci_thread->post_message(MAKO_PLAY, 0, 0);
+		playing = true;
+	}
+
+	Music(MAKOMidi& midi, int loop) : loops(loop ? 1 : 0) {
 		std::vector<uint8> smf = midi.generate_smf(loop);
 		char path[MAX_PATH + 1];
 		if (!GetTempPath(sizeof(path), path)) {
@@ -57,71 +166,35 @@ public:
 			WARNING("Cannot open %s: %s", fname, strerror(errno));
 			return;
 		}
-		tmpfile = fname;  // Delete this file in destructor
 		if (fwrite(smf.data(), smf.size(), 1, fp) != 1) {
 			WARNING("Cannot write to %s: %s", fname, strerror(errno));
 			fclose(fp);
+			DeleteFile(fname);
 			return;
 		}
 		fclose(fp);
 
-		DWORD flags = MCI_OPEN_ELEMENT | MCI_OPEN_TYPE | MCI_OPEN_TYPE_ID | MCI_WAIT;
-		MCI_OPEN_PARMS open;
-		open.lpstrElementName = fname;
-		open.lpstrDeviceType = (LPCSTR)MCI_DEVTYPE_SEQUENCER;
-		MCIERROR err = mciSendCommand(0, MCI_OPEN, flags, (DWORD_PTR)&open);
-		if (err) {
-			WARNING("MCI_OPEN failed: %s: %s", fname, mci_geterror(err));
-			return;
-		}
-		devid = open.wDeviceID;
-		loops = loop ? 1 : 0;
+		std::string* fname_str = new std::string(fname);
+		mci_thread->post_message(MAKO_OPEN, (WPARAM)fname_str, OPEN_MIDI);
+		mci_thread->post_message(MAKO_PLAY, 0, 0);
+		playing = true;
 	}
 
 	~Music() {
 		close();
-		if (!tmpfile.empty())
-			DeleteFile(tmpfile.c_str());
 	}
 
 	void close() {
-		if (devid) {
-			mciSendCommand(devid, MCI_CLOSE, 0, 0);
-			devid = 0;
-		}
-	}
-
-	bool play() {
-		if (!devid)
-			return false;
-		MCI_PLAY_PARMS play;
-		play.dwCallback = (DWORD_PTR)hwnd_notify;
-		play.dwFrom = 0;
-		DWORD flags = MCI_FROM | (hwnd_notify ? MCI_NOTIFY : 0);
-		MCIERROR err = mciSendCommand(devid, MCI_PLAY, flags, (DWORD_PTR)&play);
-		if (err) {
-			WARNING("MCI_PLAY failed: %s", mci_geterror(err));
-			close();
-			return false;
-		}
-		return true;
+		mci_thread->post_message(MAKO_STOP, 0, 0);
+		playing = false;
 	}
 
 	bool is_playing() {
-		if (!devid)
-			return false;
-		MCI_STATUS_PARMS stat;
-		stat.dwItem = MCI_STATUS_MODE;
-		MCIERROR err = mciSendCommand(devid, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)&stat);
-		if (err) {
-			NOTICE("MCI_STATUS failed: %s", mci_geterror(err));
-			return false;
-		}
-		return stat.dwReturn == MCI_MODE_PLAY;
+		return playing;
 	}
 
 	bool on_mci_notify(SDL_SysWMmsg* msg) {
-		if (msg->msg.win.lParam != devid)
+		if (msg->msg.win.lParam != mci_thread->device_id())
 			return true;
 		switch (msg->msg.win.wParam) {
 		case MCI_NOTIFY_FAILURE:
@@ -132,19 +205,18 @@ public:
 				close();
 				return false;
 			}
-			return play();
+			mci_thread->post_message(MAKO_PLAY, 0, 0);
+			return true;
 		}
 		return true;
 	}
 
 private:
-	MCIDEVICEID devid;
 	int loops;  // number of times to play, 0 for infinite loop
-	std::string tmpfile;
+	bool playing;
 };
 
-Music *music;
-HWND Music::hwnd_notify;
+Music* music;
 uint8* wav_buffer;
 
 } // namespace
@@ -166,17 +238,16 @@ MAKO::MAKO(NACT* parent, const char* playlist) :
 
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
-	if (!SDL_GetWindowWMInfo(g_window, &info)) {
-		WARNING("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
-	} else {
-		Music::hwnd_notify = info.info.win.window;
-	}
+	if (!SDL_GetWindowWMInfo(g_window, &info))
+		parent->fatal("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
+	mci_thread = new MCIThread(parent, info.info.win.window);
 }
 
 MAKO::~MAKO()
 {
 	stop_music();
 	stop_pcm();
+	delete mci_thread;
 }
 
 bool MAKO::load_playlist(const char* path)
@@ -216,8 +287,7 @@ void MAKO::play_music(int page)
 		midi.load_mda(page);
 		music = new Music(midi, next_loop);
 	}
-	if (music->play())
-		current_music = page;
+	current_music = page;
 }
 
 void MAKO::stop_music()
