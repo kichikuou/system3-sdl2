@@ -44,7 +44,6 @@ const uint8 smf_header[] = {
 };
 const size_t TRACK_LENGTH_OFFSET = 18;
 
-const size_t MIDI_SIZE_SOFT_LIMIT = 50000;
 const size_t FADEOUT_DURATION = 100;  // 1 second
 
 class SmfWriter {
@@ -77,12 +76,12 @@ public:
 	bool tick() {
 		dt++;
 		total_ticks++;
-		if (fadeout_start < 0) {
-			if (buf.size() >= MIDI_SIZE_SOFT_LIMIT)
-				fadeout_start = total_ticks;
-			return true;
-		}
-		return total_ticks < fadeout_start + FADEOUT_DURATION;
+		return fadeout_start < 0 || total_ticks < fadeout_start + FADEOUT_DURATION;
+	}
+
+	void start_fadeout() {
+		if (fadeout_start < 0)
+			fadeout_start = total_ticks;
 	}
 
 	void send_2bytes(uint8 d1, uint8 d2) {
@@ -148,7 +147,7 @@ private:
 
 } // namespace
 
-std::vector<uint8> MAKOMidi::generate_smf(int current_max)
+std::vector<uint8> MAKOMidi::generate_smf(int num_loops)
 {
 	SmfWriter w;
 	Play play[9];
@@ -268,9 +267,13 @@ std::vector<uint8> MAKOMidi::generate_smf(int current_max)
 								}
 							}
 							current_loop = loop;
-							if(current_loop >= current_max && current_max) {
-								// 指定回数だけ再生完了
-								goto finish;
+							if (num_loops) {
+								if (current_loop >= num_loops)
+									goto finish;
+							} else {
+								// Infinite loop mode: fade out after one playback.
+								if (current_loop > 0)
+									w.start_fadeout();
 							}
 						}
 					} else if(d0 < 0x80) {
