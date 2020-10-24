@@ -241,7 +241,6 @@ public:
 	int get_screen_height();
 
 	void select_cursor();
-	void select_sound(int dev);
 
 	const char* get_game_id();
 	static const int get_sys_ver(uint32 crc32_a, uint32 crc32_b);

@@ -304,6 +304,23 @@ bool MAKO::check_music()
 	return music && music->is_playing();
 }
 
+void MAKO::select_sound(BGMDevice dev)
+{
+	// 強制的に音源を変更する
+	int page = current_music;
+	int old_dev = (1 <= page && page <= 99 && cd_track[page]) ? BGM_CD : BGM_FM;
+
+	for (int i = 1; i <= 99; i++) {
+		cd_track[i] = (dev == BGM_CD) ? i : 0;
+	}
+
+	// デバイスが変更された場合は再演奏する
+	if (dev != old_dev && page) {
+		stop_music();
+		play_music(page);
+	}
+}
+
 void MAKO::get_mark(int* mark, int* loop)
 {
 	// TODO: fix

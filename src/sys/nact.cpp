@@ -420,23 +420,6 @@ void NACT::select_cursor()
 	ags->select_cursor();
 }
 
-void NACT::select_sound(int dev)
-{
-	// 強制的に音源を変更する
-	int page = mako->current_music;
-	int old_dev = (1 <= page && page <= 99 && mako->cd_track[page]) ? 1 : 0;
-
-	for(int i = 1; i <= 99; i++) {
-		mako->cd_track[i] = dev ? i : 0;
-	}
-
-	// デバイスが変更された場合は再演奏する
-	if(dev != old_dev && page) {
-		mako->stop_music();
-		mako->play_music(page);
-	}
-}
-
 void NACT::fatal(const char* format, ...) {
 	char buf[512];
 	va_list args;

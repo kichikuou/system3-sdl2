@@ -14,6 +14,11 @@
 #include "../common.h"
 #include "nact.h"
 
+enum BGMDevice {
+	BGM_FM,
+	BGM_CD
+};
+
 class MAKO
 {
 public:
@@ -29,7 +34,11 @@ public:
 	void stop_pcm();
 	bool check_pcm();
 
+	void set_cd_track(int num, int track) { cd_track[num] = track; }
+
 #ifdef _WIN32
+	void select_sound(BGMDevice dev);
+
 	void on_mci_notify(SDL_SysWMmsg* msg);
 #endif
 
@@ -39,10 +48,10 @@ public:
 
 	int current_music;
 	int next_loop;		// Y19
-	int cd_track[100];	// Z
 
 private:
 	NACT* nact;
+	int cd_track[100];	// Z
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 	bool load_playlist(const char* path);

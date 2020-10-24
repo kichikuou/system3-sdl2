@@ -150,10 +150,10 @@ void NACT::on_syswmevent(SDL_SysWMmsg* msg)
 			ags->flush_screen(true);
 			break;
 		case ID_SOUND_FM:
-			select_sound(0);
+			mako->select_sound(BGM_FM);
 			break;
 		case ID_SOUND_CD:
-			select_sound(1);
+			mako->select_sound(BGM_CD);
 			break;
 		case ID_TEXT_SKIP:
 			text_skip_enb = !text_skip_enb;

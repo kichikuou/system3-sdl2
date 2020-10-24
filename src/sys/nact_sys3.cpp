@@ -1526,7 +1526,7 @@ void NACT_Sys3::cmd_z()
 	} else if(cmd == 7) {
 		ags->cursor_color = (uint8)(param & 0xff);
 	} else if(101 <= cmd && cmd <= 199) {
-		mako->cd_track[cmd - 100] = param;
+		mako->set_cd_track(cmd - 100, param);
 	}
 }
 
