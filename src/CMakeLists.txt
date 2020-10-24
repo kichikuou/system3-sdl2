@@ -36,6 +36,7 @@ elseif (EMSCRIPTEN)
   target_link_options(system3 PRIVATE
     "SHELL:-s ENVIRONMENT=web"
     "SHELL:-s ASYNCIFY=1 -s ASYNCIFY_IGNORE_INDIRECT=1"
+    "SHELL:-s ASYNCIFY_REMOVE=\"['SDL_Delay']\""
     "SHELL:-s ALLOW_MEMORY_GROWTH=1"
     "SHELL:-s NO_EXIT_RUNTIME=1"
     "SHELL:-s ASYNCIFY_ADD=\"['NACT::execute()']\""
