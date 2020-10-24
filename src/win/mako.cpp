@@ -11,10 +11,20 @@
 #include "mako.h"
 #include "mako_midi.h"
 #include "dri.h"
+#include "crc32.h"
 
 extern SDL_Window* g_window;
 
 namespace {
+
+// Per-game mapping from music numbers to CD tracks.  This is necessary to
+// forcibly change the sound device with a menu command.
+//
+// When the game uses "Z 100+x,y" command, the xth element of the array should
+// be y.  The array must be terminated with -1.
+const int8 RANCE41_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,1,-1};
+const int8 RANCE42_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,1,-1};
+const int8 DPSALL_tracks[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,5,1,2,3,-1};
 
 enum MakoThreadMessage {
 	MAKO_OPEN = WM_APP,
@@ -310,8 +320,32 @@ void MAKO::select_sound(BGMDevice dev)
 	int page = current_music;
 	int old_dev = (1 <= page && page <= 99 && cd_track[page]) ? BGM_CD : BGM_FM;
 
-	for (int i = 1; i <= 99; i++) {
-		cd_track[i] = (dev == BGM_CD) ? i : 0;
+	if (dev == BGM_FM) {
+		for (int i = 1; i <= 99; i++)
+			cd_track[i] = 0;
+	} else {
+		const int8* tracks;
+
+		switch (nact->crc32_a) {
+		case CRC32_RANCE41: tracks = RANCE41_tracks; break;
+		case CRC32_RANCE42: tracks = RANCE42_tracks; break;
+		case CRC32_DPSALL:  tracks = DPSALL_tracks;  break;
+
+		// For the following games, the default mapping (cd_track[i] = i) works.
+		case CRC32_AYUMI_CD:
+		case CRC32_FUNNYBEE_CD:
+		case CRC32_ONLYYOU:
+		default:
+			tracks = nullptr;
+		}
+
+		if (tracks) {
+			for (int i = 0; tracks[i] >= 0; i++)
+				cd_track[i + 1] = tracks[i];
+		} else {
+			for (int i = 1; i <= 99; i++)
+				cd_track[i] = i;
+		}
 	}
 
 	// デバイスが変更された場合は再演奏する
