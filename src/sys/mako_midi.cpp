@@ -45,6 +45,7 @@ const uint8 smf_header[] = {
 const size_t TRACK_LENGTH_OFFSET = 18;
 
 const size_t FADEOUT_DURATION = 100;  // 1 second
+const size_t MINIMUM_MUSIC_DURATION = 6000;  // 60 seconds
 
 class SmfWriter {
 public:
@@ -80,7 +81,7 @@ public:
 	}
 
 	void start_fadeout() {
-		if (fadeout_start < 0)
+		if (fadeout_start < 0 && total_ticks >= MINIMUM_MUSIC_DURATION)
 			fadeout_start = total_ticks;
 	}
 
