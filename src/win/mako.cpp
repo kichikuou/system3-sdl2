@@ -52,10 +52,6 @@ public:
 			nact->fatal("Cannot create thread: %s", strerror(errno));
 	}
 
-	~MCIThread() {
-		post_message(MAKO_EXIT, 0, 0);
-	}
-
 	bool post_message(UINT msg, WPARAM wparam, LPARAM lparam) {
 		return PostThreadMessage(thread_id, msg, wparam, lparam);
 	}
@@ -67,6 +63,7 @@ private:
 	{
 		MCIThread* t = reinterpret_cast<MCIThread*>(param);
 		t->message_loop();
+		delete t;
 		return 0;
 	}
 
@@ -257,7 +254,8 @@ MAKO::~MAKO()
 {
 	stop_music();
 	stop_pcm();
-	delete mci_thread;
+	mci_thread->post_message(MAKO_EXIT, 0, 0);
+	mci_thread = nullptr;  // MCIThread self-destructs on the worker thread.
 }
 
 bool MAKO::load_playlist(const char* path)
