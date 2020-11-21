@@ -5,7 +5,7 @@
 #include "mako.h"
 #include "mako_midi.h"
 
-MAKO::MAKO(NACT* parent, const char* playlist) :
+MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
 	current_music(0),
 	next_loop(0),
 	nact(parent)

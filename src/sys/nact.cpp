@@ -16,7 +16,7 @@ extern SDL_Window* g_window;
 
 // 初期化
 
-NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist)
+NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config)
 	: sys_ver(sys_ver), crc32_a(crc32_a), crc32_b(crc32_b)
 {
 	platform_initialize();
@@ -85,7 +85,7 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, c
 
 	// 各種クラス生成
 	ags = new AGS(this, font_file);
-	mako = new MAKO(this, playlist);
+	mako = new MAKO(this, mako_config);
 
 #ifdef USE_JOY
 	// 入力初期化
@@ -429,16 +429,16 @@ void NACT::fatal(const char* format, ...) {
 	fatal_error = true;
 }
 
-NACT* NACT::create(const char* game_id, const char* font_file, const char* playlist) {
+NACT* NACT::create(const char* game_id, const char* font_file, const MAKOConfig& mako_config) {
 	uint32 crc32_a = NACT::calc_crc32("ADISK.DAT", game_id);
 	uint32 crc32_b = NACT::calc_crc32("BDISK.DAT", game_id);
 	int sys_ver = NACT::get_sys_ver(crc32_a, crc32_b);
 	switch (sys_ver) {
 	case 1:
-		return new NACT_Sys1(crc32_a, crc32_b, font_file, playlist);
+		return new NACT_Sys1(crc32_a, crc32_b, font_file, mako_config);
 	case 2:
-		return new NACT_Sys2(crc32_a, crc32_b, font_file, playlist);
+		return new NACT_Sys2(crc32_a, crc32_b, font_file, mako_config);
 	default:
-		return new NACT_Sys3(crc32_a, crc32_b, font_file, playlist);
+		return new NACT_Sys3(crc32_a, crc32_b, font_file, mako_config);
 	}
 }

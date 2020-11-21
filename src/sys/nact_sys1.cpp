@@ -63,8 +63,8 @@
 	} \
 }
 
-NACT_Sys1::NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist)
-	: NACT(1, crc32_a, crc32_b, font_file, playlist)
+NACT_Sys1::NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config)
+	: NACT(1, crc32_a, crc32_b, font_file, mako_config)
 {
 	switch (crc32_a) {
 	case CRC32_DPS:

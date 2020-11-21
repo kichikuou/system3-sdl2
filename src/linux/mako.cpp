@@ -35,15 +35,15 @@ void FMHook(void *udata, Uint8 *stream, int len) {
 
 } // namespace
 
-MAKO::MAKO(NACT* parent, const char* playlist) :
-	use_fm(true),
+MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
+	use_fm(config.use_fm),
 	current_music(0),
 	next_loop(0),
 	nact(parent)
 {
 	int mix_init_flags = MIX_INIT_MID;
 
-	if (playlist && load_playlist(playlist))
+	if (config.playlist && load_playlist(config.playlist))
 		mix_init_flags |= MIX_INIT_MP3 | MIX_INIT_OGG;
 
 	strcpy_s(amus, 16, "AMUS.DAT");

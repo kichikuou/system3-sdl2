@@ -72,6 +72,9 @@ BGM/track03.mp3
 ```
 The first line is not used, because track 1 of game CD is usually a data track.
 
+#### `-fm`
+Use FM tone generator emulation. If not specified, MIDI sound is used.
+
 #### `-game` _game_id_
 Since System1-3 behave slightly differently depending on the game, `system3` uses fingerprint of the scenario file (ADISK.DAT) to determine which game you are playing. This option allows you to override this. This is useful when running patched games.
 

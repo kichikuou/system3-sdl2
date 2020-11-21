@@ -228,13 +228,13 @@ uint8* wav_buffer;
 
 } // namespace
 
-MAKO::MAKO(NACT* parent, const char* playlist) :
+MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
 	current_music(0),
 	next_loop(0),
 	nact(parent)
 {
-	if (playlist)
-		load_playlist(playlist);
+	if (config.playlist)
+		load_playlist(config.playlist);
 
 	strcpy_s(amus, 16, "AMUS.DAT");
 	strcpy_s(amse, 16, "AMSE.DAT");	// 実際には使わない

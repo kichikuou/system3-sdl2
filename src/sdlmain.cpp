@@ -3,6 +3,7 @@
 #include "common.h"
 #include "fileio.h"
 #include "sys/nact.h"
+#include "sys/mako.h"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
 	g_window = SDL_CreateWindow("Scenario Decoder SYSTEM3", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 
 	const char* font_file = NULL;
-	const char* playlist = NULL;
+	MAKOConfig mako_config;
 	const char* game_id = NULL;
 	const char* save_dir = NULL;
 
@@ -47,13 +48,15 @@ int main(int argc, char *argv[])
 		else if (strcmp(argv[i], "-fontfile") == 0)
 			font_file = argv[++i];
 		else if (strcmp(argv[i], "-playlist") == 0)
-			playlist = argv[++i];
+			mako_config.playlist = argv[++i];
+		else if (strcmp(argv[i], "-fm") == 0)
+			mako_config.use_fm = true;
 		else if (strcmp(argv[i], "-game") == 0)
 			game_id = argv[++i];
 	}
 
 	// system3 初期化
-	NACT* nact = NACT::create(game_id, font_file, playlist);
+	NACT* nact = NACT::create(game_id, font_file, mako_config);
 
 	if (save_dir && save_dir[0]) {
 		std::string path(save_dir);
@@ -98,7 +101,7 @@ int main(int argc, char *argv[])
 		restart = nact->mainloop();
 		delete nact;
 		if (restart)
-			nact = NACT::create(game_id, font_file, playlist);
+			nact = NACT::create(game_id, font_file, mako_config);
 	}
 
 	SDL_DestroyWindow(g_window);

@@ -82,12 +82,13 @@ constexpr char SJIS_NEXT_PAGE [] = "\x8E\x9F\x82\xCC\x83\x79\x81\x5B\x83\x57"; /
 
 class AGS;
 class MAKO;
+class MAKOConfig;
 
 class NACT
 {
 public:
-	static NACT* create(const char* game_id, const char* font_file, const char* playlist);
-	NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist);
+	static NACT* create(const char* game_id, const char* font_file, const MAKOConfig& mako_config);
+	NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config);
 	virtual ~NACT();
 
 protected:
@@ -270,7 +271,7 @@ private:
 
 class NACT_Sys1 final : public NACT {
 public:
-	NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist);
+	NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config);
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
@@ -321,7 +322,7 @@ private:
 
 class NACT_Sys2 final : public NACT {
 public:
-	NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist);
+	NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config);
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
@@ -366,7 +367,7 @@ protected:
 
 class NACT_Sys3 final : public NACT {
 public:
-	NACT_Sys3(uint32 crc32_a, uint32 crc32_b, const char* font_file, const char* playlist);
+	NACT_Sys3(uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config);
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
