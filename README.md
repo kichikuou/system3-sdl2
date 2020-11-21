@@ -6,6 +6,8 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### Linux (Debian, Ubuntu)
 
+    $ git submodule init
+    $ git submodule update
     $ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
     $ mkdir -p out/debug
     $ cd out/debug
@@ -15,6 +17,8 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### MacOS
 
+    $ git submodule init
+    $ git submodule update
     $ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer
     $ mkdir -p out/debug
     $ cd out/debug

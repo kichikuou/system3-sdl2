@@ -4,11 +4,13 @@
 	[ MAKO ]
 */
 
+#include <memory>
 #include <SDL.h>
 #include <SDL_mixer.h>
 
 #include "mako.h"
 #include "mako_midi.h"
+#include "fm/mako_fmgen.h"
 #include "dri.h"
 
 // MIX_INIT_FLUIDSYNTH was renamed to MIX_INIT_MID in SDL_mixer 2.0.2
@@ -21,10 +23,20 @@ namespace {
 std::vector<uint8> smf;
 Mix_Music *mix_music;
 Mix_Chunk *mix_chunk;
+SDL_mutex* fm_mutex;
+std::unique_ptr<MakoFMgen> fm;
+uint8* fmdata;
+
+void FMHook(void *udata, Uint8 *stream, int len) {
+	SDL_LockMutex(fm_mutex);
+	fm->Process(reinterpret_cast<int16*>(stream), len / 4);
+	SDL_UnlockMutex(fm_mutex);
+}
 
 } // namespace
 
 MAKO::MAKO(NACT* parent, const char* playlist) :
+	use_fm(true),
 	current_music(0),
 	next_loop(0),
 	nact(parent)
@@ -92,6 +104,21 @@ void MAKO::play_music(int page)
 				return;
 			}
 		}
+	} else if (use_fm) {
+		DRI dri;
+		int size;
+		uint8* data = dri.load(amus, page, &size);
+		if (!data)
+			return;
+		if (!fm_mutex)
+			fm_mutex = SDL_CreateMutex();
+
+		SDL_LockMutex(fm_mutex);
+		free(fmdata);
+		fmdata = data;
+		fm = std::make_unique<MakoFMgen>(fmdata);
+		Mix_HookMusic(&FMHook, this);
+		SDL_UnlockMutex(fm_mutex);
 	} else {
 		MAKOMidi midi(nact, amus);
 		if (midi.load_mml(page)) {
@@ -120,6 +147,7 @@ void MAKO::stop_music()
 		mix_music = NULL;
 		smf.clear();
 	}
+	Mix_HookMusic(NULL, NULL);
 	current_music = 0;
 }
 

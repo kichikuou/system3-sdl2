@@ -42,6 +42,8 @@ public:
 	void on_mci_notify(SDL_SysWMmsg* msg);
 #endif
 
+	bool use_fm;
+
 	// AMUS.DAT, AMSE.DAT
 	char amus[16];
 	char amse[16];

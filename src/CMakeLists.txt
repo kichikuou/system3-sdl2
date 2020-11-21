@@ -56,9 +56,14 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     target_link_libraries(system3 PRIVATE winmm)
     set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
   else()
+    add_subdirectory(../deps/fmgen fmgen)
     pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
-    target_sources(system3 PRIVATE linux/nact_linux.cpp linux/mako.cpp)
-    target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
+    target_sources(system3 PRIVATE
+      linux/nact_linux.cpp
+      linux/mako.cpp
+      fm/makofm.cpp
+      fm/mako_fmgen.cpp)
+    target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER fmgen)
     set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
     install(TARGETS system3 RUNTIME DESTINATION bin)
     install(DIRECTORY ../resources/
