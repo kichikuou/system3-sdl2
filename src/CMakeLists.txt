@@ -19,16 +19,19 @@ if (ANDROID)
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf)
 
 elseif (EMSCRIPTEN)
+  add_subdirectory(../deps/fmgen fmgen)
   add_executable(system3)
 
   target_sources(system3 PRIVATE
     emscripten/nact_emscripten.cpp
     emscripten/mako.cpp
+    fm/makofm.cpp
+    fm/mako_fmgen.cpp
     )
   set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
   target_compile_options(system3 PRIVATE ${LIBS})
   target_link_options(system3 PRIVATE ${LIBS})
-  target_link_libraries(system3 PRIVATE idbfs.js)
+  target_link_libraries(system3 PRIVATE idbfs.js fmgen)
 
   # Without optimizations, Asyncify generates very large code.
   list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG "-O1")

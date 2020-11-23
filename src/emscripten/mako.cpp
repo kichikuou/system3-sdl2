@@ -7,8 +7,18 @@
 #include <emscripten.h>
 #include "mako.h"
 #include "mako_midi.h"
+#include "fm/mako_fmgen.h"
+#include "dri.h"
+
+namespace {
+
+std::unique_ptr<MakoFMgen> fm;
+uint8* fmdata;
+
+} // namespace
 
 MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
+	use_fm(config.use_fm),
 	current_music(0),
 	next_loop(0),
 	nact(parent)
@@ -29,6 +39,16 @@ void MAKO::play_music(int page)
 	if (track) {
 		EM_ASM_ARGS({ xsystem35.cdPlayer.play($0, $1); },
 					cd_track[page] + 1, next_loop ? 0 : 1);
+	} else if (use_fm) {
+		DRI dri;
+		int size;
+		uint8* data = dri.load(amus, page, &size);
+		if (!data)
+			return;
+		fm = std::make_unique<MakoFMgen>(data);
+		free(fmdata);
+		fmdata = data;
+		EM_ASM({ xsystem35.audio.enable_audio_hook(); });
 	} else {
 		auto midi = std::make_unique<MAKOMidi>(nact, amus);
 		if (!midi->load_mml(page)) {
@@ -56,6 +76,9 @@ void MAKO::stop_music()
 		xsystem35.midiPlayer.stop();
 	});
 
+	fm = nullptr;
+	free(fmdata);
+	fmdata = nullptr;
 	current_music = 0;
 }
 
@@ -81,3 +104,15 @@ bool MAKO::check_pcm()
 {
 	return false;
 }
+
+extern "C" {
+
+EMSCRIPTEN_KEEPALIVE
+bool audio_callback(Uint8 *stream, int len) {
+	if (!fm)
+		return false;
+	fm->Process(reinterpret_cast<int16*>(stream), len);
+	return true;
+}
+
+} // extern "C"
