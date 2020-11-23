@@ -12,6 +12,7 @@
 
 namespace {
 
+MAKO *g_mako;
 std::unique_ptr<MakoFMgen> fm;
 
 } // namespace
@@ -22,6 +23,7 @@ MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
 	next_loop(0),
 	nact(parent)
 {
+	g_mako = this;
 	strcpy(amus, "AMUS.DAT");
 	for (int i = 1; i <= 99; i++)
 		cd_track[i] = 0;
@@ -100,6 +102,15 @@ bool MAKO::check_pcm()
 	return false;
 }
 
+void MAKO::select_synthesizer(bool use_fm_) {
+	if (use_fm == use_fm_)
+		return;
+	use_fm = use_fm_;
+	int page = current_music;
+	stop_music();
+	play_music(page);
+}
+
 extern "C" {
 
 EMSCRIPTEN_KEEPALIVE
@@ -108,6 +119,11 @@ bool audio_callback(Uint8 *stream, int len) {
 		return false;
 	fm->Process(reinterpret_cast<int16*>(stream), len);
 	return true;
+}
+
+EMSCRIPTEN_KEEPALIVE
+void select_synthesizer(int use_fm) {
+	g_mako->select_synthesizer(use_fm);
 }
 
 } // extern "C"
