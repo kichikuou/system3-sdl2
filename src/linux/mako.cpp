@@ -25,7 +25,6 @@ Mix_Music *mix_music;
 Mix_Chunk *mix_chunk;
 SDL_mutex* fm_mutex;
 std::unique_ptr<MakoFMgen> fm;
-uint8* fmdata;
 
 void FMHook(void *udata, Uint8 *stream, int len) {
 	SDL_LockMutex(fm_mutex);
@@ -114,9 +113,7 @@ void MAKO::play_music(int page)
 			fm_mutex = SDL_CreateMutex();
 
 		SDL_LockMutex(fm_mutex);
-		free(fmdata);
-		fmdata = data;
-		fm = std::make_unique<MakoFMgen>(fmdata);
+		fm = std::make_unique<MakoFMgen>(data, true);
 		Mix_HookMusic(&FMHook, this);
 		SDL_UnlockMutex(fm_mutex);
 	} else {

@@ -12,7 +12,8 @@ const int MAKO_MAXCH = 9;
 // [2] http://mydocuments.g2.xrea.com/html/p6/makop6.html
 class MakoFM {
 public:
-	MakoFM(const uint8_t* data);
+	MakoFM(const uint8_t* data, bool free_data);
+	~MakoFM();
 	void MainLoop();
 
 	float GetTime() const { return time_ms; }
@@ -116,6 +117,7 @@ private:
 
 	Work work[9];
 	const uint8_t* data;
+	const bool free_data;
 	uint16_t tone_offset;
 	uint16_t ver;
 

@@ -13,7 +13,6 @@
 namespace {
 
 std::unique_ptr<MakoFMgen> fm;
-uint8* fmdata;
 
 } // namespace
 
@@ -45,9 +44,7 @@ void MAKO::play_music(int page)
 		uint8* data = dri.load(amus, page, &size);
 		if (!data)
 			return;
-		fm = std::make_unique<MakoFMgen>(data);
-		free(fmdata);
-		fmdata = data;
+		fm = std::make_unique<MakoFMgen>(data, true);
 		EM_ASM({ xsystem35.audio.enable_audio_hook(); });
 	} else {
 		auto midi = std::make_unique<MAKOMidi>(nact, amus);
@@ -77,8 +74,6 @@ void MAKO::stop_music()
 	});
 
 	fm = nullptr;
-	free(fmdata);
-	fmdata = nullptr;
 	current_music = 0;
 }
 

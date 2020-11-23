@@ -1,6 +1,7 @@
 #include "makofm.h"
 #include <algorithm>
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 #include "common.h"
 
@@ -42,8 +43,9 @@ const uint8_t PresetFMTone[TONE_DATA_SIZE] = {
 
 } // namespace
 
-MakoFM::MakoFM(const uint8_t* data) :
+MakoFM::MakoFM(const uint8_t* data, bool free_data) :
 	data(data),
+	free_data(free_data),
 	tone_offset(GetWord(0)),
 	ver(GetWord(2)) {
 	memset(work, 0, sizeof(work));
@@ -55,6 +57,11 @@ MakoFM::MakoFM(const uint8_t* data) :
 		work[ch].vol = 120;
 		work[ch].panpot = 0x40;
 	}
+}
+
+MakoFM::~MakoFM() {
+	if (free_data)
+		free((void*)data);
 }
 
 void MakoFM::MainLoop() {

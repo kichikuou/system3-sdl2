@@ -6,7 +6,7 @@
 
 class MakoFMgen : private MakoFM {
 public:
-	MakoFMgen(const uint8_t* data);
+	MakoFMgen(const uint8_t* data, bool free_data);
 	void Process(int16* stream, int len);
 
 private:

@@ -6,8 +6,8 @@
 const int SAMPLE_RATE = 44100;
 const int OPNA_CLOCK = 3993600 * 2;
 
-MakoFMgen::MakoFMgen(const uint8_t* data) :
-	MakoFM(data),
+MakoFMgen::MakoFMgen(const uint8_t* data, bool free_data) :
+	MakoFM(data, free_data),
 	sync_ms(0),
 	samples_left(0) {
 	bool ok = opna.Init(OPNA_CLOCK, SAMPLE_RATE, false);
@@ -49,7 +49,7 @@ void MakoFMgen::Mix(int samples) {
 		samples_left = samples - out_samples;
 		samples = out_samples;
 	}
-	FM_SAMPLETYPE* buf = new FM_SAMPLETYPE[samples * 2];
+	FM_SAMPLETYPE* buf = (FM_SAMPLETYPE*)alloca(samples * 2 * sizeof(FM_SAMPLETYPE));
 	memset(buf, 0, samples * sizeof(FM_SAMPLETYPE) * 2);
 	opna.Mix(buf, samples);
 	for (int i = 0; i < samples * 2; i += 2) {
@@ -58,5 +58,4 @@ void MakoFMgen::Mix(int samples) {
 	}
 	out_samples -= samples;
 	output += samples * 2;
-	delete[] buf;
 }
