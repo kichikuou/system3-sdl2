@@ -31,34 +31,29 @@ MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
 	strcpy(amus, "AMUS.DAT");
 	for (int i = 1; i <= 99; i++)
 		cd_track[i] = 0;
-	if (use_fm) {
-		SDL_InitSubSystem(SDL_INIT_AUDIO);
-		SDL_AudioSpec fmt;
-		SDL_zero(fmt);
-		fmt.freq = 44100;
-		fmt.format = AUDIO_S16;
-		fmt.channels = 2;
-		fmt.samples = 4096;
-		fmt.callback = &audio_callback;
-		if (SDL_OpenAudio(&fmt, NULL) < 0) {
-			WARNING("SDL_OpenAudio: %s", SDL_GetError());
-			SDL_QuitSubSystem(SDL_INIT_AUDIO);
-			use_fm = false;
-			return;
-		}
-		fm_mutex = SDL_CreateMutex();
+
+	SDL_InitSubSystem(SDL_INIT_AUDIO);
+	SDL_AudioSpec fmt;
+	SDL_zero(fmt);
+	fmt.freq = 44100;
+	fmt.format = AUDIO_S16;
+	fmt.channels = 2;
+	fmt.samples = 4096;
+	fmt.callback = &audio_callback;
+	if (SDL_OpenAudio(&fmt, NULL) < 0) {
+		WARNING("SDL_OpenAudio: %s", SDL_GetError());
+		use_fm = false;
 	}
+	fm_mutex = SDL_CreateMutex();
 }
 
 MAKO::~MAKO() {
-	if (fm_mutex) {
-		SDL_LockMutex(fm_mutex);
-		SDL_PauseAudio(1);
-		SDL_UnlockMutex(fm_mutex);
-		SDL_DestroyMutex(fm_mutex);
-		fm_mutex = nullptr;
-		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-	}
+	SDL_LockMutex(fm_mutex);
+	SDL_CloseAudio();
+	SDL_UnlockMutex(fm_mutex);
+	SDL_DestroyMutex(fm_mutex);
+	fm_mutex = nullptr;
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 void MAKO::play_music(int page)

@@ -18,6 +18,8 @@
 package io.github.kichikuou.system3
 
 import android.app.AlertDialog
+import android.content.Context
+import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.text.InputType
@@ -38,10 +40,12 @@ class GameActivity : SDLActivity() {
     companion object {
         const val EXTRA_GAME_ROOT = "GAME_ROOT"
         const val EXTRA_SAVE_DIR = "SAVE_DIR"
+        const val PREF_USE_FM = "use_fm_sound"
     }
 
     private lateinit var gameRoot: File
     private lateinit var cdda: CddaPlayer
+    private lateinit var prefs: SharedPreferences
     private val midi = MidiPlayer()
     private var useFM = true
 
@@ -49,6 +53,8 @@ class GameActivity : SDLActivity() {
         super.onCreate(savedInstanceState)
         gameRoot = File(intent.getStringExtra(EXTRA_GAME_ROOT))
         cdda = CddaPlayer(File(gameRoot, Launcher.PLAYLIST_FILE))
+        prefs = getSharedPreferences("system3", Context.MODE_PRIVATE)
+        useFM = prefs.getBoolean(PREF_USE_FM, useFM)
         registerForContextMenu(mLayout)
     }
 
@@ -69,10 +75,12 @@ class GameActivity : SDLActivity() {
     }
 
     override fun getArguments(): Array<String> {
-        return arrayOf(
+        val args = arrayListOf(
                 "-gamedir", intent.getStringExtra(EXTRA_GAME_ROOT),
-                "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR) + "/@",
-                "-fm")
+                "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR) + "/@")
+        if (useFM)
+            args.add("-fm")
+        return args.toTypedArray()
     }
 
     override fun setTitle(title: CharSequence?) {
@@ -127,11 +135,13 @@ class GameActivity : SDLActivity() {
             R.id.fm_sound -> {
                 selectSynthesizer(true)
                 useFM = true
+                prefs.edit().putBoolean(PREF_USE_FM, useFM).apply()
                 true
             }
             R.id.midi_sound -> {
                 selectSynthesizer(false)
                 useFM = false
+                prefs.edit().putBoolean(PREF_USE_FM, useFM).apply()
                 true
             }
             else -> super.onOptionsItemSelected(item)
