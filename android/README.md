@@ -54,6 +54,7 @@ Note: This form of ZIP can be used in [Kichikuou on Web](http://kichikuou.github
 ### Miscellaneous
 - You can export / import saved files using the option menu of the game list.
 - To uninstall a game, long-tap the title in the game list.
+- System menu pops up with 3-finger touch during game play.
 
 ## Known Issues
 - Installation from a ZIP containing multiple games (e.g. DPS series) does not work well.
