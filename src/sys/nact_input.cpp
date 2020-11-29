@@ -15,13 +15,14 @@
 
 static int mousex, mousey, fingers;
 
-bool NACT::pump_events()
+void NACT::pump_events()
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
 		switch (e.type) {
 		case SDL_QUIT:
-			return true;
+			terminate = true;
+			break;
 
 		case SDL_MOUSEMOTION:
 			mousex = e.motion.x;
@@ -45,7 +46,6 @@ bool NACT::pump_events()
 			break;
 		}
 	}
-	return false;
 }
 
 uint8 NACT::get_key()
@@ -54,8 +54,7 @@ uint8 NACT::get_key()
 
 	texthook_keywait();
 
-	if (pump_events())
-		terminate = true;
+	pump_events();
 
 	// キーボード＆マウス
 	const Uint8* key = SDL_GetKeyboardState(NULL);
@@ -99,8 +98,7 @@ uint8 NACT::get_key()
 
 void NACT::get_cursor(int* x, int* y)
 {
-	if (pump_events())
-		terminate = true;
+	pump_events();
 	*x = mousex;
 	*y = mousey;
 }

@@ -409,6 +409,7 @@ void NACT::wait_after_open_menu()
 }
 
 void NACT::sys_sleep(int ms) {
+	pump_events();
 	ags->update_screen();
 	SDL_Delay(ms);
 }

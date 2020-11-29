@@ -266,7 +266,7 @@ public:
 	void fatal(const char* msg, ...);
 
 private:
-	bool pump_events();
+	void pump_events();
 	void on_syswmevent(SDL_SysWMmsg* msg);
 };
 
