@@ -2,10 +2,26 @@
 #include <SDL.h>
 #include <android/log.h>
 #include "jnihelper.h"
+#include "dri.h"
 #include "mako.h"
 #include "mako_midi.h"
+#include "fm/mako_fmgen.h"
+
+namespace {
+
+SDL_mutex* fm_mutex;
+std::unique_ptr<MakoFMgen> fm;
+
+void audio_callback(void*, Uint8* stream, int len) {
+	SDL_LockMutex(fm_mutex);
+	fm->Process(reinterpret_cast<int16*>(stream), len/ 4);
+	SDL_UnlockMutex(fm_mutex);
+}
+
+} // namespace
 
 MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
+	use_fm(true),	// TODO: make it switchable
 	current_music(0),
 	next_loop(0),
 	nact(parent)
@@ -13,9 +29,35 @@ MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
 	strcpy(amus, "AMUS.DAT");
 	for (int i = 1; i <= 99; i++)
 		cd_track[i] = 0;
+	if (use_fm) {
+		SDL_InitSubSystem(SDL_INIT_AUDIO);
+		SDL_AudioSpec fmt;
+		SDL_zero(fmt);
+		fmt.freq = 44100;
+		fmt.format = AUDIO_S16;
+		fmt.channels = 2;
+		fmt.samples = 4096;
+		fmt.callback = &audio_callback;
+		if (SDL_OpenAudio(&fmt, NULL) < 0) {
+			WARNING("SDL_OpenAudio: %s", SDL_GetError());
+			SDL_QuitSubSystem(SDL_INIT_AUDIO);
+			use_fm = false;
+			return;
+		}
+		fm_mutex = SDL_CreateMutex();
+	}
 }
 
-MAKO::~MAKO() {}
+MAKO::~MAKO() {
+	if (fm_mutex) {
+		SDL_LockMutex(fm_mutex);
+		SDL_PauseAudio(1);
+		SDL_UnlockMutex(fm_mutex);
+		SDL_DestroyMutex(fm_mutex);
+		fm_mutex = nullptr;
+		SDL_QuitSubSystem(SDL_INIT_AUDIO);
+	}
+}
 
 void MAKO::play_music(int page)
 {
@@ -30,6 +72,17 @@ void MAKO::play_music(int page)
 	if (track) {
 		jmethodID mid = jni.GetMethodID("cddaStart", "(IZ)V");
 		jni.env()->CallVoidMethod(jni.context(), mid, track + 1, next_loop ? 0 : 1);
+	} else if (use_fm) {
+		DRI dri;
+		int size;
+		uint8* data = dri.load(amus, page, &size);
+		if (!data)
+			return;
+
+		SDL_LockMutex(fm_mutex);
+		fm = std::make_unique<MakoFMgen>(data, true);
+		SDL_UnlockMutex(fm_mutex);
+		SDL_PauseAudio(0);
 	} else {
 		auto midi = std::make_unique<MAKOMidi>(nact, amus);
 		if (!midi->load_mml(page)) {
@@ -79,6 +132,8 @@ void MAKO::stop_music()
 		jni.env()->CallVoidMethod(jni.context(), mid);
 	}
 
+	if (use_fm)
+		SDL_PauseAudio(1);
 	current_music = 0;
 }
 

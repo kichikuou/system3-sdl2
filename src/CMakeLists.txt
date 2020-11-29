@@ -10,13 +10,16 @@ if (MSYS)
 endif ()
 
 if (ANDROID)
+  add_subdirectory(../deps/fmgen fmgen)
   add_library(system3 SHARED)
 
   target_sources(system3 PRIVATE
     android/nact_android.cpp
     android/mako.cpp
+    fm/makofm.cpp
+    fm/mako_fmgen.cpp
     )
-  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf)
+  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf fmgen)
 
 elseif (EMSCRIPTEN)
   add_subdirectory(../deps/fmgen fmgen)
