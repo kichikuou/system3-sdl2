@@ -267,7 +267,7 @@ public:
 
 private:
 	void pump_events();
-	void on_syswmevent(SDL_SysWMmsg* msg);
+	bool handle_platform_event(const SDL_Event& e);
 };
 
 class NACT_Sys1 final : public NACT {

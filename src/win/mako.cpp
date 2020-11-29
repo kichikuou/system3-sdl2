@@ -200,7 +200,7 @@ public:
 		return playing;
 	}
 
-	bool on_mci_notify(SDL_SysWMmsg* msg) {
+	bool on_mci_notify(const SDL_SysWMmsg* msg) {
 		if (msg->msg.win.lParam != mci_thread->device_id())
 			return true;
 		switch (msg->msg.win.wParam) {
@@ -421,7 +421,7 @@ bool MAKO::check_pcm()
 	return !PlaySound(null_wav, NULL, SND_ASYNC | SND_MEMORY | SND_NOSTOP);
 }
 
-void MAKO::on_mci_notify(SDL_SysWMmsg* msg)
+void MAKO::on_mci_notify(const SDL_SysWMmsg* msg)
 {
 	if (!music)
 		return;

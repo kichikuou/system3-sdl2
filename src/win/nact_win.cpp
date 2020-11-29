@@ -130,8 +130,12 @@ void NACT::output_console(const char *format, ...)
 #endif
 }
 
-void NACT::on_syswmevent(SDL_SysWMmsg* msg)
+bool NACT::handle_platform_event(const SDL_Event& e)
 {
+	if (e.type != SDL_SYSWMEVENT)
+		return false;
+	const SDL_SysWMmsg* msg = e.syswm.msg;
+
 	switch (msg->msg.win.msg) {
 	case WM_COMMAND:
 		switch (msg->msg.win.wParam) {
@@ -171,4 +175,5 @@ void NACT::on_syswmevent(SDL_SysWMmsg* msg)
 		mako->on_mci_notify(msg);
 		break;
 	}
+	return true;
 }

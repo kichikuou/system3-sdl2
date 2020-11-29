@@ -42,6 +42,7 @@ void NACT::output_console(const char *format, ...)
 #endif
 }
 
-void NACT::on_syswmevent(SDL_SysWMmsg* msg)
+bool NACT::handle_platform_event(const SDL_Event& e)
 {
+	return false;
 }

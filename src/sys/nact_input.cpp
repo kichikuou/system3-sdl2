@@ -19,6 +19,9 @@ void NACT::pump_events()
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
+		if (handle_platform_event(e))
+			continue;
+
 		switch (e.type) {
 		case SDL_QUIT:
 			terminate = true;
@@ -39,10 +42,6 @@ void NACT::pump_events()
 
 		case SDL_APP_DIDENTERFOREGROUND:
 			ags->flush_screen(false);
-			break;
-
-		case SDL_SYSWMEVENT:
-			on_syswmevent(e.syswm.msg);
 			break;
 		}
 	}

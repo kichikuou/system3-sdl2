@@ -43,7 +43,7 @@ public:
 
 #ifdef _WIN32
 	void select_sound(BGMDevice dev);
-	void on_mci_notify(SDL_SysWMmsg* msg);
+	void on_mci_notify(const SDL_SysWMmsg* msg);
 #endif
 #ifdef __EMSCRIPTEN__
 	void select_synthesizer(bool use_fm);
