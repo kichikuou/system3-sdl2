@@ -22,7 +22,7 @@
 		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		SDL_Delay(10); \
+		sys_sleep(10); \
 	} \
 }
 
@@ -44,14 +44,14 @@
 				if(dwTime <= SDL_GetTicks()) { \
 					break; \
 				} \
-				SDL_Delay(10); \
+				sys_sleep(10); \
 			} \
 			break; \
 		} \
 		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		SDL_Delay(10); \
+		sys_sleep(10); \
 	} \
 }
 
@@ -390,14 +390,14 @@ void NACT_Sys2::cmd_open_menu()
 				return;
 			}
 			if((val = get_key()) != 0) {
-				SDL_Delay(100);
+				sys_sleep(100);
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			SDL_Delay(10);
+			sys_sleep(10);
 		}
 		if(val) {
 			for(;;) {
@@ -407,7 +407,7 @@ void NACT_Sys2::cmd_open_menu()
 				if(!get_key()) {
 					break;
 				}
-				SDL_Delay(10);
+				sys_sleep(10);
 			}
 		}
 
@@ -541,14 +541,14 @@ void NACT_Sys2::cmd_open_verb()
 				return;
 			}
 			if((val = get_key()) != 0) {
-				SDL_Delay(100);
+				sys_sleep(100);
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			SDL_Delay(10);
+			sys_sleep(10);
 		}
 		if(val) {
 			for(;;) {
@@ -558,7 +558,7 @@ void NACT_Sys2::cmd_open_verb()
 				if(!get_key()) {
 					break;
 				}
-				SDL_Delay(10);
+				sys_sleep(10);
 			}
 		}
 
@@ -679,14 +679,14 @@ void NACT_Sys2::cmd_open_obj(int verb)
 				return;
 			}
 			if((val = get_key()) != 0) {
-				SDL_Delay(100);
+				sys_sleep(100);
 				break;
 			}
 			get_cursor(&current_mx, &current_my);
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			SDL_Delay(10);
+			sys_sleep(10);
 		}
 		if(val) {
 			for(;;) {
@@ -696,7 +696,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 				if(!get_key()) {
 					break;
 				}
-				SDL_Delay(10);
+				sys_sleep(10);
 			}
 		}
 
@@ -762,9 +762,9 @@ void NACT_Sys2::cmd_a()
 			if(get_key()) {
 				break;
 			}
-			SDL_Delay(10);
+			sys_sleep(10);
 		}
-		SDL_Delay(100);
+		sys_sleep(100);
 		for(;;) {
 			if(terminate) {
 				return;
@@ -772,7 +772,7 @@ void NACT_Sys2::cmd_a()
 			if(!(get_key() & 0x18)) {
 				break;
 			}
-			SDL_Delay(10);
+			sys_sleep(10);
 		}
 	}
 
@@ -1387,7 +1387,7 @@ void NACT_Sys2::cmd_y()
 					if(dwTime <= SDL_GetTicks()) {
 						break;
 					}
-					SDL_Delay(10);
+					sys_sleep(10);
 				}
 			}
 			break;
@@ -1434,7 +1434,7 @@ void NACT_Sys2::cmd_y()
 						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						SDL_Delay(0);
+						sys_sleep(0);
 					}
 				}
 				ags->fade_end();
@@ -1455,7 +1455,7 @@ void NACT_Sys2::cmd_y()
 						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						SDL_Delay(0);
+						sys_sleep(0);
 					}
 				}
 			}
@@ -1499,9 +1499,9 @@ void NACT_Sys2::cmd_y()
 				if(get_key()) {
 					break;
 				}
-				SDL_Delay(10);
+				sys_sleep(10);
 			}
-			SDL_Delay(100);
+			sys_sleep(100);
 			for(;;) {
 				if(terminate) {
 					return;
@@ -1509,7 +1509,7 @@ void NACT_Sys2::cmd_y()
 				if(!(get_key() & 0x18)) {
 					break;
 				}
-				SDL_Delay(10);
+				sys_sleep(10);
 			}
 			break;
 		case 254:

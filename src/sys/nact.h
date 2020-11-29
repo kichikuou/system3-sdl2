@@ -213,6 +213,7 @@ protected:
 
 	void wait_after_open_menu();
 
+	void sys_sleep(int ms);
 	uint8 get_key();
 	void get_cursor(int* x, int* y);
 	void set_cursor(int x, int y);

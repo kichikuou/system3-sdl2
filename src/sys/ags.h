@@ -94,6 +94,8 @@ public:
 	AGS(NACT* parent, const char* fontfile);
 	~AGS();
 
+	void update_screen();
+
 	void flush_screen(bool update);
 
 	void load_cg(int page, int transparent);
@@ -133,6 +135,8 @@ public:
 
 	void load_cursor(int page);
 	void select_cursor();
+
+	bool dirty;
 
 	// ACG.DAT
 	char acg[16];

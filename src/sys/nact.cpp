@@ -125,7 +125,7 @@ bool NACT::mainloop()
 		execute();
 		// 512コマンド実行毎にSleep(10)
 		if(!(sleep_cnt = (sleep_cnt + 1) & 0x1ff)) {
-			SDL_Delay(10);
+			sys_sleep(10);
 		}
 	}
 	return restart_after_terminate;
@@ -303,7 +303,7 @@ void NACT::execute()
 						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						SDL_Delay(16);
+						sys_sleep(16);
 					}
 				}
 				if(!ags->draw_hankaku) {
@@ -339,7 +339,7 @@ void NACT::execute()
 						if(dwTime <= SDL_GetTicks()) {
 							break;
 						}
-						SDL_Delay(16);
+						sys_sleep(16);
 					}
 				}
 				output_console(string);
@@ -392,7 +392,7 @@ void NACT::wait_after_open_menu()
 			break;
 		}
 */
-		SDL_Delay(10);
+		sys_sleep(10);
 		dwTime = SDL_GetTicks();
 	}
 
@@ -404,8 +404,13 @@ void NACT::wait_after_open_menu()
 		if(!get_key()) {
 			break;
 		}
-		SDL_Delay(10);
+		sys_sleep(10);
 	}
+}
+
+void NACT::sys_sleep(int ms) {
+	ags->update_screen();
+	SDL_Delay(ms);
 }
 
 // WinMainとのインターフェース

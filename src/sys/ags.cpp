@@ -33,7 +33,7 @@ static SDL_Surface* display_surface;
 	box[n].ey = y2; \
 }
 
-AGS::AGS(NACT* parent, const char* fontfile) : nact(parent)
+AGS::AGS(NACT* parent, const char* fontfile) : nact(parent), dirty(false)
 {
 	sdlRenderer = SDL_CreateRenderer(g_window, -1, 0);
 	SDL_RenderSetLogicalSize(sdlRenderer, 640, 400);
@@ -502,7 +502,6 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 
 void AGS::invalidate_screen(int sx, int sy, int width, int height)
 {
-	SDL_UnlockSurface(hBmpDest);
 	int top = screen_height == 400 ? sy + (scroll - 400) : sy;
 	if (top < 0) {
 		height += top;
@@ -515,10 +514,16 @@ void AGS::invalidate_screen(int sx, int sy, int width, int height)
 		width = hBmpDest->w - sx;
 	SDL_Rect rect = {sx, sy, width, height};
 	SDL_UpdateTexture(sdlTexture, &rect, pixels, hBmpDest->pitch);
+	dirty = true;
+}
+
+void AGS::update_screen() {
+	if (!dirty)
+		return;
 	SDL_RenderClear(sdlRenderer);
 	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 	SDL_RenderPresent(sdlRenderer);
-	SDL_LockSurface(hBmpDest);
+	dirty = false;
 }
 
 #ifdef __EMSCRIPTEN__
