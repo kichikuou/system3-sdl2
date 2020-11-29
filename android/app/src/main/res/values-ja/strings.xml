@@ -16,6 +16,8 @@
     <string name="save_data_export_error">セーブデータのエクスポートに失敗しました。</string>
     <string name="save_data_export_success">エクスポートに成功しました。</string>
     <string name="save_data_import_success">インポートに成功しました。</string>
+    <string name="sound_fm">FM音源</string>
+    <string name="sound_midi">MIDI音源</string>
     <string name="uninstall_dialog_message">「%s」をアンインストールしますか？</string>
     <string name="uninstall_dialog_title">確認</string>
     <string name="unsupported_zip">この形式の ZIP はサポートしていません。</string>

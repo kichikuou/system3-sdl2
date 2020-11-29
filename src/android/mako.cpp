@@ -9,6 +9,7 @@
 
 namespace {
 
+MAKO *g_mako;
 SDL_mutex* fm_mutex;
 std::unique_ptr<MakoFMgen> fm;
 
@@ -21,11 +22,12 @@ void audio_callback(void*, Uint8* stream, int len) {
 } // namespace
 
 MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
-	use_fm(true),	// TODO: make it switchable
+	use_fm(config.use_fm),
 	current_music(0),
 	next_loop(0),
 	nact(parent)
 {
+	g_mako = this;
 	strcpy(amus, "AMUS.DAT");
 	for (int i = 1; i <= 99; i++)
 		cd_track[i] = 0;
@@ -159,3 +161,21 @@ bool MAKO::check_pcm()
 {
 	return false;
 }
+
+void MAKO::select_synthesizer(bool use_fm_) {
+	if (use_fm == use_fm_)
+		return;
+	int page = current_music;
+	stop_music();
+	use_fm = use_fm_;
+	play_music(page);
+}
+
+extern "C" {
+
+JNIEXPORT void JNICALL Java_io_github_kichikuou_system3_GameActivity_selectSynthesizer(
+	JNIEnv *env, jobject cls, jboolean use_fm) {
+	g_mako->select_synthesizer(use_fm);
+}
+
+} // extern "C"

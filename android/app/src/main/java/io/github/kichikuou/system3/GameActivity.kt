@@ -43,6 +43,7 @@ class GameActivity : SDLActivity() {
     private lateinit var gameRoot: File
     private lateinit var cdda: CddaPlayer
     private val midi = MidiPlayer()
+    private var useFM = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +71,8 @@ class GameActivity : SDLActivity() {
     override fun getArguments(): Array<String> {
         return arrayOf(
                 "-gamedir", intent.getStringExtra(EXTRA_GAME_ROOT),
-                "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR) + "/@")
+                "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR) + "/@",
+                "-fm")
     }
 
     override fun setTitle(title: CharSequence?) {
@@ -110,15 +112,26 @@ class GameActivity : SDLActivity() {
         menuShown = true
     }
 
-    override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
+    override fun onCreateContextMenu(menu: ContextMenu, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
         menuInflater.inflate(R.menu.game_menu, menu)
+        menu.findItem(if (useFM) R.id.fm_sound else R.id.midi_sound).isChecked = true
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.quit_game -> {
                 finish()
+                true
+            }
+            R.id.fm_sound -> {
+                selectSynthesizer(true)
+                useFM = true
+                true
+            }
+            R.id.midi_sound -> {
+                selectSynthesizer(false)
+                useFM = false
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -129,6 +142,9 @@ class GameActivity : SDLActivity() {
         super.onContextMenuClosed(menu)
         menuShown = false
     }
+
+    // C functions we call
+    private external fun selectSynthesizer(use_fm: Boolean)
 
     // The functions below are called in the SDL thread by JNI.
     @Suppress("unused") fun cddaStart(track: Int, loop: Boolean) = cdda.start(track, loop)

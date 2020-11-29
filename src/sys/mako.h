@@ -45,7 +45,7 @@ public:
 	void select_sound(BGMDevice dev);
 	void on_mci_notify(const SDL_SysWMmsg* msg);
 #endif
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
 	void select_synthesizer(bool use_fm);
 #endif
 

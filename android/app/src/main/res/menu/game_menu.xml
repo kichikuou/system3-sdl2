@@ -3,4 +3,10 @@
     <item
         android:id="@+id/quit_game"
         android:title="@string/action_quit_game" />
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/fm_sound"
+            android:title="@string/sound_fm" />
+        <item android:id="@+id/midi_sound"
+            android:title="@string/sound_midi" />
+    </group>
 </menu>

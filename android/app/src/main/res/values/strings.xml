@@ -16,6 +16,8 @@
     <string name="save_data_export_error">Failed to export save files.</string>
     <string name="save_data_import_success">Imported successfully.</string>
     <string name="save_data_export_success">Exported successfully.</string>
+    <string name="sound_fm">FM sound</string>
+    <string name="sound_midi">MIDI sound</string>
     <string name="uninstall_dialog_message">Uninstall \"%s\"?</string>
     <string name="uninstall_dialog_title">Confirm</string>
     <string name="unsupported_zip">This type of ZIP is not supported.</string>
