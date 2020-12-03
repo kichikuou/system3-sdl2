@@ -46,8 +46,8 @@ void MAKO::play_music(int page)
 		uint8* data = dri.load(amus, page, &size);
 		if (!data)
 			return;
-		fm = std::make_unique<MakoFMgen>(data, true);
-		EM_ASM({ xsystem35.audio.enable_audio_hook(); });
+		int rate = EM_ASM_INT({ return xsystem35.audio.enable_audio_hook(); });
+		fm = std::make_unique<MakoFMgen>(rate, data, true);
 	} else {
 		auto midi = std::make_unique<MAKOMidi>(nact, amus);
 		if (!midi->load_mml(page)) {

@@ -6,7 +6,7 @@
 
 class MakoFMgen : private MakoFM {
 public:
-	MakoFMgen(const uint8_t* data, bool free_data);
+	MakoFMgen(int rate, const uint8_t* data, bool free_data);
 	void Process(int16* stream, int len);
 
 private:
@@ -14,6 +14,7 @@ private:
 	void Sync();
 	void Mix(int samples);
 
+	const int sample_rate;
 	FM::OPNA opna;
 	int sync_ms;
 	int16* output;

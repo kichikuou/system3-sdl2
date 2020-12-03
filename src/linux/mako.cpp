@@ -20,6 +20,8 @@
 
 namespace {
 
+const int SAMPLE_RATE = 44100;
+
 std::vector<uint8> smf;
 Mix_Music *mix_music;
 Mix_Chunk *mix_chunk;
@@ -53,7 +55,7 @@ MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
 	}
 	if (Mix_Init(mix_init_flags) != mix_init_flags)
 		WARNING("Mix_Init(0x%x) failed", mix_init_flags);
-	if (Mix_OpenAudio(44100, AUDIO_S16LSB, 2, 4096) < 0)
+	if (Mix_OpenAudio(SAMPLE_RATE, AUDIO_S16LSB, 2, 4096) < 0)
 		WARNING("Mix_OpenAudio failed: %s", Mix_GetError());
 }
 
@@ -113,7 +115,7 @@ void MAKO::play_music(int page)
 			fm_mutex = SDL_CreateMutex();
 
 		SDL_LockMutex(fm_mutex);
-		fm = std::make_unique<MakoFMgen>(data, true);
+		fm = std::make_unique<MakoFMgen>(SAMPLE_RATE, data, true);
 		Mix_HookMusic(&FMHook, this);
 		SDL_UnlockMutex(fm_mutex);
 	} else {

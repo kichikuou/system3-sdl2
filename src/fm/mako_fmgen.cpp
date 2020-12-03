@@ -3,14 +3,14 @@
 #include <assert.h>
 #include <string.h>
 
-const int SAMPLE_RATE = 44100;
 const int OPNA_CLOCK = 3993600 * 2;
 
-MakoFMgen::MakoFMgen(const uint8_t* data, bool free_data) :
+MakoFMgen::MakoFMgen(int rate, const uint8_t* data, bool free_data) :
 	MakoFM(data, free_data),
+	sample_rate(rate),
 	sync_ms(0),
 	samples_left(0) {
-	bool ok = opna.Init(OPNA_CLOCK, SAMPLE_RATE, false);
+	bool ok = opna.Init(OPNA_CLOCK, sample_rate, false);
 	assert(ok);
 	opna.Reset();
 }
@@ -40,7 +40,7 @@ void MakoFMgen::Sync() {
 		return;
 	int ms = t - sync_ms;
 	sync_ms = t;
-	Mix(SAMPLE_RATE * ms / 1000);
+	Mix(sample_rate * ms / 1000);
 }
 
 void MakoFMgen::Mix(int samples) {

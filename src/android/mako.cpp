@@ -9,6 +9,8 @@
 
 namespace {
 
+const int SAMPLE_RATE = 44100;
+
 MAKO *g_mako;
 SDL_mutex* fm_mutex;
 std::unique_ptr<MakoFMgen> fm;
@@ -35,7 +37,7 @@ MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
 	SDL_InitSubSystem(SDL_INIT_AUDIO);
 	SDL_AudioSpec fmt;
 	SDL_zero(fmt);
-	fmt.freq = 44100;
+	fmt.freq = SAMPLE_RATE;
 	fmt.format = AUDIO_S16;
 	fmt.channels = 2;
 	fmt.samples = 4096;
@@ -77,7 +79,7 @@ void MAKO::play_music(int page)
 			return;
 
 		SDL_LockMutex(fm_mutex);
-		fm = std::make_unique<MakoFMgen>(data, true);
+		fm = std::make_unique<MakoFMgen>(SAMPLE_RATE, data, true);
 		SDL_UnlockMutex(fm_mutex);
 		SDL_PauseAudio(0);
 	} else {
