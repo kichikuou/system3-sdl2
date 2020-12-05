@@ -36,6 +36,8 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### Emscripten
 
+    $ git submodule init
+    $ git submodule update
     $ mkdir -p out/wasm
     $ cd out/wasm
     $ emcmake cmake -DCMAKE_BUILD_TYPE=MinSizeRel ../../src/

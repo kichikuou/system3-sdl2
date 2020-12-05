@@ -10,7 +10,12 @@ Prerequisites:
 - Android NDK >=r15c
 
 ### Using Android Studio
-Open this directory as an Android Studio project.
+Clone this repository and its submodules:
+```sh
+git clone --recurse-submodules https://github.com/kichikuou/system3-sdl2.git
+```
+
+Then open `system3-sdl2/android` directory as an Android Studio project.
 
 ### Command line build
 Configure environment variables and run the `gradlew` script in this folder.
@@ -30,7 +35,7 @@ $ANDROID_SDK_ROOT/cmdline-tools/tools/bin/sdkmanager ndk-bundle
 export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk-bundle
 
 # Check out and build system3-sdl2
-git clone https://github.com/kichikuou/system3-sdl2.git
+git clone --recurse-submodules https://github.com/kichikuou/system3-sdl2.git
 cd system3-sdl2/android
 ./gradlew build  # or ./gradlew installDebug if you have a connected device
 ```
