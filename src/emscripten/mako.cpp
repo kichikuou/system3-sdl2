@@ -36,6 +36,8 @@ void MAKO::play_music(int page)
 	if (current_music == page)
 		return;
 
+	stop_music();
+
 	int track = page < 100 ? cd_track[page] : 0;
 	if (track) {
 		EM_ASM_ARGS({ xsystem35.cdPlayer.play($0, $1); },

@@ -63,6 +63,8 @@ void MAKO::play_music(int page)
 	if (current_music == page)
 		return;
 
+	stop_music();
+
 	JNILocalFrame jni(16);
 	if (!jni.env())
 		return;
