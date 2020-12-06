@@ -1403,7 +1403,7 @@ void NACT_Sys3::cmd_y()
 			D03 = (crc32_a == CRC32_YAKATA3_FD) ? 16 : 256;
 			break;
 		case 232:
-			if(ags->screen_height != param ? 480 : 400) {
+			if(ags->screen_height != (param ? 480 : 400)) {
 				// TODO: fix
 				// SendMessage(g_hwnd, WM_USER + 2, param ? 480 : 400, 0);
 				ags->screen_height = param ? 480 : 400;
