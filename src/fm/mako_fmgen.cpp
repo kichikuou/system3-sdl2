@@ -12,6 +12,7 @@ MakoFMgen::MakoFMgen(int rate, const uint8_t* data, bool free_data) :
 	samples_left(0) {
 	bool ok = opna.Init(OPNA_CLOCK, sample_rate, false);
 	assert(ok);
+	opna.SetVolumePSG(-14);
 	opna.Reset();
 }
 
