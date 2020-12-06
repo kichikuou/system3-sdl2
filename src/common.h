@@ -13,7 +13,7 @@
 #pragma comment(lib, "Gdiplus.lib")
 using namespace Gdiplus;
 
-#ifdef _DEBUG
+#if defined(_DEBUG)
 	// detect memory leaks
 	#define _CRTDBG_MAP_ALLOC
 	#include <crtdbg.h>

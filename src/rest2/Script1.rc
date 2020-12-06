@@ -92,8 +92,8 @@ IDI_ICON1               ICON    DISCARDABLE     "icon1.ico"
 // MDA
 //
 
-IDR_AL3                 MDA     DISCARDABLE     "AMUS_AL3.MDA"
-IDR_T2                  MDA     DISCARDABLE     "AMUS_T2.MDA"
+IDR_AMUS_T2             MDA     DISCARDABLE     "AMUS_T2.MDA"
+IDR_AMUS_KNG            MDA     DISCARDABLE     "AMUS_KNG.MDA"
 
 /////////////////////////////////////////////////////////////////////////////
 //

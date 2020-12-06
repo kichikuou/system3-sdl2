@@ -26,7 +26,7 @@
 class MAKO
 {
 protected:
-	NACT* nact;
+	NACT *nact;
 
 private:
 	// FM, CD-DA
@@ -40,7 +40,7 @@ private:
 
 	// MIDIçƒê∂ÉXÉåÉbÉh
 	typedef struct {
-		MAKO* mako;
+		MAKO *mako;
 		int current_music;
 		int next_music;
 		bool request_fill;
@@ -103,13 +103,13 @@ private:
 	DWORD prev_time;
 
 public:
-	MAKO(NACT* parent);
+	MAKO(NACT *parent);
 	~MAKO();
 
 	void play_music(int page);
 	void stop_music();
 	bool check_music();
-	void get_mark(int* mark, int* loop);
+	void get_mark(int *mark, int *loop);
 	void notify_mci(int status);
 
 	void play_pcm(int page, bool loop);
@@ -126,8 +126,8 @@ public:
 	void load_mda(int page);
 
 	// AMUS.DAT, AMSE.DAT
-	_TCHAR amus[16];
-	_TCHAR amse[16];
+	char amus[16];
+	char amse[16];
 
 	int current_music;
 	int next_loop;		// Y19

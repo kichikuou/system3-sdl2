@@ -6,7 +6,7 @@
 
 #include "ags.h"
 
-void AGS::load_gm3(uint8* data, int page, int transparent)
+void AGS::load_gm3(uint8 *data, int page, int transparent)
 {
 	// ƒwƒbƒ_æ“¾
 	uint16 tmp = (data[0x30] | (data[0x31] << 8)) - 0x8000;
@@ -127,8 +127,8 @@ void AGS::load_gm3(uint8* data, int page, int transparent)
 				c[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4);
 				c[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4);
 
-				uint32* dest0 = &vram[dest_screen][(y + sy) * 2 + 0][(x + sx) * 8];
-				uint32* dest1 = &vram[dest_screen][(y + sy) * 2 + 1][(x + sx) * 8];
+				uint32 *dest0 = &vram[dest_screen][(y + sy) * 2 + 0][(x + sx) * 8];
+				uint32 *dest1 = &vram[dest_screen][(y + sy) * 2 + 1][(x + sx) * 8];
 				if(transparent == -1) {
 					for(int i = 0; i < 8; i++) {
 						dest0[i] = dest1[i] = c[i] | base;

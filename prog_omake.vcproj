@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="prog_omake"
 	ProjectGUID="{2F98D020-2D77-4650-84C7-589A44DAC686}"
+	RootNamespace="prog_omake"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>
@@ -48,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_PROG_OMAKE;_DEBUG_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_DEBUG_CONSOLE;_SYSTEM3;_PROG_OMAKE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -144,7 +145,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_PROG_OMAKE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_SYSTEM3;_PROG_OMAKE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -173,7 +174,10 @@
 				OutputFile=".\Release/prog_omake.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/prog_omake.pdb"
+				GenerateMapFile="true"
+				MapFileName=".\Release/prog_omake.map"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -257,6 +261,26 @@
 				>
 				<File
 					RelativePath="src\sys\ags.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="src\sys\ags_bmp.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -659,6 +683,10 @@
 				</File>
 				<File
 					RelativePath="src\res3\AMUS_RG2.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res3\AMUS_T2.MDA"
 					>
 				</File>
 			</Filter>

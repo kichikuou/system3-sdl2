@@ -8,7 +8,6 @@
 #include "crc32.h"
 #include "../fileio.h"
 
-extern _TCHAR g_root[_MAX_PATH];
 extern HWND g_hwnd;
 
 #define SET_TEXT(n, x1, y1, x2, y2, f) { \
@@ -33,7 +32,7 @@ extern HWND g_hwnd;
 	box[n].ey = y2; \
 }
 
-AGS::AGS(NACT* parent) : nact(parent)
+AGS::AGS(NACT *parent) : nact(parent)
 {
 	// GDI+初期化
 	GdiplusStartup(&gdiToken, &gdiSI, NULL);
@@ -55,7 +54,7 @@ AGS::AGS(NACT* parent) : nact(parent)
 		lpDibScreen[i]->bmiHeader.biYPelsPerMeter = 0;
 		lpDibScreen[i]->bmiHeader.biClrUsed = 0;
 		lpDibScreen[i]->bmiHeader.biClrImportant = 0;
-		hBmpScreen[i] = CreateDIBSection(hdc, lpDibScreen[i], DIB_RGB_COLORS, (PVOID*)&lpBmpScreen[i], NULL, 0);
+		hBmpScreen[i] = CreateDIBSection(hdc, lpDibScreen[i], DIB_RGB_COLORS, (PVOID *)&lpBmpScreen[i], NULL, 0);
 		hdcDibScreen[i] = CreateCompatibleDC(hdc);
 		SelectObject(hdcDibScreen[i], hBmpScreen[i]);
 		memset(lpBmpScreen[i], 0, 640 * 480 * sizeof(DWORD));
@@ -80,7 +79,7 @@ AGS::AGS(NACT* parent) : nact(parent)
 	lpDibDest->bmiHeader.biYPelsPerMeter = 0;
 	lpDibDest->bmiHeader.biClrUsed = 0;
 	lpDibDest->bmiHeader.biClrImportant = 0;
-	hBmpDest = CreateDIBSection(hdc, lpDibDest, DIB_RGB_COLORS, (PVOID*)&lpBmpDest, NULL, 0);
+	hBmpDest = CreateDIBSection(hdc, lpDibDest, DIB_RGB_COLORS, (PVOID *)&lpBmpDest, NULL, 0);
 	hdcDibDest = CreateCompatibleDC(hdc);
 	SelectObject(hdcDibDest, hBmpDest);
 	memset(lpBmpDest, 0, 640 * 480 * sizeof(DWORD));
@@ -99,7 +98,7 @@ AGS::AGS(NACT* parent) : nact(parent)
 	lpDibText->bmiHeader.biYPelsPerMeter = 0;
 	lpDibText->bmiHeader.biClrUsed = 0;
 	lpDibText->bmiHeader.biClrImportant = 0;
-	hBmpText = CreateDIBSection(hdc, lpDibText, DIB_RGB_COLORS, (PVOID*)&lpBmpText, NULL, 0);
+	hBmpText = CreateDIBSection(hdc, lpDibText, DIB_RGB_COLORS, (PVOID *)&lpBmpText, NULL, 0);
 	hdcDibText = CreateCompatibleDC(hdc);
 	SelectObject(hdcDibText, hBmpText);
 //	memset(lpBmpText, 0, 64 * 64 * sizeof(DWORD));
@@ -118,7 +117,7 @@ AGS::AGS(NACT* parent) : nact(parent)
 	lpDibMenu->bmiHeader.biYPelsPerMeter = 0;
 	lpDibMenu->bmiHeader.biClrUsed = 0;
 	lpDibMenu->bmiHeader.biClrImportant = 0;
-	hBmpMenu = CreateDIBSection(hdc, lpDibMenu, DIB_RGB_COLORS, (PVOID*)&lpBmpMenu, NULL, 0);
+	hBmpMenu = CreateDIBSection(hdc, lpDibMenu, DIB_RGB_COLORS, (PVOID *)&lpBmpMenu, NULL, 0);
 	hdcDibMenu = CreateCompatibleDC(hdc);
 	SelectObject(hdcDibMenu, hBmpMenu);
 //	memset(lpBmpMenu, 0, 64 * 64 * sizeof(DWORD));
@@ -165,11 +164,9 @@ AGS::AGS(NACT* parent) : nact(parent)
 	// GAIJI.DAT読み込み
 	memset(gaiji, 0, sizeof(gaiji));
 
-	FILEIO* fio = new FILEIO();
-	_TCHAR file_path[_MAX_PATH];
-	_stprintf_s(file_path, _MAX_PATH, _T("%sGAIJI.DAT"), g_root);
+	FILEIO *fio = new FILEIO();
 
-	if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+	if(fio->Fopen("GAIJI.DAT", FILEIO_READ_BINARY)) {
 		int d1, d2;
 		while((d1 = fio->Fgetc()) != EOF) {
 			d2 = fio->Fgetc();
@@ -199,7 +196,7 @@ AGS::AGS(NACT* parent) : nact(parent)
 	// SYSTEM3 初期化
 
 	// ACG.DAT
-	_tcscpy_s(acg, 16, _T("ACG.DAT"));
+	strcpy_s(acg, 16, "ACG.DAT");
 
 	// パレット
 	memset(program_palette, 0, sizeof(program_palette));
@@ -256,40 +253,59 @@ AGS::AGS(NACT* parent) : nact(parent)
 	// Bコマンド
 	for(int i = 0; i < 10; i++) {
 		// ウィンドウの初期位置はシステムによって異なる
-#if defined(_BUNKASAI)
-		SET_TEXT(i, 24, 304, 616, 384, false);
-		SET_MENU(i, 440, 18, 620, 178, true);
-#elif defined(_CRESCENT)
-		SET_TEXT(i, 24, 288, 616, 378, false);
-		// 本来は横メニュー
-		SET_MENU(i, 464, 50, 623, 240, true);
-#elif defined(_DPS)
-		SET_TEXT(i, 48, 288, 594, 393, false);
-		//SET_MENU(i, 48, 288, 584, 393, false);
-		SET_MENU(i, 48, 288, 594, 393, false);
-#elif defined(_FUKEI)
-		SET_TEXT(i, 44, 282, 593, 396, false);
-		SET_MENU(i, 460, 14, 635, 214, false);
-#elif defined(_INTRUDER)
-		SET_TEXT(i, 8, 280, 629, 393, false);
-		SET_MENU(i, 448, 136, 623, 340, true);
-#elif defined(_TENGU)
-		SET_TEXT(i, 44, 282, 593, 396, false);
-		SET_MENU(i, 452, 14, 627, 214, false);
-#elif defined(_VAMPIRE)
-		SET_TEXT(i, 8, 255, 615, 383, false);
-		SET_MENU(i, 448, 11, 615, 224, false);
-#else
-		SET_TEXT(i, 8, 311, 623, 391, true);
-		SET_MENU(i, 464, 80, 623, 240, true);
+#if defined(_SYSTEM1)
+		if(nact->crc32_a == CRC32_BUNKASAI) {
+			SET_TEXT(i, 24, 304, 616, 384, false);
+			SET_MENU(i, 440, 18, 620, 178, true);
+		} else if(nact->crc32_a == CRC32_CRESCENT) {
+			SET_TEXT(i, 24, 288, 616, 378, false);
+			// 本来は横メニュー
+			SET_MENU(i, 464, 50, 623, 240, true);
+		} else if(nact->crc32_a == CRC32_DPS || nact->crc32_a == CRC32_DPS_SG || nact->crc32_a == CRC32_DPS_SG2 || nact->crc32_a == CRC32_DPS_SG3) {
+			SET_TEXT(i, 48, 288, 594, 393, false);
+			//SET_MENU(i, 48, 288, 584, 393, false);
+			SET_MENU(i, 48, 288, 594, 393, false);
+		} else if(nact->crc32_a == CRC32_FUKEI) {
+			SET_TEXT(i, 44, 282, 593, 396, false);
+			SET_MENU(i, 460, 14, 635, 214, false);
+		} else if(nact->crc32_a == CRC32_INTRUDER) {
+			SET_TEXT(i, 8, 280, 629, 393, false);
+			SET_MENU(i, 448, 136, 623, 340, true);
+		} else if(nact->crc32_a == CRC32_TENGU) {
+			SET_TEXT(i, 44, 282, 593, 396, false);
+			SET_MENU(i, 452, 14, 627, 214, false);
+		} else if(nact->crc32_a == CRC32_TOUSHIN_HINT) {
+			SET_TEXT(i, 8, 311, 623, 391, false);
+			SET_MENU(i, 452, 14, 627, 214, true);
+		} else if(nact->crc32_a == CRC32_VAMPIRE) {
+			SET_TEXT(i, 8, 255, 615, 383, false);
+			SET_MENU(i, 448, 11, 615, 224, false);
+		} else if(nact->crc32_a == CRC32_YAKATA) {
+			SET_TEXT(i, 48, 288, 594, 393, false);
+			SET_MENU(i, 452, 14, 627, 214, false);
+		} else
+#elif defined(_SYSTEM2)
+		if(nact->crc32_a == CRC32_DALK_HINT) {
+			SET_TEXT(i, 24, 308, 376, 386, false);
+			SET_MENU(i, 404, 28, 604, 244, true);
+		} else if(nact->crc32_a == CRC32_RANCE3_HINT) {
+			SET_TEXT(i, 104, 304, 615, 383, false);
+			SET_MENU(i, 464, 24, 623, 200, true);
+		} else if(nact->crc32_a == CRC32_YAKATA2) {
+			SET_TEXT(i, 104, 304, 620, 382, false);
+			SET_MENU(i, 420, 28, 620, 244, true);
+		} else
 #endif
+		{
+			SET_TEXT(i, 8, 311, 623, 391, true);
+			SET_MENU(i, 464, 80, 623, 240, true);
+		}
 		text_w[i].push = false;
 		text_w[i].screen = NULL;
 		text_w[i].window = NULL;
 		menu_w[i].push = true;
 		menu_w[i].screen = NULL;
 		menu_w[i].window = NULL;
-
 	}
 
 	// Eコマンド
@@ -298,9 +314,9 @@ AGS::AGS(NACT* parent) : nact(parent)
 		SET_BOX(i, 0, 0, 0, 639, 399);
 	}
 #if defined(_SYSTEM2)
-	if(nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
+	if(nact->crc32_a == CRC32_SDPS && (nact->crc32_b == CRC32_SDPS_TONO || nact->crc32_b == CRC32_SDPS_KAIZOKU)) {
 		SET_BOX(0, 0, 40, 8, 598, 271);
-	} else if(nact->crc32 == CRC32_PROSTUDENTG_FD) {
+	} else if(nact->crc32_a == CRC32_PROSTUDENTG_FD) {
 		SET_BOX(0, 0, 64, 13, 407, 289);
 		SET_BOX(1, 0, 24, 298, 111, 390);
 		SET_BOX(2, 0, 0, 0, 639, 307);
@@ -470,7 +486,7 @@ void AGS::fade_out(int depth, bool white)
 	fader = true;
 
 	for(int y = 0; y < 480; y += 4) {
-		uint32* dest = &lpBmpDest[640 * (479 - y - fy) + fx];
+		uint32 *dest = &lpBmpDest[640 * (479 - y - fy) + fx];
 		for(int x = 0; x < 640; x += 4) {
 			dest[x] = white ? 0xffffff : 0;
 		}
@@ -488,8 +504,8 @@ void AGS::fade_in(int depth)
 	fader = (depth == 15) ? false : true;
 
 	for(int y = 0; y < 480; y += 4) {
-		uint32* src = &fader_screen[640 * (479 - y - fy) + fx];
-		uint32* dest = &lpBmpDest[640 * (479 - y - fy) + fx];
+		uint32 *src = &fader_screen[640 * (479 - y - fy) + fx];
+		uint32 *dest = &lpBmpDest[640 * (479 - y - fy) + fx];
 		for(int x = 0; x < 640; x += 4) {
 			dest[x] = src[x];
 		}
@@ -503,8 +519,8 @@ void AGS::flush_screen(bool update)
 {
 	if(update) {
 		for(int y = 0; y < screen_height; y++) {
-			uint32* src = vram[0][y];
-			uint32* dest = &lpBmpDest[640 * (479 - y)];
+			uint32 *src = vram[0][y];
+			uint32 *dest = &lpBmpDest[640 * (479 - y)];
 			for(int x = 0; x < 640; x++) {
 #if defined(_SYSTEM3)
 				// あゆみちゃん物語 フルカラー実写版
@@ -523,8 +539,8 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 {
 	if(fader) {
 		for(int y = sy; y < (sy + height) && y < 480; y++) {
-			uint32* src = vram[0][y];
-			uint32* dest = &fader_screen[640 * (479 - y)];
+			uint32 *src = vram[0][y];
+			uint32 *dest = &fader_screen[640 * (479 - y)];
 			for(int x = sx; x < (sx + width) && x < 640; x++) {
 				uint32 a=src[x];
 #if defined(_SYSTEM3)
@@ -538,8 +554,8 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 		}
 	} else {
 		for(int y = sy; y < (sy + height) && y < 480; y++) {
-			uint32* src = vram[0][y];
-			uint32* dest = &lpBmpDest[640 * (479 - y)];
+			uint32 *src = vram[0][y];
+			uint32 *dest = &lpBmpDest[640 * (479 - y)];
 			for(int x = sx; x < (sx + width) && x < 640; x++) {
 				uint32 a=src[x];
 #if defined(_SYSTEM3)

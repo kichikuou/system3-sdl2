@@ -7,7 +7,7 @@
 #include "ags.h"
 #include "crc32.h"
 
-void AGS::load_pms(uint8* data, int page, int transparent)
+void AGS::load_pms(uint8 *data, int page, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0x0] | (data[0x1] << 8);
@@ -41,7 +41,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 			}
 		}
 #if defined(_SYSTEM3)
-		if(nact->crc32 == CRC32_RANCE41 || nact->crc32 == CRC32_RANCE42 || nact->crc32 == CRC32_HASHIRIONNA2) {
+		if(nact->crc32_a == CRC32_RANCE41 || nact->crc32_a == CRC32_RANCE42 || nact->crc32_a == CRC32_HASHIRIONNA2) {
 			// 上下16色は取得しない
 			for(int i = 1; i < 15; i++) {
 				for(int j = 0; j < 16; j++) {
@@ -50,7 +50,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 					}
 				}
 			}
-		} else if(nact->crc32 == CRC32_MUGENHOUYOU && transparent != -1) {
+		} else if(nact->crc32_a == CRC32_MUGENHOUYOU && transparent != -1) {
 			// Uコマンドでは上下32色は取得しない
 			for(int i = 2; i < 14; i++) {
 				for(int j = 0; j < 16; j++) {
@@ -59,8 +59,9 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 					}
 				}
 			}
-		} else {
+		} else
 #endif
+		{
 			for(int i = 0; i < 16; i++) {
 				for(int j = 0; j < 16; j++) {
 					if(!(mask & (0x01 << i))) {
@@ -68,15 +69,13 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 					}
 				}
 			}
-#if defined(_SYSTEM3)
 		}
-#endif
 	}
 
 	// パレット展開
 #if defined(_SYSTEM3)
-	if((extract_palette && extract_palette_cg[page]) || nact->crc32 == CRC32_FUNNYBEE_CD) {
-		if(nact->crc32 == CRC32_RANCE41 || nact->crc32 == CRC32_RANCE42 || nact->crc32 == CRC32_HASHIRIONNA2) {
+	if((extract_palette && extract_palette_cg[page]) || nact->crc32_a == CRC32_FUNNYBEE_CD) {
+		if(nact->crc32_a == CRC32_RANCE41 || nact->crc32_a == CRC32_RANCE42 || nact->crc32_a == CRC32_HASHIRIONNA2) {
 			// 上下16色は展開しない
 			for(int i = 1; i < 15; i++) {
 				for(int j = 0; j < 16; j++) {
@@ -85,7 +84,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 					}
 				}
 			}
-		} else if(nact->crc32 == CRC32_MUGENHOUYOU && transparent != -1) {
+		} else if(nact->crc32_a == CRC32_MUGENHOUYOU && transparent != -1) {
 			// Uコマンドでは上下32色は展開しない
 			for(int i = 2; i < 14; i++) {
 				for(int j = 0; j < 16; j++) {
@@ -155,7 +154,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 
 		// VRAMに転送
 		if(extract_cg) {
-			uint32* dest = &vram[dest_screen][y + sy][sx];
+			uint32 *dest = &vram[dest_screen][y + sy][sx];
 			if(transparent == -1) {
 				for(int x = 0; x < width; x++) {
 					cgdata[2][x] = cgdata[1][x];

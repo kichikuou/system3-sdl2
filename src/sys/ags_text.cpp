@@ -6,7 +6,7 @@
 
 #include "ags.h"
 
-void AGS::draw_text(char string[])
+void AGS::draw_text(const char *string)
 {
 	// フォントサイズの変更後、一度だけ更新する
 	if(draw_menu) {
@@ -105,7 +105,7 @@ void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uin
 		length = 1;
 	}
 	memset(draw_menu ? lpBmpMenu : lpBmpText, 0, 64 * 64 * sizeof(DWORD));
-	ExtTextOut(draw_menu ? hdcDibMenu : hdcDibText, 0, 0, NULL, NULL, string, length, NULL);
+	ExtTextOutA(draw_menu ? hdcDibMenu : hdcDibText, 0, 0, NULL, NULL, string, length, NULL);
 
 	// パターン出力
 	for(int y = 0; y < size && y < 64 && dest_y + y < 480; y++) {

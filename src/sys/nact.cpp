@@ -4,23 +4,22 @@
 	[ NACT ]
 */
 
-#if defined(_SYSTEM1)
-#include "../res1/resource.h"
-#elif defined(_SYSTEM2)
-#include "../res2/resource.h"
-#else
-#include "../res3/resource.h"
-#endif
-
 #include <windows.h>
 #include <windowsx.h>
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
 #include "dri.h"
+#include "crc32.h"
 #include "../fileio.h"
+#if defined(_SYSTEM1)
+#include "../res1/resource.h"
+#elif defined(_SYSTEM2)
+#include "../res2/resource.h"
+#elif defined(_SYSTEM3)
+#include "../res3/resource.h"
+#endif
 
-extern _TCHAR g_root[_MAX_PATH];
 extern HWND g_hwnd;
 
 // 初期化
@@ -34,28 +33,26 @@ NACT::NACT()
 	initialize_console();
 
 	// SYSTEM3 初期化
-
-	crc32 = calc_crc32();
+	crc32_a = calc_crc32("ADISK.DAT");
+	crc32_b = calc_crc32("BDISK.DAT");
 	fatal_error = post_quit = false;
 
 	// AG00.DAT読み込み
-	FILEIO* fio = new FILEIO();
-	_TCHAR file_path[_MAX_PATH];
-	_stprintf_s(file_path, _MAX_PATH, _T("%sAG00.DAT"), g_root);
+	FILEIO *fio = new FILEIO();
 
-	if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+	if(fio->Fopen("AG00.DAT", FILEIO_READ_BINARY)) {
 		int d0, d1, d2, d3;
 		char string[MAX_CAPTION];
-		fio->Fgets(string);
+		fio->Fgets(string, MAX_CAPTION);
 		sscanf_s(string, "%d,%d,%d,%d", &d0, &d1, &d2, &d3);
 		for(int i = 0; i < d1; i++) {
 			// 動詞の読み込み
-			fio->Fgets(string);
+			fio->Fgets(string, MAX_CAPTION);
 			memcpy(caption_verb[i], string, sizeof(string));
 		}
 		for(int i = 0; i < d2; i++) {
 			// 目的語の読み込み
-			fio->Fgets(string);
+			fio->Fgets(string, MAX_CAPTION);
 			memcpy(caption_obj[i], string, sizeof(string));
 		}
 		fio->Fclose();
@@ -64,9 +61,9 @@ NACT::NACT()
 
 	// ADISK.DAT
 #if defined(_PROG_OMAKE)
-	_tcscpy_s(adisk, 16, _T("AGAME.DAT"));
+	strcpy_s(adisk, 16, "AGAME.DAT");
 #else
-	_tcscpy_s(adisk, 16, _T("ADISK.DAT"));
+	strcpy_s(adisk, 16, "ADISK.DAT");
 #endif
 
 	// シナリオ管理
@@ -104,18 +101,20 @@ NACT::NACT()
 	pcm_index = 0;
 	memset(pcm, 0, sizeof(pcm));
 
+#if defined(_SYSTEM1)
 	// SYETEM1 初期化
-#if defined(_DPS)
-	text_refresh = false;
-	_tcscpy_s(tvar[0], 22, _T("カスタム"));
-	_tcscpy_s(tvar[1], 22, _T("リーナス"));
-	_tcscpy_s(tvar[2], 22, _T("かつみ"));
-	_tcscpy_s(tvar[3], 22, _T("由美子"));
-	_tcscpy_s(tvar[4], 22, _T("いつみ"));
-	_tcscpy_s(tvar[5], 22, _T("ひとみ"));
-	_tcscpy_s(tvar[6], 22, _T("真理子"));
-#elif defined(_INTRUDER)
-	paint_x = paint_y = map_page = 0;
+	if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+		text_refresh = false;
+		sprintf_s(tvar[0], 22, "カスタム");
+		sprintf_s(tvar[1], 22, "リーナス");
+		sprintf_s(tvar[2], 22, "かつみ");
+		sprintf_s(tvar[3], 22, "由美子");
+		sprintf_s(tvar[4], 22, "いつみ");
+		sprintf_s(tvar[5], 22, "ひとみ");
+		sprintf_s(tvar[6], 22, "真理子");
+	} else if(crc32_a == CRC32_INTRUDER) {
+		paint_x = paint_y = map_page = 0;
+	}
 #endif
 
 	// 各種クラス生成
@@ -204,6 +203,7 @@ void NACT::execute()
 #endif
 
 	// １コマンド実行
+	prev_addr = scenario_addr;
 	uint8 cmd = getd();
 
 	if(set_palette && cmd != 'P') {
@@ -329,16 +329,18 @@ void NACT::execute()
 		default:
 			if(cmd == 0x20 || (0xa1 <= cmd && cmd <= 0xdd)) {
 				// message (1 byte)
-				char string[2];
+				char string[3];
 				string[0] = cmd;
 				string[1] = '\0';
 				ags->draw_text(string);
-#if defined(_DPS)
-				if(!ags->draw_menu) {
-					text_refresh = false;
+				
+#if defined(_SYSTEM1)
+				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					if(!ags->draw_menu) {
+						text_refresh = false;
+					}
 				}
 #endif
-				
 				if(!ags->draw_menu && text_wait_enb && cmd != 0x20) {
 					DWORD dwTime = timeGetTime() + text_wait_time;
 					for(;;) {
@@ -355,10 +357,13 @@ void NACT::execute()
 						Sleep(10);
 					}
 				}
-
-#if defined(_DEBUG_CONSOLE)
+				if(!ags->draw_hankaku) {
+					uint16 code = ags->convert_zenkaku(cmd);
+					string[0] = code >> 8;
+					string[1] = code & 0xff;
+					string[2] = '\0';
+				}
 				output_console(string);
-#endif
 			} else if((0x81 <= cmd && cmd <= 0x9f) || 0xe0 <= cmd) {
 				// message (2 bytes)
 				char string[3];
@@ -366,12 +371,14 @@ void NACT::execute()
 				string[1] = getd();
 				string[2] = '\0';
 				ags->draw_text(string);
-#if defined(_DPS)
-				if(!ags->draw_menu) {
-					text_refresh = false;
+				
+#if defined(_SYSTEM1)
+				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					if(!ags->draw_menu) {
+						text_refresh = false;
+					}
 				}
 #endif
-				
 				if(!ags->draw_menu && text_wait_enb) {
 					DWORD dwTime = timeGetTime() + text_wait_time;
 					for(;;) {
@@ -388,19 +395,14 @@ void NACT::execute()
 						Sleep(10);
 					}
 				}
-
-#if defined(_DEBUG_CONSOLE)
 				output_console(string);
-#endif
 			} else {
+				if(cmd >= 0x20 && cmd < 0x7f) {
+					output_console("\nUnknown Command: '%c' at page = %d, addr = %d\n", cmd, scenario_page, prev_addr);
+				} else {
+					output_console("\nUnknown Command: %02x at page = %d, addr = %d\n", cmd, scenario_page, prev_addr);
+				}
 				fatal_error = true;
-
-#if defined(_DEBUG_CONSOLE)
-				char log[128];
-				memset(log, 0, sizeof(log));
-				sprintf_s(log, 128, "\nFAILED: %2x, %d", cmd, scenario_addr);
-				output_console(log);
-#endif
 			}
 			break;
 	}
@@ -411,7 +413,7 @@ void NACT::load_scenario(int page)
 	if(scenario_data) {
 		free(scenario_data);
 	}
-	DRI* dri = new DRI();
+	DRI *dri = new DRI();
 	if((scenario_data = dri->load(adisk, page + 1, &scenario_size)) == NULL) {
 		fatal_error = true;
 	}
@@ -422,11 +424,42 @@ void NACT::load_scenario(int page)
 
 uint16 NACT::random(uint16 range)
 {
-	// xorhift32
+	// xorshift32
 	seed = seed ^ (seed << 13);
 	seed = seed ^ (seed >> 17);
 	seed = seed ^ (seed << 15);
 	return (uint16)(((uint32)range * (seed & 0xffff)) >> 16) + 1;
+}
+
+void NACT::wait_after_open_menu()
+{
+	// 連打による誤クリック防止
+	DWORD dwTime = timeGetTime();
+	DWORD dwWait = dwTime + 400;
+
+	while(dwTime < dwWait) {
+		if(params.terminate) {
+			return;
+		}
+/*
+		if(get_key() == 16) {
+			break;
+		}
+*/
+		Sleep(10);
+		dwTime = timeGetTime();
+	}
+
+	// クリック中の間は待機
+	for(;;) {
+		if(params.terminate) {
+			return;
+		}
+		if(!get_key()) {
+			break;
+		}
+		Sleep(10);
+	}
 }
 
 // WinMainとのインターフェース
@@ -490,11 +523,11 @@ void NACT::initialize_console()
 	AllocConsole();
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 #if defined(_SYSTEM1)
-	SetConsoleTitle("SYSTEM1 NACT Tracer");
+	SetConsoleTitle(_T("SYSTEM1 NACT Tracer"));
 #elif defined(_SYSTEM2)
-	SetConsoleTitle("SYSTEM2 NACT Tracer");
-#else
-	SetConsoleTitle("SYSTEM3 NACT Tracer");
+	SetConsoleTitle(_T("SYSTEM2 NACT Tracer"));
+#elif defined(_SYSTEM3)
+	SetConsoleTitle(_T("SYSTEM3 NACT Tracer"));
 #endif
 #endif
 }
@@ -506,17 +539,24 @@ void NACT::release_console()
 #endif
 }
 
-void NACT::output_console(char log[])
+void NACT::output_console(const char *format, ...)
 {
 #if defined(_DEBUG_CONSOLE)
+	va_list ap;
+	char buffer[1024];
+	
+	va_start(ap, format);
+	vsprintf_s(buffer, sizeof(buffer), format, ap);
+	va_end(ap);
+	
 	DWORD dwWritten;
-	WriteConsole(hConsole, log, strlen(log), &dwWritten, NULL);
+	WriteConsoleA(hConsole, buffer, strlen(buffer), &dwWritten, NULL);
 #endif
 }
 
 BOOL CALLBACK NACT::TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	static NACT* nact;
+	static NACT *nact;
 	char string[64];
 	int pnt, cnt;
 	
@@ -529,8 +569,8 @@ BOOL CALLBACK NACT::TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lP
 			nact = (NACT *)lParam;
 			// init dialog
 			sprintf_s(string, 64, "文字列を入力してください（最大%d文字）", nact->tvar_maxlen);
-			Edit_SetText(GetDlgItem(hDlg, IDC_TEXT), string);
-			Edit_SetText(GetDlgItem(hDlg, IDC_EDITBOX), nact->tvar[nact->tvar_index - 1]);
+			SetWindowTextA(GetDlgItem(hDlg, IDC_TEXT), string);
+			SetWindowTextA(GetDlgItem(hDlg, IDC_EDITBOX), nact->tvar[nact->tvar_index - 1]);
 			if(nact->tvar[nact->tvar_index - 1][0] == '\0') {
 				EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
 			} else {
@@ -541,7 +581,7 @@ BOOL CALLBACK NACT::TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lP
 		case WM_COMMAND:
 			switch(LOWORD(wParam)) {
 				case IDC_EDITBOX:
-					GetDlgItemText(hDlg, IDC_EDITBOX, string, 32);
+					GetDlgItemTextA(hDlg, IDC_EDITBOX, string, 32);
 					pnt = cnt = 0;
 					while(string[pnt] != '\0') {
 						unsigned char dat = string[pnt];
@@ -558,7 +598,7 @@ BOOL CALLBACK NACT::TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lP
 					}
 					break;
 				case IDOK:
-					GetDlgItemText(hDlg, IDC_EDITBOX, string, 32);
+					GetDlgItemTextA(hDlg, IDC_EDITBOX, string, 32);
 					strcpy_s(nact->tvar[nact->tvar_index - 1], 22, string);
 					EndDialog(hDlg, IDOK);
 					break;

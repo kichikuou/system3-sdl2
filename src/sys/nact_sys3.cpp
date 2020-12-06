@@ -4,21 +4,13 @@
 	[ NACT - command ]
 */
 
-#if defined(_SYSTEM1)
-#include "../res1/resource.h"
-#elif defined(_SYSTEM2)
-#include "../res2/resource.h"
-#else
-#include "../res3/resource.h"
-#endif
-
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
 #include "crc32.h"
 #include "../fileio.h"
+#include "../res3/resource.h"
 
-extern _TCHAR g_root[_MAX_PATH];
 extern HINSTANCE g_hinst;
 extern HWND g_hwnd;
 
@@ -32,11 +24,7 @@ void NACT::cmd_calc()
 	}
 	var[index] = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n!var[%d]:%d!", index, var[index]);
-	output_console(log);
-#endif
+	output_console("\n!var[%d]:%d!", index, var[index]);
 }
 
 void NACT::cmd_branch()
@@ -48,11 +36,7 @@ void NACT::cmd_branch()
 	// sigmarion3 最適化誤爆の対策
 	scenario_addr = condition ? t_addr : f_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n{%d: T:%4x, F:%4x", condition, t_addr, f_addr);
-	output_console(log);
-#endif
+	output_console("\n{%d: T:%4x, F:%4x", condition, t_addr, f_addr);
 }
 
 void NACT::cmd_label_jump()
@@ -60,22 +44,14 @@ void NACT::cmd_label_jump()
 	int next_addr = getw();
 	scenario_addr = next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n@%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n@%x:", next_addr);
 }
 
 void NACT::cmd_label_call()
 {
 	int next_addr = getw();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n\\%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n\\%x:", next_addr);
 
 	if(next_addr == 0) {
 		// リターン
@@ -97,22 +73,14 @@ void NACT::cmd_page_jump()
 	scenario_page = next_page;
 	scenario_addr = 2;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n&%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n&%d:", next_page);
 }
 
 void NACT::cmd_page_call()
 {
 	int next_page = cali(), next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n%%%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n%%%d:", next_page);
 
 	if(next_page == 0) {
 		// リターン
@@ -139,11 +107,7 @@ void NACT::cmd_set_menu()
 		ags->menu_dest_y += ags->menu_font_size + 2;
 		ags->draw_menu = false;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "$");
-		output_console(log);
-#endif
+		output_console("$");
 	} else {
 		if(!menu_index) {
 			ags->clear_menu_window();
@@ -154,42 +118,21 @@ void NACT::cmd_set_menu()
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "\n$%x,", menu_addr[menu_index - 1]);
-		output_console(log);
-#endif
+		output_console("\n$%x,", menu_addr[menu_index - 1]);
 	}
 }
 
 void NACT::cmd_open_menu()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n]");
-	output_console(log);
-#endif
+	output_console("\n]");
 
 	if(!menu_index) {
 		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
 		return;
 	}
 
-	// クリック中の間は待機
-	for(;;) {
-		if(params.terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		Sleep(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -198,17 +141,20 @@ void NACT::cmd_open_menu()
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(params.terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key()) != 0) {
 				Sleep(100);
 				break;
 			}
@@ -237,6 +183,9 @@ void NACT::cmd_open_menu()
 			if(sx <= mx && mx <= ex && 0 <= index && index < menu_index) {
 				current_index = index;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -249,7 +198,8 @@ void NACT::cmd_open_menu()
 				current_index = menu_index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -280,11 +230,7 @@ void NACT::cmd_set_verbobj()
 	menu_obj[menu_index++] = obj;
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT::cmd_set_verbobj2()
@@ -301,21 +247,14 @@ void NACT::cmd_set_verbobj2()
 	}
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT::cmd_open_verb()
 {
 	// 動詞メニューの表示
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nopen verb-obj menu");
-	output_console(log);
-#endif
+	output_console("\nopen verb-obj menu");
+
 	verb_obj = false;
 
 	// 表示する動詞のチェック
@@ -344,21 +283,8 @@ void NACT::cmd_open_verb()
 	}
 	ags->draw_menu = false;
 
-	// クリック中の間は待機
-	for(;;) {
-		if(params.terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		Sleep(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -367,17 +293,20 @@ void NACT::cmd_open_verb()
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(params.terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key()) != 0) {
 				Sleep(100);
 				break;
 			}
@@ -406,6 +335,9 @@ void NACT::cmd_open_verb()
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
 				current_index = mindex;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -418,7 +350,8 @@ void NACT::cmd_open_verb()
 				current_index = index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -488,21 +421,8 @@ void NACT::cmd_open_obj(int verb)
 	ags->menu_dest_y += ags->menu_font_size + 2;
 	ags->draw_menu = false;
 
-	// クリック中の間は待機
-	for(;;) {
-		if(params.terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		Sleep(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -511,17 +431,20 @@ void NACT::cmd_open_obj(int verb)
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(params.terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key()) != 0) {
 				Sleep(100);
 				break;
 			}
@@ -550,6 +473,9 @@ void NACT::cmd_open_obj(int verb)
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
 				current_index = mindex;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -562,7 +488,8 @@ void NACT::cmd_open_obj(int verb)
 				current_index = index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -585,11 +512,7 @@ void NACT::cmd_open_obj(int verb)
 
 void NACT::cmd_a()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "A\n");
-	output_console(log);
-#endif
+	output_console("A\n");
 
 	if(!text_skip_enb) {
 		// Pushマークの表示
@@ -633,18 +556,13 @@ void NACT::cmd_b()
 	int p4 = cali();
 	int p5 = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
-	output_console(log);
-#endif
+	output_console("\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
 
 	if(cmd == 1) {
 		// あゆみちゃん物語
-		if(crc32 == CRC32_AYUMI_CD || crc32 == CRC32_AYUMI_JISSHA_256 || crc32 == CRC32_AYUMI_JISSHA_FULL) {
+		if(crc32_a == CRC32_AYUMI_CD || crc32_a == CRC32_AYUMI_JISSHA_256 || crc32_a == CRC32_AYUMI_JISSHA_FULL) {
 			p5 = 1;
 		}
-
 		ags->menu_w[index - 1].sx = column ? p1 * 8 : p1 & 0xfff8;
 		ags->menu_w[index - 1].sy = p2;
 		ags->menu_w[index - 1].ex = column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1;
@@ -679,7 +597,7 @@ void NACT::cmd_b()
 	} else if(cmd == 4) {
 		if(p5 == 0) {
 			// ウィンドウ退避
-			if(crc32 == CRC32_PROSTUDENTG_CD && p4) {
+			if(crc32_a == CRC32_PROSTUDENTG_CD && p4) {
 				// prostudent G オープニング画面化け対策
 				if(ags->text_w[index - 1].window) {
 					free(ags->text_w[index - 1].window);
@@ -699,6 +617,8 @@ void NACT::cmd_b()
 void NACT::cmd_d()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'D' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_e()
@@ -710,11 +630,7 @@ void NACT::cmd_e()
 	int ex = cali();
 	int ey = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nE %d,%d,%d,%d,%d,%d:", index, color, sx, sy, ex, ey);
-	output_console(log);
-#endif
+	output_console("\nE %d,%d,%d,%d,%d,%d:", index, color, sx, sy, ex, ey);
 
 	ags->box[index - 1].color = color;
 	ags->box[index - 1].sx = column ? sx * 8 : sx;
@@ -725,11 +641,7 @@ void NACT::cmd_e()
 
 void NACT::cmd_f()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nF");
-	output_console(log);
-#endif
+	output_console("\nF");
 
 	scenario_addr = 2;
 }
@@ -738,11 +650,7 @@ void NACT::cmd_g()
 {
 	int page = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nG %d:", page);
-	output_console(log);
-#endif
+	output_console("\nG %d:", page);
 
 	ags->load_cg(page, -1);
 }
@@ -752,11 +660,7 @@ void NACT::cmd_h()
 	int length = getd();
 	int val = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nH %d,%d:", length, val);
-	output_console(log);
-#endif
+	output_console("\nH %d,%d:", length, val);
 
 	// 隠しコマンド？
 	if(length >= 9) {
@@ -807,15 +711,11 @@ void NACT::cmd_i()
 	int dx = cali();
 	int dy = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nI %d,%d,%d,%d,%d,%d:", sx, sy, ex, ey, dx, dy);
-	output_console(log);
-#endif
+	output_console("\nI %d,%d,%d,%d,%d,%d:", sx, sy, ex, ey, dx, dy);
 
 	// X方向はカラム単位で切り捨て
 	sx = column ? sx * 8 : sx & 0xfff8;
-	ex = column ? ex * 8 - 1 : (crc32 == CRC32_NINGYO) ? (ex & 0xfff8) + 7 : (ex & 0xfff8) - 1;
+	ex = column ? ex * 8 - 1 : (crc32_a == CRC32_NINGYO) ? (ex & 0xfff8) + 7 : (ex & 0xfff8) - 1;
 	dx = column ? dx * 8 : dx & 0xfff8;
 	ags->copy(sx, sy, ex, ey, dx, dy);
 }
@@ -825,11 +725,7 @@ void NACT::cmd_j()
 	int x = cali();
 	int y = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nJ %d,%d:", x, y);
-	output_console(log);
-#endif
+	output_console("\nJ %d,%d:", x, y);
 
 	// x方向はカラム単位で切り捨て
 	ags->cg_dest_x = column ? x * 8 : x & 0xfff8;
@@ -841,11 +737,7 @@ void NACT::cmd_k()
 {
 	int cmd = getd(), val;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nK %d:", cmd);
-	output_console(log);
-#endif
+	output_console("\nK %d:", cmd);
 
 	// K6の場合は、すぐに返る
 	if(cmd == 6) {
@@ -862,7 +754,7 @@ void NACT::cmd_k()
 		if(params.terminate) {
 			return;
 		}
-		if(val = get_key()) {
+		if((val = get_key()) != 0) {
 			break;
 		}
 		if(1 <= cmd && cmd <= 3) {
@@ -918,19 +810,12 @@ void NACT::cmd_l()
 {
 	int index = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nL %d:", index);
-	output_console(log);
-#endif
+	output_console("\nL %d:", index);
 
 	if(index == 0) {
 		// 特殊セーブ
-		_TCHAR file_path[_MAX_PATH];
-		_stprintf_s(file_path, _MAX_PATH, _T("%sASLEEP.DAT"), g_root);
-
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+		FILEIO *fio = new FILEIO();
+		if(fio->Fopen("ASLEEP.DAT", FILEIO_READ_BINARY)) {
 			// U01 - U20
 			for(int i = 21; i <= 40; i++) {
 				var[i] = fio->Fgetw();
@@ -944,13 +829,11 @@ void NACT::cmd_l()
 		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 1;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+		FILEIO *fio = new FILEIO();
+		if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
 			fio->Fseek(112, FILEIO_SEEK_SET);
 
 			int next_page = fio->Fgetw() - 1;
@@ -1040,13 +923,11 @@ void NACT::cmd_l()
 		delete fio;
 	} else if(101 <= index && index <= 126) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 101;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 101);
 
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+		FILEIO *fio = new FILEIO();
+		if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
 			fio->Fseek(112 + 16, FILEIO_SEEK_SET);
 			var[0] = fio->Fgetw();
 			fio->Fclose();
@@ -1071,22 +952,18 @@ void NACT::cmd_m()
 	}
 	string[p] = '\0';
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nM %s:", string);
-	output_console(log);
-#endif
+	output_console("\nM %s:", string);
 
 	if(1 <= tvar_index && tvar_index <= 10) {
 		memcpy(tvar[tvar_index - 1], string, 22);
 	} else if(tvar_index == 31) {
-		_tcscpy_s(adisk, 16, string);
+		strcpy_s(adisk, 16, string);
 	} else if(tvar_index == 32) {
-		_tcscpy_s(ags->acg, 16, string);
+		strcpy_s(ags->acg, 16, string);
 	} else if(tvar_index == 33) {
-		_tcscpy_s(mako->amus, 16, string);
+		strcpy_s(mako->amus, 16, string);
 	} else if(tvar_index == 34) {
-		_tcscpy_s(mako->amse, 16, string);
+		strcpy_s(mako->amse, 16, string);
 	}
 }
 
@@ -1096,11 +973,7 @@ void NACT::cmd_n()
 	int src = cali();
 	int dest = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nN %d,%d,%d:", cmd, src, dest);
-	output_console(log);
-#endif
+	output_console("\nN %d,%d,%d:", cmd, src, dest);
 }
 
 void NACT::cmd_o()
@@ -1125,11 +998,7 @@ void NACT::cmd_o()
 		B15 = (val & 0x4000) ? 1 : 0;
 		B16 = (val & 0x8000) ? 1 : 0;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "\nO %d,%d:", cmd, val);
-		output_console(log);
-#endif
+		output_console("\nO %d,%d:", cmd, val);
 	} else {
 		uint16 val = 0;
 		val |= B01 ? 0x0001 : 0;
@@ -1151,11 +1020,7 @@ void NACT::cmd_o()
 		int index = cali2();
 		var[index] = val;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "\nO %d,var[%d]:", cmd, index);
-		output_console(log);
-#endif
+		output_console("\nO %d,var[%d]:", cmd, index);
 	}
 }
 
@@ -1166,11 +1031,7 @@ void NACT::cmd_p()
 	int g = cali();
 	int b = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nP %d,%d,%d,%d:", index, r, g, b);
-	output_console(log);
-#endif
+	output_console("\nP %d,%d,%d,%d:", index, r, g, b);
 
 	ags->set_palette(index, r, g, b);
 	set_palette = true;
@@ -1212,19 +1073,12 @@ void NACT::cmd_q()
 
 	int index = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nQ %d:", index);
-	output_console(log);
-#endif
+	output_console("\nQ %d:", index);
 
 	if(index == 0) {
 		// 特殊セーブ
-		_TCHAR file_path[_MAX_PATH];
-		_stprintf_s(file_path, _MAX_PATH, _T("%sASLEEP.DAT"), g_root);
-
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_WRITE_BINARY)) {
+		FILEIO *fio = new FILEIO();
+		if(fio->Fopen("ASLEEP.DAT", FILEIO_WRITE_BINARY)) {
 			// U01 - U20
 			for(int i = 21; i <= 40; i++) {
 				fio->Fputw(var[i]);
@@ -1238,13 +1092,11 @@ void NACT::cmd_q()
 		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 1;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_WRITE_BINARY)) {
+		FILEIO *fio = new FILEIO();
+		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY)) {
 			uint8 buffer[9510];
 			int p = 0;
 
@@ -1312,11 +1164,7 @@ void NACT::cmd_q()
 
 void NACT::cmd_r()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "R\n");
-	output_console(log);
-#endif
+	output_console("R\n");
 
 	// ウィンドウの表示範囲外の場合は改ページ
 	if(ags->return_text_line(text_window)) {
@@ -1328,11 +1176,7 @@ void NACT::cmd_s()
 {
 	int page = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nS %d:", page);
-	output_console(log);
-#endif
+	output_console("\nS %d:", page);
 
 	if(page) {
 		mako->play_music(page);
@@ -1346,11 +1190,7 @@ void NACT::cmd_t()
 	int x = cali();
 	int y = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nT %d,%d:", x, y);
-	output_console(log);
-#endif
+	output_console("\nT %d,%d:", x, y);
 
 	// x方向はカラム単位で切り捨て
 	ags->text_dest_x = column ? x * 8 : x & 0xfff8;
@@ -1362,13 +1202,9 @@ void NACT::cmd_u()
 	int page = cali();
 	int transparent = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nU %d,%d:", page, transparent);
-	output_console(log);
-#endif
+	output_console("\nU %d,%d:", page, transparent);
 
-	if(crc32 == CRC32_RANCE41 || crc32 == CRC32_RANCE42) {
+	if(crc32_a == CRC32_RANCE41 || crc32_a == CRC32_RANCE42) {
 		transparent = (transparent == 28) ? 12 : transparent;
 	}
 	ags->load_cg(page, transparent);
@@ -1379,11 +1215,7 @@ void NACT::cmd_v()
 	int cmd = cali();
 	int index = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nV %d,%d:", cmd, index);
-	output_console(log);
-#endif
+	output_console("\nV %d,%d:", cmd, index);
 
 	if(cmd == 0) {
 		for(int i = 0; i < 20; i++) {
@@ -1408,11 +1240,7 @@ void NACT::cmd_w()
 	int y = cali();
 	uint8 color = (uint8)cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nW %d,%d,%d", x, y, color);
-	output_console(log);
-#endif
+	output_console("\nW %d,%d,%d", x, y, color);
 
 	ags->paint(x, y, color);
 }
@@ -1421,11 +1249,7 @@ void NACT::cmd_x()
 {
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nX %d:", index);
-	output_console(log);
-#endif
+	output_console("\nX %d:", index);
 
 	if(1 <= index && index <= 10) {
 		ags->draw_text(tvar[index - 1]);
@@ -1437,11 +1261,7 @@ void NACT::cmd_y()
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nY %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nY %d,%d:", cmd, param);
 
 	switch(cmd) {
 		case 1:
@@ -1736,7 +1556,7 @@ void NACT::cmd_y()
 		case 231:
 			D01 = 640;
 			D02 = (param == 1) ? ags->screen_height : 480;
-			D03 = (crc32 == CRC32_YAKATA3_FD) ? 16 : 256;
+			D03 = (crc32_a == CRC32_YAKATA3_FD) ? 16 : 256;
 			break;
 		case 232:
 			if(ags->screen_height != param ? 480 : 400) {
@@ -1770,14 +1590,12 @@ void NACT::cmd_y()
 			}
 			break;
 		case 239:
-			{
-				_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
-				_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-				path[7] = _T('A') + param - 1;
-				_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
-
-				HANDLE hFile = CreateFile(file_path, GENERIC_READ, FILE_SHARE_WRITE, NULL,
-				                          OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			if(1 <= param && param <= 26) {
+				char file_name[_MAX_PATH];
+				sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + param - 1);
+				
+				HANDLE hFile = CreateFileA(FILEIO::GetFilePath(file_name), GENERIC_READ, FILE_SHARE_WRITE, NULL,
+				                           OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 				if(hFile != INVALID_HANDLE_VALUE) {
 					FILETIME fTime, fLocalTime;
 					SYSTEMTIME sTime;
@@ -1794,6 +1612,9 @@ void NACT::cmd_y()
 				} else {
 					D01 = D02 = D03 = D04 = D05 = D06 = 0;
 				}
+			} else {
+				// 不正なファイル番号
+				D01 = D02 = D03 = D04 = D05 = D06 = 0;
 			}
 			break;
 		case 240:
@@ -1802,29 +1623,33 @@ void NACT::cmd_y()
 		case 241:
 			break;
 		case 250:
-			{
-				_TCHAR path[4];
-				path[0] = g_root[0];
-				path[1] = _T(':');
-				path[2] = _T('\\');
-				path[3] = _T('\0');
-				UINT t = GetDriveType(path);
+			if(FILEIO::GetRootPath()[1] == ':') {
+				_TCHAR root_path[4];
+				root_path[0] = FILEIO::GetRootPath()[0];
+				root_path[1] = ':';
+				root_path[2] = '\\';
+				root_path[3] = '\0';
+				
+				UINT t = GetDriveType(root_path);
 				// フロッピーから起動した場合は0が返る
 				//RND = (t == DRIVE_REMOVABLE) ? 0 : (t == DRIVE_CDROM) ? 2 : 1;
 				RND = (t == DRIVE_CDROM) ? 2 : 1;
+			} else {
+				// ネットワークドライブ？
+				RND = 1;
 			}
 			break;
 		case 251:
 			column = param ? false : true;
 			break;
 		case 252:
-			RND = (crc32 == CRC32_YAKATA3_FD) ? 4 : 8;
+			RND = (crc32_a == CRC32_YAKATA3_FD) ? 4 : 8;
 			break;
 		case 253:
 			show_push = (param == 0) ? true : false;
 			break;
 		case 254:
-			RND = (crc32 == CRC32_YAKATA3_CD || crc32 == CRC32_YAKATA3_FD || crc32 == CRC32_NINGYO) ? 1 : 0;
+			RND = (crc32_a == CRC32_YAKATA3_CD || crc32_a == CRC32_YAKATA3_FD || crc32_a == CRC32_NINGYO) ? 1 : 0;
 			break;
 		case 255:
 			post_quit = (param == 1) ? true : false;
@@ -1838,11 +1663,7 @@ void NACT::cmd_z()
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nZ %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nZ %d,%d:", cmd, param);
 
 	if(cmd == 0) {
 		ags->palette_bank = (uint8)(param & 0xff);

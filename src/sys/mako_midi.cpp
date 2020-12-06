@@ -6,6 +6,7 @@
 
 #include "mako.h"
 #include "dri.h"
+#include "crc32.h"
 
 extern HINSTANCE g_hinst;
 extern HWND g_hwnd;
@@ -228,13 +229,12 @@ void MAKO::play_midi()
 				} else if(d0 == 0xeb) {
 					play[i].pan = next_mml(i);
 					send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
-				}
-#if !defined(_DPS)
-				else if(d0 == 0xec) {
-					mute_flag = true;
-				}
+				} else if(d0 == 0xec) {
+#if defined(_SYSTEM1)
+					if(!(nact->crc32_a == CRC32_DPS || nact->crc32_a == CRC32_DPS_SG || nact->crc32_a == CRC32_DPS_SG2 || nact->crc32_a == CRC32_DPS_SG3))
 #endif
-				else if(d0 == 0xf5) {
+					mute_flag = true;
+				} else if(d0 == 0xf5) {
 					int n = next_mml(i);
 					if(n != play[i].timbre) {
 						if(mda[n].bank_select < 128) {
@@ -291,9 +291,9 @@ void MAKO::play_midi()
 bool MAKO::load_mml(int page)
 {
 	// データ読み込み
-	DRI* dri = new DRI();
+	DRI *dri = new DRI();
 	int size;
-	uint8* data = dri->load(amus, page, &size);
+	uint8 *data = dri->load(amus, page, &size);
 	if(data == NULL) {
 		delete dri;
 		return false;
@@ -478,18 +478,18 @@ void MAKO::load_mda(int page)
 	tempo_dif = 0x40;
 
 	// MDAデータの読み込み
-	_TCHAR path[16];
-	_tcscpy_s(path, 16, amus);
-	int p = _tcslen(path);
-	path[p - 3] = _T('M');
-	path[p - 2] = _T('D');
-	path[p - 1] = _T('A');
+	char path[16];
+	strcpy_s(path, 16, amus);
+	int p = strlen(path);
+	path[p - 3] = 'M';
+	path[p - 2] = 'D';
+	path[p - 1] = 'A';
 
-	DRI* dri = new DRI();
+	DRI *dri = new DRI();
 	int size;
-	uint8* data = NULL;
+	uint8 *data = NULL;
 	if((data = dri->load(path, page, &size)) == NULL) {
-		data = dri->load_mda(g_hinst, nact->crc32, page, &size);
+		data = dri->load_mda(g_hinst, nact->crc32_a, nact->crc32_b, page, &size);
 	}
 
 	if(data) {
@@ -500,7 +500,7 @@ void MAKO::load_mda(int page)
 
 		// SSGパートの音色設定
 		for(int i = 0; i < 3; i++) {
-			uint8* buf = &data[map_wide * i + 27];
+			uint8 *buf = &data[map_wide * i + 27];
 			mda[i + 256].bank_select = buf[0];
 			mda[i + 256].program_change = buf[1];
 			mda[i + 256].level = buf[2];
@@ -512,7 +512,7 @@ void MAKO::load_mda(int page)
 
 		// 通常の音色設定
 		for(int i = 0; i < inst_num; i++) {
-			uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * i];
+			uint8 *buf = &data[27 + map_wide * 3 + (map_wide + 1) * i];
 			int n = buf[0];
 			mda[n].bank_select = buf[1];
 			mda[n].program_change = buf[2];
@@ -525,7 +525,7 @@ void MAKO::load_mda(int page)
 
 		// ドラムパートの音色設定
 		if(drum_format) {
-			uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * inst_num];
+			uint8 *buf = &data[27 + map_wide * 3 + (map_wide + 1) * inst_num];
 			int drum_num = buf[0];
 			for(int i = 0; i < drum_num; i++) {
 				int d = buf[i * 3 + 1];

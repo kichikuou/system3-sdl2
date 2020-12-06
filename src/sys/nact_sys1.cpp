@@ -18,11 +18,7 @@
 #include "../fileio.h"
 
 // メニューの改ページ
-#if defined(_INTRUDER)
-#define MENU_MAX 6
-#else
-#define MENU_MAX 11
-#endif
+#define MENU_MAX (crc32_a == CRC32_INTRUDER ? 6 : 11)
 
 #define WAIT(tm) \
 { \
@@ -67,28 +63,27 @@
 	} \
 }
 
-extern _TCHAR g_root[_MAX_PATH];
 extern HWND g_hwnd;
 
 void NACT::opening()
 {
-#if defined(_CRESCENT)
-	mako->play_music(2);
-	ags->load_cg(1, -1);
-	WAIT(3000);
-	ags->load_cg(81, -1);
-#elif defined(_INTRUDER)
-	ags->load_cg(77, -1);
-	WAIT(1667)
-	ags->load_cg(74, -1);
-#elif defined(_VAMPIRE)
-	mako->play_music(4);
-	ags->load_cg(3, -1);
-	WAIT(2000)
-	ags->load_cg(38, -1);
-	cmd_a();
-	ags->draw_box(0);
-#endif
+	if(crc32_a == CRC32_CRESCENT) {
+		mako->play_music(2);
+		ags->load_cg(1, -1);
+		WAIT(3000);
+		ags->load_cg(81, -1);
+	} else if(crc32_a == CRC32_INTRUDER) {
+		ags->load_cg(77, -1);
+		WAIT(1667)
+		ags->load_cg(74, -1);
+	} else if(crc32_a == CRC32_VAMPIRE) {
+		mako->play_music(4);
+		ags->load_cg(3, -1);
+		WAIT(2000)
+		ags->load_cg(38, -1);
+		cmd_a();
+		ags->draw_box(0);
+	}
 }
 
 void NACT::cmd_calc()
@@ -101,11 +96,7 @@ void NACT::cmd_calc()
 	}
 	var[index] = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n!var[%d]:%d!", index, var[index]);
-	output_console(log);
-#endif
+	output_console("\n!var[%d]:%d!", index, var[index]);
 }
 
 void NACT::cmd_branch()
@@ -115,7 +106,9 @@ void NACT::cmd_branch()
 	bool set_menu = false;
 
 	if(!condition) {
+		// 次の'}'命令までスキップする（ネストも考慮する）
 		for(;;) {
+			prev_addr = scenario_addr;
 			uint8 cmd = getd();
 
 			if(cmd == '!') {
@@ -134,19 +127,16 @@ void NACT::cmd_branch()
 					break;
 				}
 			} else if(cmd == '@') {
-				getd();
-				getd();
+				getw();
 			} else if(cmd == '\\') {
-				getd();
-				getd();
+				getw();
 			} else if(cmd == '&') {
 				cali();
 			} else if(cmd == '%') {
 				cali();
 			} else if(cmd == '$') {
 				if(!set_menu) {
-					getd();
-					getd();
+					getw();
 					set_menu = true;
 				} else {
 					set_menu = false;
@@ -154,14 +144,12 @@ void NACT::cmd_branch()
 			} else if(cmd == '[') {
 				getd();
 				getd();
-				getd();
-				getd();
+				getw();
 			} else if(cmd == ':') {
 				cali();
 				getd();
 				getd();
-				getd();
-				getd();
+				getw();
 			} else if(cmd == ']') {
 				
 			} else if(cmd == 'A') {
@@ -197,17 +185,18 @@ void NACT::cmd_branch()
 				// message (2 bytes)
 				getd();
 			} else {
+				if(cmd >= 0x20 && cmd < 0x7f) {
+					output_console("\nUnknown Command: '%c' at page = %d, addr = %d\n", cmd, scenario_page, prev_addr);
+				} else {
+					output_console("\nUnknown Command: %02x at page = %d, addr = %d\n", cmd, scenario_page, prev_addr);
+				}
 				fatal_error = true;
 				break;
 			}
 		}
 	}
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n{%d:", condition);
-	output_console(log);
-#endif
+	output_console("\n{%d:", condition);
 }
 
 void NACT::cmd_label_jump()
@@ -215,22 +204,14 @@ void NACT::cmd_label_jump()
 	int next_addr = getw();
 	scenario_addr = next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n@%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n@%x:", next_addr);
 }
 
 void NACT::cmd_label_call()
 {
 	int next_addr = getw();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n\\%x:", next_addr);
-	output_console(log);
-#endif
+	output_console("\n\\%x:", next_addr);
 
 	if(next_addr == 0) {
 		// リターン
@@ -252,22 +233,14 @@ void NACT::cmd_page_jump()
 	scenario_page = next_page;
 	scenario_addr = 2;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n&%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n&%d:", next_page);
 }
 
 void NACT::cmd_page_call()
 {
 	int next_page = cali(), next_addr;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n%%%d:", next_page);
-	output_console(log);
-#endif
+	output_console("\n%%%d:", next_page);
 
 	if(next_page == 0) {
 		// リターン
@@ -294,11 +267,7 @@ void NACT::cmd_set_menu()
 		ags->menu_dest_y += ags->menu_font_size + 2;
 		ags->draw_menu = false;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "$");
-		output_console(log);
-#endif
+		output_console("$");
 	} else {
 		if(!menu_index) {
 			ags->clear_menu_window();
@@ -309,48 +278,27 @@ void NACT::cmd_set_menu()
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
-#if defined(_DEBUG_CONSOLE)
-		char log[128];
-		sprintf_s(log, 128, "\n$%x,", menu_addr[menu_index - 1]);
-		output_console(log);
-#endif
+		output_console("\n$%x,", menu_addr[menu_index - 1]);
 	}
 }
 
 void NACT::cmd_open_menu()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n]");
-	output_console(log);
-#endif
+	output_console("\n]");
 
 	if(!menu_index) {
 		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
 		return;
 	}
 
-#if defined(_DPS)
-	if(!text_refresh) {
-		cmd_a();
-	}
-#endif
-
-	// クリック中の間は待機
-	for(;;) {
-		if(params.terminate) {
-			return;
+	if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+		if(!text_refresh) {
+			cmd_a();
 		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		Sleep(10);
 	}
 
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -359,17 +307,20 @@ void NACT::cmd_open_menu()
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(params.terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key()) != 0) {
 				Sleep(100);
 				break;
 			}
@@ -398,6 +349,9 @@ void NACT::cmd_open_menu()
 			if(sx <= mx && mx <= ex && 0 <= index && index < menu_index) {
 				current_index = index;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -410,7 +364,8 @@ void NACT::cmd_open_menu()
 				current_index = menu_index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -441,11 +396,7 @@ void NACT::cmd_set_verbobj()
 	menu_obj[menu_index++] = obj;
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT::cmd_set_verbobj2()
@@ -462,21 +413,14 @@ void NACT::cmd_set_verbobj2()
 	}
 	verb_obj = true;
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
-	output_console(log);
-#endif
+	output_console("\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
 }
 
 void NACT::cmd_open_verb()
 {
 	// 動詞メニューの表示
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nopen verb-obj menu");
-	output_console(log);
-#endif
+	output_console("\nopen verb-obj menu");
+
 	verb_obj = false;
 
 	// 表示する動詞のチェック
@@ -540,21 +484,8 @@ top2:
 	}
 	ags->draw_menu = false;
 
-	// クリック中の間は待機
-	for(;;) {
-		if(params.terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		Sleep(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -563,17 +494,20 @@ top2:
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(params.terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key()) != 0) {
 				Sleep(100);
 				break;
 			}
@@ -602,6 +536,9 @@ top2:
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
 				current_index = mindex;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -614,7 +551,8 @@ top2:
 				current_index = index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -728,21 +666,8 @@ top2:
 	}
 	ags->draw_menu = false;
 
-	// クリック中の間は待機
-	for(;;) {
-		if(params.terminate) {
-			return;
-		}
-//		if(get_key() != 32) {
-		if(!get_key()) {
-			break;
-		}
-		Sleep(10);
-	}
-
 	// メニュー表示
 	ags->open_menu_window(menu_window);
-	int current_index = 0;
 
 	// マウス移動
 	int sx = ags->menu_w[menu_window - 1].sx;
@@ -751,17 +676,20 @@ top2:
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
 	set_cursor(mx, my);
+	wait_after_open_menu();
 
 	// メニュー選択
-	for(;;) {
+	for(bool selectable = true;;) {
 		// 入力待機
 		int val = 0, current_mx = mx, current_my = my;
 		for(;;) {
 			if(params.terminate) {
 				return;
 			}
-			if(val = get_key()) {
+			if((val = get_key()) != 0) {
 				Sleep(100);
 				break;
 			}
@@ -790,6 +718,9 @@ top2:
 			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
 				current_index = mindex;
 				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
 			}
 		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
 			if(val == 1) {
@@ -802,7 +733,8 @@ top2:
 				current_index = index - 1;
 			}
 			ags->redraw_menu_window(menu_window, current_index);
-		} else if(val == 16) {
+			selectable = true;
+		} else if(val == 16 && selectable) {
 			break;
 		} else if(val == 32) {
 			current_index = -1;
@@ -827,11 +759,7 @@ top2:
 
 void NACT::cmd_a()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "A\n");
-	output_console(log);
-#endif
+	output_console("A\n");
 
 	if(!text_skip_enb) {
 		// Pushマークの表示
@@ -864,33 +792,35 @@ void NACT::cmd_a()
 	// ウィンドウ更新
 	ags->clear_text_window(text_window, true);
 
-#if defined(_DPS)
-	text_refresh = true;
-#endif
+	if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+		text_refresh = true;
+	}
 }
 
 void NACT::cmd_b()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'B' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_d()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'D' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_e()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'E' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_f()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nF");
-	output_console(log);
-#endif
+	output_console("\nF");
 
 	scenario_addr = 2;
 }
@@ -899,67 +829,65 @@ void NACT::cmd_g()
 {
 	int page = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nG %d:", page);
-	output_console(log);
-#endif
+	output_console("\nG %d:", page);
 
-#if defined(_INTRUDER)
-	page = (page == 97) ? 96 : (page == 98) ? 97 : page;
-#endif
+	if(crc32_a == CRC32_INTRUDER) {
+		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
+	}
 
 	ags->load_cg(page, -1);
 
-#if defined(_INTRUDER)
-	if(page == 94) {
-		WAIT(400)
+	if(crc32_a == CRC32_INTRUDER) {
+		if(page == 94) {
+			WAIT(400)
+		}
+		if(page == 81 || page == 82) {
+			map_page = page;
+		}
 	}
-	if(page == 81 || page == 82) {
-		map_page = page;
-	}
-#endif
 }
 
 void NACT::cmd_h()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'H' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_i()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'I' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_j()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'J' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_k()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'K' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_l()
 {
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nL %d:", index);
-	output_console(log);
-#endif
+	output_console("\nL %d:", index);
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 1;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+		FILEIO *fio = new FILEIO();
+		if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
 			fio->Fseek(112, FILEIO_SEEK_SET);
 
 			int next_page = fio->Fgetw() - 1;
@@ -1053,16 +981,22 @@ void NACT::cmd_l()
 void NACT::cmd_m()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'M' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_n()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'N' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_o()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'O' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_p()
@@ -1071,11 +1005,7 @@ void NACT::cmd_p()
 
 	ags->text_font_color = (uint8)((param & 0x7) + 16);
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nP %d:", param);
-	output_console(log);
-#endif
+	output_console("\nP %d:", param);
 }
 
 #define FWRITE(data, size) { \
@@ -1102,21 +1032,15 @@ void NACT::cmd_q()
 
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nQ %d:", index);
-	output_console(log);
-#endif
+	output_console("\nQ %d:", index);
 
 	if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		_TCHAR path[_MAX_PATH], file_path[_MAX_PATH];
-		_tcscpy_s(path, _MAX_PATH, _T("ASLEEP_A.DAT"));
-		path[7] = _T('A') + index - 1;
-		_stprintf_s(file_path, _MAX_PATH, _T("%s%s"), g_root, path);
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_path, FILEIO_WRITE_BINARY)) {
+		FILEIO *fio = new FILEIO();
+		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY)) {
 			uint8 buffer[9510];
 			int p = 0;
 
@@ -1184,11 +1108,7 @@ void NACT::cmd_q()
 
 void NACT::cmd_r()
 {
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "R\n");
-	output_console(log);
-#endif
+	output_console("R\n");
 
 	// ウィンドウの表示範囲外の場合は改ページ
 	if(ags->return_text_line(text_window)) {
@@ -1200,11 +1120,7 @@ void NACT::cmd_s()
 {
 	int page = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nS %d:", page);
-	output_console(log);
-#endif
+	output_console("\nS %d:", page);
 
 	if(page) {
 		mako->play_music(page);
@@ -1216,6 +1132,8 @@ void NACT::cmd_s()
 void NACT::cmd_t()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'T' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_u()
@@ -1223,42 +1141,38 @@ void NACT::cmd_u()
 	int page = getd();
 	int transparent = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nU %d,%d:", page, transparent);
-	output_console(log);
-#endif
+	output_console("\nU %d,%d:", page, transparent);
 
-#if defined(_INTRUDER)
-	ags->load_cg(page, 11);
+	if(crc32_a == CRC32_INTRUDER) {
+		ags->load_cg(page, 11);
 
-	if(page == 5) {
-		WAIT(400)
+		if(page == 5) {
+			WAIT(400)
+		}
+	} else {
+		ags->load_cg(page, transparent);
 	}
-#else
-	ags->load_cg(page, transparent);
-#endif
 }
 
 void NACT::cmd_v()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'V' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_w()
 {
 	// 未使用
+	output_console("\nUnknown Command: 'W' at page = %d, addr = %d\n", scenario_page, prev_addr);
+	fatal_error = true;
 }
 
 void NACT::cmd_x()
 {
 	int index = getd();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nX %d:", index);
-	output_console(log);
-#endif
+	output_console("\nX %d:", index);
 
 	if(1 <= index && index <= 10) {
 		ags->draw_text(tvar[index - 1]);
@@ -1270,228 +1184,223 @@ void NACT::cmd_y()
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nY %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nY %d,%d:", cmd, param);
 
-#if defined(_BUNKASAI) || defined(_CRESCENT) || defined(_DPS) || defined(_FUKEI) || defined(_TENGU)
-	switch(cmd) {
-		case 0:
-			ags->clear_text_window(text_window, true);
-			break;
-		case 1:
-			{
-				char buf[16];
-				buf[0] = '0' + (int)(param / 10000);
-				param %= 10000;
-				buf[1] = '0' + (int)(param / 1000);
-				param %= 1000;
-				buf[2] = '0' + (int)(param / 100);
-				param %= 100;
-				buf[3] = '0' + (int)(param / 10);
-				buf[4] = '0' + (param % 10);
-				buf[5] = '\0';
-
-				int p = 0;
+	if(crc32_a == CRC32_INTRUDER) {
+		switch(cmd) {
+			case 0:
+				ags->clear_text_window(text_window, true);
+				break;
+			case 1:
+				if(show_push) {
+					ags->draw_push(text_window);
+				}
 				for(;;) {
-					if(buf[p] != '0') {
+					if(params.terminate) {
+						return;
+					}
+					if(get_key()) {
 						break;
 					}
-					p++;
+					Sleep(10);
 				}
-				ags->draw_text(&buf[p < 4 ? p : 4]);
-			}
-			break;
-		case 2:
-#if defined(_CRESCENT)
-			for(int i = 39; i <= 48; i++) {
-#elif defined(_DPS)
-			for(int i = 0; i <= 20; i++) {
-#else
-			for(int i = 0; i <= 16; i++) {
-#endif
-				var[i] = 0;
-			}
-			break;
-		case 3:
-			WAIT(param * 1000 / 60)
-			break;
-		case 4:
-			RND = (param == 0 || param == 1) ? 0 : random(param);
-			break;
-#if defined(_DPS)
-		case 7:
-			if(param == 1) {
-				ags->box_fill(0, 40, 8, 598, 270, 0);
-			}
-			break;
-#endif
-#if defined(_TENGU)
-		case 130:
-			{
-				WAIT(2000)
-				ags->load_cg(180, -1);
-
-				WAIT(2000)
-				ags->draw_box(0);
-				ags->dest_screen = 1;
-				ags->load_cg(173, -1);
-				ags->dest_screen = 0;
-				ags->gcopy(0x1ecd, 0x3a2a, 8, 60, 3);
-				WAIT(667);
-				ags->gcopy(0x1b65, 0x262e, 8, 60, 3);
-				ags->gcopy(0x2e25, 0x38ee, 7, 9, 3);
-				WAIT(667);
-				ags->gcopy(0x1914, 0x1914, 8, 63, 3);
-				WAIT(667);
-				ags->gcopy(0x182c, 0x182c, 7, 50, 3);
-				WAIT(667);
-				ags->gcopy(0x0000, 0x1ecd, 32, 60, 1);
-				WAIT(667);
-				for(int i = 12; i <= 57; i++) {
-					ags->gcopy(i + 0x2306, i + 0x2306, 1, 165, 3);
+				Sleep(100);
+				for(;;) {
+					if(params.terminate) {
+						return;
+					}
+					if(!(get_key() & 0x18)) {
+						break;
+					}
+					Sleep(10);
 				}
-				WAIT_KEYQUIT(6000)
-				ags->draw_box(param);
-			}
-			break;
-#endif
-		case 253:
-			post_quit = false;
-			fatal_error = true;
-			break;
-		case 254:
-			RND = 0;
-			break;
-		case 255:
-#if defined(_DPS)
-			post_quit = false;
-#else
-			post_quit = true;
-#endif
-			fatal_error = true;
-			break;
-	}
-#elif defined(_INTRUDER)
-	switch(cmd) {
-		case 0:
-			ags->clear_text_window(text_window, true);
-			break;
-		case 1:
-			if(show_push) {
-				ags->draw_push(text_window);
-			}
-			for(;;) {
-				if(params.terminate) {
-					return;
+				ags->clear_text_window(text_window, true);
+				break;
+			case 2:
+				if(param == 0) {
+					post_quit = true;
+					fatal_error = true;
+				} else {
+					WAIT(100)
 				}
-				if(get_key()) {
-					break;
-				}
-				Sleep(10);
-			}
-			Sleep(100);
-			for(;;) {
-				if(params.terminate) {
-					return;
-				}
-				if(!(get_key() & 0x18)) {
-					break;
-				}
-				Sleep(10);
-			}
-			ags->clear_text_window(text_window, true);
-			break;
-		case 2:
-			if(param == 0) {
+				break;
+			case 3:
+				WAIT(param * 1000)
+				break;
+			case 255:
 				post_quit = true;
 				fatal_error = true;
-			} else {
-				WAIT(100)
-			}
-			break;
-		case 3:
-			WAIT(param * 1000)
-			break;
-		case 255:
-			post_quit = true;
-			fatal_error = true;
-			break;
+				break;
+		}
+	} else {
+		switch(cmd) {
+			case 0:
+				ags->clear_text_window(text_window, true);
+				break;
+			case 1:
+				{
+					char buf[16];
+					buf[0] = '0' + (int)(param / 10000);
+					param %= 10000;
+					buf[1] = '0' + (int)(param / 1000);
+					param %= 1000;
+					buf[2] = '0' + (int)(param / 100);
+					param %= 100;
+					buf[3] = '0' + (int)(param / 10);
+					buf[4] = '0' + (param % 10);
+					buf[5] = '\0';
+
+					int p = 0;
+					for(;;) {
+						if(buf[p] != '0') {
+							break;
+						}
+						p++;
+					}
+					ags->draw_text(&buf[p < 4 ? p : 4]);
+				}
+				break;
+			case 2:
+				if(crc32_a == CRC32_CRESCENT) {
+					for(int i = 39; i <= 48; i++) {
+						var[i] = 0;
+					}
+				} else if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					for(int i = 0; i <= 20; i++) {
+						var[i] = 0;
+					}
+				} else {
+					for(int i = 0; i <= 16; i++) {
+						var[i] = 0;
+					}
+				}
+				break;
+			case 3:
+				WAIT(param * 1000 / 60)
+				break;
+			case 4:
+				RND = (param == 0 || param == 1) ? 0 : random(param);
+				break;
+			case 7:
+				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					if(param == 1) {
+						ags->box_fill(0, 40, 8, 598, 270, 0);
+					}
+				}
+				break;
+			case 130:
+				if(crc32_a == CRC32_TENGU) {
+					WAIT(2000)
+					ags->load_cg(180, -1);
+
+					WAIT(2000)
+					ags->draw_box(0);
+					ags->dest_screen = 1;
+					ags->load_cg(173, -1);
+					ags->dest_screen = 0;
+					ags->gcopy(0x1ecd, 0x3a2a, 8, 60, 3);
+					WAIT(667);
+					ags->gcopy(0x1b65, 0x262e, 8, 60, 3);
+					ags->gcopy(0x2e25, 0x38ee, 7, 9, 3);
+					WAIT(667);
+					ags->gcopy(0x1914, 0x1914, 8, 63, 3);
+					WAIT(667);
+					ags->gcopy(0x182c, 0x182c, 7, 50, 3);
+					WAIT(667);
+					ags->gcopy(0x0000, 0x1ecd, 32, 60, 1);
+					WAIT(667);
+					for(int i = 12; i <= 57; i++) {
+						ags->gcopy(i + 0x2306, i + 0x2306, 1, 165, 3);
+					}
+					WAIT_KEYQUIT(6000)
+					ags->draw_box(param);
+				}
+				break;
+			case 253:
+				post_quit = false;
+				fatal_error = true;
+				break;
+			case 254:
+				RND = 0;
+				break;
+			case 255:
+				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+					post_quit = false;
+				} else {
+					post_quit = true;
+				}
+				fatal_error = true;
+				break;
+		}
 	}
-#endif
 }
 
 void NACT::cmd_z()
 {
-#if defined(_CRESCENT)
-	cmd_y();
-	return;
-#endif
+	if(crc32_a == CRC32_CRESCENT) {
+		cmd_y();
+		return;
+	}
+
 	int cmd = cali();
 	int param = cali();
 
-#if defined(_DEBUG_CONSOLE)
-	char log[128];
-	sprintf_s(log, 128, "\nZ %d,%d:", cmd, param);
-	output_console(log);
-#endif
+	output_console("\nZ %d,%d:", cmd, param);
 
-#if defined(_INTRUDER)
-	if(cmd == 1 && 1 <= param && param <= 4) {
-		char* buf[4] = {"＜", "∧", "＞", "∨"};
+	if(crc32_a == CRC32_INTRUDER) {
+		if(cmd == 1 && 1 <= param && param <= 4) {
+			char *buf[4] = {"＜", "∧", "＞", "∨"};
 
-		// 矢印を消去する
-		if(map_page) {
-			ags->load_cg(map_page, -1);
+			// 矢印を消去する
+			if(map_page) {
+				ags->load_cg(map_page, -1);
+				if(paint_x) {
+					ags->paint(paint_x, paint_y * 2, 2 + 16);
+				}
+			}
+
+			// 矢印を表示する
+			int x = ags->text_dest_x;
+			int y = ags->text_dest_y;
+			int color = ags->text_font_color;
+			ags->text_font_size = 24;
+			ags->text_font_color = 16;
+
+			ags->text_dest_x = 456;
+			ags->text_dest_y = 103;
+			ags->draw_text(buf[param - 1]);
+
+			ags->text_dest_x = x;
+			ags->text_dest_y = y;
+			ags->text_font_size = 16;
+			ags->text_font_color = color;
+		} else if(cmd == 2) {
+			ags->load_cg(74, -1);
+			ags->load_cg(81, -1);
+			map_page = 81;
+		} else if(cmd == 3) {
+			RND = (param == 0 || param == 1) ? 0 : random(param);
+		} else if(460 <= cmd && cmd <= 625 && 20 <= param && param <= 55) {
 			if(paint_x) {
-				ags->paint(paint_x, paint_y * 2, 2 + 16);
+				ags->paint(paint_x, paint_y * 2, 5 + 16);
+			}
+			ags->paint(cmd, param * 2, 2 + 16);
+			paint_x = cmd;
+			paint_y = param;
+		} else {
+			paint_x = 0;
+		}
+	} else if(crc32_a == CRC32_TENGU) {
+		if(cmd == 10) {
+			// nop
+		} else if(cmd == 20) {
+			if(param == 20) {
+				ags->gcopy(8, 8, 46, 144, 2);
+			} else if(param == 21) {
+				ags->gcopy(8, 8, 46, 144, 3);
 			}
 		}
-
-		// 矢印を表示する
-		int x = ags->text_dest_x;
-		int y = ags->text_dest_y;
-		int color = ags->text_font_color;
-		ags->text_font_size = 24;
-		ags->text_font_color = 16;
-
-		ags->text_dest_x = 456;
-		ags->text_dest_y = 103;
-		ags->draw_text(buf[param - 1]);
-
-		ags->text_dest_x = x;
-		ags->text_dest_y = y;
-		ags->text_font_size = 16;
-		ags->text_font_color = color;
-	} else if(cmd == 2) {
-		ags->load_cg(74, -1);
-		ags->load_cg(81, -1);
-		map_page = 81;
-	} else if(cmd == 3) {
-		RND = (param == 0 || param == 1) ? 0 : random(param);
-	} else if(460 <= cmd && cmd <= 625 && 20 <= param && param <= 55) {
-		if(paint_x) {
-			ags->paint(paint_x, paint_y * 2, 5 + 16);
-		}
-		ags->paint(cmd, param * 2, 2 + 16);
-		paint_x = cmd;
-		paint_y = param;
-	} else {
-		paint_x = 0;
 	}
-#elif defined(_TENGU)
-	if(cmd == 10) {
-		// nop
-	} else if(cmd == 20) {
-		if(param == 20) {
-			ags->gcopy(8, 8, 46, 144, 2);
-		} else if(param == 21) {
-			ags->gcopy(8, 8, 46, 144, 3);
-		}
-	}
-#endif
 }
 
 

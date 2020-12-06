@@ -8,17 +8,12 @@
 #include "crc32.h"
 #include "../fileio.h"
 
-extern _TCHAR g_root[_MAX_PATH];
-
-uint32 NACT::calc_crc32()
+uint32 NACT::calc_crc32(const char *file_name)
 {
 	uint32 crc = 0;
-	FILEIO* fio = new FILEIO();
+	FILEIO *fio = new FILEIO();
 
-	_TCHAR file_path[_MAX_PATH];
-	_stprintf_s(file_path, _MAX_PATH, _T("%sADISK.DAT"), g_root);
-
-	if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
+	if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
 		uint32 table[256];
 		for(int i = 0; i < 256; i++) {
 			uint32 c = i;
@@ -40,93 +35,123 @@ uint32 NACT::calc_crc32()
 		}
 		fio->Fclose();
 	}
-#if defined(_SYSTEM2)
-	if(crc == CRC32_SDPS) {
-		// Super D.P.Sの場合はBDISK.DATのCRCを取る
-		_stprintf_s(file_path, _MAX_PATH, _T("%sBDISK.DAT"), g_root);
-		
-		if(fio->Fopen(file_path, FILEIO_READ_BINARY)) {
-			uint32 table[256];
-			for(int i = 0; i < 256; i++) {
-				uint32 c = i;
-				for(int j = 0; j < 8; j++) {
-					if(c & 1) {
-						c = (c >> 1) ^ 0xedb88320;
-					} else {
-						c >>= 1;
-					}
-				}
-				table[i] = c;
-			}
-			// BDISK.DATの先頭256bytes
-			crc = 0;
-			for(int i = 0; i < 256; i++) {
-				int d = fio->Fgetc();
-				uint32 c = ~crc;
-				c = table[(c ^ d) & 0xff] ^ (c >> 8);
-				crc = ~c;
-			}
-			fio->Fclose();
-		}
-	}
-#endif
 	delete fio;
-#if 0
-FILE* fp = fopen("crc32.txt", "w");
-fprintf(fp, "%x\n", crc);
-fclose(fp);
-#endif
 	return crc;
 }
 
-bool NACT::get_title(_TCHAR title[], int length)
+bool NACT::get_title(_TCHAR *title, int length)
 {
 #if defined(_SYSTEM1)
-
-#if defined(_CRESCENT)
-	_tcscpy_s(title, length, _T("クレセントムーンがぁる"));
-	return true;
-#elif defined(_DPS)
-	_tcscpy_s(title, length, _T("D.P.S - Dream Program System"));
-	return true;
-#elif defined(_FUKEI)
-	_tcscpy_s(title, length, _T("婦警さんＶＸ"));
-	return true;
-#elif defined(_INTRUDER)
-	_tcscpy_s(title, length, _T("Intruder -桜屋敷の探索-"));
-	return true;
-#elif defined(_TENGU)
-	_tcscpy_s(title, length, _T("あぶないてんぐ伝説"));
-	return true;
-#elif defined(_VAMPIRE)
-	_tcscpy_s(title, length, _T("Little Vampire"));
-	return true;
-#else
-	title[0] = _T('\0');
-	return false;
-#endif
-
+	switch(crc32_a) {
+		case CRC32_BUNKASAI:
+			_tcscpy_s(title, length, _T("あぶない文化祭前夜"));
+			return true;
+		case CRC32_CRESCENT:
+			_tcscpy_s(title, length, _T("クレセントムーンがぁる"));
+			return true;
+		case CRC32_DPS:
+			_tcscpy_s(title, length, _T("D.P.S - Dream Program System"));
+			return true;
+		case CRC32_DPS_SG:
+//		case CRC32_DPS_SG2:
+			switch(crc32_b) {
+				case CRC32_DPS_SG_FAHREN:
+					_tcscpy_s(title, length, _T("D.P.S SG - Fahren Fliegen"));
+					return true;
+				case CRC32_DPS_SG_KATEI:
+					_tcscpy_s(title, length, _T("D.P.S SG - 家庭教師はステキなお仕事"));
+					return true;
+				case CRC32_DPS_SG_NOBUNAGA:
+					_tcscpy_s(title, length, _T("D.P.S SG - 信長の淫謀"));
+					return true;
+				case CRC32_DPS_SG2_ANTIQUE:
+					_tcscpy_s(title, length, _T("D.P.S SG set2 - ANTIQUE HOUSE"));
+					return true;
+				case CRC32_DPS_SG2_IKENAI:
+					_tcscpy_s(title, length, _T("D.P.S SG set2 - いけない内科検診再び"));
+					return true;
+				case CRC32_DPS_SG2_AKAI:
+					_tcscpy_s(title, length, _T("D.P.S SG set2 - 朱い夜"));
+					return true;
+			}
+			_tcscpy_s(title, length, _T("D.P.S SG"));
+			return true;
+		case CRC32_DPS_SG3:
+			switch(crc32_b) {
+				case CRC32_DPS_SG3_RABBIT:
+					_tcscpy_s(title, length, _T("D.P.S SG set3 - Rabbit P4P"));
+					return true;
+				case CRC32_DPS_SG3_SHINKON:
+					_tcscpy_s(title, length, _T("D.P.S SG set3 - しんこんさんものがたり"));
+					return true;
+				case CRC32_DPS_SG3_SOTSUGYOU:
+					_tcscpy_s(title, length, _T("D.P.S SG set3 - 卒業"));
+					return true;
+			}
+			_tcscpy_s(title, length, _T("D.P.S SG set3"));
+			return true;
+		case CRC32_FUKEI:
+			_tcscpy_s(title, length, _T("婦警さんＶＸ"));
+			return true;
+		case CRC32_INTRUDER:
+			_tcscpy_s(title, length, _T("Intruder -桜屋敷の探索-"));
+			return true;
+		case CRC32_TENGU:
+			_tcscpy_s(title, length, _T("あぶないてんぐ伝説"));
+			return true;
+		case CRC32_TOUSHIN_HINT:
+			_tcscpy_s(title, length, _T("闘神都市 ヒントディスク"));
+			return true;
+		case CRC32_VAMPIRE:
+			_tcscpy_s(title, length, _T("Little Vampire"));
+			return true;
+		case CRC32_YAKATA:
+			_tcscpy_s(title, length, _T("ALICEの館"));
+			return true;
+	}
 #elif defined(_SYSTEM2)
-
-	switch(crc32) {
+	switch(crc32_a) {
+		case CRC32_AYUMI_FD:
+			_tcscpy_s(title, length, _T("あゆみちゃん物語"));
+			return true;
+		case CRC32_AYUMI_HINT:
+			_tcscpy_s(title, length, _T("あゆみちゃん物語 ヒントディスク"));
+			return true;
 		case CRC32_AYUMI_PROTO:
 			_tcscpy_s(title, length, _T("あゆみちゃん物語 PROTO"));
 			return true;
-		case CRC32_SDPS_MARIA:
-		case CRC32_SDPS_TONO:
-		case CRC32_SDPS_KAIZOKU:
-			_tcscpy_s(title, length, _T("Super D.P.S"));
+		case CRC32_DALK_HINT:
+			_tcscpy_s(title, length, _T("DALK ヒントディスク"));
+			return true;
+		case CRC32_DRSTOP:
+			_tcscpy_s(title, length, _T("Dr. STOP!"));
 			return true;
 		case CRC32_PROSTUDENTG_FD:
 			_tcscpy_s(title, length, _T("prostudent G"));
 			return true;
+		case CRC32_RANCE3_HINT:
+			_tcscpy_s(title, length, _T("Rance3 ヒントディスク"));
+			return true;
+		case CRC32_SDPS:
+			switch(crc32_b) {
+				case CRC32_SDPS_MARIA:
+					_tcscpy_s(title, length, _T("Super D.P.S - マリアとカンパン"));
+					return true;
+				case CRC32_SDPS_TONO:
+					_tcscpy_s(title, length, _T("Super D.P.S - 遠野の森"));
+					return true;
+				case CRC32_SDPS_KAIZOKU:
+					_tcscpy_s(title, length, _T("Super D.P.S - うれしたのし海賊稼業"));
+					return true;
+			}
+			_tcscpy_s(title, length, _T("Super D.P.S"));
+			return true;
+		case CRC32_YAKATA2:
+			_tcscpy_s(title, length, _T("ALICEの館II"));
+			return true;
 	}
-	title[0] = _T('\0');
-	return false;
-
-#else
-
-	switch(crc32) {
+#elif defined(_SYSTEM3)
+	switch(crc32_a) {
 		case CRC32_AMBIVALENZ_FD:
 		case CRC32_AMBIVALENZ_CD:
 			_tcscpy_s(title, length, _T("AmbivalenZ －二律背反－"));
@@ -170,6 +195,9 @@ bool NACT::get_title(_TCHAR title[], int length)
 		case CRC32_HASHIRIONNA2:
 			_tcscpy_s(title, length, _T("走り女2"));
 			return true;
+		case CRC32_TOUSHIN2_GD:
+			_tcscpy_s(title, length, _T("闘神都市2 グラフィックディスク"));
+			return true;
 		case CRC32_TOUSHIN2_SP:
 			_tcscpy_s(title, length, _T("闘神都市2 そして、それから…"));
 			return true;
@@ -183,9 +211,8 @@ bool NACT::get_title(_TCHAR title[], int length)
 			_tcscpy_s(title, length, _T("夢幻泡影"));
 			return true;
 	}
+#endif
 	title[0] = _T('\0');
 	return false;
-
-#endif
 }
 

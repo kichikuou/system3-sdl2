@@ -92,18 +92,19 @@ IDI_ICON1               ICON    DISCARDABLE     "icon1.ico"
 // MDA
 //
 
-IDR_AL3                 MDA     DISCARDABLE     "AMUS_AL3.MDA"
-IDR_ALL                 MDA     DISCARDABLE     "AMUS_ALL.MDA"
-IDR_AMB                 MDA     DISCARDABLE     "AMUS_AMB.MDA"
-IDR_AYM                 MDA     DISCARDABLE     "AMUS_AYM.MDA"
-IDR_BEE                 MDA     DISCARDABLE     "AMUS_BEE.MDA"
-IDR_MGN                 MDA     DISCARDABLE     "AMUS_MGN.MDA"
-IDR_OTM                 MDA     DISCARDABLE     "AMUS_OTM.MDA"
-IDR_OY                  MDA     DISCARDABLE     "AMUS_OY.MDA"
-IDR_PSG                 MDA     DISCARDABLE     "AMUS_PSG.MDA"
-IDR_R41                 MDA     DISCARDABLE     "AMUS_R41.MDA"
-IDR_R42                 MDA     DISCARDABLE     "AMUS_R42.MDA"
-IDR_RG2                 MDA     DISCARDABLE     "AMUS_RG2.MDA"
+IDR_AMUS_AL3            MDA     DISCARDABLE     "AMUS_AL3.MDA"
+IDR_AMUS_ALL            MDA     DISCARDABLE     "AMUS_ALL.MDA"
+IDR_AMUS_AMB            MDA     DISCARDABLE     "AMUS_AMB.MDA"
+IDR_AMUS_AYM            MDA     DISCARDABLE     "AMUS_AYM.MDA"
+IDR_AMUS_BEE            MDA     DISCARDABLE     "AMUS_BEE.MDA"
+IDR_AMUS_MGN            MDA     DISCARDABLE     "AMUS_MGN.MDA"
+IDR_AMUS_OTM            MDA     DISCARDABLE     "AMUS_OTM.MDA"
+IDR_AMUS_OY             MDA     DISCARDABLE     "AMUS_OY.MDA"
+IDR_AMUS_PSG            MDA     DISCARDABLE     "AMUS_PSG.MDA"
+IDR_AMUS_R41            MDA     DISCARDABLE     "AMUS_R41.MDA"
+IDR_AMUS_R42            MDA     DISCARDABLE     "AMUS_R42.MDA"
+IDR_AMUS_RG2            MDA     DISCARDABLE     "AMUS_RG2.MDA"
+IDR_AMUS_T2             MDA     DISCARDABLE     "AMUS_T2.MDA"
 
 /////////////////////////////////////////////////////////////////////////////
 //

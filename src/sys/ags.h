@@ -36,7 +36,7 @@ static inline uint32 SETPALETTE16(uint32 R, uint32 G, uint32 B)
 class AGS
 {
 protected:
-	NACT* nact;
+	NACT *nact;
 private:
 	// GDI+
 	Gdiplus::GdiplusStartupInput gdiSI;
@@ -83,30 +83,29 @@ private:
 
 	// AGS
 #if defined(_SYSTEM1)
-	void load_vsp2l(uint8* data, int page, int transparent);	// Little Vampire
-	void load_gl3(uint8* data, int page, int transparent);		// あぶない天狗伝説
-	void load_gm3(uint8* data, int page, int transparent);		// Intruder
-	void load_vsp(uint8* data, int page, int transparent);
-#else
-	void load_gl3(uint8* data, int page, int transparent);		// あぶない天狗伝説
-	void load_vsp(uint8* data, int page, int transparent);
-	void load_pms(uint8* data, int page, int transparent);
+	void load_gm3(uint8 *data, int page, int transparent);		// Intruder -桜屋敷の探索-
+	void load_vsp2l(uint8 *data, int page, int transparent);	// Little Vampire
+#endif
+#if defined(_SYSTEM1) || defined(_SYSTEM2)
+	void load_gl3(uint8 *data, int page, int transparent);
+#endif
+#if defined(_SYSTEM2) || defined(_SYSTEM3)
+	void load_pms(uint8 *data, int page, int transparent);
 #endif
 #if defined(_SYSTEM3)
-	void load_bmp(const _TCHAR *file_path);
+	void load_bmp(const char *file_name);				// あゆみちゃん物語 フルカラー実写版
 #endif
+	void load_vsp(uint8 *data, int page, int transparent);
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
 	void draw_gaiji(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
-	uint16 convert_zenkaku(uint16 code);
-	uint16 convert_hankaku(uint16 code);
 
 	void draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color);
 
 	void draw_screen(int sx, int sy, int width, int heignt);
 	void invalidate_screen(int sx, int sy, int width, int height);
 
-	uint32* vram[3][480];	// 仮想VRAMへのポインタ
+	uint32 *vram[3][480];	// 仮想VRAMへのポインタ
 
 	uint32 program_palette[256];
 	uint32 screen_palette[256];
@@ -116,7 +115,7 @@ private:
 	uint32 fader_screen[640 * 480];
 
 public:
-	AGS(NACT* parent);
+	AGS(NACT *parent);
 	~AGS();
 
 	void update_screen(HDC hdc, int sx, int sy, int width, int height);
@@ -142,7 +141,9 @@ public:
 	void box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color);
 	void box_line(int dest, int sx, int sy, int ex, int ey, uint8 color);
 
-	void draw_text(char string[]);
+	void draw_text(const char *string);
+	uint16 convert_zenkaku(uint16 code);
+	uint16 convert_hankaku(uint16 code);
 
 	void clear_text_window(int index, bool erase);
 	bool return_text_line(int index);
@@ -159,7 +160,7 @@ public:
 	void select_cursor();
 
 	// ACG.DAT
-	_TCHAR acg[16];
+	char acg[16];
 
 	// 画面選択
 	int src_screen;
@@ -200,13 +201,13 @@ public:
 		int ey;
 		bool frame;
 		bool push;
-		uint32* screen;
+		uint32 *screen;
 		int screen_x;
 		int screen_y;
 		int screen_width;
 		int screen_height;
 		uint32 screen_palette[256];
-		uint32* window;
+		uint32 *window;
 		int window_x;
 		int window_y;
 		int window_width;

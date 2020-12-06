@@ -24,20 +24,22 @@
 class FILEIO
 {
 private:
-	FILE* fp;
+	FILE *fp;
 public:
 	FILEIO();
 	~FILEIO();
 
-	bool Fopen(_TCHAR *filename, int mode);
+	static const char *GetRootPath();
+	static const char *GetFilePath(const char *file_name);
+	bool Fopen(const char *file_name, int mode);
 	void Fclose();
 	uint32 Fseek(long offset, int origin);
 	uint32 Ftell();
-	uint32 Fread(void* buffer, uint32 size, uint32 count);
-	uint32 Fwrite(void* buffer, uint32 size, uint32 count);
+	uint32 Fread(void *buffer, uint32 size, uint32 count);
+	uint32 Fwrite(void *buffer, uint32 size, uint32 count);
 	int Fgetc();
 	int Fgetw();
-	void Fgets(char dest[]);
+	void Fgets(char *dest, int length);
 	void Fputc(int c);
 	void Fputw(int w);
 };

@@ -2,8 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="sdps"
+	Name="system2"
 	ProjectGUID="{CABEEA4C-1B64-413A-9723-A62A74991D57}"
+	RootNamespace="system2"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>
@@ -42,17 +43,17 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/sdps.tlb"
+				TypeLibraryName=".\Debug/system2.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_SYSTEM2;_SDPS;_DEBUG_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_DEBUG_CONSOLE;_SYSTEM2"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\Debug/sdps.pch"
+				PrecompiledHeaderFile=".\Debug/system2.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -75,11 +76,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib winmm.lib"
-				OutputFile="Debug/adv_sdps.exe"
+				OutputFile=".\Debug/system2.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/adv_sdps.pdb"
+				ProgramDatabaseFile=".\Debug/system2.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -97,7 +98,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Debug/sdps.bsc"
+				OutputFile=".\Debug/system2.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -137,18 +138,18 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/sdps.tlb"
+				TypeLibraryName=".\Release/system2.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_SYSTEM2;_SDPS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_SYSTEM2"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				PrecompiledHeaderFile=".\Release/sdps.pch"
+				PrecompiledHeaderFile=".\Release/system2.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName=".\Release/"
@@ -170,10 +171,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib winmm.lib"
-				OutputFile="Release/adv_sdps.exe"
+				OutputFile=".\Release/system2.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ProgramDatabaseFile=".\Release/adv_sdps.pdb"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile=".\Release/system2.pdb"
+				GenerateMapFile="true"
+				MapFileName=".\Release/system2.map"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -191,7 +195,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/sdps.bsc"
+				OutputFile=".\Release/system2.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -570,7 +574,7 @@
 				>
 			</File>
 			<File
-				RelativePath="src\res1\resource.h"
+				RelativePath="src\res2\resource.h"
 				>
 			</File>
 			<Filter
@@ -604,11 +608,11 @@
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
 			<File
-				RelativePath="src\res1\icon1.ico"
+				RelativePath="src\res2\icon1.ico"
 				>
 			</File>
 			<File
-				RelativePath="src\res1\Script1.rc"
+				RelativePath="src\res2\Script1.rc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -616,7 +620,7 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="src\res1"
+						AdditionalIncludeDirectories="src\res2"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -625,10 +629,55 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="src\res1"
+						AdditionalIncludeDirectories="src\res2"
 					/>
 				</FileConfiguration>
 			</File>
+			<Filter
+				Name="MDA"
+				Filter="MDA"
+				>
+				<File
+					RelativePath="src\res2\AMUS_AL2.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res2\AMUS_AYM.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res2\AMUS_DLK.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res2\AMUS_DRS.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res2\AMUS_PSG.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res2\AMUS_R3H.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res2\AMUS_SDP.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res2\BMUS_KAM.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res2\BMUS_MTK.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res2\BMUS_TNM.MDA"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

@@ -89,6 +89,32 @@ IDI_ICON1               ICON    DISCARDABLE     "icon1.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// MDA
+//
+
+IDR_AMUS_AB             MDA     DISCARDABLE     "AMUS_AB.MDA"
+IDR_AMUS_AL1            MDA     DISCARDABLE     "AMUS_AL1.MDA"
+IDR_AMUS_AT             MDA     DISCARDABLE     "AMUS_AT.MDA"
+IDR_AMUS_CRS            MDA     DISCARDABLE     "AMUS_CRS.MDA"
+IDR_AMUS_DPS            MDA     DISCARDABLE     "AMUS_DPS.MDA"
+IDR_AMUS_INT            MDA     DISCARDABLE     "AMUS_INT.MDA"
+IDR_AMUS_LP2            MDA     DISCARDABLE     "AMUS_LP2.MDA"
+IDR_AMUS_SG             MDA     DISCARDABLE     "AMUS_SG.MDA"
+IDR_AMUS_T1             MDA     DISCARDABLE     "AMUS_T1.MDA"
+IDR_AMUS_VX             MDA     DISCARDABLE     "AMUS_VX.MDA"
+IDR_BMUS_AKA            MDA     DISCARDABLE     "BMUS_AKA.MDA"
+IDR_BMUS_ANT            MDA     DISCARDABLE     "BMUS_ANT.MDA"
+IDR_BMUS_FAH            MDA     DISCARDABLE     "BMUS_FAH.MDA"
+IDR_BMUS_KAT            MDA     DISCARDABLE     "BMUS_KAT.MDA"
+IDR_BMUS_NAI            MDA     DISCARDABLE     "BMUS_NAI.MDA"
+IDR_BMUS_NOB            MDA     DISCARDABLE     "BMUS_NOB.MDA"
+IDR_BMUS_RAB            MDA     DISCARDABLE     "BMUS_RAB.MDA"
+IDR_BMUS_SIN            MDA     DISCARDABLE     "BMUS_SIN.MDA"
+IDR_BMUS_SOT            MDA     DISCARDABLE     "BMUS_SOT.MDA"
+IDR_CMUS_T1             MDA     DISCARDABLE     "CMUS_T1.MDA"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Dialog
 //
 

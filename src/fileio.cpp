@@ -20,7 +20,34 @@ FILEIO::~FILEIO(void)
 	}
 }
 
-bool FILEIO::Fopen(_TCHAR *filename, int mode)
+const char *FILEIO::GetRootPath()
+{
+	static bool initialized = false;
+	static char root_path[_MAX_PATH];
+	
+	// モジュールパス取得
+	if(!initialized) {
+		char tmp_path[_MAX_PATH], *ptr = NULL;
+		
+		if(GetModuleFileNameA(NULL, tmp_path, _MAX_PATH) != 0 && GetFullPathNameA(tmp_path, _MAX_PATH, root_path, &ptr) != 0 && ptr != NULL) {
+			*ptr = '\0';
+		} else {
+			strcpy_s(root_path, _MAX_PATH, ".\\");
+		}
+		initialized = true;
+	}
+	return root_path;
+}
+
+const char *FILEIO::GetFilePath(const char *file_name)
+{
+	static char file_path[_MAX_PATH];
+	
+	sprintf_s(file_path, _MAX_PATH, "%s%s", GetRootPath(), file_name);
+	return file_path;
+}
+
+bool FILEIO::Fopen(const char *file_name, int mode)
 {
 	if(fp != NULL) {
 		Fclose();
@@ -28,17 +55,17 @@ bool FILEIO::Fopen(_TCHAR *filename, int mode)
 	fp = NULL;
 	
 	if(mode == FILEIO_READ_BINARY) {
-		_tfopen_s(&fp, filename, _T("rb"));
+		fopen_s(&fp, GetFilePath(file_name), "rb");
 	} else if(mode == FILEIO_WRITE_BINARY) {
-		_tfopen_s(&fp, filename, _T("wb"));
+		fopen_s(&fp, GetFilePath(file_name), "wb");
 	} else if(mode == FILEIO_READ_WRITE_BINARY) {
-		_tfopen_s(&fp, filename, _T("r+b"));
+		fopen_s(&fp, GetFilePath(file_name), "r+b");
 	} else if(mode == FILEIO_READ_ASCII) {
-		_tfopen_s(&fp, filename, __T("r"));
+		fopen_s(&fp, GetFilePath(file_name), "r");
 	} else if(mode == FILEIO_WRITE_ASCII) {
-		_tfopen_s(&fp, filename, _T("w"));
+		fopen_s(&fp, GetFilePath(file_name), "w");
 	} else if(mode == FILEIO_READ_WRITE_ASCII) {
-		_tfopen_s(&fp, filename, _T("r+w"));
+		fopen_s(&fp, GetFilePath(file_name), "r+w");
 	}
 	return (fp != NULL);
 }
@@ -69,12 +96,12 @@ uint32 FILEIO::Ftell()
 	return ftell(fp);
 }
 
-uint32 FILEIO::Fread(void* buffer, uint32 size, uint32 count)
+uint32 FILEIO::Fread(void *buffer, uint32 size, uint32 count)
 {
 	return fread(buffer, size, count, fp);
 }
 
-uint32 FILEIO::Fwrite(void* buffer, uint32 size, uint32 count)
+uint32 FILEIO::Fwrite(void *buffer, uint32 size, uint32 count)
 {
 	return fwrite(buffer, size, count, fp);
 }
@@ -90,19 +117,24 @@ int FILEIO::Fgetw()
 	return val | (Fgetc() << 8);
 }
 
-void FILEIO::Fgets(char dest[])
+void FILEIO::Fgets(char *dest, int length)
 {
 	int p = 0;
 	
 	for(;;) {
 		int c = Fgetc();
+		
 		if(c == 0x0d || c == EOF) {
 			break;
 		}
 		if(c != 0x0a) {
-			dest[p++] = c;
+			if(p < length + 1) {
+				dest[p++] = c;
+			}
 			if((0x81 <= c && c <= 0x9f) || 0xe0 <= c) {
-				dest[p++] = Fgetc();
+				if(p < length + 1) {
+					dest[p++] = Fgetc();
+				}
 			}
 		}
 	}

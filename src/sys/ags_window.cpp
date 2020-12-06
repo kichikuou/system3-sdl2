@@ -87,14 +87,14 @@ void AGS::open_text_window(int index, bool erase)
 			free(text_w[index - 1].screen);
 		}
 
-		text_w[index - 1].screen = (uint32*)malloc(width * height * sizeof(uint32));
+		text_w[index - 1].screen = (uint32 *)malloc(width * height * sizeof(uint32));
 		text_w[index - 1].screen_x = sx;
 		text_w[index - 1].screen_y = sy;
 		text_w[index - 1].screen_width = width;
 		text_w[index - 1].screen_height = height;
 
 		for(int y = 0; y < height && y + sy < 480; y++) {
-			uint32* scr = fader ? &fader_screen[640 * (479 - y - sy) + sx] : &lpBmpDest[640 * (479 - y - sy) + sx];
+			uint32 *scr = fader ? &fader_screen[640 * (479 - y - sy) + sx] : &lpBmpDest[640 * (479 - y - sy) + sx];
 			for(int x = 0; x < width && x + sx < 640; x++) {
 				uint32 col = vram[0][y + sy][x + sx];
 				if(!(col & 0x80000000)) {
@@ -149,14 +149,14 @@ void AGS::close_text_window(int index, bool update)
 			free(text_w[index - 1].window);
 		}
 
-		text_w[index - 1].window = (uint32*)malloc(width * height * sizeof(uint32));
+		text_w[index - 1].window = (uint32 *)malloc(width * height * sizeof(uint32));
 		text_w[index - 1].window_x = sx;
 		text_w[index - 1].window_y = sy;
 		text_w[index - 1].window_width = width;
 		text_w[index - 1].window_height = height;
 
 		for(int y = 0; y < height && y + sy < 480; y++) {
-			uint32* scr = fader ? &fader_screen[640 * (479 - y - sy) + sx] : &lpBmpDest[640 * (479 - y - sy) + sx];
+			uint32 *scr = fader ? &fader_screen[640 * (479 - y - sy) + sx] : &lpBmpDest[640 * (479 - y - sy) + sx];
 			for(int x = 0; x < width && x + sx < 640; x++) {
 				uint32 col = vram[0][y + sy][x + sx];
 				if(!(col & 0x80000000)) {
@@ -221,14 +221,14 @@ void AGS::open_menu_window(int index)
 			free(menu_w[index - 1].screen);
 		}
 
-		menu_w[index - 1].screen = (uint32*)malloc(wwidth * wheight * sizeof(uint32));
+		menu_w[index - 1].screen = (uint32 *)malloc(wwidth * wheight * sizeof(uint32));
 		menu_w[index - 1].screen_x = wsx;
 		menu_w[index - 1].screen_y = wsy;
 		menu_w[index - 1].screen_width = wwidth;
 		menu_w[index - 1].screen_height = wheight;
 
 		for(int y = 0; y < wheight && y + wsy < 480; y++) {
-			uint32* scr = fader ? &fader_screen[640 * (479 - y - wsy) + wsx] : &lpBmpDest[640 * (479 - y - wsy) + wsx];
+			uint32 *scr = fader ? &fader_screen[640 * (479 - y - wsy) + wsx] : &lpBmpDest[640 * (479 - y - wsy) + wsx];
 			for(int x = 0; x < wwidth && x + wsx < 640; x++) {
 				uint32 col = vram[0][y + wsy][x + wsx];
 				if(!(col & 0x80000000)) {
@@ -295,7 +295,7 @@ void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_co
 {
 	// —Ìˆæ‚Ì“h‚è’×‚µ
 	for(int y = sy; y <= ey && y < 480; y++) {
-		uint32* dest = vram[0][y];
+		uint32 *dest = vram[0][y];
 		for(int x = sx; x <= ex && x < 640; x++) {
 			dest[x] = back_color;
 		}

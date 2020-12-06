@@ -42,7 +42,7 @@ uint8 NACT::get_key()
 	return val;
 }
 
-void NACT::get_cursor(int* x, int* y)
+void NACT::get_cursor(int *x, int *y)
 {
 	POINT pt;
 	GetCursorPos(&pt);

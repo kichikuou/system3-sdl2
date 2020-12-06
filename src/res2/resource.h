@@ -7,6 +7,16 @@
 #define IDD_DIALOG1                     103
 #define IDC_TEXT                        104
 #define IDC_EDITBOX                     105
+#define IDR_AMUS_AL2                    106
+#define IDR_AMUS_AYM                    107
+#define IDR_AMUS_DLK                    108
+#define IDR_AMUS_DRS                    109
+#define IDR_AMUS_PSG                    110
+#define IDR_AMUS_R3H                    111
+#define IDR_AMUS_SDP                    112
+#define IDR_BMUS_KAM                    113
+#define IDR_BMUS_MTK                    114
+#define IDR_BMUS_TNM                    115
 #define ID_RESTART                      40001
 #define ID_EXIT                         40002
 #define ID_SCREEN_WINDOW                40003
@@ -20,7 +30,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        118
+#define _APS_NEXT_RESOURCE_VALUE        116
 #define _APS_NEXT_COMMAND_VALUE         40009
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           101

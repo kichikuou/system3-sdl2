@@ -7,7 +7,7 @@
 #include "ags.h"
 #include "crc32.h"
 
-void AGS::load_vsp(uint8* data, int page, int transparent)
+void AGS::load_vsp(uint8 *data, int page, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0] | (data[1] << 8);
@@ -29,19 +29,18 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 
 	// Zコマンドの処理
 #if defined(_SYSTEM3)
-	if(nact->crc32 == CRC32_AMBIVALENZ_FD || nact->crc32 == CRC32_AMBIVALENZ_CD) {
+	if(nact->crc32_a == CRC32_AMBIVALENZ_FD || nact->crc32_a == CRC32_AMBIVALENZ_CD) {
 		// Z 0,numを無視する
-	} else {
+	} else
 #endif
+	{
 		if(palette_bank != -1) {
 			base = (palette_bank & 0x0f) << 4;
 		}
-#if defined(_SYSTEM3)
 	}
-#endif
 
 	// パレット取得
-	if(get_palette) {
+	if(get_palette && transparent != 101) {
 		int p = 0x0a;
 		for(int i = 0; i < 16; i++) {
 			uint32 b = data[p++] & 0xf;
@@ -53,22 +52,21 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 
 	// パレット展開
 #if defined(_SYSTEM3)
-	if(nact->crc32 == CRC32_FUNNYBEE_FD || nact->crc32 == CRC32_FUNNYBEE_CD || nact->crc32 == CRC32_FUNNYBEE_PATCH) {
+	if(nact->crc32_a == CRC32_FUNNYBEE_FD || nact->crc32_a == CRC32_FUNNYBEE_CD || nact->crc32_a == CRC32_FUNNYBEE_PATCH) {
 		if(extract_palette_cg[page]) {
 			for(int i = 0; i < 16; i++) {
 				screen_palette[base + i] = program_palette[base + i];
 			}
 		}
-	} else {
+	} else
 #endif
+	{
 		if(extract_palette && extract_palette_cg[page]) {
 			for(int i = 0; i < 16; i++) {
 				screen_palette[base + i] = program_palette[base + i];
 			}
 		}
-#if defined(_SYSTEM3)
 	}
-#endif
 
 	// VSP展開
 	uint8 cgdata[4][2][480], mask = 0;
@@ -148,7 +146,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 				c[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4) | ((b3 << 2) & 8);
 				c[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4) | ((b3 << 3) & 8);
 
-				uint32* dest = &vram[dest_screen][y + sy][(x + sx) * 8];
+				uint32 *dest = &vram[dest_screen][y + sy][(x + sx) * 8];
 				if(transparent == -1) {
 					for(int i = 0; i < 8; i++) {
 						dest[i] = c[i] | base;

@@ -8,60 +8,61 @@
 #include "dri.h"
 #include "crc32.h"
 
-extern _TCHAR g_root[_MAX_PATH];
-
 void AGS::load_cg(int page, int transparent)
 {
 #if defined(_SYSTEM3)
 	// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê ƒtƒ‹ƒJƒ‰[ÀÊ”Å
 	if(strncmp(acg, "CGA000.BMP", 10) == 0) {
-		char file_path[_MAX_PATH];
-		_stprintf_s(file_path, _MAX_PATH, _T("%sCGA%03d.BMP"), g_root, page);
-		load_bmp(file_path);
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "CGA%03d.BMP", page);
+		load_bmp(file_name);
 		return;
 	} else if(strncmp(acg, "CGB000.BMP", 10) == 0) {
-		char file_path[_MAX_PATH];
-		_stprintf_s(file_path, _MAX_PATH, _T("%sCGB%03d.BMP"), g_root, page);
-		load_bmp(file_path);
+		char file_name[_MAX_PATH];
+		sprintf_s(file_name, _MAX_PATH, "CGB%03d.BMP",  page);
+		load_bmp(file_name);
 		return;
 	}
 #endif
-	DRI* dri = new DRI();
+	DRI *dri = new DRI();
 	int size;
-	uint8* data = dri->load(acg, page, &size);
+	uint8 *data = dri->load(acg, page, &size);
 	if(data) {
-#if defined(_SYSTEM1)
-#if defined(_BUNKASAI)
-		load_vsp(data, page, transparent);
-#elif defined(_INTRUDER)
-//		load_gm3(data, page, transparent);
-		load_vsp(data, page, transparent);	// b’è
-#elif defined(_VAMPIRE)
-		load_vsp2l(data, page, transparent);
-#else
-		load_gl3(data, page, transparent);
-#endif
-#elif defined(_SYSTEM2)
-		if(nact->crc32 == CRC32_AYUMI_PROTO) {
-			// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê PROTO
-			load_gl3(data, page, transparent);
-		} else if(nact->crc32 == CRC32_SDPS_MARIA || nact->crc32 == CRC32_SDPS_TONO || nact->crc32 == CRC32_SDPS_KAIZOKU) {
-			// Super D.P.S
-			load_pms(data, page, transparent);
-		} else {
+		#if defined(_SYSTEM1)
+			if(nact->crc32_a == CRC32_BUNKASAI) {
+				load_vsp(data, page, transparent);
+			} else if(nact->crc32_a == CRC32_INTRUDER) {
+//				load_gm3(data, page, transparent);
+				load_vsp(data, page, transparent);	// b’è
+			} else if(nact->crc32_a == CRC32_VAMPIRE) {
+				load_vsp2l(data, page, transparent);
+			} else {
+				load_gl3(data, page, transparent);
+			}
+		#elif defined(_SYSTEM2)
+			if(nact->crc32_a == CRC32_AYUMI_PROTO) {
+				// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê PROTO
+				load_gl3(data, page, transparent);
+			} else if(nact->crc32_a == CRC32_AYUMI_FD || nact->crc32_a == CRC32_AYUMI_HINT) {
+				// ‚ ‚ä‚İ‚¿‚á‚ñ•¨Œê
+				load_vsp(data, page, transparent);
+			} else if(nact->crc32_a == CRC32_SDPS) {
+				// Super D.P.S
+				load_pms(data, page, transparent);
+			} else {
+				if(data[0x8] == 0) {
+					load_vsp(data, page, transparent);
+				} else {
+					load_pms(data, page, transparent);
+				}
+			}
+		#elif defined(_SYSTEM3)
 			if(data[0x8] == 0) {
 				load_vsp(data, page, transparent);
 			} else {
 				load_pms(data, page, transparent);
 			}
-		}
-#else
-		if(data[0x8] == 0) {
-			load_vsp(data, page, transparent);
-		} else {
-			load_pms(data, page, transparent);
-		}
-#endif
+		#endif
 		free(data);
 	}
 	delete dri;
@@ -77,8 +78,8 @@ void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)
 	memcpy(tmp, lpBmpScreen[src_screen], sizeof(tmp));
 
 	for(int y = 0; y < height && y + sy < 480 && y + dy < 480; y++) {
-		uint32* src = &tmp[640 * (479 - (y + sy))];
-		uint32* dest = vram[dest_screen][y + dy];
+		uint32 *src = &tmp[640 * (479 - (y + sy))];
+		uint32 *dest = vram[dest_screen][y + dy];
 		for(int x = 0; x < width && x + sx < 640 && x + dx < 640; x++) {
 			dest[x + dx] = src[x + sx];
 		}

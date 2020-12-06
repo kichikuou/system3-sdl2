@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="system3"
 	ProjectGUID="{13659905-B0B3-4B70-ADAA-64F6A35051B8}"
+	RootNamespace="system3"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>
@@ -682,6 +683,10 @@
 				</File>
 				<File
 					RelativePath="src\res3\AMUS_RG2.MDA"
+					>
+				</File>
+				<File
+					RelativePath="src\res3\AMUS_T2.MDA"
 					>
 				</File>
 			</Filter>

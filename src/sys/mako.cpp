@@ -9,11 +9,11 @@
 
 extern HWND g_hwnd;
 
-MAKO::MAKO(NACT* parent) : nact(parent)
+MAKO::MAKO(NACT *parent) : nact(parent)
 {
 	// AMUS.DAT, AMSE.DAT
-	_tcscpy_s(amus, 16, _T("AMUS.DAT"));
-	_tcscpy_s(amse, 16, _T("AMSE.DAT"));	// 実際には使わない
+	strcpy_s(amus, 16, "AMUS.DAT");
+	strcpy_s(amse, 16, "AMSE.DAT");	// 実際には使わない
 
 	// 再生状況
 	current_music = current_mark = current_loop = 0;
@@ -147,7 +147,7 @@ bool MAKO::check_music()
 	return current_music ? true : false;
 }
 
-void MAKO::get_mark(int* mark, int* loop)
+void MAKO::get_mark(int *mark, int *loop)
 {
 	*mark = cdda_play ? 0 : current_mark;
 	*loop = cdda_play ? 0 : current_loop;
@@ -184,21 +184,21 @@ void MAKO::play_pcm(int page, bool loop)
 	// 現在再生中のPCMを停止
 	PlaySound(NULL, NULL, SND_PURGE);
 
-	uint8* buffer = NULL;
+	uint8 *buffer = NULL;
 	int size;
-	DRI* dri = new DRI();
+	DRI *dri = new DRI();
 
-	if((buffer = dri->load(_T("AWAV.DAT"), page, &size)) != NULL) {
+	if((buffer = dri->load("AWAV.DAT", page, &size)) != NULL) {
 		// WAV形式 (Only You)
 		memcpy(wav, buffer, (size < MAX_SAMPLES) ? size : MAX_SAMPLES);
 
 		if(loop) {
-			PlaySound(wav, NULL, SND_ASYNC | SND_MEMORY | SND_LOOP);
+			PlaySoundA(wav, NULL, SND_ASYNC | SND_MEMORY | SND_LOOP);
 		} else {
-			PlaySound(wav, NULL, SND_ASYNC | SND_MEMORY);
+			PlaySoundA(wav, NULL, SND_ASYNC | SND_MEMORY);
 		}
 		free(buffer);
-	} else if((buffer = dri->load(_T("AMSE.DAT"), page, &size)) != NULL) {
+	} else if((buffer = dri->load("AMSE.DAT", page, &size)) != NULL) {
 		// AMSE形式 (乙女戦記)
 		int total = (size - 12) * 2 + 0x24;
 		int samples = (size - 12) * 2;
@@ -218,9 +218,9 @@ void MAKO::play_pcm(int page, bool loop)
 		}
 
 		if(loop) {
-			PlaySound(wav, NULL, SND_ASYNC | SND_MEMORY | SND_LOOP);
+			PlaySoundA(wav, NULL, SND_ASYNC | SND_MEMORY | SND_LOOP);
 		} else {
-			PlaySound(wav, NULL, SND_ASYNC | SND_MEMORY);
+			PlaySoundA(wav, NULL, SND_ASYNC | SND_MEMORY);
 		}
 		free(buffer);
 	}
@@ -230,7 +230,7 @@ void MAKO::play_pcm(int page, bool loop)
 void MAKO::stop_pcm()
 {
 #if defined(_USE_PCM)
-	PlaySound(NULL, NULL, SND_PURGE);
+	PlaySoundA(NULL, NULL, SND_PURGE);
 #endif
 }
 
@@ -243,7 +243,7 @@ bool MAKO::check_pcm()
 		0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x40, 0x1f, 0x00, 0x00, 0x40, 0x1f, 0x00, 0x00,
 		0x01, 0x00, 0x08, 0x00, 'd' , 'a' , 't' , 'a' , 0x01, 0x00, 0x00, 0x00, 0x00
 	};
-	return PlaySound(null_wav, NULL, SND_ASYNC | SND_MEMORY | SND_NOSTOP) ? false : true;
+	return PlaySoundA(null_wav, NULL, SND_ASYNC | SND_MEMORY | SND_NOSTOP) ? false : true;
 #else
 	return false;
 #endif

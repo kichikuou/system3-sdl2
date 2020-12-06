@@ -90,8 +90,8 @@ class MAKO;
 class NACT
 {
 protected:
-	AGS* ags;
-	MAKO* mako;
+	AGS *ags;
+	MAKO *mako;
 
 private:
 	// コマンドパーサ
@@ -102,14 +102,14 @@ private:
 	bool post_quit;
 
 	// ADISK.DAT, ASLEEP.DAT
-	_TCHAR adisk[16];
+	char adisk[16];
 
 	// シナリオデータ
-	uint8* scenario_data;
+	uint8 *scenario_data;
 	int scenario_size;
 
 	// アドレス、ページ管理
-	int scenario_addr;
+	int scenario_addr, prev_addr;
 	int scenario_page;
 	int label_depth;
 	int label_stack[MAX_STACK];
@@ -169,13 +169,12 @@ private:
 
 #if defined(_SYSTEM1)
 	void opening();
-#if defined(_DPS)
+	// D.P.S. - Dream Program System
 	bool text_refresh;
-#elif defined(_INTRUDER)
+	// Intruder -桜屋敷の探索-
 	int paint_x;		// Intruder Zコマンド
 	int paint_y;
 	int map_page;
-#endif
 #endif
 
 	bool column;		// 座標モード
@@ -211,8 +210,10 @@ private:
 	uint16 random(uint16 range);
 	uint32 seed;
 
+	void wait_after_open_menu();
+
 	uint8 get_key();
-	void get_cursor(int* x, int* y);
+	void get_cursor(int *x, int *y);
 	void set_cursor(int x, int y);
 
 	int joy_num;
@@ -220,14 +221,14 @@ private:
 	uint8 key[256];
 	int mouse_x, mouse_y;
 
-	uint32 calc_crc32();
+	uint32 calc_crc32(const char *file_name);
 
 	// Y27 ダイアログ
 	static BOOL CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// メインスレッド
 	typedef struct {
-		NACT* nact;
+		NACT *nact;
 		bool terminate;
 	} PARAMS, *PPARAMS;
 	PARAMS params;
@@ -253,18 +254,19 @@ public:
 	void select_cursor();
 	void select_sound(int dev);
 
-	bool get_title(_TCHAR title[], int length);
+	bool get_title(_TCHAR *title, int length);
 
 	bool text_skip_enb;	// メッセージスキップ
 	bool text_wait_enb;	// テキスト表示のウェイト有効／無効
-	uint32 crc32;
+	uint32 crc32_a;		// ADISK
+	uint32 crc32_b;		// BDISK for D.P.S -SG- and Super D.P.S
 
 	// for Y27
-	char tvar[10][22];
+	char tvar[10][33];
 	int tvar_index, tvar_maxlen;
 
 	// デバッグログ
-	void output_console(char log[]);
+	void output_console(const char *format, ...);
 };
 
 #endif

@@ -89,6 +89,22 @@ IDI_ICON1               ICON    DISCARDABLE     "icon1.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// MDA
+//
+
+IDR_AMUS_AL2            MDA     DISCARDABLE     "AMUS_AL2.MDA"
+IDR_AMUS_AYM            MDA     DISCARDABLE     "AMUS_AYM.MDA"
+IDR_AMUS_DLK            MDA     DISCARDABLE     "AMUS_DLK.MDA"
+IDR_AMUS_DRS            MDA     DISCARDABLE     "AMUS_DRS.MDA"
+IDR_AMUS_PSG            MDA     DISCARDABLE     "AMUS_PSG.MDA"
+IDR_AMUS_R3H            MDA     DISCARDABLE     "AMUS_R3H.MDA"
+IDR_AMUS_SDP            MDA     DISCARDABLE     "AMUS_SDP.MDA"
+IDR_BMUS_KAM            MDA     DISCARDABLE     "BMUS_KAM.MDA"
+IDR_BMUS_MTK            MDA     DISCARDABLE     "BMUS_MTK.MDA"
+IDR_BMUS_TNM            MDA     DISCARDABLE     "BMUS_TNM.MDA"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Dialog
 //
 

@@ -15,12 +15,12 @@
 #include "res1/resource.h"
 #elif defined(_SYSTEM2)
 #include "res2/resource.h"
-#else
+#elif defined(_SYSTEM3)
 #include "res3/resource.h"
 #endif
 #include "sys/nact.h"
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR szCmdLine, int iCmdShow);
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR szCmdLine, int iCmdShow);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 
 // フルスクリーン
@@ -37,23 +37,14 @@ void release_mci();
 void play_mci(HWND hWnd, int index);
 void stop_mci();
 
-_TCHAR g_root[_MAX_PATH];
 HINSTANCE g_hinst;
 HWND g_hwnd = NULL;
 HMENU g_hmenu = NULL;
 
-NACT* nact;
+NACT *nact;
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR szCmdLine, int iCmdShow)
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR szCmdLine, int iCmdShow)
 {
-	// モジュールパス取得
-	GetModuleFileName(NULL, g_root, _MAX_PATH);
-	int p = _tcslen(g_root);
-	while(g_root[p] != _T('\\')) {
-		p--;
-	}
-	g_root[p + 1] = _T('\0');
-
 	g_hinst = hInstance;
 
 	// ウィンドウの表示位置を取得する
@@ -88,7 +79,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR szCmdLin
 	_tcscpy_s(buf, 128, _T("Scenario Decoder SYSTEM1"));
 #elif defined(_SYSTEM2)
 	_tcscpy_s(buf, 128, _T("Scenario Decoder SYSTEM2"));
-#else
+#elif defined(_SYSTEM3)
 	_tcscpy_s(buf, 128, _T("Scenario Decoder SYSTEM3"));
 #endif
 
@@ -114,7 +105,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR szCmdLin
 		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM1  -  %s"), title);
 #elif defined(_SYSTEM2)
 		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM2  -  %s"), title);
-#else
+#elif defined(_SYSTEM3)
 		_stprintf_s(buf, 128, _T("Scenario Decoder SYSTEM3  -  %s"), title);
 #endif
 		SetWindowText(g_hwnd, buf);
@@ -140,7 +131,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR szCmdLin
 		ChangeDisplaySettings(NULL, 0);
 	}
 
-#ifdef _DEBUG
+#if defined(_DEBUG)
 	// メモリリーク検出
 	_CrtDumpMemoryLeaks();
 #endif

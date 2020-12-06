@@ -17,8 +17,8 @@ public:
 	DRI() {}
 	~DRI() {}
 
-	uint8* load(_TCHAR path[], int page, int* size);
-	uint8* load_mda(HINSTANCE hInst, uint32 crc32, int page, int* size);
+	uint8 *load(const char *file_name, int page, int *size);
+	uint8 *load_mda(HINSTANCE hInst, uint32 crc32_a, uint32 crc32_b, int page, int *size);
 };
 
 #endif
