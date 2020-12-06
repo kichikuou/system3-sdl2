@@ -1475,9 +1475,11 @@ void NACT_Sys2::cmd_y()
 				uint8 d;
 				while((d = (uint8)tvar[param - 1][p]) != '\0') {
 					if((0x81 <= d && d <= 0x9f) || 0xe0 <= d) {
-						string[p++] = tvar[param - 1][p];
+						string[p] = tvar[param - 1][p];
+						p++;
 					}
-					string[p++] = tvar[param - 1][p];
+					string[p] = tvar[param - 1][p];
+					p++;
 					q++;
 				}
 				for(int i = q; i < len; i++) {
