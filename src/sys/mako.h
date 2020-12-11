@@ -16,6 +16,7 @@
 
 enum BGMDevice {
 	BGM_FM,
+	BGM_MIDI,
 	BGM_CD
 };
 

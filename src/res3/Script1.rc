@@ -42,6 +42,7 @@ BEGIN
     POPUP "Sound"
     BEGIN
         MENUITEM "FM Sound",                    ID_SOUND_FM
+        MENUITEM "MIDI Sound",                  ID_SOUND_MIDI
         MENUITEM "CD Audio",                    ID_SOUND_CD
     END
     POPUP "Message"

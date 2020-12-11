@@ -350,8 +350,7 @@ void MAKO::stop_music()
 		delete music;
 		music = nullptr;
 	}
-	if (use_fm)
-		SDL_PauseAudio(1);
+	SDL_PauseAudio(1);
 	current_music = 0;
 }
 
@@ -364,12 +363,18 @@ void MAKO::select_sound(BGMDevice dev)
 {
 	// 強制的に音源を変更する
 	int page = current_music;
-	int old_dev = (1 <= page && page <= 99 && cd_track[page]) ? BGM_CD : BGM_FM;
+	int old_dev = (1 <= page && page <= 99 && cd_track[page]) ? BGM_CD :
+		use_fm ? BGM_FM : BGM_MIDI;
 
-	if (dev == BGM_FM) {
+	switch (dev) {
+	case BGM_FM:
+	case BGM_MIDI:
 		for (int i = 1; i <= 99; i++)
 			cd_track[i] = 0;
-	} else {
+		use_fm = dev == BGM_FM;
+		break;
+
+	case BGM_CD:
 		const int8* tracks;
 
 		switch (nact->crc32_a) {
@@ -392,6 +397,7 @@ void MAKO::select_sound(BGMDevice dev)
 			for (int i = 1; i <= 99; i++)
 				cd_track[i] = i;
 		}
+		break;
 	}
 
 	// デバイスが変更された場合は再演奏する

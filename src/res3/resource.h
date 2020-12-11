@@ -25,9 +25,10 @@
 #define ID_SCREEN_WINDOW                40003
 #define ID_SCREEN_FULL                  40004
 #define ID_SOUND_FM                     40005
-#define ID_SOUND_CD                     40006
-#define ID_TEXT_SKIP                    40007
-#define ID_TEXT_WAIT                    40008
+#define ID_SOUND_MIDI                   40006
+#define ID_SOUND_CD                     40007
+#define ID_TEXT_SKIP                    40008
+#define ID_TEXT_WAIT                    40009
 
 // Next default values for new objects
 // 

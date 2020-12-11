@@ -156,6 +156,9 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 		case ID_SOUND_FM:
 			mako->select_sound(BGM_FM);
 			break;
+		case ID_SOUND_MIDI:
+			mako->select_sound(BGM_MIDI);
+			break;
 		case ID_SOUND_CD:
 			mako->select_sound(BGM_CD);
 			break;
