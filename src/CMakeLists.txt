@@ -9,27 +9,23 @@ if (MSYS)
   list(APPEND CMAKE_LIBRARY_PATH $ENV{MINGW_PREFIX}/$ENV{MINGW_CHOST}/lib)
 endif ()
 
+add_subdirectory(../deps/fmgen fmgen)
+
 if (ANDROID)
-  add_subdirectory(../deps/fmgen fmgen)
   add_library(system3 SHARED)
 
   target_sources(system3 PRIVATE
     android/nact_android.cpp
     android/mako.cpp
-    fm/makofm.cpp
-    fm/mako_fmgen.cpp
     )
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf fmgen)
 
 elseif (EMSCRIPTEN)
-  add_subdirectory(../deps/fmgen fmgen)
   add_executable(system3)
 
   target_sources(system3 PRIVATE
     emscripten/nact_emscripten.cpp
     emscripten/mako.cpp
-    fm/makofm.cpp
-    fm/mako_fmgen.cpp
     )
   set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
   target_compile_options(system3 PRIVATE ${LIBS})
@@ -55,21 +51,19 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   include(FindPkgConfig)
   pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
   pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
-  target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
+  target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF fmgen)
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(system3 PRIVATE win/nact_win.cpp win/mako.cpp res3/Script1.rc)
     target_link_libraries(system3 PRIVATE winmm)
     set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
   else()
-    add_subdirectory(../deps/fmgen fmgen)
     pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
     target_sources(system3 PRIVATE
       linux/nact_linux.cpp
       linux/mako.cpp
-      fm/makofm.cpp
-      fm/mako_fmgen.cpp)
-    target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER fmgen)
+      )
+    target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
     set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
     install(TARGETS system3 RUNTIME DESTINATION bin)
     install(DIRECTORY ../resources/
@@ -84,6 +78,8 @@ target_sources(system3 PRIVATE
   resource.cpp
   utfsjis.cpp
   texthook.cpp
+  fm/makofm.cpp
+  fm/mako_fmgen.cpp
   sys/ags.cpp
   sys/ags_bmp.cpp
   sys/ags_cursor.cpp

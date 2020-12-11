@@ -6,16 +6,21 @@
 
 #include <windows.h>
 #undef ERROR
+#include <memory>
 #include <string>
+#include <SDL.h>
 #include <SDL_syswm.h>
 #include "mako.h"
 #include "mako_midi.h"
+#include "fm/mako_fmgen.h"
 #include "dri.h"
 #include "crc32.h"
 
 extern SDL_Window* g_window;
 
 namespace {
+
+const int SAMPLE_RATE = 44100;
 
 // Per-game mapping from music numbers to CD tracks.  This is necessary to
 // forcibly change the sound device with a menu command.
@@ -225,10 +230,19 @@ private:
 
 Music* music;
 uint8* wav_buffer;
+SDL_mutex* fm_mutex;
+std::unique_ptr<MakoFMgen> fm;
+
+void audio_callback(void*, Uint8* stream, int len) {
+	SDL_LockMutex(fm_mutex);
+	fm->Process(reinterpret_cast<int16*>(stream), len/ 4);
+	SDL_UnlockMutex(fm_mutex);
+}
 
 } // namespace
 
 MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
+	use_fm(config.use_fm),
 	current_music(0),
 	next_loop(0),
 	nact(parent)
@@ -243,6 +257,20 @@ MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
 		cd_track[i] = 0;
 	}
 
+	SDL_InitSubSystem(SDL_INIT_AUDIO);
+	SDL_AudioSpec fmt;
+	SDL_zero(fmt);
+	fmt.freq = SAMPLE_RATE;
+	fmt.format = AUDIO_S16;
+	fmt.channels = 2;
+	fmt.samples = 4096;
+	fmt.callback = &audio_callback;
+	if (SDL_OpenAudio(&fmt, NULL) < 0) {
+		WARNING("SDL_OpenAudio: %s", SDL_GetError());
+		use_fm = false;
+	}
+	fm_mutex = SDL_CreateMutex();
+
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if (!SDL_GetWindowWMInfo(g_window, &info))
@@ -256,6 +284,13 @@ MAKO::~MAKO()
 	stop_pcm();
 	mci_thread->post_message(MAKO_EXIT, 0, 0);
 	mci_thread = nullptr;  // MCIThread self-destructs on the worker thread.
+
+	SDL_LockMutex(fm_mutex);
+	SDL_CloseAudio();
+	SDL_UnlockMutex(fm_mutex);
+	SDL_DestroyMutex(fm_mutex);
+	fm_mutex = nullptr;
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 bool MAKO::load_playlist(const char* path)
@@ -288,6 +323,17 @@ void MAKO::play_music(int page)
 		if (track >= playlist.size() || !playlist[track])
 			return;
 		music = new Music(playlist[track], next_loop);
+	} else if (use_fm) {
+		DRI dri;
+		int size;
+		uint8* data = dri.load(amus, page, &size);
+		if (!data)
+			return;
+
+		SDL_LockMutex(fm_mutex);
+		fm = std::make_unique<MakoFMgen>(SAMPLE_RATE, data, true);
+		SDL_UnlockMutex(fm_mutex);
+		SDL_PauseAudio(0);
 	} else {
 		MAKOMidi midi(nact, amus);
 		if (!midi.load_mml(page))
@@ -304,6 +350,8 @@ void MAKO::stop_music()
 		delete music;
 		music = nullptr;
 	}
+	if (use_fm)
+		SDL_PauseAudio(1);
 	current_music = 0;
 }
 

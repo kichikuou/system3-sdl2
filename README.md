@@ -28,7 +28,9 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### Windows (MSYS2 mingw64)
 
-    $ pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
+    $ git submodule init
+    $ git submodule update
+    $ pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
     $ mkdir -p out/debug
     $ cd out/debug
     $ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
