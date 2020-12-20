@@ -11,7 +11,7 @@
 
 static bool antialias = true;
 
-void AGS::draw_text(const char* string)
+void AGS::draw_text(const char* string, bool text_wait)
 {
 	int p = 0;
 	int screen, dest_x, dest_y, font_size;
@@ -39,7 +39,8 @@ void AGS::draw_text(const char* string)
 
 	while(string[p] != '\0') {
 		// 文字コード取得
-		uint16 code = (uint8)string[p++];
+		uint8 c = (uint8)string[p++];
+		uint16 code = c;
 		if(is_2byte_message(code)) {
 			code = (code << 8) | (uint8)string[p++];
 		}
@@ -63,10 +64,19 @@ void AGS::draw_text(const char* string)
 		}
 		// 出力位置の更新
 		dest_x += (code & 0xff00) ? font_size : (font_size >> 1);
+
+		if (!draw_menu && text_wait && c != ' ') {
+			// 画面更新
+			if(screen == 0)
+				draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, font_size);
+			text_dest_x = dest_x;
+			// Wait
+			nact->text_wait();
+		}
 	}
 	if (draw_menu)
 		menu_dest_x = dest_x;
-	else {
+	else if (!text_wait) {
 		// 画面更新
 		if(screen == 0)
 			draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, font_size);

@@ -278,69 +278,9 @@ void NACT::execute()
 			cmd_z();
 			break;
 		default:
-			if(is_1byte_message(cmd)) {
-				char string[3];
-				string[0] = cmd;
-				string[1] = '\0';
-				ags->draw_text(string);
-				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
-					if(!ags->draw_menu) {
-						text_refresh = false;
-					}
-				}
-				
-				if(!ags->draw_menu && text_wait_enb && cmd != 0x20) {
-					Uint32 dwTime = SDL_GetTicks() + text_wait_time;
-					for(;;) {
-						if(terminate) {
-							return;
-						}
-						RND = get_key();
-						if(RND && wait_keydown) {
-							break;
-						}
-						if(dwTime <= SDL_GetTicks()) {
-							break;
-						}
-						sys_sleep(16);
-					}
-				}
-				if(!ags->draw_hankaku) {
-					uint16 code = ags->convert_zenkaku(cmd);
-					string[0] = code >> 8;
-					string[1] = code & 0xff;
-					string[2] = '\0';
-				}
-				output_console(string);
-			} else if(is_2byte_message(cmd)) {
-				char string[3];
-				string[0] = cmd;
-				string[1] = getd();
-				string[2] = '\0';
-				ags->draw_text(string);
-				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
-					if(!ags->draw_menu) {
-						text_refresh = false;
-					}
-				}
-				
-				if(!ags->draw_menu && text_wait_enb) {
-					Uint32 dwTime = SDL_GetTicks() + text_wait_time;
-					for(;;) {
-						if(terminate) {
-							return;
-						}
-						RND = get_key();
-						if(RND && wait_keydown) {
-							break;
-						}
-						if(dwTime <= SDL_GetTicks()) {
-							break;
-						}
-						sys_sleep(16);
-					}
-				}
-				output_console(string);
+			if(is_1byte_message(cmd) || is_2byte_message(cmd)) {
+				ungetd();
+				message();
 			} else {
 				if(cmd >= 0x20 && cmd < 0x7f) {
 					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
@@ -349,6 +289,55 @@ void NACT::execute()
 				}
 			}
 			break;
+	}
+}
+
+void NACT::message()
+{
+	uint8* begin = &scenario_data[scenario_addr];
+	uint8* end = begin;
+	for (;;) {
+		if (is_1byte_message(*end))
+			end++;
+		else if (is_2byte_message(*end))
+			end += 2;
+		else
+			break;
+	}
+	int len = end - begin;
+	scenario_addr += len;
+
+	char* buf = (char*)alloca(len + 1);
+	strncpy(buf, reinterpret_cast<char*>(begin), len);
+	buf[len] = '\0';
+
+	ags->draw_text(buf, text_wait_enb);
+
+	if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+		if(!ags->draw_menu) {
+			text_refresh = false;
+		}
+	}
+
+	// TODO: Convert hankaku to zenkaku
+	output_console(buf);
+}
+
+void NACT::text_wait()
+{
+	Uint32 dwTime = SDL_GetTicks() + text_wait_time;
+	for(;;) {
+		if(terminate) {
+			return;
+		}
+		RND = get_key();
+		if(RND && wait_keydown) {
+			break;
+		}
+		if(dwTime <= SDL_GetTicks()) {
+			break;
+		}
+		sys_sleep(16);
 	}
 }
 

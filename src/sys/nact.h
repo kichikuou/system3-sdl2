@@ -125,6 +125,8 @@ protected:
 	char tvar_stack[30][10][22];
 //	int tvar_index;
 
+	void message();
+
 	// Commands
 	virtual void cmd_calc() = 0;
 
@@ -207,6 +209,7 @@ protected:
 		scenario_addr += 2;
 		return val;
 	}
+	void ungetd() { scenario_addr--; }
 
 	uint16 random(uint16 range);
 	uint32 seed;
@@ -247,6 +250,7 @@ public:
 	const char* get_game_id();
 	static const int get_sys_ver(uint32 crc32_a, uint32 crc32_b);
 	const char* get_title();
+	void text_wait();
 
 	bool text_skip_enb;	// メッセージスキップ
 	bool text_wait_enb;	// テキスト表示のウェイト有効／無効
