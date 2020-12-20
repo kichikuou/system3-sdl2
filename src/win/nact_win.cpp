@@ -69,7 +69,7 @@ INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPara
 					pnt = cnt = 0;
 					while(string[pnt] != '\0') {
 						unsigned char dat = string[pnt];
-						if((0x81 <= dat && dat <= 0x9f) || 0xe0 <= dat) {
+						if(is_2byte_message(dat)) {
 							pnt++;
 						}
 						pnt++;

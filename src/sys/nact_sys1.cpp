@@ -204,9 +204,9 @@ void NACT_Sys1::cmd_branch()
 			} else if(cmd == 'Z') {
 				cali();
 				cali();
-			} else if(cmd == 0x20 || (0xa1 <= cmd && cmd <= 0xdd)) {
+			} else if(is_1byte_message(cmd)) {
 				// message (1 byte)
-			} else if((0x81 <= cmd && cmd <= 0x9f) || 0xe0 <= cmd) {
+			} else if(is_2byte_message(cmd)) {
 				// message (2 bytes)
 				getd();
 			} else {

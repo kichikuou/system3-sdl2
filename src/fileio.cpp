@@ -128,7 +128,7 @@ void FILEIO::Fgets(char *dest, int length)
 			if(p < length + 1) {
 				dest[p++] = c;
 			}
-			if((0x81 <= c && c <= 0x9f) || 0xe0 <= c) {
+			if(is_2byte_message(c)) {
 				if(p < length + 1) {
 					dest[p++] = Fgetc();
 				}

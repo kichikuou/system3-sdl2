@@ -278,8 +278,7 @@ void NACT::execute()
 			cmd_z();
 			break;
 		default:
-			if(cmd == 0x20 || (0xa1 <= cmd && cmd <= 0xdd)) {
-				// message (1 byte)
+			if(is_1byte_message(cmd)) {
 				char string[3];
 				string[0] = cmd;
 				string[1] = '\0';
@@ -313,8 +312,7 @@ void NACT::execute()
 					string[2] = '\0';
 				}
 				output_console(string);
-			} else if((0x81 <= cmd && cmd <= 0x9f) || 0xe0 <= cmd) {
-				// message (2 bytes)
+			} else if(is_2byte_message(cmd)) {
 				char string[3];
 				string[0] = cmd;
 				string[1] = getd();

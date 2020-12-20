@@ -65,6 +65,14 @@ inline void strcpy_s(char* dst, size_t n, const char* src)
 
 #endif // !WIN32
 
+static inline bool is_1byte_message(uint8_t c) {
+	return c == ' ' || (0xa1 <= c && c <= 0xdd);
+}
+
+static inline bool is_2byte_message(uint8_t c) {
+	return (0x81 <= c && c <= 0x9f) || 0xe0 <= c;
+}
+
 // resource.cpp
 SDL_RWops* open_resource(const char* name, const char* type);
 

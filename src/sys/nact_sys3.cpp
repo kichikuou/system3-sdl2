@@ -798,8 +798,7 @@ void NACT_Sys3::cmd_m()
 	int d, p = 0;
 
 	while((d = getd()) != ':') {
-		if((0x81 <= d && d <= 0x9f) || 0xe0 <= d) {
-			// 2bytes
+		if(is_2byte_message(d)) {
 			string[p++] = d;
 			string[p++] = getd();
 		} else {
@@ -1385,7 +1384,7 @@ void NACT_Sys3::cmd_y()
 					} else {
 						uint8 code = tvar[param - 1][s++];
 						string[d++] = code;
-						if((0x81 <= code && code <= 0x9f) || 0xe0 <= code) {
+						if(is_2byte_message(code)) {
 							string[d++] = tvar[param - 1][s++];
 						}
 					}

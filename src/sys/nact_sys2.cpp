@@ -171,9 +171,9 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'M') {
 				for(;;) {
 					uint8 val = getd();
-					if(val == 0x20 || (0xa1 <= val && val <= 0xdd)) {
+					if(is_1byte_message(val)) {
 						// message (1 byte)
-					} else if((0x81 <= val && val <= 0x9f) || 0xe0 <= val) {
+					} else if(is_2byte_message(val)) {
 						// message (2 bytes)
 						getd();
 					} else if(val == ':') {
@@ -255,9 +255,9 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'Z') {
 				cali();
 				cali();
-			} else if(cmd == 0x20 || (0xa1 <= cmd && cmd <= 0xdd)) {
+			} else if(is_1byte_message(cmd)) {
 				// message (1 byte)
-			} else if((0x81 <= cmd && cmd <= 0x9f) || 0xe0 <= cmd) {
+			} else if(is_2byte_message(cmd)) {
 				// message (2 bytes)
 				getd();
 			} else {
@@ -1082,8 +1082,7 @@ void NACT_Sys2::cmd_m()
 	int d, p = 0;
 
 	while((d = getd()) != ':') {
-		if((0x81 <= d && d <= 0x9f) || 0xe0 <= d) {
-			// 2bytes
+		if(is_2byte_message(d)) {
 			string[p++] = d;
 			string[p++] = getd();
 		} else {
@@ -1474,7 +1473,7 @@ void NACT_Sys2::cmd_y()
 				int len = cmd - 220, p = 0, q = 0;
 				uint8 d;
 				while((d = (uint8)tvar[param - 1][p]) != '\0') {
-					if((0x81 <= d && d <= 0x9f) || 0xe0 <= d) {
+					if(is_2byte_message(d)) {
 						string[p] = tvar[param - 1][p];
 						p++;
 					}
