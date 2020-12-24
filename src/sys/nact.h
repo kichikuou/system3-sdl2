@@ -216,6 +216,7 @@ protected:
 	uint16 random(uint16 range);
 	uint32 seed;
 
+	int menu_select(int num_items);
 	void wait_after_open_menu();
 
 	void sys_sleep(int ms);
@@ -415,8 +416,6 @@ protected:
 	void cmd_z() override;
 	uint16 cali() override;
 	uint16 cali2() override;
-private:
-	int menu_select(int num_items);
 };
 
 #endif // _NACT_H_

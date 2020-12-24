@@ -323,90 +323,12 @@ void NACT_Sys1::cmd_open_menu()
 		}
 	}
 
-	// メニュー表示
-	ags->open_menu_window(menu_window);
+	int selection = menu_select(menu_index);
+	if (terminate)
+		return;
 
-	// マウス移動
-	int sx = ags->menu_w[menu_window - 1].sx;
-	int sy = ags->menu_w[menu_window - 1].sy;
-	int ex = ags->menu_w[menu_window - 1].ex;
-	int mx = ex - 16;
-	int my = sy + 10;
-	int height = ags->menu_font_size + 4;
-	int current_index = 0;
-
-	set_cursor(mx, my);
-	wait_after_open_menu();
-
-	// メニュー選択
-	for(bool selectable = true;;) {
-		// 入力待機
-		int val = 0, current_mx = mx, current_my = my;
-		for(;;) {
-			if(terminate) {
-				return;
-			}
-			if((val = get_key()) != 0) {
-				sys_sleep(100);
-				break;
-			}
-			get_cursor(&current_mx, &current_my);
-			if(abs(my - current_my) > 3) {
-				break;
-			}
-			sys_sleep(16);
-		}
-		if(val) {
-			for(;;) {
-				if(terminate) {
-					return;
-				}
-				if(!get_key()) {
-					break;
-				}
-				sys_sleep(16);
-			}
-		}
-
-		if(val == 0) {
-			// マウス操作
-			mx = current_mx; my = current_my;
-			int index = (my - sy) / height;
-			if(sx <= mx && mx <= ex && 0 <= index && index < menu_index) {
-				current_index = index;
-				ags->redraw_menu_window(menu_window, current_index);
-				selectable = true;
-			} else {
-				selectable = false;
-			}
-		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
-			if(val == 1) {
-				current_index = current_index ? current_index - 1 : menu_index - 1;
-			} else if(val == 2) {
-				current_index = (current_index < menu_index - 1) ? current_index + 1 : 0;
-			} else if(val == 4) {
-				current_index = 0;
-			} else if(val == 8) {
-				current_index = menu_index - 1;
-			}
-			ags->redraw_menu_window(menu_window, current_index);
-			selectable = true;
-		} else if(val == 16 && selectable) {
-			break;
-		} else if(val == 32) {
-			current_index = -1;
-			break;
-		}
-	}
-
-	// 画面更新
-	ags->close_menu_window(menu_window);
-	if(clear_text) {
-		ags->clear_text_window(text_window, true);
-	}
-
-	if(current_index != -1) {
-		scenario_addr = menu_addr[current_index];
+	if (selection != -1) {
+		scenario_addr = menu_addr[selection];
 	}
 	menu_index = 0;
 }
@@ -509,94 +431,16 @@ top2:
 	}
 	ags->draw_menu = false;
 
-	// メニュー表示
-	ags->open_menu_window(menu_window);
+	int selection = menu_select(index);
+	if (terminate)
+		return;
 
-	// マウス移動
-	int sx = ags->menu_w[menu_window - 1].sx;
-	int sy = ags->menu_w[menu_window - 1].sy;
-	int ex = ags->menu_w[menu_window - 1].ex;
-	int mx = ex - 16;
-	int my = sy + 10;
-	int height = ags->menu_font_size + 4;
-	int current_index = 0;
-
-	set_cursor(mx, my);
-	wait_after_open_menu();
-
-	// メニュー選択
-	for(bool selectable = true;;) {
-		// 入力待機
-		int val = 0, current_mx = mx, current_my = my;
-		for(;;) {
-			if(terminate) {
-				return;
-			}
-			if((val = get_key()) != 0) {
-				sys_sleep(100);
-				break;
-			}
-			get_cursor(&current_mx, &current_my);
-			if(abs(my - current_my) > 3) {
-				break;
-			}
-			sys_sleep(16);
-		}
-		if(val) {
-			for(;;) {
-				if(terminate) {
-					return;
-				}
-				if(!get_key()) {
-					break;
-				}
-				sys_sleep(16);
-			}
-		}
-
-		if(val == 0) {
-			// マウス操作
-			mx = current_mx; my = current_my;
-			int mindex = (my - sy) / height;
-			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
-				current_index = mindex;
-				ags->redraw_menu_window(menu_window, current_index);
-				selectable = true;
-			} else {
-				selectable = false;
-			}
-		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
-			if(val == 1) {
-				current_index = current_index ? current_index - 1 : index - 1;
-			} else if(val == 2) {
-				current_index = (current_index < index - 1) ? current_index + 1 : 0;
-			} else if(val == 4) {
-				current_index = 0;
-			} else if(val == 8) {
-				current_index = index - 1;
-			}
-			ags->redraw_menu_window(menu_window, current_index);
-			selectable = true;
-		} else if(val == 16 && selectable) {
-			break;
-		} else if(val == 32) {
-			current_index = -1;
-			break;
-		}
-	}
-
-	// 画面更新
-	ags->close_menu_window(menu_window);
-	if(clear_text) {
-		ags->clear_text_window(text_window, true);
-	}
-
-	if(current_index == -1) {
+	if(selection == -1) {
 		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
-	} else if(id[current_index] == -1) {
+	} else if(id[selection] == -1) {
 		goto top;
 	} else {
-		cmd_open_obj(id[current_index]);
+		cmd_open_obj(id[selection]);
 	}
 	menu_index = 0;
 }
@@ -691,94 +535,16 @@ top2:
 	}
 	ags->draw_menu = false;
 
-	// メニュー表示
-	ags->open_menu_window(menu_window);
+	int selection = menu_select(index);
+	if (terminate)
+		return;
 
-	// マウス移動
-	int sx = ags->menu_w[menu_window - 1].sx;
-	int sy = ags->menu_w[menu_window - 1].sy;
-	int ex = ags->menu_w[menu_window - 1].ex;
-	int mx = ex - 16;
-	int my = sy + 10;
-	int height = ags->menu_font_size + 4;
-	int current_index = 0;
-
-	set_cursor(mx, my);
-	wait_after_open_menu();
-
-	// メニュー選択
-	for(bool selectable = true;;) {
-		// 入力待機
-		int val = 0, current_mx = mx, current_my = my;
-		for(;;) {
-			if(terminate) {
-				return;
-			}
-			if((val = get_key()) != 0) {
-				sys_sleep(100);
-				break;
-			}
-			get_cursor(&current_mx, &current_my);
-			if(abs(my - current_my) > 3) {
-				break;
-			}
-			sys_sleep(16);
-		}
-		if(val) {
-			for(;;) {
-				if(terminate) {
-					return;
-				}
-				if(!get_key()) {
-					break;
-				}
-				sys_sleep(16);
-			}
-		}
-
-		if(val == 0) {
-			// マウス操作
-			mx = current_mx; my = current_my;
-			int mindex = (my - sy) / height;
-			if(sx <= mx && mx <= ex && 0 <= mindex && mindex < index) {
-				current_index = mindex;
-				ags->redraw_menu_window(menu_window, current_index);
-				selectable = true;
-			} else {
-				selectable = false;
-			}
-		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
-			if(val == 1) {
-				current_index = current_index ? current_index - 1 : index - 1;
-			} else if(val == 2) {
-				current_index = (current_index < index - 1) ? current_index + 1 : 0;
-			} else if(val == 4) {
-				current_index = 0;
-			} else if(val == 8) {
-				current_index = index - 1;
-			}
-			ags->redraw_menu_window(menu_window, current_index);
-			selectable = true;
-		} else if(val == 16 && selectable) {
-			break;
-		} else if(val == 32) {
-			current_index = -1;
-			break;
-		}
-	}
-
-	// 画面更新
-	ags->close_menu_window(menu_window);
-	if(clear_text) {
-		ags->clear_text_window(text_window, true);
-	}
-
-	if(current_index == -1) {
+	if(selection == -1) {
 		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
-	} else if(id[current_index] == -1) {
+	} else if(id[selection] == -1) {
 		goto top;
 	} else {
-		scenario_addr = addr[id[current_index]];
+		scenario_addr = addr[id[selection]];
 	}
 }
 

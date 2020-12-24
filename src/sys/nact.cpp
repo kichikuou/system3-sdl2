@@ -354,6 +354,94 @@ void NACT::load_scenario(int page)
 
 // 下位関数
 
+int NACT::menu_select(int num_items)
+{
+	// メニュー表示
+	ags->open_menu_window(menu_window);
+
+	// マウス移動
+	int sx = ags->menu_w[menu_window - 1].sx;
+	int sy = ags->menu_w[menu_window - 1].sy;
+	int ex = ags->menu_w[menu_window - 1].ex;
+	int mx = ex - 16;
+	int my = sy + 10;
+	int height = ags->menu_font_size + 4;
+	int current_index = 0;
+
+	set_cursor(mx, my);
+	wait_after_open_menu();
+
+	// メニュー選択
+	for(bool selectable = true;;) {
+		// 入力待機
+		int val = 0, current_mx = mx, current_my = my;
+		for(;;) {
+			if(terminate) {
+				return -1;
+			}
+			get_cursor(&current_mx, &current_my);
+			int dx = mx - current_mx;
+			int dy = my - current_my;
+			if (dx*dx + dy*dy > 10)
+				break;
+			if((val = get_key()) != 0) {
+				sys_sleep(100);
+				break;
+			}
+			sys_sleep(16);
+		}
+		if(val) {
+			for(;;) {
+				if(terminate) {
+					return -1;
+				}
+				if(!get_key()) {
+					break;
+				}
+				sys_sleep(16);
+			}
+		}
+
+		if(val == 0) {
+			// マウス操作
+			mx = current_mx; my = current_my;
+			int index = (my - sy) / height;
+			if(sx <= mx && mx <= ex && 0 <= index && index < num_items) {
+				current_index = index;
+				ags->redraw_menu_window(menu_window, current_index);
+				selectable = true;
+			} else {
+				selectable = false;
+			}
+		} else if(val == 1 || val == 2 || val == 4 || val == 8) {
+			if(val == 1) {
+				current_index = current_index ? current_index - 1 : num_items - 1;
+			} else if(val == 2) {
+				current_index = (current_index < num_items - 1) ? current_index + 1 : 0;
+			} else if(val == 4) {
+				current_index = 0;
+			} else if(val == 8) {
+				current_index = num_items - 1;
+			}
+			ags->redraw_menu_window(menu_window, current_index);
+			selectable = true;
+		} else if(val == 16 && selectable) {
+			break;
+		} else if(val == 32) {
+			current_index = -1;
+			break;
+		}
+	}
+
+	// 画面更新
+	ags->close_menu_window(menu_window);
+	if(clear_text) {
+		ags->clear_text_window(text_window, true);
+	}
+
+	return current_index;
+}
+
 uint16 NACT::random(uint16 range)
 {
 	// xorshift32
