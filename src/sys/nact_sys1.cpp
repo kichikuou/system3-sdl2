@@ -17,6 +17,7 @@
 #include "msgskip.h"
 #include "crc32.h"
 #include "../fileio.h"
+#include "texthook.h"
 
 // メニューの改ページ
 #define MENU_MAX (crc32_a == CRC32_INTRUDER ? 6 : 11)
@@ -31,7 +32,7 @@
 		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		sys_sleep(10); \
+		sys_sleep(16); \
 	} \
 }
 
@@ -53,14 +54,14 @@
 				if(dwTime <= SDL_GetTicks()) { \
 					break; \
 				} \
-				sys_sleep(10); \
+				sys_sleep(16); \
 			} \
 			break; \
 		} \
 		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		sys_sleep(10); \
+		sys_sleep(16); \
 	} \
 }
 
@@ -353,7 +354,7 @@ void NACT_Sys1::cmd_open_menu()
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			sys_sleep(10);
+			sys_sleep(16);
 		}
 		if(val) {
 			for(;;) {
@@ -363,7 +364,7 @@ void NACT_Sys1::cmd_open_menu()
 				if(!get_key()) {
 					break;
 				}
-				sys_sleep(10);
+				sys_sleep(16);
 			}
 		}
 
@@ -539,7 +540,7 @@ top2:
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			sys_sleep(10);
+			sys_sleep(16);
 		}
 		if(val) {
 			for(;;) {
@@ -549,7 +550,7 @@ top2:
 				if(!get_key()) {
 					break;
 				}
-				sys_sleep(10);
+				sys_sleep(16);
 			}
 		}
 
@@ -721,7 +722,7 @@ top2:
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			sys_sleep(10);
+			sys_sleep(16);
 		}
 		if(val) {
 			for(;;) {
@@ -731,7 +732,7 @@ top2:
 				if(!get_key()) {
 					break;
 				}
-				sys_sleep(10);
+				sys_sleep(16);
 			}
 		}
 
@@ -783,6 +784,8 @@ top2:
 
 void NACT_Sys1::cmd_a()
 {
+	texthook_nextpage();
+
 	output_console("A\n");
 
 	// Pushマークの表示
@@ -798,9 +801,9 @@ void NACT_Sys1::cmd_a()
 		if(get_key()) {
 			break;
 		}
-		sys_sleep(10);
+		sys_sleep(16);
 	}
-	sys_sleep(100);
+	sys_sleep(30);
 	while (!msgskip->is_skip_enabled()) {
 		if(terminate) {
 			return;
@@ -808,7 +811,7 @@ void NACT_Sys1::cmd_a()
 		if(!(get_key() & 0x18)) {
 			break;
 		}
-		sys_sleep(10);
+		sys_sleep(16);
 	}
 
 	// ウィンドウ更新
@@ -902,7 +905,7 @@ void NACT_Sys1::cmd_l()
 		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
+		if(fio->Fopen(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
 			fio->Fseek(112, FILEIO_SEEK_SET);
 
 			int next_page = fio->Fgetw() - 1;
@@ -1050,7 +1053,7 @@ void NACT_Sys1::cmd_q()
 		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY)) {
+		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
 			uint8 buffer[9510];
 			int p = 0;
 
@@ -1118,6 +1121,8 @@ void NACT_Sys1::cmd_q()
 
 void NACT_Sys1::cmd_r()
 {
+	texthook_newline();
+
 	output_console("R\n");
 
 	// ウィンドウの表示範囲外の場合は改ページ
@@ -1209,7 +1214,7 @@ void NACT_Sys1::cmd_y()
 					if(get_key()) {
 						break;
 					}
-					sys_sleep(10);
+					sys_sleep(16);
 				}
 				sys_sleep(100);
 				for(;;) {
@@ -1219,7 +1224,7 @@ void NACT_Sys1::cmd_y()
 					if(!(get_key() & 0x18)) {
 						break;
 					}
-					sys_sleep(10);
+					sys_sleep(16);
 				}
 				ags->clear_text_window(text_window, true);
 				break;

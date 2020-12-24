@@ -12,6 +12,7 @@
 #include "msgskip.h"
 #include "crc32.h"
 #include "../fileio.h"
+#include "texthook.h"
 
 #define WAIT(tm) \
 { \
@@ -23,7 +24,7 @@
 		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		sys_sleep(10); \
+		sys_sleep(16); \
 	} \
 }
 
@@ -45,14 +46,14 @@
 				if(dwTime <= SDL_GetTicks()) { \
 					break; \
 				} \
-				sys_sleep(10); \
+				sys_sleep(16); \
 			} \
 			break; \
 		} \
 		if(dwTime <= SDL_GetTicks()) { \
 			break; \
 		} \
-		sys_sleep(10); \
+		sys_sleep(16); \
 	} \
 }
 
@@ -398,7 +399,7 @@ void NACT_Sys2::cmd_open_menu()
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			sys_sleep(10);
+			sys_sleep(16);
 		}
 		if(val) {
 			for(;;) {
@@ -408,7 +409,7 @@ void NACT_Sys2::cmd_open_menu()
 				if(!get_key()) {
 					break;
 				}
-				sys_sleep(10);
+				sys_sleep(16);
 			}
 		}
 
@@ -549,7 +550,7 @@ void NACT_Sys2::cmd_open_verb()
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			sys_sleep(10);
+			sys_sleep(16);
 		}
 		if(val) {
 			for(;;) {
@@ -559,7 +560,7 @@ void NACT_Sys2::cmd_open_verb()
 				if(!get_key()) {
 					break;
 				}
-				sys_sleep(10);
+				sys_sleep(16);
 			}
 		}
 
@@ -687,7 +688,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 			if(abs(my - current_my) > 3) {
 				break;
 			}
-			sys_sleep(10);
+			sys_sleep(16);
 		}
 		if(val) {
 			for(;;) {
@@ -697,7 +698,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 				if(!get_key()) {
 					break;
 				}
-				sys_sleep(10);
+				sys_sleep(16);
 			}
 		}
 
@@ -747,6 +748,8 @@ void NACT_Sys2::cmd_open_obj(int verb)
 
 void NACT_Sys2::cmd_a()
 {
+	texthook_nextpage();
+
 	output_console("A\n");
 
 	// Pushマークの表示
@@ -762,9 +765,9 @@ void NACT_Sys2::cmd_a()
 		if(get_key()) {
 			break;
 		}
-		sys_sleep(10);
+		sys_sleep(16);
 	}
-	sys_sleep(100);
+	sys_sleep(30);
 	while (!msgskip->is_skip_enabled()) {
 		if(terminate) {
 			return;
@@ -772,7 +775,7 @@ void NACT_Sys2::cmd_a()
 		if(!(get_key() & 0x18)) {
 			break;
 		}
-		sys_sleep(10);
+		sys_sleep(16);
 	}
 
 	// ウィンドウ更新
@@ -986,7 +989,7 @@ void NACT_Sys2::cmd_l()
 		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
+		if(fio->Fopen(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
 			fio->Fseek(112, FILEIO_SEEK_SET);
 
 			int next_page = fio->Fgetw() - 1;
@@ -1164,7 +1167,7 @@ void NACT_Sys2::cmd_q()
 		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY)) {
+		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
 			uint8 buffer[9510];
 			int p = 0;
 
@@ -1232,6 +1235,8 @@ void NACT_Sys2::cmd_q()
 
 void NACT_Sys2::cmd_r()
 {
+	texthook_newline();
+
 	output_console("R\n");
 
 	// ウィンドウの表示範囲外の場合は改ページ
@@ -1385,7 +1390,7 @@ void NACT_Sys2::cmd_y()
 					if(dwTime <= SDL_GetTicks()) {
 						break;
 					}
-					sys_sleep(10);
+					sys_sleep(16);
 				}
 			}
 			break;
@@ -1424,16 +1429,9 @@ void NACT_Sys2::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_in(i);
-					Uint32 dwTime = dwStart + param * 1000 / 60 * i;
-					for(;;) {
-						if(terminate) {
-							return;
-						}
-						if(dwTime <= SDL_GetTicks()) {
-							break;
-						}
-						sys_sleep(0);
-					}
+					int32 ms = dwStart + param * 1000 / 60 * i - SDL_GetTicks();
+					if (ms > 0)
+						sys_sleep(ms);
 				}
 				ags->fade_end();
 			}
@@ -1445,16 +1443,9 @@ void NACT_Sys2::cmd_y()
 				Uint32 dwStart = SDL_GetTicks();
 				for(int i = 0; i < 16; i++) {
 					ags->fade_out(i, (cmd == 41) ? false : true);
-					Uint32 dwTime = dwStart + param * 1000 / 60 * i;
-					for(;;) {
-						if(terminate) {
-							return;
-						}
-						if(dwTime <= SDL_GetTicks()) {
-							break;
-						}
-						sys_sleep(0);
-					}
+					int32 ms = dwStart + param * 1000 / 60 * i - SDL_GetTicks();
+					if (ms > 0)
+						sys_sleep(ms);
 				}
 			}
 			break;
@@ -1499,7 +1490,7 @@ void NACT_Sys2::cmd_y()
 				if(get_key()) {
 					break;
 				}
-				sys_sleep(10);
+				sys_sleep(16);
 			}
 			sys_sleep(100);
 			for(;;) {
@@ -1509,7 +1500,7 @@ void NACT_Sys2::cmd_y()
 				if(!(get_key() & 0x18)) {
 					break;
 				}
-				sys_sleep(10);
+				sys_sleep(16);
 			}
 			break;
 		case 254:
