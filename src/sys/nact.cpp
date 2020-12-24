@@ -8,6 +8,7 @@
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
+#include "msgskip.h"
 #include "dri.h"
 #include "../fileio.h"
 #include "crc32.h"
@@ -67,7 +68,6 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, c
 	seed = SDL_GetTicks();	// 乱数の種
 	text_wait_time = 100;	// メッセージ表示のウェイト
 	text_wait_enb = false;
-	text_skip_enb = false;
 	mouse_sence = 16;	// マウス移動感知
 
 	menu_window = text_window = 1;
@@ -86,6 +86,7 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, c
 	// 各種クラス生成
 	ags = new AGS(this, font_file);
 	mako = new MAKO(this, mako_config);
+	msgskip = new MsgSkip(this);
 
 #ifdef USE_JOY
 	// 入力初期化
@@ -101,13 +102,9 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, c
 
 NACT::~NACT()
 {
-	// 各種クラス開放
-	if(ags) {
-		delete ags;
-	}
-	if(mako) {
-		delete mako;
-	}
+	delete ags;
+	delete mako;
+	delete msgskip;
 
 	// シナリオ開放
 	if(scenario_data) {
@@ -318,6 +315,8 @@ void NACT::message()
 			text_refresh = false;
 		}
 	}
+	if (!ags->draw_menu)
+		msgskip->on_message(scenario_page, scenario_addr);
 
 	// TODO: Convert hankaku to zenkaku
 	output_console(buf);

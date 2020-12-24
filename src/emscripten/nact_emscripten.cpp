@@ -42,6 +42,10 @@ void NACT::output_console(const char *format, ...)
 #endif
 }
 
+void NACT::set_skip_menu_state(bool enabled, bool checked)
+{
+}
+
 bool NACT::handle_platform_event(const SDL_Event& e)
 {
 	return false;

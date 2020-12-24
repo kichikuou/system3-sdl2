@@ -9,6 +9,7 @@
 #include "nact.h"
 #include "ags.h"
 #include "mako.h"
+#include "msgskip.h"
 #include "crc32.h"
 #include "../fileio.h"
 #include "texthook.h"
@@ -373,7 +374,7 @@ void NACT_Sys3::cmd_a()
 
 	output_console("A\n");
 
-	if(!text_skip_enb) {
+	if(!msgskip->is_skip_enabled()) {
 		// Pushマークの表示
 		if(show_push) {
 			ags->draw_push(text_window);

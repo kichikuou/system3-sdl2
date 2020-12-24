@@ -83,6 +83,7 @@ constexpr char SJIS_NEXT_PAGE [] = "\x8E\x9F\x82\xCC\x83\x79\x81\x5B\x83\x57"; /
 class AGS;
 class MAKO;
 class MAKOConfig;
+class MsgSkip;
 
 class NACT
 {
@@ -94,6 +95,7 @@ public:
 protected:
 	AGS* ags;
 	MAKO* mako;
+	MsgSkip* msgskip;
 
 	// コマンドパーサ
 	void execute();
@@ -251,8 +253,8 @@ public:
 	static const int get_sys_ver(uint32 crc32_a, uint32 crc32_b);
 	const char* get_title();
 	void text_wait();
+	void set_skip_menu_state(bool enabled, bool checked);
 
-	bool text_skip_enb;	// メッセージスキップ
 	bool text_wait_enb;	// テキスト表示のウェイト有効／無効
 	int sys_ver;
 	uint32 crc32_a;		// ADISK

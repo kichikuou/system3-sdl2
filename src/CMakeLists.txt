@@ -93,6 +93,7 @@ target_sources(system3 PRIVATE
   sys/ags_window.cpp
   sys/dri.cpp
   sys/mako_midi.cpp
+  sys/msgskip.cpp
   sys/nact.cpp
   sys/nact_crc32.cpp
   sys/nact_input.cpp

@@ -4,6 +4,7 @@
 #include "SDL_syswm.h"
 #include "ags.h"
 #include "mako.h"
+#include "msgskip.h"
 #include "../res3/resource.h"
 
 extern SDL_Window* g_window;
@@ -130,6 +131,16 @@ void NACT::output_console(const char *format, ...)
 #endif
 }
 
+void NACT::set_skip_menu_state(bool enabled, bool checked)
+{
+	HWND hwnd = get_hwnd(g_window);
+	HMENU hmenu = GetMenu(hwnd);
+	EnableMenuItem(hmenu, ID_TEXT_SKIP, enabled ? MF_ENABLED : MF_GRAYED);
+	CheckMenuItem(hmenu, ID_TEXT_SKIP, MF_BYCOMMAND |
+				  checked ? MFS_CHECKED : MFS_UNCHECKED);
+	DrawMenuBar(hwnd);
+}
+
 bool NACT::handle_platform_event(const SDL_Event& e)
 {
 	if (e.type != SDL_SYSWMEVENT)
@@ -163,9 +174,7 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			mako->select_sound(BGM_CD);
 			break;
 		case ID_TEXT_SKIP:
-			text_skip_enb = !text_skip_enb;
-			CheckMenuItem(GetMenu(get_hwnd(g_window)), ID_TEXT_SKIP, MF_BYCOMMAND |
-						  text_skip_enb ? MFS_CHECKED : MFS_UNCHECKED);
+			msgskip->enable_skip(!msgskip->is_skip_enabled());
 			break;
 		case ID_TEXT_WAIT:
 			text_wait_enb = !text_wait_enb;
