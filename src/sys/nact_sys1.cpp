@@ -785,32 +785,30 @@ void NACT_Sys1::cmd_a()
 {
 	output_console("A\n");
 
-	if(!msgskip->is_skip_enabled()) {
-		// Pushマークの表示
-		if(show_push) {
-			ags->draw_push(text_window);
-		}
+	// Pushマークの表示
+	if(show_push) {
+		ags->draw_push(text_window);
+	}
 
-		// キーが押されて離されるまで待機
-		for(;;) {
-			if(terminate) {
-				return;
-			}
-			if(get_key()) {
-				break;
-			}
-			sys_sleep(10);
+	// キーが押されて離されるまで待機
+	while (!msgskip->is_skip_enabled()) {
+		if(terminate) {
+			return;
 		}
-		sys_sleep(100);
-		for(;;) {
-			if(terminate) {
-				return;
-			}
-			if(!(get_key() & 0x18)) {
-				break;
-			}
-			sys_sleep(10);
+		if(get_key()) {
+			break;
 		}
+		sys_sleep(10);
+	}
+	sys_sleep(100);
+	while (!msgskip->is_skip_enabled()) {
+		if(terminate) {
+			return;
+		}
+		if(!(get_key() & 0x18)) {
+			break;
+		}
+		sys_sleep(10);
 	}
 
 	// ウィンドウ更新
