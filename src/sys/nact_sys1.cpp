@@ -554,13 +554,15 @@ void NACT_Sys1::cmd_a()
 
 	output_console("A\n");
 
-	// Pushマークの表示
-	if(show_push) {
+	if (msgskip->skipping()) {
+		if (msgskip->get_flags() & MSGSKIP_STOP_ON_CLICK && get_key())
+			msgskip->activate(false);
+	} else if (show_push) {
 		ags->draw_push(text_window);
 	}
 
 	// キーが押されて離されるまで待機
-	while (!msgskip->is_skip_enabled()) {
+	while (!msgskip->skipping()) {
 		if(terminate) {
 			return;
 		}
@@ -570,7 +572,7 @@ void NACT_Sys1::cmd_a()
 		sys_sleep(16);
 	}
 	sys_sleep(30);
-	while (!msgskip->is_skip_enabled()) {
+	while (!msgskip->skipping()) {
 		if(terminate) {
 			return;
 		}

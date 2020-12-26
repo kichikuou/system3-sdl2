@@ -116,8 +116,9 @@ NACT::~NACT()
 
 bool NACT::mainloop()
 {
-	int sleep_cnt = 0;
+	msgskip->load_from_file();
 
+	int sleep_cnt = 0;
 	while(!terminate) {
 		execute();
 		// 512コマンド実行毎にSleep(10)
@@ -356,6 +357,9 @@ void NACT::load_scenario(int page)
 
 int NACT::menu_select(int num_items)
 {
+	if (msgskip->get_flags() & MSGSKIP_STOP_ON_MENU)
+		msgskip->activate(false);
+
 	// メニュー表示
 	ags->open_menu_window(menu_window);
 

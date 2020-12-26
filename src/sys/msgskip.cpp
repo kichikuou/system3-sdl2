@@ -21,10 +21,22 @@ inline uint32 hash(uint32 x, int s) {
 MsgSkip::MsgSkip(NACT* nact)
 	: nact(nact),
 	  bloom(new uint8[BLOOM_FILTER_SIZE / 8]),
-	  skip_enabled(false),
-	  menu_enabled(true)
+	  dirty(false),
+	  flags(MSGSKIP_STOP_ON_UNSEEN | MSGSKIP_STOP_ON_MENU | MSGSKIP_STOP_ON_CLICK),
+	  activated(false),
+	  enabled(true)
 {
 	memset(bloom, 0, BLOOM_FILTER_SIZE / 8);
+}
+
+MsgSkip::~MsgSkip()
+{
+	write_to_file();
+	delete[] bloom;
+}
+
+void MsgSkip::load_from_file()
+{
 	FILEIO fio;
 	if (fio.Fopen(MSGSKIP_FILENAME, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
 		uint32 size = fio.Fgetw();
@@ -35,22 +47,26 @@ MsgSkip::MsgSkip(NACT* nact)
 	}
 }
 
-MsgSkip::~MsgSkip()
+bool MsgSkip::write_to_file()
 {
+	if (!dirty)
+		return false;
 	FILEIO fio;
 	if (fio.Fopen(MSGSKIP_FILENAME, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
 		fio.Fputw(BLOOM_FILTER_SIZE & 0xffff);
 		fio.Fputw(BLOOM_FILTER_SIZE >> 16);
 		fio.Fwrite(bloom, BLOOM_FILTER_SIZE / 8, 1);
 		fio.Fclose();
+		dirty = false;
 	}
-	delete[] bloom;
+	return true;
 }
 
-void MsgSkip::enable_skip(bool enable) {
-	if (skip_enabled != enable) {
-		skip_enabled = enable;
-		nact->set_skip_menu_state(menu_enabled, skip_enabled);
+void MsgSkip::activate(bool enable)
+{
+	if (activated != enable) {
+		activated = enable;
+		nact->set_skip_menu_state(enabled, activated);
 	}
 }
 
@@ -67,15 +83,23 @@ void MsgSkip::on_message(int page, int addr)
 		unseen |= (bloom[h >> 3] & bit) ^ bit;
 		bloom[h >> 3] |= bit;
 	}
-	if (unseen) {
-		if (skip_enabled || menu_enabled) {
-			skip_enabled = menu_enabled = false;
-			nact->set_skip_menu_state(menu_enabled, skip_enabled);
-		}
+	if (unseen)
+		dirty = true;
+
+	bool old_enabled = enabled;
+	bool old_activated = activated;
+	if (unseen && !(flags & MSGSKIP_SKIP_UNSEEN)) {
+		if (flags & MSGSKIP_STOP_ON_UNSEEN)
+			activated = false;
+		enabled = false;
 	} else {
-		if (!menu_enabled) {
-			menu_enabled = true;
-			nact->set_skip_menu_state(menu_enabled, skip_enabled);
-		}
+		enabled = true;
 	}
+	if (enabled != old_enabled || activated != old_activated)
+		nact->set_skip_menu_state(enabled, activated);
+}
+
+void MsgSkip::set_flags(unsigned val, unsigned mask) {
+	flags &= ~mask;
+	flags |= (val & mask);
 }

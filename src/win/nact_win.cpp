@@ -174,7 +174,7 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			mako->select_sound(BGM_CD);
 			break;
 		case ID_TEXT_SKIP:
-			msgskip->enable_skip(!msgskip->is_skip_enabled());
+			msgskip->activate(!msgskip->is_activated());
 			break;
 		case ID_TEXT_WAIT:
 			text_wait_enb = !text_wait_enb;
