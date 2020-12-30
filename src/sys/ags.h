@@ -67,8 +67,8 @@ private:
 	void load_bmp(const char* file_name);				// あゆみちゃん物語 フルカラー実写版
 	void load_vsp(uint8* data, int page, int transparent);
 
-	void draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
-	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color, uint8 cache[]);
+	void draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
+	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);
 	void draw_gaiji(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
 
 	void draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color);

@@ -37,6 +37,19 @@ void AGS::draw_text(const char* string, bool text_wait)
 			text_font_maxsize = text_font_size;
 	}
 
+	TTF_Font* font = NULL;
+	switch (font_size) {
+	case 16: font = hFont16; break;
+	case 24: font = hFont24; break;
+	case 32: font = hFont32; break;
+	case 48: font = hFont48; break;
+	case 64: font = hFont64; break;
+	}
+	int ascent = TTF_FontAscent(font);
+	int descent = TTF_FontDescent(font);
+	// Adjust dest_y if the font height is larger than the specified size.
+	dest_y -= (ascent - descent - font_size) / 2;
+
 	while(string[p] != '\0') {
 		// 文字コード取得
 		uint8 c = (uint8)string[p++];
@@ -52,23 +65,31 @@ void AGS::draw_text(const char* string, bool text_wait)
 
 		// 文字出力
 		if((0xeb9f <= code && code <= 0xebfc) || (0xec40 <= code && code <= 0xec9e)) {
-			draw_gaiji(screen, dest_x, dest_y, code, font_size, font_color);
+			// Use unadjusted dest_y here.
+			draw_gaiji(screen, dest_x, draw_menu ? menu_dest_y : text_dest_y, code, font_size, font_color);
+			dest_x += font_size;
 		} else {
+			int unicode = sjis_to_unicode(code);
 			if (!draw_menu)
-				texthook_character(nact->get_scenario_page(), sjis_to_unicode(code));
+				texthook_character(nact->get_scenario_page(), unicode);
 
 			if (antialias)
-				draw_char_antialias(screen, dest_x, dest_y, code, font_size, font_color, antialias_cache);
+				draw_char_antialias(screen, dest_x, dest_y, unicode, font, font_color, antialias_cache);
 			else
-				draw_char(screen, dest_x, dest_y, code, font_size, font_color);
+				draw_char(screen, dest_x, dest_y, unicode, font, font_color);
+
+			int miny, maxy, advance;
+			TTF_GlyphMetrics(font, code, NULL, NULL, &miny, &maxy, &advance);
+			// Some fonts report incorrect Ascent/Descent value so we need to fix them.
+			if (miny < descent) descent = miny;
+			if (maxy > ascent) ascent = maxy;
+			dest_x += advance;
 		}
-		// 出力位置の更新
-		dest_x += (code & 0xff00) ? font_size : (font_size >> 1);
 
 		if (!draw_menu && text_wait && c != ' ') {
 			// 画面更新
 			if(screen == 0)
-				draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, font_size);
+				draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, ascent - descent);
 			text_dest_x = dest_x;
 			// Wait
 			nact->text_wait();
@@ -79,30 +100,21 @@ void AGS::draw_text(const char* string, bool text_wait)
 	else if (!text_wait) {
 		// 画面更新
 		if(screen == 0)
-			draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, font_size);
+			draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, ascent - descent);
 		text_dest_x = dest_x;
 	}
 }
 
-void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color)
+void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color)
 {
 	// パターン取得
-	TTF_Font* font = NULL;
-	switch (size) {
-	case 16: font = hFont16; break;
-	case 24: font = hFont24; break;
-	case 32: font = hFont32; break;
-	case 48: font = hFont48; break;
-	case 64: font = hFont64; break;
-	}
-
 	SDL_Color white = {0xff, 0xff, 0xff};
-	SDL_Surface* fs = TTF_RenderGlyph_Solid(font, sjis_to_unicode(code), white);
+	SDL_Surface* fs = TTF_RenderGlyph_Solid(font, code, white);
 
 	// パターン出力
-	for(int y = 0; y < size && y < fs->w && dest_y + y < 480; y++) {
+	for(int y = 0; y < fs->h && dest_y + y < 480; y++) {
 		uint8 *pattern = (uint8*)surface_line(fs, y);	// FIXME: do not assume 8bpp
-		for(int x = 0; x < size && x < fs->h && dest_x + x < 640; x++) {
+		for(int x = 0; x < fs->w && dest_x + x < 640; x++) {
 			if(pattern[x] != 0) {
 				vram[dest][dest_y + y][dest_x + x] = color;
 			}
@@ -127,27 +139,18 @@ int AGS::nearest_color(int r, int g, int b) {
 	return col;
 }
 
-void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color, uint8 cache[])
+void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[])
 {
 	// パターン取得
-	TTF_Font* font = NULL;
-	switch (size) {
-	case 16: font = hFont16; break;
-	case 24: font = hFont24; break;
-	case 32: font = hFont32; break;
-	case 48: font = hFont48; break;
-	case 64: font = hFont64; break;
-	}
-
 	SDL_Color black = {0, 0, 0};
 	SDL_Color white = {0xff, 0xff, 0xff};
-	SDL_Surface* fs = TTF_RenderGlyph_Shaded(font, sjis_to_unicode(code), white, black);
+	SDL_Surface* fs = TTF_RenderGlyph_Shaded(font, code, white, black);
 
 	// パターン出力
-	for(int y = 0; y < size && y < fs->w && dest_y + y < 480; y++) {
+	for(int y = 0; y < fs->h && dest_y + y < 480; y++) {
 		uint8 *pattern = (uint8*)surface_line(fs, y);
 		uint32 *dp = &vram[dest][dest_y + y][dest_x];
-		for(int x = 0; x < size && x < fs->h && dest_x + x < 640; x++, dp++) {
+		for(int x = 0; x < fs->w && dest_x + x < 640; x++, dp++) {
 			uint8 bg = *dp;
 			int alpha = pattern[x] >> 5;
 			if (alpha == 0) {
