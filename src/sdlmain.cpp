@@ -87,6 +87,8 @@ int main(int argc, char *argv[])
 #else
 		SDL_SetWindowTitle(g_window, buf);
 #endif
+	} else {
+		WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", nact->crc32_a, nact->crc32_b);
 	}
 
 #ifdef __EMSCRIPTEN__
