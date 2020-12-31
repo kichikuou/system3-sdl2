@@ -517,13 +517,31 @@ void AGS::invalidate_screen(int sx, int sy, int width, int height)
 	dirty = true;
 }
 
-void AGS::update_screen() {
+void AGS::update_screen()
+{
 	if (!dirty)
 		return;
 	SDL_RenderClear(sdlRenderer);
 	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 	SDL_RenderPresent(sdlRenderer);
 	dirty = false;
+}
+
+void AGS::save_screenshot(const char* path)
+{
+	SDL_Surface* sf = SDL_CreateRGBSurface(0, 640, screen_height, 32, 0, 0, 0, 0);
+	SDL_Rect r = {0, 0, 640, screen_height};
+	SDL_UnlockSurface(hBmpDest);
+	SDL_BlitSurface(hBmpDest, &r, sf, NULL);
+	SDL_LockSurface(hBmpDest);
+
+	if (SDL_SaveBMP(sf, path) != 0) {
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3",
+								 SDL_GetError(), g_window);
+		SDL_ClearError();
+	}
+
+	SDL_FreeSurface(sf);
 }
 
 #ifdef __EMSCRIPTEN__

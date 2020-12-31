@@ -136,6 +136,8 @@ public:
 	void load_cursor(int page);
 	void select_cursor();
 
+	void save_screenshot(const char* path);
+
 	bool dirty;
 
 	// ACG.DAT

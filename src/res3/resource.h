@@ -20,6 +20,7 @@
 #define IDR_R42                         116
 #define IDR_RG2                         117
 #define IDR_T2                          118
+#define ID_SCREENSHOT                   40000
 #define ID_RESTART                      40001
 #define ID_EXIT                         40002
 #define ID_SCREEN_WINDOW                40003

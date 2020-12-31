@@ -1,6 +1,7 @@
 #include "nact.h"
 #include <windows.h>
 #include <windowsx.h>
+#include <time.h>
 #include "SDL_syswm.h"
 #include "ags.h"
 #include "mako.h"
@@ -36,6 +37,24 @@ void init_console(int sys_ver)
 	title[6] = '0' + sys_ver;
 	SetConsoleTitle(title);
 #endif
+}
+
+void save_screenshot(AGS* ags)
+{
+	char pathbuf[MAX_PATH];
+	time_t t = time(NULL);
+	struct tm *lt = localtime(&t);
+	strftime(pathbuf, sizeof(pathbuf), "system3-%Y%m%d-%H%M%S.bmp", lt);
+
+	OPENFILENAME ofn = {sizeof(OPENFILENAME)};
+	ofn.hwndOwner = get_hwnd(g_window);
+	ofn.lpstrFilter = "Bitmap files (*.bmp)\0*.bmp\0All files (*.*)\0*.*\0";
+	ofn.lpstrFile = pathbuf;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.Flags = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
+
+	if (GetSaveFileName(&ofn))
+		ags->save_screenshot(pathbuf);
 }
 
 INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -150,6 +169,9 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 	switch (msg->msg.win.msg) {
 	case WM_COMMAND:
 		switch (msg->msg.win.wParam) {
+		case ID_SCREENSHOT:
+			save_screenshot(ags);
+			break;
 		case ID_RESTART:
 			terminate = restart_after_terminate = true;
 			break;

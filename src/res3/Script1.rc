@@ -30,6 +30,8 @@ IDR_MENU1 MENU DISCARDABLE
 BEGIN
     POPUP "File"
     BEGIN
+        MENUITEM "Save Screenshot",             ID_SCREENSHOT
+        MENUITEM SEPARATOR
         MENUITEM "Restart",                     ID_RESTART
         MENUITEM SEPARATOR
         MENUITEM "Exit",                        ID_EXIT
