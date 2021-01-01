@@ -6,6 +6,7 @@
 
 #include "ags.h"
 #include "crc32.h"
+#include <string.h>
 
 void AGS::load_pms(uint8* data, int page, int transparent)
 {

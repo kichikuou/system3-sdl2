@@ -5,6 +5,7 @@
 */
 
 #include "ags.h"
+#include <string.h>
 
 void AGS::load_cursor(int page)
 {

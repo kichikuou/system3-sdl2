@@ -82,8 +82,8 @@ constexpr char SJIS_NEXT_PAGE [] = "\x8E\x9F\x82\xCC\x83\x79\x81\x5B\x83\x57"; /
 
 class AGS;
 class MAKO;
-class MAKOConfig;
 class MsgSkip;
+struct MAKOConfig;
 
 class NACT
 {

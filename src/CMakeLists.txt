@@ -48,16 +48,64 @@ elseif (EMSCRIPTEN)
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
   add_executable(system3)
+  target_link_libraries(system3 PRIVATE fmgen)
 
-  include(FindPkgConfig)
-  pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
-  pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
-  target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF fmgen)
+  if (MSVC)
+    if (CMAKE_VS_PLATFORM_NAME STREQUAL "Win32")
+      set(ARCH "x86")
+    else()
+      set(ARCH "x64")
+    endif()
+
+    include(FetchContent)
+    FetchContent_Declare(sdl2
+      URL http://libsdl.org/release/SDL2-devel-2.0.14-VC.zip)
+    FetchContent_GetProperties(sdl2)
+    if (NOT sdl2_POPULATED)
+      FetchContent_Populate(sdl2)
+    endif()
+    set(SDL2_LIB_DIR "${sdl2_SOURCE_DIR}/lib/${ARCH}")
+    add_library(SDL2 SHARED IMPORTED)
+    target_include_directories(SDL2 INTERFACE ${sdl2_SOURCE_DIR}/include)
+    set_target_properties(SDL2 PROPERTIES
+      IMPORTED_LOCATION ${SDL2_LIB_DIR}/SDL2.dll
+      IMPORTED_IMPLIB ${SDL2_LIB_DIR}/SDL2.lib
+      )
+    target_link_libraries(SDL2 INTERFACE ${SDL2_LIB_DIR}/SDL2main.lib)
+
+    FetchContent_Declare(sdl2_ttf
+      URL http://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.15-VC.zip)
+    FetchContent_GetProperties(sdl2_ttf)
+    if (NOT sdl2_ttf_POPULATED)
+      FetchContent_Populate(sdl2_ttf)
+    endif()
+    set(SDL2TTF_LIB_DIR "${sdl2_ttf_SOURCE_DIR}/lib/${ARCH}")
+    add_library(SDL2TTF SHARED IMPORTED)
+    target_include_directories(SDL2TTF INTERFACE ${sdl2_ttf_SOURCE_DIR}/include)
+    set_target_properties(SDL2TTF PROPERTIES
+      IMPORTED_LOCATION ${SDL2TTF_LIB_DIR}/SDL2_ttf.dll
+      IMPORTED_IMPLIB ${SDL2TTF_LIB_DIR}/SDL2_ttf.lib
+      )
+
+    target_compile_definitions(system3 PRIVATE _CRT_NONSTDC_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
+    target_compile_options(system3 PRIVATE /utf-8)
+    target_link_libraries(system3 PRIVATE SDL2 SDL2TTF)
+    set_target_properties(system3 PROPERTIES
+      VS_DEBUGGER_ENVIRONMENT "PATH=${SDL2_LIB_DIR}$<SEMICOLON>${SDL2TTF_LIB_DIR}$<SEMICOLON>$ENV{PATH}")
+    set_directory_properties(PROPERTIES VS_STARTUP_PROJECT system3)
+  else()
+    include(FindPkgConfig)
+    pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
+    pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
+    target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
+  endif()
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(system3 PRIVATE win/nact_win.cpp win/mako.cpp res3/Script1.rc)
     target_link_libraries(system3 PRIVATE winmm)
-    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+    if (MSYS)
+      set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+    endif()
   else()
     pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
     target_sources(system3 PRIVATE

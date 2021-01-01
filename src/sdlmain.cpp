@@ -1,9 +1,13 @@
 #include <string>
-#include <unistd.h>
 #include "common.h"
 #include "fileio.h"
 #include "sys/nact.h"
 #include "sys/mako.h"
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>

@@ -5,13 +5,14 @@
 */
 
 #include "dri.h"
+#include <string.h>
 #include "crc32.h"
 #include "../fileio.h"
 
 uint8* DRI::load(const char* file_name, int page, int* size)
 {
-	char tmp_name[_MAX_PATH];
-	strcpy_s(tmp_name, _MAX_PATH, file_name);
+	char tmp_name[20];
+	strcpy_s(tmp_name, sizeof(tmp_name), file_name);
 
 	FILEIO* fio = new FILEIO();
 

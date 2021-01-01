@@ -5,6 +5,7 @@
 */
 
 #include "ags.h"
+#include <string.h>
 
 void AGS::clear_text_window(int index, bool erase)
 {

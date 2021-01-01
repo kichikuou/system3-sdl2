@@ -1,4 +1,5 @@
 #include "msgskip.h"
+#include <string.h>
 #include "nact.h"
 #include "fileio.h"
 

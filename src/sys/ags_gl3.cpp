@@ -5,6 +5,7 @@
 */
 
 #include "ags.h"
+#include <string.h>
 
 void AGS::load_gl3(uint8* data, int page, int transparent)
 {

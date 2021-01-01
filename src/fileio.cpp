@@ -6,6 +6,7 @@
 
 #include "fileio.h"
 #include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>

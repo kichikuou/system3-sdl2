@@ -5,6 +5,7 @@
 */
 
 #include "ags.h"
+#include <string.h>
 #include "crc32.h"
 #include "../fileio.h"
 

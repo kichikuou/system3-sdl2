@@ -5,6 +5,7 @@
 */
 
 #include "ags.h"
+#include <string.h>
 #include "dri.h"
 #include "crc32.h"
 
@@ -13,13 +14,13 @@ void AGS::load_cg(int page, int transparent)
 	if (nact->sys_ver == 3) {
 		// あゆみちゃん物語 フルカラー実写版
 		if(strncmp(acg, "CGA000.BMP", 10) == 0) {
-			char file_name[_MAX_PATH];
-			sprintf_s(file_name, _MAX_PATH, "CGA%03d.BMP", page);
+			char file_name[16];
+			sprintf(file_name, "CGA%03d.BMP", page);
 			load_bmp(file_name);
 			return;
 		} else if(strncmp(acg, "CGB000.BMP", 10) == 0) {
-			char file_name[_MAX_PATH];
-			sprintf_s(file_name, _MAX_PATH, "CGB%03d.BMP",  page);
+			char file_name[16];
+			sprintf(file_name, "CGB%03d.BMP",  page);
 			load_bmp(file_name);
 			return;
 		}

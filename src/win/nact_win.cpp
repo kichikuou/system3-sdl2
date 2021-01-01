@@ -1,7 +1,8 @@
-#include "nact.h"
 #include <windows.h>
 #include <windowsx.h>
+#undef ERROR
 #include <time.h>
+#include "nact.h"
 #include "SDL_syswm.h"
 #include "ags.h"
 #include "mako.h"
@@ -122,7 +123,7 @@ INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPara
 void NACT::text_dialog()
 {
 	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
-	int r = DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), get_hwnd(g_window), TextDialogProc, (LPARAM)this);
+	DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), get_hwnd(g_window), TextDialogProc, (LPARAM)this);
 }
 
 void NACT::platform_initialize()
