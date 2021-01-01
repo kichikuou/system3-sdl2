@@ -6,8 +6,7 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### Linux (Debian, Ubuntu)
 
-    $ git submodule init
-    $ git submodule update
+    $ git submodule update --init
     $ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
     $ mkdir -p out/debug
     $ cd out/debug
@@ -17,8 +16,7 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### MacOS
 
-    $ git submodule init
-    $ git submodule update
+    $ git submodule update --init
     $ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer
     $ mkdir -p out/debug
     $ cd out/debug
@@ -28,18 +26,26 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
 
 ### Windows (MSYS2 mingw64)
 
-    $ git submodule init
-    $ git submodule update
+    $ git submodule update --init
     $ pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
     $ mkdir -p out/debug
     $ cd out/debug
     $ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
     $ make
 
+### Windows (Microsoft Visual Studio)
+- Visual Studio 2019 can be used to clone this repository. It will automatically clone submodules too.
+  - If you're using an older version of Visual Studio, install Git and clone this repository with `--recurse-submodules` option.
+- Install [CMake](https://cmake.org/download/). (Visual Studio's CMake integration doesn't work.)
+- In the CMake GUI, press "Browse Source..." button and select the `src` folder of this repository.
+- Press "Browse Build..." button. Create a new folder (e.g. `out`) under the top folder of the repository, and select it.
+- Press "Configure" button. Specify the generator for your version of Visual Studio, and hit "Finish".
+- Press "Generate" button.
+- `System3.sln` file should be generated in the build folder. Open it with Visual Studio.
+
 ### Emscripten
 
-    $ git submodule init
-    $ git submodule update
+    $ git submodule update --init
     $ mkdir -p out/wasm
     $ cd out/wasm
     $ emcmake cmake -DCMAKE_BUILD_TYPE=MinSizeRel ../../src/
