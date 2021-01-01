@@ -1,0 +1,35 @@
+name: Windows (MSVS) Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        arch: ["Win32", "x64"]
+        include:
+          - arch: "Win32"
+            package: "system3-sdl2-32bit"
+          - arch: "x64"
+            package: "system3-sdl2-64bit"
+    name: MSVS ${{ matrix.arch }}
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Build
+      run: |
+        mkdir out
+        cd out
+        cmake -G "Visual Studio 16 2019" -A ${{ matrix.arch }} ../src/
+        cmake --build . --config Release
+        cmake --install . --prefix artifacts
+
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.package }}
+        path: out/artifacts

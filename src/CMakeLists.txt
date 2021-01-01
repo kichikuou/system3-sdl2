@@ -93,6 +93,14 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     set_target_properties(system3 PROPERTIES
       VS_DEBUGGER_ENVIRONMENT "PATH=${SDL2_LIB_DIR}$<SEMICOLON>${SDL2TTF_LIB_DIR}$<SEMICOLON>$ENV{PATH}")
     set_directory_properties(PROPERTIES VS_STARTUP_PROJECT system3)
+
+    install(FILES
+      ${SDL2_LIB_DIR}/SDL2.dll
+      ${SDL2TTF_LIB_DIR}/SDL2_ttf.dll
+      ${SDL2TTF_LIB_DIR}/libfreetype-6.dll
+      ${SDL2TTF_LIB_DIR}/zlib1.dll
+      DESTINATION .)
+    install(TARGETS system3 RUNTIME DESTINATION .)
   else()
     include(FindPkgConfig)
     pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
