@@ -130,7 +130,7 @@ void MakoFM::ExecSequence(int ch, bool execcmd) {
 
  execcmd:
 	cmdFF = 0;
-	work[ch].seq_ptr = static_cast<uint16_t>(ExecCmd(ch, data + work[ch].seq_ptr) - data);
+	work[ch].seq_ptr = ExecCmd(ch, data + work[ch].seq_ptr) - data;
 	if (cmdFF) {
 		uint16_t block_addr = GetWord(work[ch].jump_ptr);
 		work[ch].jump_ptr += 2;

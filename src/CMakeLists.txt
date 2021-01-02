@@ -88,7 +88,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
       )
 
     target_compile_definitions(system3 PRIVATE _CRT_NONSTDC_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
-    target_compile_options(system3 PRIVATE /utf-8)
+    target_compile_options(system3 PRIVATE /utf-8 /wd4244)
     target_link_libraries(system3 PRIVATE SDL2 SDL2TTF)
     set_target_properties(system3 PROPERTIES
       VS_DEBUGGER_ENVIRONMENT "PATH=${SDL2_LIB_DIR}$<SEMICOLON>${SDL2TTF_LIB_DIR}$<SEMICOLON>$ENV{PATH}")

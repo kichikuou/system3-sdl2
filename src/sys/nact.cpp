@@ -302,7 +302,7 @@ void NACT::message()
 		else
 			break;
 	}
-	int len = static_cast<int>(end - begin);
+	int len = end - begin;
 	scenario_addr += len;
 
 	char* buf = (char*)alloca(len + 1);
