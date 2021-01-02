@@ -109,7 +109,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   endif()
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_sources(system3 PRIVATE win/nact_win.cpp win/mako.cpp res3/Script1.rc)
+    target_sources(system3 PRIVATE win/nact_win.cpp win/mako.cpp win/resource.rc)
     target_link_libraries(system3 PRIVATE winmm)
     if (MSYS)
       set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")

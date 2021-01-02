@@ -7,7 +7,7 @@
 #include "ags.h"
 #include "mako.h"
 #include "msgskip.h"
-#include "../res3/resource.h"
+#include "resource.h"
 
 extern SDL_Window* g_window;
 
