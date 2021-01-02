@@ -119,10 +119,10 @@ void MAKO::play_music(int page)
 		Mix_HookMusic(&FMHook, this);
 		SDL_UnlockMutex(fm_mutex);
 	} else {
-		MAKOMidi midi(nact, amus);
-		if (midi.load_mml(page)) {
-			midi.load_mda(page);
-			smf = midi.generate_smf(next_loop);
+		auto midi = std::make_unique<MAKOMidi>(nact, amus);
+		if (midi->load_mml(page)) {
+			midi->load_mda(page);
+			smf = midi->generate_smf(next_loop);
 			SDL_RWops *rwops = SDL_RWFromConstMem(smf.data(), smf.size());
 			mix_music = Mix_LoadMUSType_RW(rwops, MUS_MID, SDL_TRUE /* freesrc */);
 			if (!mix_music) {

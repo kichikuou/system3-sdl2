@@ -161,8 +161,8 @@ public:
 		playing = true;
 	}
 
-	Music(MAKOMidi& midi, int loop) : loops(loop ? 1 : 0) {
-		std::vector<uint8> smf = midi.generate_smf(loop);
+	Music(std::unique_ptr<MAKOMidi> midi, int loop) : loops(loop ? 1 : 0) {
+		std::vector<uint8> smf = midi->generate_smf(loop);
 		char path[MAX_PATH + 1];
 		if (!GetTempPath(sizeof(path), path)) {
 			WARNING("GetTempPath failed: 0x%x", GetLastError());
@@ -335,11 +335,11 @@ void MAKO::play_music(int page)
 		SDL_UnlockMutex(fm_mutex);
 		SDL_PauseAudio(0);
 	} else {
-		MAKOMidi midi(nact, amus);
-		if (!midi.load_mml(page))
+		auto midi = std::make_unique<MAKOMidi>(nact, amus);
+		if (!midi->load_mml(page))
 			return;
-		midi.load_mda(page);
-		music = new Music(midi, next_loop);
+		midi->load_mda(page);
+		music = new Music(std::move(midi), next_loop);
 	}
 	current_music = page;
 }
