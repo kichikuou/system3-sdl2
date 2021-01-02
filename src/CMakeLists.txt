@@ -91,6 +91,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     target_compile_options(system3 PRIVATE /utf-8 /wd4244)
     target_link_libraries(system3 PRIVATE SDL2 SDL2TTF)
     set_target_properties(system3 PROPERTIES
+      WIN32_EXECUTABLE TRUE
       VS_DEBUGGER_ENVIRONMENT "PATH=${SDL2_LIB_DIR}$<SEMICOLON>${SDL2TTF_LIB_DIR}$<SEMICOLON>$ENV{PATH}")
     set_directory_properties(PROPERTIES VS_STARTUP_PROJECT system3)
 
