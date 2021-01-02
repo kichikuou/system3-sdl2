@@ -34,8 +34,8 @@ public:
 	void Fclose();
 	uint32 Fseek(long offset, int origin);
 	uint32 Ftell();
-	uint32 Fread(void* buffer, uint32 size, uint32 count);
-	uint32 Fwrite(void* buffer, uint32 size, uint32 count);
+	size_t Fread(void* buffer, uint32 size, uint32 count);
+	size_t Fwrite(void* buffer, uint32 size, uint32 count);
 	int Fgetc();
 	int Fgetw();
 	void Fgets(char* dest, int length);

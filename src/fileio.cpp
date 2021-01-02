@@ -27,15 +27,12 @@ int FILEIO::StatSavedata(const char* filename, struct stat* buf)
 	return stat(path, buf);
 }
 
-FILEIO::FILEIO()
+FILEIO::FILEIO() : fp(NULL), mode_(0)
 {
-	// 初期化
-	fp = NULL;
 }
 
 FILEIO::~FILEIO(void)
 {
-	// 後始末
 	if(fp != NULL) {
 		Fclose();
 	}
@@ -95,12 +92,12 @@ uint32 FILEIO::Ftell()
 	return ftell(fp);
 }
 
-uint32 FILEIO::Fread(void* buffer, uint32 size, uint32 count)
+size_t FILEIO::Fread(void* buffer, uint32 size, uint32 count)
 {
 	return fread(buffer, size, count, fp);
 }
 
-uint32 FILEIO::Fwrite(void* buffer, uint32 size, uint32 count)
+size_t FILEIO::Fwrite(void* buffer, uint32 size, uint32 count)
 {
 	return fwrite(buffer, size, count, fp);
 }

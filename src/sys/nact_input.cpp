@@ -35,8 +35,8 @@ void NACT::pump_events()
 		case SDL_FINGERDOWN:
 		case SDL_FINGERUP:
 		case SDL_FINGERMOTION:
-			mousex = e.tfinger.x * 640;
-			mousey = e.tfinger.y * ags->screen_height;
+			mousex = static_cast<int>(e.tfinger.x) * 640;
+			mousey = static_cast<int>(e.tfinger.y) * ags->screen_height;
 			fingers = SDL_GetNumTouchFingers(e.tfinger.touchId);
 			break;
 

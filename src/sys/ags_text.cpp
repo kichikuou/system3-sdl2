@@ -54,7 +54,7 @@ void AGS::draw_text(const char* string, bool text_wait)
 		// 文字コード取得
 		uint8 c = (uint8)string[p++];
 		uint16 code = c;
-		if(is_2byte_message(code)) {
+		if(is_2byte_message(c)) {
 			code = (code << 8) | (uint8)string[p++];
 		}
 		if(draw_hankaku) {

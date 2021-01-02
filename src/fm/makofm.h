@@ -16,7 +16,7 @@ public:
 	~MakoFM();
 	void MainLoop();
 
-	float GetTime() const { return time_ms; }
+	double GetTime() const { return time_ms; }
 	bool Looped() const { return part_looped == (1 << MAKO_MAXCH) - 1; }
 
 protected:
@@ -128,7 +128,7 @@ private:
 	uint8_t cmdFF;
 
 	unsigned part_looped = 0;
-	float time_ms = 0;
+	double time_ms = 0;
 	uint8_t current_mark;
 };
 

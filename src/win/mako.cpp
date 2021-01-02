@@ -318,7 +318,7 @@ void MAKO::play_music(int page)
 
 	stop_music();
 
-	int track = page < 100 ? cd_track[page] : 0;
+	size_t track = page < 100 ? cd_track[page] : 0;
 	if (track) {
 		if (track >= playlist.size() || !playlist[track])
 			return;

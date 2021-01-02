@@ -44,8 +44,8 @@ const uint8 smf_header[] = {
 };
 const size_t TRACK_LENGTH_OFFSET = 18;
 
-const size_t FADEOUT_DURATION = 100;  // 1 second
-const size_t MINIMUM_MUSIC_DURATION = 6000;  // 60 seconds
+const int FADEOUT_DURATION = 100;  // 1 second
+const int MINIMUM_MUSIC_DURATION = 6000;  // 60 seconds
 
 class SmfWriter {
 public:
@@ -64,7 +64,7 @@ public:
 		buf.push_back(0x00);
 
 		size_t length = buf.size() - (TRACK_LENGTH_OFFSET + 4);
-		buf[TRACK_LENGTH_OFFSET] = length >> 24;
+		buf[TRACK_LENGTH_OFFSET] = length >> 24 & 0xff;
 		buf[TRACK_LENGTH_OFFSET + 1] = length >> 16 & 0xff;
 		buf[TRACK_LENGTH_OFFSET + 2] = length >> 8 & 0xff;
 		buf[TRACK_LENGTH_OFFSET + 3] = length & 0xff;
@@ -133,7 +133,7 @@ private:
 		dt = 0;
 	}
 
-	uint8 fade(uint8 level) {
+	int fade(int level) {
 		if (fadeout_start < 0)
 			return level;
 		return level * (fadeout_start + FADEOUT_DURATION - total_ticks) / FADEOUT_DURATION;
@@ -565,10 +565,7 @@ void MAKOMidi::load_mda(int page)
 	// MDAデータの読み込み
 	char path[16];
 	strcpy_s(path, 16, amus);
-	int p = strlen(path);
-	path[p - 3] = 'M';
-	path[p - 2] = 'D';
-	path[p - 1] = 'A';
+	strcpy(path + strlen(path) - 3, "MDA");
 
 	DRI* dri = new DRI();
 	int size;
