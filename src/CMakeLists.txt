@@ -13,13 +13,12 @@ add_subdirectory(../deps/fmgen fmgen)
 
 if (ANDROID)
   add_library(system3 SHARED)
-  find_library(ndk_log log)
 
   target_sources(system3 PRIVATE
     android/nact_android.cpp
     android/mako.cpp
     )
-  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf fmgen ${ndk_log})
+  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf fmgen)
 
 elseif (EMSCRIPTEN)
   add_executable(system3)
