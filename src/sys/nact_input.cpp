@@ -13,6 +13,7 @@
 #include "ags.h"
 #include "texthook.h"
 
+extern SDL_Window* g_window;
 static int mousex, mousey, fingers;
 
 void NACT::pump_events()
@@ -104,6 +105,6 @@ void NACT::get_cursor(int* x, int* y)
 
 void NACT::set_cursor(int x, int y)
 {
-	// TODO: implement
+	SDL_WarpMouseInWindow(g_window, x, y);
 }
 
