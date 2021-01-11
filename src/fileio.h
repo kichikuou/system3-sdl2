@@ -7,6 +7,7 @@
 #ifndef _FILEIO_H_
 #define _FILEIO_H_
 
+#include <string>
 #include <stdio.h>
 #include <sys/stat.h>
 #include "common.h"
@@ -22,13 +23,14 @@
 class FILEIO
 {
 private:
+	static std::string savedir;
 	FILE* fp;
 	int mode_;
 public:
-	FILEIO();
+	FILEIO() : fp(NULL), mode_(0) {}
 	~FILEIO();
 
-	static void SetSaveDir(const char* savedir);
+	static void SetSaveDir(const std::string& dir);
 	static int StatSavedata(const char* filename, struct stat* buf);
 	bool Fopen(const char *file_name, int mode);
 	void Fclose();

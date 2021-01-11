@@ -76,10 +76,7 @@ int main(int argc, char *argv[])
 #endif
 			}
 		}
-		if (path[path.size() - 1] != '/') {
-			path += '/';
-		}
-		FILEIO::SetSaveDir(path.c_str());
+		FILEIO::SetSaveDir(path);
 	}
 
 	const char* title = nact->get_title();

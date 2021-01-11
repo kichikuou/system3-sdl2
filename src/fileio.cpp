@@ -8,27 +8,47 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#ifndef _WIN32
+#include <dirent.h>
+#endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 
-char g_root[_MAX_PATH];
-const char* g_savedir;
+std::string FILEIO::savedir = ".";
 
-void FILEIO::SetSaveDir(const char* savedir)
+namespace {
+
+std::string FindFile(const std::string& dir, const char* filename) {
+	std::string path = dir + "/" + filename;
+
+#ifndef _WIN32
+	// Case-insensitive search for files in `dir`.
+	DIR* d = opendir(dir.c_str());
+	if (!d)
+		return path;
+
+	while (struct dirent* entry = readdir(d)) {
+		if (strcasecmp(filename, entry->d_name) == 0)
+			path = dir + "/" + entry->d_name;
+	}
+	closedir(d);
+#endif
+	return path;
+}
+
+} // namespace
+
+void FILEIO::SetSaveDir(const std::string& dir)
 {
-	g_savedir = strdup(savedir);
+	savedir = dir;
+	while (!savedir.empty() && savedir.back() == '/')
+		savedir.pop_back();
 }
 
 int FILEIO::StatSavedata(const char* filename, struct stat* buf)
 {
-	char path[_MAX_PATH];
-	sprintf_s(path, _MAX_PATH, "%s%s", g_savedir ? g_savedir : g_root, filename);
-	return stat(path, buf);
-}
-
-FILEIO::FILEIO() : fp(NULL), mode_(0)
-{
+	return stat(FindFile(savedir, filename).c_str(), buf);
 }
 
 FILEIO::~FILEIO(void)
@@ -41,10 +61,8 @@ FILEIO::~FILEIO(void)
 bool FILEIO::Fopen(const char *file_name, int mode)
 {
 	mode_ = mode;
-	char path[_MAX_PATH];
-	sprintf_s(path, _MAX_PATH, "%s%s",
-			  (g_savedir && mode & FILEIO_SAVEDATA) ? g_savedir : g_root,
-			  file_name);
+	std::string path =
+		FindFile((mode & FILEIO_SAVEDATA) ? savedir : ".", file_name);
 
 	mode &= ~FILEIO_SAVEDATA;
 
@@ -54,9 +72,9 @@ bool FILEIO::Fopen(const char *file_name, int mode)
 	fp = NULL;
 	
 	if(mode == FILEIO_READ_BINARY) {
-		fp = fopen(path, "rb");
+		fp = fopen(path.c_str(), "rb");
 	} else if(mode == FILEIO_WRITE_BINARY) {
-		fp = fopen(path, "wb");
+		fp = fopen(path.c_str(), "wb");
 	}
 	return (fp != NULL);
 }
