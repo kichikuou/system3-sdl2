@@ -17,6 +17,7 @@ if (ANDROID)
   target_sources(system3 PRIVATE
     android/nact_android.cpp
     android/mako.cpp
+    sys/mako_midi.cpp
     )
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf fmgen)
 
@@ -108,7 +109,12 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   endif()
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_sources(system3 PRIVATE win/nact_win.cpp win/mako.cpp win/resource.rc)
+    target_sources(system3 PRIVATE
+      win/nact_win.cpp
+      win/mako.cpp
+      win/resource.rc
+      sys/mako_midi.cpp
+      )
     target_link_libraries(system3 PRIVATE winmm)
     if (MSYS)
       set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
@@ -118,6 +124,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     target_sources(system3 PRIVATE
       linux/nact_linux.cpp
       linux/mako.cpp
+      sys/mako_midi.cpp
       )
     target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
     set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
@@ -148,7 +155,6 @@ target_sources(system3 PRIVATE
   sys/ags_vsp2l.cpp
   sys/ags_window.cpp
   sys/dri.cpp
-  sys/mako_midi.cpp
   sys/msgskip.cpp
   sys/nact.cpp
   sys/nact_crc32.cpp
