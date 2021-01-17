@@ -418,4 +418,6 @@ protected:
 	uint16 cali2() override;
 };
 
+extern "C" void ags_setAntialiasedStringMode(int on);
+
 #endif // _NACT_H_

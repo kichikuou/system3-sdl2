@@ -489,7 +489,11 @@ void NACT::wait_after_open_menu()
 void NACT::sys_sleep(int ms) {
 	pump_events();
 	ags->update_screen();
+#ifdef __EMSCRIPTEN__
+	emscripten_sleep(ms);
+#else
 	SDL_Delay(ms);
+#endif
 }
 
 // WinMainとのインターフェース

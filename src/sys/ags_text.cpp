@@ -543,7 +543,7 @@ uint16 AGS::convert_hankaku(uint16 code)
 
 extern "C" {
 
-void ags_setAntialiasedStringMode(int on) {
+void EMSCRIPTEN_KEEPALIVE ags_setAntialiasedStringMode(int on) {
 	antialias = on != 0;
 }
 

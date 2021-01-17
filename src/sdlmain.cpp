@@ -13,10 +13,6 @@
 #include <emscripten/html5.h>
 #endif
 
-extern "C" {
-	void ags_setAntialiasedStringMode(int on);
-}
-
 SDL_Window* g_window;
 
 int main(int argc, char *argv[])

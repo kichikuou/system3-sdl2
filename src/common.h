@@ -12,9 +12,10 @@
 #include <limits.h>
 #include <stdio.h>
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
-#define SDL_Delay emscripten_sleep
+#else
+#define EMSCRIPTEN_KEEPALIVE
 #endif
 
 #define FONT_RESOURCE_NAME "MTLc3m.ttf"
