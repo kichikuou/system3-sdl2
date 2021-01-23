@@ -5,6 +5,9 @@
 */
 
 #include "ags.h"
+#include <tuple>
+#include <utility>
+#include <vector>
 #include <string.h>
 #include "dri.h"
 #include "crc32.h"
@@ -145,13 +148,45 @@ void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 
 void AGS::paint(int x, int y, uint8 color)
 {
-	assert(false);
-#if 0
-	HBRUSH hBrush = CreateSolidBrush(RGB(color, color, color));
-	SelectObject(hdcDibScreen[0], hBrush);
-	ExtFloodFill(hdcDibScreen[0], x, y, GetPixel(hdcDibScreen[0], x, y), FLOODFILLSURFACE);
-	draw_screen(0, 0, 640, screen_height);
-#endif
+	int old_color = vram[0][y][x];
+	if (old_color == color)
+		return;
+
+	int minx = x, maxx = x, miny = y, maxy = y;
+	std::vector<std::pair<int, int>> stack;
+	stack.push_back({x, y});
+
+	while (!stack.empty()) {
+		std::tie(x, y) = stack.back();
+		stack.pop_back();
+		while (x >= 0 && vram[0][y][x] == old_color) x--;
+		x++;
+		minx = std::min(x, minx);
+		bool span_above = false, span_below = false;
+		for (; x < 640 && vram[0][y][x] == old_color; x++) {
+			vram[0][y][x] = color;
+			if (y > 0) {
+				if (!span_above && vram[0][y - 1][x] == old_color) {
+					stack.push_back({x, y - 1});
+					span_above = true;
+				} else if (span_above && vram[0][y - 1][x] != old_color) {
+					span_above = false;
+				}
+			}
+			if (y < screen_height - 1) {
+				if (!span_below && vram[0][y + 1][x] == old_color) {
+					stack.push_back({x, y + 1});
+					span_below = true;
+				} else if (span_below && vram[0][y + 1][x] != old_color) {
+					span_below = false;
+				}
+			}
+		}
+		maxx = std::max(x - 1, maxx);
+		miny = std::min(y, miny);
+		maxy = std::max(y, maxy);
+	}
+	draw_screen(minx, miny, maxx - minx + 1, maxy - miny + 1);
 }
 
 void AGS::draw_box(int index)
