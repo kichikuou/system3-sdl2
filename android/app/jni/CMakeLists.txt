@@ -16,8 +16,8 @@ FetchContent_Declare(
 # TODO: Use SDL2_ttf 2.0.16 once released
 FetchContent_Declare(
   SDL_ttf
-  URL https://hg.libsdl.org/SDL_ttf/archive/d56d67db41d8.tar.gz # rev 420
-  URL_HASH SHA1=143089a2b2973a5baeee0914af43608cfe8e1d87
+  GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
+  GIT_TAG 11722a2bb4335d489d724c08cfdbb45f97d07aa7
 )
 
 # Compilation of SDL and companion libraries
