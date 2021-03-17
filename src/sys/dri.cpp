@@ -113,6 +113,7 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 			name = "AMUS_T1";
 			break;
 		case CRC32_VAMPIRE:		// Little Vampire
+		case CRC32_VAMPIRE_ENG:
 			name = "AMUS_LP2";
 			break;
 		case CRC32_YAKATA:		// ALICEの館
@@ -163,9 +164,11 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 			name = "AMUS_PSG.MDA";
 			break;
 		case CRC32_RANCE41:		// Rance 4.1
+		case CRC32_RANCE41_ENG:
 			name = "AMUS_R41.MDA";
 			break;
 		case CRC32_RANCE42:		// Rance 4.2
+		case CRC32_RANCE42_ENG:
 			name = "AMUS_R42.MDA";
 			break;
 		case CRC32_AYUMI_CD:		// あゆみちゃん物語 (CD)

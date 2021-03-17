@@ -41,7 +41,11 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 				tmp_palette[i * 16 + j] = SETPALETTE256(r, g, b);
 			}
 		}
-		if(nact->crc32_a == CRC32_RANCE41 || nact->crc32_a == CRC32_RANCE42 || nact->crc32_a == CRC32_HASHIRIONNA2) {
+		if(nact->crc32_a == CRC32_RANCE41 ||
+		   nact->crc32_a == CRC32_RANCE41_ENG ||
+		   nact->crc32_a == CRC32_RANCE42 ||
+		   nact->crc32_a == CRC32_RANCE42_ENG ||
+		   nact->crc32_a == CRC32_HASHIRIONNA2) {
 			// 上下16色は取得しない
 			for(int i = 1; i < 15; i++) {
 				for(int j = 0; j < 16; j++) {
@@ -73,7 +77,11 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 	// パレット展開
 	if (nact->sys_ver == 3) {
 		if((extract_palette && extract_palette_cg[page]) || nact->crc32_a == CRC32_FUNNYBEE_CD) {
-			if(nact->crc32_a == CRC32_RANCE41 || nact->crc32_a == CRC32_RANCE42 || nact->crc32_a == CRC32_HASHIRIONNA2) {
+			if(nact->crc32_a == CRC32_RANCE41 ||
+			   nact->crc32_a == CRC32_RANCE41_ENG ||
+			   nact->crc32_a == CRC32_RANCE42 ||
+			   nact->crc32_a == CRC32_RANCE42_ENG ||
+			   nact->crc32_a == CRC32_HASHIRIONNA2) {
 				// 上下16色は展開しない
 				for(int i = 1; i < 15; i++) {
 					for(int j = 0; j < 16; j++) {

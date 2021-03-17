@@ -974,7 +974,8 @@ void NACT_Sys3::cmd_u()
 
 	output_console("\nU %d,%d:", page, transparent);
 
-	if(crc32_a == CRC32_RANCE41 || crc32_a == CRC32_RANCE42) {
+	if(crc32_a == CRC32_RANCE41 || crc32_a == CRC32_RANCE41_ENG ||
+	   crc32_a == CRC32_RANCE42 || crc32_a == CRC32_RANCE42_ENG) {
 		transparent = (transparent == 28) ? 12 : transparent;
 	}
 	ags->load_cg(page, transparent);

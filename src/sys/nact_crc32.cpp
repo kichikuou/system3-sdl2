@@ -35,6 +35,7 @@ const struct CRCTable {
 	{"tengu", 1, "あぶないてんぐ伝説", CRC32_TENGU},
 	{"toushin_hint", 1, "闘神都市 ヒントディスク", CRC32_TOUSHIN_HINT},
 	{"little_vampire", 1, "Little Vampire", CRC32_VAMPIRE},
+	{"little_vampire_eng", 1, "Little Vampire", CRC32_VAMPIRE_ENG},
 	{"yakata", 1, "ALICEの館", CRC32_YAKATA},
 
 	{"ayumi_fd", 2, "あゆみちゃん物語", CRC32_AYUMI_FD},
@@ -60,7 +61,9 @@ const struct CRCTable {
 	{"prog_cd", 3, "Prostudent G", CRC32_PROSTUDENTG_CD},
 	{"prog_omake", 3, "Prostudent G おまけ", CRC32_PROG_OMAKE},
 	{"rance41", 3, "ランス 4.1 〜お薬工場を救え！〜", CRC32_RANCE41},
+	{"rance41_eng", 3, "Rance 4.1 ~Save the Medicine Plant!~", CRC32_RANCE41_ENG},
 	{"rance42", 3, "ランス 4.2 〜エンジェル組〜", CRC32_RANCE42},
+	{"rance42_eng", 3, "Rance 4.2 ~Angel Army~", CRC32_RANCE42_ENG},
 	{"ayumi_cd", 3, "あゆみちゃん物語", CRC32_AYUMI_CD},
 	{"ayumi_live_256", 3, "あゆみちゃん物語 実写版", CRC32_AYUMI_JISSHA_256},
 	{"ayumi_live_full", 3, "あゆみちゃん物語 フルカラー実写版", CRC32_AYUMI_JISSHA_FULL},

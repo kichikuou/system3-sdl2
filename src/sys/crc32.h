@@ -30,6 +30,7 @@
 #define CRC32_TENGU		0xc942ff58	// あぶないてんぐ伝説
 #define CRC32_TOUSHIN_HINT	0xac337537	// 闘神都市 ヒントディスク
 #define CRC32_VAMPIRE		0x957bcfbf	// Little Vampire
+#define CRC32_VAMPIRE_ENG		0x61985a7f	// Little Vampire (English) Patch 1.5
 #define CRC32_YAKATA		0x8cef6fa6	// ALICEの館
 
 // SYSTEM2
@@ -60,7 +61,9 @@
 #define CRC32_PROSTUDENTG_CD	0xfb0e4a63	// Prostudent -G- (CD)
 #define CRC32_PROG_OMAKE	0x8ba18bff	// Prostudent G おまけ (CRC32 of AGAME.DAT)
 #define CRC32_RANCE41		0xa43fb4b6	// Rance 4.1
+#define CRC32_RANCE41_ENG	0x811f4ff3	// Rance 4.1 (English) 1.5 Beta
 #define CRC32_RANCE42		0x04d24d1e	// Rance 4.2
+#define CRC32_RANCE42_ENG	0xa97cc370	// Rance 4.2 (English) 1.5 Beta
 #define CRC32_AYUMI_CD		0xd2bed9ee	// あゆみちゃん物語 (CD)
 #define CRC32_AYUMI_JISSHA_256	0x00d15a2b	// あゆみちゃん物語 実写版
 #define CRC32_AYUMI_JISSHA_FULL	0x5f66ff1d	// あゆみちゃん物語 フルカラー実写版

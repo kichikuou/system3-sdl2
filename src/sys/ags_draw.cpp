@@ -43,6 +43,7 @@ void AGS::load_cg(int page, int transparent)
 				load_vsp(data, page, transparent);	// 暫定
 				break;
 			case CRC32_VAMPIRE:
+			case CRC32_VAMPIRE_ENG:
 				load_vsp2l(data, page, transparent);
 				break;
 			default:

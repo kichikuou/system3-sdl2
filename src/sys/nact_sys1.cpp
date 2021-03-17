@@ -103,6 +103,7 @@ void NACT_Sys1::opening()
 		ags->load_cg(74, -1);
 		break;
 	case CRC32_VAMPIRE:
+	case CRC32_VAMPIRE_ENG:
 		mako->play_music(4);
 		ags->load_cg(3, -1);
 		WAIT(2000);
