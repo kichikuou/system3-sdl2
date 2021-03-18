@@ -1102,6 +1102,9 @@ void NACT_Sys1::cmd_y()
 					ags->draw_box(param);
 				}
 				break;
+			case 240:
+				ags->draw_hankaku = (param == 1) ? true : false;
+				break;
 			case 253:
 				post_quit = false;
 				fatal_error = true;
