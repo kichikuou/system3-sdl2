@@ -127,7 +127,7 @@ protected:
 	char tvar_stack[30][10][22];
 //	int tvar_index;
 
-	void message();
+	void message(uint8 terminator);
 
 	// Commands
 	virtual void cmd_calc() = 0;

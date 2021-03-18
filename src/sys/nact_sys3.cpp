@@ -708,14 +708,25 @@ void NACT_Sys3::cmd_l()
 void NACT_Sys3::cmd_m()
 {
 	char string[22];
-	int d, p = 0;
+	int p = 0;
 
-	while((d = getd()) != ':') {
-		if(is_2byte_message(d)) {
+	int d = getd();
+	if (d == '\'' || d == '"') {  // SysEng
+		int terminator = d;
+		while ((d = getd()) != terminator) {
+			if (d == '\\')
+				d = getd();
 			string[p++] = d;
-			string[p++] = getd();
-		} else {
-			string[p++] = d;
+		}
+	} else {
+		while(d != ':') {
+			if(is_2byte_message(d)) {
+				string[p++] = d;
+				string[p++] = getd();
+			} else {
+				string[p++] = d;
+			}
+			d = getd();
 		}
 	}
 	string[p] = '\0';
