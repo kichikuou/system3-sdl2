@@ -148,3 +148,13 @@ const char* NACT::get_title()
 		return entry->title;
 	return NULL;
 }
+
+Language NACT::get_language()
+{
+	// TODO: Add Language as a field of the CRCTable struct
+	if (crc32_a == CRC32_VAMPIRE_ENG ||
+		crc32_a == CRC32_RANCE41_ENG ||
+		crc32_a == CRC32_RANCE42_ENG)
+		return ENGLISH;
+	return JAPANESE;
+}

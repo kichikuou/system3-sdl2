@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include "../common.h"
+#include "localization.h"
 
 #define RND var[ 0]
 #define D01 var[ 1]
@@ -76,9 +77,6 @@
 #define MAX_OBJ 256
 #define MAX_CAPTION 32
 #define MAX_PCM 256
-
-constexpr char SJIS_BACK[] = "\x96\xDF\x82\xE9"; // "戻る" in SJIS
-constexpr char SJIS_NEXT_PAGE [] = "\x8E\x9F\x82\xCC\x83\x79\x81\x5B\x83\x57"; // "次のページ" in SJIS
 
 class AGS;
 class MAKO;
@@ -253,6 +251,7 @@ public:
 	const char* get_game_id();
 	static const int get_sys_ver(uint32 crc32_a, uint32 crc32_b);
 	const char* get_title();
+	Language get_language();
 	void text_wait();
 	void set_skip_menu_state(bool enabled, bool checked);
 
@@ -260,6 +259,7 @@ public:
 	int sys_ver;
 	uint32 crc32_a;		// ADISK
 	uint32 crc32_b;		// BDISK for D.P.S -SG- and Super D.P.S
+	Language lang;
 
 	// for Y27
 	char tvar[10][33];

@@ -162,6 +162,7 @@ target_sources(system3 PRIVATE
   sys/nact_sys1.cpp
   sys/nact_sys2.cpp
   sys/nact_sys3.cpp
+  sys/localization.cpp
   )
 
 target_compile_definitions(system3 PRIVATE

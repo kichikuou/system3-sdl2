@@ -18,7 +18,7 @@ extern SDL_Window* g_window;
 // 初期化
 
 NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config)
-	: sys_ver(sys_ver), crc32_a(crc32_a), crc32_b(crc32_b)
+	: sys_ver(sys_ver), crc32_a(crc32_a), crc32_b(crc32_b), lang(get_language())
 {
 	platform_initialize();
 

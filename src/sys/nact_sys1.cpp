@@ -74,13 +74,8 @@ NACT_Sys1::NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const char* font_file, cons
 	//case CRC32_DPS_SG2:
 	case CRC32_DPS_SG3:
 		text_refresh = false;
-		strcpy_s(tvar[0], 22, "\x83\x4A\x83\x58\x83\x5E\x83\x80"); // "カスタム" in SJIS
-		strcpy_s(tvar[1], 22, "\x83\x8A\x81\x5B\x83\x69\x83\x58"); // "リーナス" in SJIS
-		strcpy_s(tvar[2], 22, "\x82\xA9\x82\xC2\x82\xDD"); // "かつみ" in SJIS
-		strcpy_s(tvar[3], 22, "\x97\x52\x94\xFC\x8E\x71"); // "由美子" in SJIS
-		strcpy_s(tvar[4], 22, "\x82\xA2\x82\xC2\x82\xDD"); // "いつみ" in SJIS
-		strcpy_s(tvar[5], 22, "\x82\xD0\x82\xC6\x82\xDD"); // "ひとみ" in SJIS
-		strcpy_s(tvar[6], 22, "\x90\x5E\x97\x9D\x8E\x71"); // "真理子" in SJIS
+		for (int i = 0; i < 7; i++)
+			strcpy(tvar[i], strings::dps_initial_tvars[lang][i]);
 		break;
 	case CRC32_INTRUDER:
 		paint_x = paint_y = map_page = 0;
@@ -431,7 +426,7 @@ top2:
 		// 次のページを追加
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
-		ags->draw_text(SJIS_NEXT_PAGE);
+		ags->draw_text(strings::next_page[lang]);
 		id[index++] = -1;
 		ags->menu_dest_y += ags->menu_font_size + 2;
 	}
@@ -502,7 +497,7 @@ top:
 		// 戻るを追加
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
-		ags->draw_text(SJIS_BACK);
+		ags->draw_text(strings::back[lang]);
 		id[index++] = 0;
 		ags->menu_dest_y += ags->menu_font_size + 2;
 	} else {
@@ -528,14 +523,14 @@ top2:
 		// 戻るを追加
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
-		ags->draw_text(SJIS_BACK);
+		ags->draw_text(strings::back[lang]);
 		id[index++] = 0;
 		ags->menu_dest_y += ags->menu_font_size + 2;
 
 		// 次のページを追加
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
-		ags->draw_text(SJIS_NEXT_PAGE);
+		ags->draw_text(strings::next_page[lang]);
 		id[index++] = -1;
 		ags->menu_dest_y += ags->menu_font_size + 2;
 	}
