@@ -220,6 +220,7 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent), dirty(false)
 			SET_MENU(i, 452, 14, 627, 214, true);
 			break;
 		case CRC32_VAMPIRE:
+		case CRC32_VAMPIRE_ENG:
 			SET_TEXT(i, 8, 255, 615, 383, false);
 			SET_MENU(i, 448, 11, 615, 224, false);
 			break;

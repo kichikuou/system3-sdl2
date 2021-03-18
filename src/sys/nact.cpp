@@ -18,7 +18,7 @@ extern SDL_Window* g_window;
 // 初期化
 
 NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config)
-	: sys_ver(sys_ver), crc32_a(crc32_a), crc32_b(crc32_b)
+	: sys_ver(sys_ver), crc32_a(crc32_a), crc32_b(crc32_b), lang(get_language())
 {
 	platform_initialize();
 
@@ -151,6 +151,12 @@ void NACT::execute()
 		opening();
 	}
 
+	// Skip SysEng's "new style" marker
+	if (scenario_page == 0 && scenario_addr == 2 &&
+		memcmp(&scenario_data[2], "REV", 3) == 0) {
+		scenario_addr = 5;
+	}
+
 	// １コマンド実行
 	prev_addr = scenario_addr;
 	uint8 cmd = getd();
@@ -275,10 +281,13 @@ void NACT::execute()
 		case 'Z':
 			cmd_z();
 			break;
+		case '\'': case '"':
+			message(cmd);
+			break;
 		default:
 			if(is_1byte_message(cmd) || is_2byte_message(cmd)) {
 				ungetd();
-				message();
+				message(0);
 			} else {
 				if(cmd >= 0x20 && cmd < 0x7f) {
 					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
@@ -290,24 +299,36 @@ void NACT::execute()
 	}
 }
 
-void NACT::message()
+void NACT::message(uint8_t terminator)
 {
-	uint8* begin = &scenario_data[scenario_addr];
-	uint8* end = begin;
-	for (;;) {
-		if (is_1byte_message(*end))
-			end++;
-		else if (is_2byte_message(*end))
-			end += 2;
-		else
-			break;
-	}
-	int len = end - begin;
-	scenario_addr += len;
+	char buf[200];
+	if (terminator) {  // SysEng
+		uint8* p = &scenario_data[scenario_addr];
+		char* q = buf;
+		while (*p != terminator) {
+			if (*p == '\\')
+				p++;
+			*q++ = *p++;
+		}
+		*q = '\0';
+		scenario_addr += p + 1 - &scenario_data[scenario_addr];
+	} else {
+		uint8* begin = &scenario_data[scenario_addr];
+		uint8* end = begin;
+		for (;;) {
+			if (is_1byte_message(*end))
+				end++;
+			else if (is_2byte_message(*end))
+				end += 2;
+			else
+				break;
+		}
+		int len = end - begin;
+		scenario_addr += len;
 
-	char* buf = (char*)alloca(len + 1);
-	strncpy(buf, reinterpret_cast<char*>(begin), len);
-	buf[len] = '\0';
+		strncpy(buf, reinterpret_cast<char*>(begin), len);
+		buf[len] = '\0';
+	}
 
 	ags->draw_text(buf, text_wait_enb);
 

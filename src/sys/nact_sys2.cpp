@@ -171,15 +171,17 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'L') {
 				getd();
 			} else if(cmd == 'M') {
-				for(;;) {
-					uint8 val = getd();
-					if(is_1byte_message(val)) {
-						// message (1 byte)
-					} else if(is_2byte_message(val)) {
-						// message (2 bytes)
-						getd();
-					} else if(val == ':') {
-						break;
+				uint8 val = getd();
+				if (val == '\'' || val == '"') {  // SysEng
+					for (uint8_t c = getd(); c != val; c = getd()) {
+						if (c == '\\')
+							getd();
+					}
+				} else {
+					while (val != ':') {
+						if(is_2byte_message(val))
+							getd();
+						val = getd();
 					}
 				}
 			} else if(cmd == 'N') {
@@ -262,6 +264,11 @@ void NACT_Sys2::cmd_branch()
 			} else if(is_2byte_message(cmd)) {
 				// message (2 bytes)
 				getd();
+			} else if (cmd == '\'' || cmd == '"') {  // SysEng
+				for (uint8_t c = getd(); c != cmd; c = getd()) {
+					if (c == '\\')
+						getd();
+				}
 			} else {
 				if(cmd >= 0x20 && cmd < 0x7f) {
 					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
@@ -496,7 +503,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	// 戻るを追加
 	ags->menu_dest_x = 2;
 	ags->menu_dest_y += 2;
-	ags->draw_text(SJIS_BACK);
+	ags->draw_text(strings::back[lang]);
 	id[index++] = 0;
 	ags->menu_dest_y += ags->menu_font_size + 2;
 	ags->draw_menu = false;
@@ -849,14 +856,25 @@ void NACT_Sys2::cmd_l()
 void NACT_Sys2::cmd_m()
 {
 	char string[33];
-	int d, p = 0;
+	int p = 0;
 
-	while((d = getd()) != ':') {
-		if(is_2byte_message(d)) {
+	int d = getd();
+	if (d == '\'' || d == '"') {  // SysEng
+		int terminator = d;
+		while ((d = getd()) != terminator) {
+			if (d == '\\')
+				d = getd();
 			string[p++] = d;
-			string[p++] = getd();
-		} else {
-			string[p++] = d;
+		}
+	} else {
+		while(d != ':') {
+			if(is_2byte_message(d)) {
+				string[p++] = d;
+				string[p++] = getd();
+			} else {
+				string[p++] = d;
+			}
+			d = getd();
 		}
 	}
 	string[p] = '\0';
