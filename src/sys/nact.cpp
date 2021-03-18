@@ -151,6 +151,12 @@ void NACT::execute()
 		opening();
 	}
 
+	// Skip SysEng's "new style" marker
+	if (scenario_page == 0 && scenario_addr == 2 &&
+		memcmp(&scenario_data[2], "REV", 3) == 0) {
+		scenario_addr = 5;
+	}
+
 	// １コマンド実行
 	prev_addr = scenario_addr;
 	uint8 cmd = getd();
