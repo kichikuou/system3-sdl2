@@ -1,6 +1,7 @@
 #include <memory>
 #include <SDL.h>
 #include <android/log.h>
+#include "../config.h"
 #include "jnihelper.h"
 #include "dri.h"
 #include "mako.h"
@@ -23,7 +24,7 @@ void audio_callback(void*, Uint8* stream, int len) {
 
 } // namespace
 
-MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
+MAKO::MAKO(NACT* parent, const Config& config) :
 	use_fm(config.use_fm),
 	current_music(0),
 	next_loop(0),

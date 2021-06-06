@@ -7,6 +7,7 @@
 #include "ags.h"
 #include <string.h>
 #include "crc32.h"
+#include "../config.h"
 #include "../fileio.h"
 
 extern SDL_Window* g_window;
@@ -34,7 +35,7 @@ static SDL_Surface* display_surface;
 	box[n].ey = y2; \
 }
 
-AGS::AGS(NACT* parent, const char* fontfile) : nact(parent), dirty(false)
+AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 {
 	sdlRenderer = SDL_CreateRenderer(g_window, -1, 0);
 	SDL_RenderSetLogicalSize(sdlRenderer, 640, 400);
@@ -61,10 +62,10 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent), dirty(false)
 
 	// フォント
 	TTF_Init();
-	if (fontfile) {
-		rw_font = SDL_RWFromFile(fontfile, "rb");
+	if (!config.font_file.empty()) {
+		rw_font = SDL_RWFromFile(config.font_file.c_str(), "rb");
 		if (!rw_font)
-			parent->fatal("Cannot open font file %s", fontfile);
+			parent->fatal("Cannot open font file %s", config.font_file.c_str());
 	} else {
 		rw_font = open_resource(FONT_RESOURCE_NAME, "fonts");
 		if (!rw_font)
@@ -84,6 +85,8 @@ AGS::AGS(NACT* parent, const char* fontfile) : nact(parent), dirty(false)
 			parent->fatal("TTF_OpenFontRW failed: %s", TTF_GetError());
 		}
 	}
+	if (config.no_antialias)
+		ags_setAntialiasedStringMode(0);
 
 	// カーソル初期化
 	for(int i = 0; i < 10; i++) {

@@ -57,8 +57,8 @@
 	} \
 }
 
-NACT_Sys2::NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config)
-	: NACT(2, crc32_a, crc32_b, font_file, mako_config)
+NACT_Sys2::NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const Config& config)
+	: NACT(2, crc32_a, crc32_b, config)
 {
 }
 

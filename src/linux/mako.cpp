@@ -11,6 +11,7 @@
 #include "mako.h"
 #include "mako_midi.h"
 #include "fm/mako_fmgen.h"
+#include "../config.h"
 #include "dri.h"
 
 // MIX_INIT_FLUIDSYNTH was renamed to MIX_INIT_MID in SDL_mixer 2.0.2
@@ -36,7 +37,7 @@ void FMHook(void *udata, Uint8 *stream, int len) {
 
 } // namespace
 
-MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
+MAKO::MAKO(NACT* parent, const Config& config) :
 	use_fm(config.use_fm),
 	current_music(0),
 	next_loop(0),
@@ -44,7 +45,7 @@ MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
 {
 	int mix_init_flags = MIX_INIT_MID;
 
-	if (config.playlist && load_playlist(config.playlist))
+	if (!config.playlist.empty() && load_playlist(config.playlist.c_str()))
 		mix_init_flags |= MIX_INIT_MP3 | MIX_INIT_OGG;
 
 	strcpy_s(amus, 16, "AMUS.DAT");

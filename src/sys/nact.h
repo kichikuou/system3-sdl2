@@ -7,6 +7,7 @@
 #ifndef _NACT_H_
 #define _NACT_H_
 
+#include <string>
 #include <stdio.h>
 #include "../common.h"
 #include "localization.h"
@@ -81,13 +82,13 @@
 class AGS;
 class MAKO;
 class MsgSkip;
-struct MAKOConfig;
+struct Config;
 
 class NACT
 {
 public:
-	static NACT* create(const char* game_id, const char* font_file, const MAKOConfig& mako_config);
-	NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config);
+	static NACT* create(const Config& config);
+	NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config);
 	virtual ~NACT();
 
 protected:
@@ -228,7 +229,7 @@ protected:
 #endif
 	int mouse_x = 0, mouse_y = 0;
 
-	static uint32 calc_crc32(const char* file_name, const char* game_id);
+	static uint32 calc_crc32(const char* file_name, const std::string& game_id);
 
 	// Y27 ダイアログ
 	void text_dialog();
@@ -279,7 +280,7 @@ private:
 
 class NACT_Sys1 final : public NACT {
 public:
-	NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config);
+	NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const Config& config);
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
@@ -330,7 +331,7 @@ private:
 
 class NACT_Sys2 final : public NACT {
 public:
-	NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config);
+	NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const Config& config);
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
@@ -375,7 +376,7 @@ protected:
 
 class NACT_Sys3 final : public NACT {
 public:
-	NACT_Sys3(uint32 crc32_a, uint32 crc32_b, const char* font_file, const MAKOConfig& mako_config);
+	NACT_Sys3(uint32 crc32_a, uint32 crc32_b, const Config& config);
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
@@ -417,7 +418,5 @@ protected:
 	uint16 cali() override;
 	uint16 cali2() override;
 };
-
-extern "C" void ags_setAntialiasedStringMode(int on);
 
 #endif // _NACT_H_

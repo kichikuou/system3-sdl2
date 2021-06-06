@@ -137,6 +137,7 @@ endif()
 
 target_sources(system3 PRIVATE
   sdlmain.cpp
+  config.cpp
   fileio.cpp
   resource.cpp
   utfsjis.cpp

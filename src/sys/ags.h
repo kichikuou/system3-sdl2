@@ -36,6 +36,8 @@ inline uint32* surface_line(SDL_Surface* surface, int y)
 	return (uint32*)((uint8*)surface->pixels + surface->pitch * y);
 }
 
+struct Config;
+
 class AGS
 {
 protected:
@@ -91,7 +93,7 @@ private:
 	uint32 fader_screen[640 * 480];
 
 public:
-	AGS(NACT* parent, const char* fontfile);
+	AGS(NACT* parent, const Config& config);
 	~AGS();
 
 	void update_screen();
@@ -220,5 +222,7 @@ public:
 	uint8 cursor_color;
 	int cursor_index;
 };
+
+extern "C" void ags_setAntialiasedStringMode(int on);
 
 #endif

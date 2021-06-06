@@ -90,11 +90,11 @@ const CRCTable* lookup(uint32 crc32_a, uint32 crc32_b)
 
 } // namespace
 
-uint32 NACT::calc_crc32(const char* file_name, const char* game_id)
+uint32 NACT::calc_crc32(const char* file_name, const std::string& game_id)
 {
-	if (game_id) {
+	if (!game_id.empty()) {
 		for (const CRCTable* t = crc_table; t->id; t++) {
-			if (strcmp(t->id, game_id) == 0)
+			if (t->id == game_id)
 				return file_name[0] == 'A' ? t->crc32_a : t->crc32_b;
 		}
 	}

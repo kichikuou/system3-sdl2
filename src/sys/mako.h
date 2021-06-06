@@ -20,15 +20,12 @@ enum BGMDevice {
 	BGM_CD
 };
 
-struct MAKOConfig {
-	const char *playlist = nullptr;
-	bool use_fm = false;
-};
+struct Config;
 
 class MAKO
 {
 public:
-	MAKO(NACT* parent, const MAKOConfig& config);
+	MAKO(NACT* parent, const Config& config);
 	~MAKO();
 
 	void play_music(int page);

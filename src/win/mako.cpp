@@ -13,6 +13,7 @@
 #include "mako.h"
 #include "mako_midi.h"
 #include "fm/mako_fmgen.h"
+#include "../config.h"
 #include "dri.h"
 #include "crc32.h"
 
@@ -241,14 +242,14 @@ void audio_callback(void*, Uint8* stream, int len) {
 
 } // namespace
 
-MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
+MAKO::MAKO(NACT* parent, const Config& config) :
 	use_fm(config.use_fm),
 	current_music(0),
 	next_loop(0),
 	nact(parent)
 {
-	if (config.playlist)
-		load_playlist(config.playlist);
+	if (!config.playlist.empty())
+		load_playlist(config.playlist.c_str());
 
 	strcpy_s(amus, 16, "AMUS.DAT");
 	strcpy_s(amse, 16, "AMSE.DAT");	// 実際には使わない

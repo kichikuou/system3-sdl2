@@ -16,7 +16,7 @@ std::unique_ptr<MakoFMgen> fm;
 
 } // namespace
 
-MAKO::MAKO(NACT* parent, const MAKOConfig& config) :
+MAKO::MAKO(NACT* parent, const Config& config) :
 	use_fm(true),
 	current_music(0),
 	next_loop(0),
