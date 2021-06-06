@@ -142,3 +142,15 @@ Here's the list of available game IDs and corresponding titles:
 | `otome` | 乙女戦記 |
 | `ningyo` | 人魚 -蘿子- |
 | `mugen` | 夢幻泡影 |
+
+### Configuration file `system3.ini`
+Every option that can be set via the command line flags can also be configured
+via the `ststem3.ini` file placed in the game folder. The following is an
+example of `system3.ini` file:
+```
+[config]
+playlist = playlist.txt
+fontfile = customfont.ttf
+fm = yes
+```
+Options specified on the command line override `system3.ini`.

@@ -13,6 +13,9 @@ struct Config {
 	bool no_antialias = false;
 
 	Config(int argc, char *argv[]);
+
+ private:
+	void load_ini();
 };
 
 #endif // CONFIG_H_
