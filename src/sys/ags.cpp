@@ -63,9 +63,14 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	// フォント
 	TTF_Init();
 	if (!config.font_file.empty()) {
-		rw_font = SDL_RWFromFile(config.font_file.c_str(), "rb");
-		if (!rw_font)
+		// We cannot use SDL_RWFromFile() here because it does not resolve
+		// relative paths using the current directory on Android.
+		FILE *fp = fopen(config.font_file.c_str(), "rb");
+		if (!fp)
 			parent->fatal("Cannot open font file %s", config.font_file.c_str());
+		rw_font = SDL_RWFromFP(fp, SDL_TRUE);
+		if (!rw_font)
+			parent->fatal("Cannot load font file %s: %s", config.font_file.c_str(), SDL_GetError());
 	} else {
 		rw_font = open_resource(FONT_RESOURCE_NAME, "fonts");
 		if (!rw_font)
