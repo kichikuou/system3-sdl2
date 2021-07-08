@@ -58,5 +58,6 @@ static inline bool is_2byte_message(uint8_t c) {
 
 // resource.cpp
 SDL_RWops* open_resource(const char* name, const char* type);
+SDL_RWops* open_file(const char* name);
 
 #endif

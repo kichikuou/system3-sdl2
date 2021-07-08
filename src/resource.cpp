@@ -23,3 +23,16 @@ SDL_RWops* open_resource(const char* name, const char* type) {
 	return SDL_RWFromFile(path, "rb");
 #endif
 }
+
+SDL_RWops* open_file(const char* name) {
+#ifdef __ANDROID__
+	// We cannot use SDL_RWFromFile() because it does not resolve relative
+	// paths using the current directory on Android.
+	FILE *fp = fopen(name, "rb");
+	if (!fp)
+		return NULL;
+	return SDL_RWFromFP(fp, SDL_TRUE);
+#else
+	return SDL_RWFromFile(name, "rb");
+#endif
+}
