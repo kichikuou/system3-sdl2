@@ -145,7 +145,7 @@ Here's the list of available game IDs and corresponding titles:
 
 ### Configuration file `system3.ini`
 Every option that can be set via the command line flags can also be configured
-via the `ststem3.ini` file placed in the game folder. The following is an
+via the `system3.ini` file placed in the game folder. The following is an
 example of `system3.ini` file:
 ```
 [config]

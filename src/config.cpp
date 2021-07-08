@@ -90,8 +90,7 @@ void Config::load_ini()
 				current_section = CONFIG;
 			else
 				WARNING(INIFILENAME ":%d Unknown section \"%s\"", lineno, val);
-		}
-		if (current_section == CONFIG) {
+		} else if (current_section == CONFIG) {
 			if (sscanf(line, "noantialias = %s", val))
 				no_antialias = to_bool(val, lineno);
 			else if (sscanf(line, "savedir = %s", val))
