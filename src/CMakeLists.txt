@@ -39,11 +39,11 @@ elseif (EMSCRIPTEN)
   target_link_options(system3 PRIVATE
     "SHELL:-s ENVIRONMENT=web"
     "SHELL:-s ASYNCIFY=1 -s ASYNCIFY_IGNORE_INDIRECT=1"
-    "SHELL:-s ASYNCIFY_REMOVE=\"['SDL_Delay']\""
+    "SHELL:-s ASYNCIFY_REMOVE=SDL_Delay"
     "SHELL:-s ALLOW_MEMORY_GROWTH=1"
     "SHELL:-s NO_EXIT_RUNTIME=1"
-    "SHELL:-s ASYNCIFY_ADD=\"['NACT::execute()']\""
-    "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['getValue','addRunDependency','removeRunDependency']\"")
+    "SHELL:-s ASYNCIFY_ADD=NACT::execute()"
+    "SHELL:-s EXPORTED_RUNTIME_METHODS=getValue,addRunDependency,removeRunDependency")
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
   add_executable(system3)

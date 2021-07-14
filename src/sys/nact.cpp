@@ -132,6 +132,7 @@ bool NACT::mainloop()
 
 // コマンドパーサ
 
+EMSCRIPTEN_KEEPALIVE  // Prevent inlining, because this function is listed in ASYNCIFY_ADD
 void NACT::execute()
 {
 	// アドレスの確認
