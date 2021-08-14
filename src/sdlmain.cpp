@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 	Uint32 flags = SDL_WINDOW_FULLSCREEN;
 #else
-	Uint32 flags = 0;
+	Uint32 flags = SDL_WINDOW_RESIZABLE;
 #endif
 	g_window = SDL_CreateWindow("Scenario Decoder SYSTEM3", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 
