@@ -137,6 +137,7 @@ public:
 
 	void load_cursor(int page);
 	void select_cursor();
+	void translate_mouse_coords(int* x, int* y);
 
 	void save_screenshot(const char* path);
 

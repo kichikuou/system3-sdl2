@@ -7,6 +7,8 @@
 #include "ags.h"
 #include <string.h>
 
+extern SDL_Window* g_window;
+
 void AGS::load_cursor(int page)
 {
 	// カーソルCGをロードする
@@ -91,3 +93,29 @@ void AGS::select_cursor()
 	}
 }
 
+void AGS::translate_mouse_coords(int* x, int* y)
+{
+	// scale mouse x and y
+	float scalex, scaley;
+	SDL_RenderGetScale(sdlRenderer, &scalex, &scaley);
+	*x *= scalex;
+	*y *= scaley;
+
+	// calculate window borders
+	int logw, logh;
+	SDL_RenderGetLogicalSize(sdlRenderer, &logw, &logh);
+
+	float scalew, scaleh;
+	scalew = logw * scalex;
+	scaleh = logh * scaley;
+
+	int winw, winh;
+	SDL_GetWindowSize(g_window, &winw, &winh);
+
+	float border_left = (winw - scalew) / 2;
+	float border_top  = (winh - scaleh) / 2;
+
+	// offset x and y by window borders
+	*x += border_left;
+	*y += border_top;
+}
