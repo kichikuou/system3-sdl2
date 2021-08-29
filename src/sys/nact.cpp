@@ -301,19 +301,45 @@ void NACT::execute()
 	}
 }
 
-void NACT::message(uint8_t terminator)
+void NACT::skip_string(uint8 terminator)
+{
+	for (uint8 c = getd(); c != terminator; c = getd()) {
+		if (c == '\\')
+			c = getd();
+		if (is_2byte_message(c))
+			getd();
+	}
+}
+
+void NACT::get_string(char* buf, int size, uint8 terminator)
+{
+	int start_addr = scenario_addr;
+
+	uint8 c;
+	int i = 0;
+	while ((c = getd()) != terminator) {
+		if (i + 1 >= size)
+			goto err;
+		if (c == '\\')
+			c = getd();
+		buf[i++] = c;
+		if (is_2byte_message(c))
+			buf[i++] = getd();
+	}
+	if (i >= size)
+		goto err;
+	buf[i] = '\0';
+	return;
+
+ err:
+	fatal("String buffer overrun. page = %d, addr = %d", scenario_page, start_addr);
+}
+
+void NACT::message(uint8 terminator)
 {
 	char buf[200];
 	if (terminator) {  // SysEng
-		uint8* p = &scenario_data[scenario_addr];
-		char* q = buf;
-		while (*p != terminator) {
-			if (*p == '\\')
-				p++;
-			*q++ = *p++;
-		}
-		*q = '\0';
-		scenario_addr += p + 1 - &scenario_data[scenario_addr];
+		get_string(buf, sizeof(buf), terminator);
 	} else {
 		uint8* begin = &scenario_data[scenario_addr];
 		uint8* end = begin;

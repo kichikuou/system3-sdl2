@@ -208,10 +208,7 @@ void NACT_Sys1::cmd_branch()
 				// message (2 bytes)
 				getd();
 			} else if (cmd == '\'' || cmd == '"') {  // SysEng
-				for (uint8_t c = getd(); c != cmd; c = getd()) {
-					if (c == '\\')
-						getd();
-				}
+				skip_string(cmd);
 			} else {
 				if(cmd >= 0x20 && cmd < 0x7f) {
 					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);

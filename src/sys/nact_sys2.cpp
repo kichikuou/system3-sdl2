@@ -173,10 +173,7 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'M') {
 				uint8 val = getd();
 				if (val == '\'' || val == '"') {  // SysEng
-					for (uint8_t c = getd(); c != val; c = getd()) {
-						if (c == '\\')
-							getd();
-					}
+					skip_string(val);
 				} else {
 					while (val != ':') {
 						if(is_2byte_message(val))
@@ -265,10 +262,7 @@ void NACT_Sys2::cmd_branch()
 				// message (2 bytes)
 				getd();
 			} else if (cmd == '\'' || cmd == '"') {  // SysEng
-				for (uint8_t c = getd(); c != cmd; c = getd()) {
-					if (c == '\\')
-						getd();
-				}
+				skip_string(cmd);
 			} else {
 				if(cmd >= 0x20 && cmd < 0x7f) {
 					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
@@ -860,12 +854,7 @@ void NACT_Sys2::cmd_m()
 
 	int d = getd();
 	if (d == '\'' || d == '"') {  // SysEng
-		int terminator = d;
-		while ((d = getd()) != terminator) {
-			if (d == '\\')
-				d = getd();
-			string[p++] = d;
-		}
+		get_string(string, sizeof(string), d);
 	} else {
 		while(d != ':') {
 			if(is_2byte_message(d)) {

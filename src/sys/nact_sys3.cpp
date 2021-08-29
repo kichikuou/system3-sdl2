@@ -712,12 +712,7 @@ void NACT_Sys3::cmd_m()
 
 	int d = getd();
 	if (d == '\'' || d == '"') {  // SysEng
-		int terminator = d;
-		while ((d = getd()) != terminator) {
-			if (d == '\\')
-				d = getd();
-			string[p++] = d;
-		}
+		get_string(string, sizeof(string), d);
 	} else {
 		while(d != ':') {
 			if(is_2byte_message(d)) {

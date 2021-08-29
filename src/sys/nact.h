@@ -211,6 +211,8 @@ protected:
 		return val;
 	}
 	void ungetd() { scenario_addr--; }
+	void skip_string(uint8 terminator);
+	void get_string(char* buf, int size, uint8 terminator);
 
 	uint16 random(uint16 range);
 	uint32 seed;
