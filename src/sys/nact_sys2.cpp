@@ -850,12 +850,12 @@ void NACT_Sys2::cmd_l()
 void NACT_Sys2::cmd_m()
 {
 	char string[33];
-	int p = 0;
 
 	int d = getd();
 	if (d == '\'' || d == '"') {  // SysEng
 		get_string(string, sizeof(string), d);
 	} else {
+		int p = 0;
 		while(d != ':') {
 			if(is_2byte_message(d)) {
 				string[p++] = d;
@@ -865,8 +865,8 @@ void NACT_Sys2::cmd_m()
 			}
 			d = getd();
 		}
+		string[p] = '\0';
 	}
-	string[p] = '\0';
 
 	output_console("\nM %s:", string);
 
