@@ -30,6 +30,7 @@ void NACT::pump_events()
 
 		case SDL_WINDOWEVENT:
 			switch (e.window.event) {
+			case SDL_WINDOWEVENT_EXPOSED:
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
 				ags->flush_screen(false);
 				break;
