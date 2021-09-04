@@ -63,8 +63,8 @@ INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPara
 	static NACT* nact;
 	char string[64];
 	wchar_t wstring[64];
-	int pnt, cnt;
-	
+	int len;
+
 	switch(msg) {
 		case WM_CLOSE:
 			EndDialog(hDlg, IDCANCEL);
@@ -75,6 +75,7 @@ INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPara
 			// init dialog
 			swprintf_s(wstring, 64, L"文字列を入力してください（最大%d文字）", nact->tvar_maxlen);
 			SetWindowTextW(GetDlgItem(hDlg, IDC_TEXT), wstring);
+			// FIXME: encoding conversion
 			Edit_SetText(GetDlgItem(hDlg, IDC_EDITBOX), nact->tvar[nact->tvar_index - 1]);
 			if(nact->tvar[nact->tvar_index - 1][0] == '\0') {
 				EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
@@ -86,17 +87,8 @@ INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPara
 		case WM_COMMAND:
 			switch(LOWORD(wParam)) {
 				case IDC_EDITBOX:
-					GetDlgItemText(hDlg, IDC_EDITBOX, string, 32);
-					pnt = cnt = 0;
-					while(string[pnt] != '\0') {
-						unsigned char dat = string[pnt];
-						if(is_2byte_message(dat)) {
-							pnt++;
-						}
-						pnt++;
-						cnt++;
-					}
-					if(cnt == 0 || cnt > nact->tvar_maxlen) {
+					len = GetWindowTextLengthW(GetDlgItem(hDlg, IDC_EDITBOX));
+					if (len == 0 || len > nact->tvar_maxlen) {
 						EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
 					} else {
 						EnableWindow(GetDlgItem(hDlg, IDOK), TRUE);
@@ -104,6 +96,7 @@ INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPara
 					break;
 				case IDOK:
 					GetDlgItemText(hDlg, IDC_EDITBOX, string, 32);
+					// FIXME: encoding conversion
 					strcpy_s(nact->tvar[nact->tvar_index - 1], 22, string);
 					EndDialog(hDlg, IDOK);
 					break;

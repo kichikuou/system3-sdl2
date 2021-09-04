@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include "ags.h"
+#include "encoding.h"
 #include "utfsjis.h"
 #include "texthook.h"
 
@@ -347,7 +348,6 @@ int convert_to_hankaku(int code)
 
 void AGS::draw_text(const char* string, bool text_wait)
 {
-	int p = 0;
 	int screen, dest_x, dest_y, font_size;
 	uint8 font_color;
 
@@ -384,15 +384,8 @@ void AGS::draw_text(const char* string, bool text_wait)
 	// Adjust dest_y if the font height is larger than the specified size.
 	dest_y -= (ascent - descent - font_size) / 2;
 
-	while(string[p] != '\0') {
-		// 文字コード取得
-		uint8 c = (uint8)string[p++];
-		uint16 code = c;
-		if(is_2byte_message(c)) {
-			code = (code << 8) | (uint8)string[p++];
-		}
-		code = sjis_to_unicode(code);
-
+	while (*string) {
+		int code = nact->encoding->next_codepoint(&string);
 		if(draw_hankaku) {
 			code = convert_to_hankaku(code);
 		} else {
@@ -421,7 +414,7 @@ void AGS::draw_text(const char* string, bool text_wait)
 			dest_x += advance;
 		}
 
-		if (!draw_menu && text_wait && c != ' ') {
+		if (!draw_menu && text_wait && code != ' ') {
 			// 画面更新
 			if(screen == 0)
 				draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, ascent - descent);

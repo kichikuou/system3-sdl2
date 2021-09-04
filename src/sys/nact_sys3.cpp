@@ -12,6 +12,7 @@
 #include "msgskip.h"
 #include "crc32.h"
 #include "../fileio.h"
+#include "encoding.h"
 #include "texthook.h"
 
 NACT_Sys3::NACT_Sys3(uint32 crc32_a, uint32 crc32_b, const Config& config)
@@ -715,12 +716,7 @@ void NACT_Sys3::cmd_m()
 	} else {
 		int p = 0;
 		while(d != ':') {
-			if(is_2byte_message(d)) {
-				string[p++] = d;
-				string[p++] = getd();
-			} else {
-				string[p++] = d;
-			}
+			string[p++] = d;
 			d = getd();
 		}
 		string[p] = '\0';
@@ -1296,21 +1292,13 @@ void NACT_Sys3::cmd_y()
 		case 228:
 		case 229:
 			{
-				char string[21];
-				int s = 0, d = 0;
-				for(int i = 0; i < cmd - 220; i++) {
-					if(tvar[param - 1][s] == '\0') {
-						string[d++] = 0x20;
-					} else {
-						uint8 code = tvar[param - 1][s++];
-						string[d++] = code;
-						if(is_2byte_message(code)) {
-							string[d++] = tvar[param - 1][s++];
-						}
-					}
+				ags->draw_text(tvar[param - 1]);
+				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1]);
+				if (padlen > 0) {
+					char pad[10] = "         ";
+					pad[padlen] = '\0';
+					ags->draw_text(pad);
 				}
-				string[d] = '\0';
-				ags->draw_text(string);
 			}
 			break;
 		case 230:

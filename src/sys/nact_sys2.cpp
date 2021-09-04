@@ -12,6 +12,7 @@
 #include "msgskip.h"
 #include "crc32.h"
 #include "../fileio.h"
+#include "encoding.h"
 #include "texthook.h"
 
 #define WAIT(tm) \
@@ -175,11 +176,8 @@ void NACT_Sys2::cmd_branch()
 				if (val == '\'' || val == '"') {  // SysEng
 					skip_string(val);
 				} else {
-					while (val != ':') {
-						if(is_2byte_message(val))
-							getd();
+					while (val != ':')
 						val = getd();
-					}
 				}
 			} else if(cmd == 'N') {
 				cali();
@@ -256,20 +254,15 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'Z') {
 				cali();
 				cali();
-			} else if(is_1byte_message(cmd)) {
-				// message (1 byte)
-			} else if(is_2byte_message(cmd)) {
-				// message (2 bytes)
-				getd();
 			} else if (cmd == '\'' || cmd == '"') {  // SysEng
 				skip_string(cmd);
+			} else if (is_message(cmd)) {
+				ungetd();
+				scenario_addr += encoding->mblen(scenario_data + scenario_addr);
+			} else if (cmd >= 0x20 && cmd < 0x7f) {
+				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
 			} else {
-				if(cmd >= 0x20 && cmd < 0x7f) {
-					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
-				} else {
 					fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
-				}
-				break;
 			}
 		}
 	}
@@ -857,12 +850,7 @@ void NACT_Sys2::cmd_m()
 	} else {
 		int p = 0;
 		while(d != ':') {
-			if(is_2byte_message(d)) {
-				string[p++] = d;
-				string[p++] = getd();
-			} else {
-				string[p++] = d;
-			}
+			string[p++] = d;
 			d = getd();
 		}
 		string[p] = '\0';
@@ -1234,23 +1222,13 @@ void NACT_Sys2::cmd_y()
 		case 228:
 		case 229:
 			if(1 <= param && param <= 10) {
-				char string[22];
-				int len = cmd - 220, p = 0, q = 0;
-				uint8 d;
-				while((d = (uint8)tvar[param - 1][p]) != '\0') {
-					if(is_2byte_message(d)) {
-						string[p] = tvar[param - 1][p];
-						p++;
-					}
-					string[p] = tvar[param - 1][p];
-					p++;
-					q++;
+				ags->draw_text(tvar[param - 1]);
+				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1]);
+				if (padlen > 0) {
+					char pad[10] = "         ";
+					pad[padlen] = '\0';
+					ags->draw_text(pad);
 				}
-				for(int i = q; i < len; i++) {
-					string[p++] = 0x20;
-				}
-				string[p] = '\0';
-				ags->draw_text(string);
 			}
 			break;
 		case 252:

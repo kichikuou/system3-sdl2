@@ -7,6 +7,7 @@
 #ifndef _NACT_H_
 #define _NACT_H_
 
+#include <memory>
 #include <string>
 #include <stdio.h>
 #include "../common.h"
@@ -82,6 +83,7 @@
 class AGS;
 class MAKO;
 class MsgSkip;
+class Encoding;
 struct Config;
 
 class NACT
@@ -211,6 +213,7 @@ protected:
 		return val;
 	}
 	void ungetd() { scenario_addr--; }
+	bool is_message(uint8_t c) { return c == ' ' || c & 0x80; }
 	void skip_string(uint8 terminator);
 	void get_string(char* buf, int size, uint8 terminator);
 
@@ -263,6 +266,7 @@ public:
 	uint32 crc32_a;		// ADISK
 	uint32 crc32_b;		// BDISK for D.P.S -SG- and Super D.P.S
 	Language lang;
+	std::unique_ptr<Encoding> encoding;
 
 	// for Y27
 	char tvar[10][33];

@@ -17,6 +17,7 @@
 #include "msgskip.h"
 #include "crc32.h"
 #include "../fileio.h"
+#include "encoding.h"
 #include "texthook.h"
 
 // メニューの改ページ
@@ -202,20 +203,15 @@ void NACT_Sys1::cmd_branch()
 			} else if(cmd == 'Z') {
 				cali();
 				cali();
-			} else if(is_1byte_message(cmd)) {
-				// message (1 byte)
-			} else if(is_2byte_message(cmd)) {
-				// message (2 bytes)
-				getd();
 			} else if (cmd == '\'' || cmd == '"') {  // SysEng
 				skip_string(cmd);
+			} else if (is_message(cmd)) {
+				ungetd();
+				scenario_addr += encoding->mblen(scenario_data + scenario_addr);
+			} else if (cmd >= 0x20 && cmd < 0x7f) {
+				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
 			} else {
-				if(cmd >= 0x20 && cmd < 0x7f) {
-					fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
-				} else {
-					fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
-				}
-				break;
+				fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
 			}
 		}
 	}

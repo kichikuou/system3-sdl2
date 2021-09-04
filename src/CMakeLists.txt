@@ -141,6 +141,7 @@ target_sources(system3 PRIVATE
   fileio.cpp
   resource.cpp
   utfsjis.cpp
+  encoding.cpp
   texthook.cpp
   fm/makofm.cpp
   fm/mako_fmgen.cpp
