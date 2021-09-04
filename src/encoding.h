@@ -5,7 +5,7 @@
 
 class Encoding {
  public:
-	static std::unique_ptr<Encoding> create();
+	static std::unique_ptr<Encoding> create(const char* name);
 
 	virtual ~Encoding() = default;
 

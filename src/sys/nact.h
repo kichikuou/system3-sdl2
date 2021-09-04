@@ -258,6 +258,7 @@ public:
 	static const int get_sys_ver(uint32 crc32_a, uint32 crc32_b);
 	const char* get_title();
 	Language get_language();
+	const char* get_encoding_name(const Config& config);
 	void text_wait();
 	void set_skip_menu_state(bool enabled, bool checked);
 

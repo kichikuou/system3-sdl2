@@ -7,6 +7,7 @@ struct Config {
  public:
 	std::string font_file;
 	std::string game_id;
+	std::string encoding;
 	std::string save_dir;
 	std::string playlist;
 	bool use_fm = false;

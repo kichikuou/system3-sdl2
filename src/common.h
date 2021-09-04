@@ -48,6 +48,10 @@ inline void strcpy_s(char* dst, size_t n, const char* src)
 
 #endif // !WIN32
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
+
 // resource.cpp
 SDL_RWops* open_resource(const char* name, const char* type);
 SDL_RWops* open_file(const char* name);

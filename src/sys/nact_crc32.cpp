@@ -8,6 +8,7 @@
 #include <string.h>
 #include "crc32.h"
 #include "../fileio.h"
+#include "config.h"
 
 namespace {
 
@@ -155,4 +156,13 @@ Language NACT::get_language()
 	if (const CRCTable* entry = lookup(crc32_a, crc32_b))
 		return entry->language;
 	return JAPANESE;
+}
+
+const char* NACT::get_encoding_name(const Config& config)
+{
+	if (!config.encoding.empty())
+		return config.encoding.c_str();
+
+	// TODO: Determine encoding from crc32
+	return "Shift_JIS";
 }

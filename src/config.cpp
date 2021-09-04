@@ -9,10 +9,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef _MSC_VER
-#define strcasecmp _stricmp
-#endif
-
 #define INIFILENAME "system3.ini"
 
 namespace {
@@ -64,6 +60,8 @@ Config::Config(int argc, char *argv[])
 			use_fm = true;
 		else if (strcmp(argv[i], "-game") == 0)
 			game_id = argv[++i];
+		else if (strcmp(argv[i], "-encoding") == 0)
+			encoding = argv[++i];
 	}
 }
 
@@ -103,6 +101,8 @@ void Config::load_ini()
 				use_fm = to_bool(val, lineno);
 			else if (sscanf(line, "game = %s", val))
 				game_id = val;
+			else if (sscanf(line, "encoding = %s", val))
+				encoding = val;
 			else if (!is_empty_line(line))
 				WARNING(INIFILENAME ":%d parse error", lineno);
 		} else if (!is_empty_line(line)) {
