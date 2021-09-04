@@ -21,10 +21,18 @@ int unicode_to_sjis(int u) {
 
 uint16 sjis_to_unicode(uint16 code)
 {
+	// ASCII characters.
+	if (code < 0x80)
+		return code;
+	// 1-byte kana characters.
 	if (code >= 0xa0 && code <= 0xdf)
 		return 0xff60 + code - 0xa0;
-	if (code < 0x100)
-		return code;
+	// Gaiji characters.
+	if (0xeb9f <= code && code <= 0xebfc)
+		return code - 0xeb9f + GAIJI_FIRST;
+	if (0xec40 <= code && code <= 0xec9e)
+		return code - 0xec40 + 94 + GAIJI_FIRST;
+
 	return s2u[(code >> 8) - 0x80][(code & 0xff) - 0x40];
 }
 

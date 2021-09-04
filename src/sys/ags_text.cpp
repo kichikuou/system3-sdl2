@@ -57,26 +57,28 @@ void AGS::draw_text(const char* string, bool text_wait)
 		if(is_2byte_message(c)) {
 			code = (code << 8) | (uint8)string[p++];
 		}
+
 		if(draw_hankaku) {
 			code = convert_hankaku(code);
 		} else {
 			code = convert_zenkaku(code);
 		}
 
+		code = sjis_to_unicode(code);
+
 		// 文字出力
-		if((0xeb9f <= code && code <= 0xebfc) || (0xec40 <= code && code <= 0xec9e)) {
+		if (GAIJI_FIRST <= code && code <= GAIJI_LAST) {
 			// Use unadjusted dest_y here.
 			draw_gaiji(screen, dest_x, draw_menu ? menu_dest_y : text_dest_y, code, font_size, font_color);
 			dest_x += font_size;
 		} else {
-			int unicode = sjis_to_unicode(code);
 			if (!draw_menu)
-				texthook_character(nact->get_scenario_page(), unicode);
+				texthook_character(nact->get_scenario_page(), code);
 
 			if (antialias)
-				draw_char_antialias(screen, dest_x, dest_y, unicode, font, font_color, antialias_cache);
+				draw_char_antialias(screen, dest_x, dest_y, code, font, font_color, antialias_cache);
 			else
-				draw_char(screen, dest_x, dest_y, unicode, font, font_color);
+				draw_char(screen, dest_x, dest_y, code, font, font_color);
 
 			int miny, maxy, advance;
 			TTF_GlyphMetrics(font, code, NULL, NULL, &miny, &maxy, &advance);
@@ -175,7 +177,7 @@ void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF
 
 void AGS::draw_gaiji(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color)
 {
-	int index = (0xeb9f <= code && code <= 0xebfc) ? code - 0xeb9f : (0xec40 <= code && code <= 0xec9e) ? code - 0xec40 + 94 : 0;
+	int index = code - GAIJI_FIRST;
 	bool pattern[16][16];
 
 	// パターン取得
