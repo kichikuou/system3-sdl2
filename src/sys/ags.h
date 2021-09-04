@@ -121,8 +121,6 @@ public:
 	void box_line(int dest, int sx, int sy, int ex, int ey, uint8 color);
 
 	void draw_text(const char* string, bool text_wait = false);
-	uint16 convert_zenkaku(uint16 code);
-	uint16 convert_hankaku(uint16 code);
 
 	void clear_text_window(int index, bool erase);
 	bool return_text_line(int index);
