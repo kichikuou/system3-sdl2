@@ -144,11 +144,6 @@ void FILEIO::Fgets(char *dest, int length)
 			if(p < length + 1) {
 				dest[p++] = c;
 			}
-			if(is_2byte_message(c)) {
-				if(p < length + 1) {
-					dest[p++] = Fgetc();
-				}
-			}
 		}
 	}
 	dest[p] = '\0';
