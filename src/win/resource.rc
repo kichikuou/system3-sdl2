@@ -4,45 +4,6 @@
 #include "winres.h"
 
 /////////////////////////////////////////////////////////////////////////////
-// 日本語 resources
-
-LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-IDR_MENU1 MENU DISCARDABLE 
-BEGIN
-    POPUP "File"
-    BEGIN
-        MENUITEM "Save Screenshot",             ID_SCREENSHOT
-        MENUITEM SEPARATOR
-        MENUITEM "Restart",                     ID_RESTART
-        MENUITEM SEPARATOR
-        MENUITEM "Exit",                        ID_EXIT
-    END
-    POPUP "Screen"
-    BEGIN
-        MENUITEM "Window",                      ID_SCREEN_WINDOW
-        MENUITEM "Fullscreen",                  ID_SCREEN_FULL
-    END
-    POPUP "Sound"
-    BEGIN
-        MENUITEM "FM Sound",                    ID_SOUND_FM
-        MENUITEM "MIDI Sound",                  ID_SOUND_MIDI
-        MENUITEM "CD Audio",                    ID_SOUND_CD
-    END
-    POPUP "Message"
-    BEGIN
-        MENUITEM "Skip",                        ID_TEXT_SKIP
-        MENUITEM "Wait",                        ID_TEXT_WAIT
-    END
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
 //
 // Icon
 //
@@ -55,6 +16,11 @@ IDI_ICON1               ICON    DISCARDABLE     "icon1.ico"
 //
 // FONTS
 //
+
+// Note for game translators:
+// Rather than replacing this, use a separate font file and the "fontfile"
+// option in system3.ini. That will allow your translated version run on
+// other platforms, such as Android and Web.
 MTLc3m.ttf  FONTS  DISCARDABLE  "../../resources/fonts/MTLc3m.ttf"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -106,6 +72,99 @@ BMUS_SOT.MDA  MDA  DISCARDABLE  "../../resources/mda/BMUS_SOT.MDA"
 BMUS_TNM.MDA  MDA  DISCARDABLE  "../../resources/mda/BMUS_TNM.MDA"
 CMUS_T1.MDA   MDA  DISCARDABLE  "../../resources/mda/CMUS_T1.MDA"
 
+
+/////////////////////////////////////////////////////////////////////////////
+// English resources
+
+LANGUAGE LANG_ENGLISH, SUBLANG_NEUTRAL
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU DISCARDABLE
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Save Screenshot",             ID_SCREENSHOT
+        MENUITEM SEPARATOR
+        MENUITEM "Restart",                     ID_RESTART
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        ID_EXIT
+    END
+    POPUP "Screen"
+    BEGIN
+        MENUITEM "Window",                      ID_SCREEN_WINDOW
+        MENUITEM "Fullscreen",                  ID_SCREEN_FULL
+    END
+    POPUP "Sound"
+    BEGIN
+        MENUITEM "FM Sound",                    ID_SOUND_FM
+        MENUITEM "MIDI Sound",                  ID_SOUND_MIDI
+        MENUITEM "CD Audio",                    ID_SOUND_CD
+    END
+    POPUP "Message"
+    BEGIN
+        MENUITEM "Skip",                        ID_TEXT_SKIP
+        MENUITEM "Wait",                        ID_TEXT_WAIT
+    END
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG1 DIALOG DISCARDABLE  0, 0, 122, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Text input"
+FONT 9, "MS Shell Dlg"
+BEGIN
+    EDITTEXT        IDC_EDITBOX,7,15,112,12
+    LTEXT           "Enter a string (up to 8 letters)",IDC_TEXT,7,3,112,8
+    DEFPUSHBUTTON   "OK",IDOK,35,36,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 日本語 resources
+
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU DISCARDABLE
+BEGIN
+    POPUP "ファイル"
+    BEGIN
+        MENUITEM "画面保存",                    ID_SCREENSHOT
+        MENUITEM SEPARATOR
+        MENUITEM "再起動",                      ID_RESTART
+        MENUITEM SEPARATOR
+        MENUITEM "閉じる",                      ID_EXIT
+    END
+    POPUP "画面"
+    BEGIN
+        MENUITEM "ウィンドウ",                  ID_SCREEN_WINDOW
+        MENUITEM "フルスクリーン",              ID_SCREEN_FULL
+    END
+    POPUP "サウンド"
+    BEGIN
+        MENUITEM "FM音源",                      ID_SOUND_FM
+        MENUITEM "MIDI音源",                    ID_SOUND_MIDI
+        MENUITEM "CD音源",                      ID_SOUND_CD
+    END
+    POPUP "メッセージ"
+    BEGIN
+        MENUITEM "スキップ",                    ID_TEXT_SKIP
+        MENUITEM "ウェイトあり",                ID_TEXT_WAIT
+    END
+END
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
@@ -117,8 +176,47 @@ CAPTION "文字列の入力"
 FONT 9, "ＭＳ Ｐゴシック"
 BEGIN
     EDITTEXT        IDC_EDITBOX,7,15,112,12
-    LTEXT           "文字を入力してください（最大8文字)",IDC_TEXT,7,3,112,8
+    LTEXT           "文字を入力してください（最大8文字）",IDC_TEXT,7,3,112,8
     DEFPUSHBUTTON   "OK",IDOK,35,36,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 简体中文 resources
+
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU DISCARDABLE
+BEGIN
+    POPUP "文件"
+    BEGIN
+        MENUITEM "截图",                        ID_SCREENSHOT
+        MENUITEM SEPARATOR
+        MENUITEM "重启",                        ID_RESTART
+        MENUITEM SEPARATOR
+        MENUITEM "退出",                        ID_EXIT
+    END
+    POPUP "窗口"
+    BEGIN
+        MENUITEM "窗口化",                      ID_SCREEN_WINDOW
+        MENUITEM "全屏化",                      ID_SCREEN_FULL
+    END
+    POPUP "音源"
+    BEGIN
+        MENUITEM "FM 音源",                     ID_SOUND_FM
+        MENUITEM "MIDI 音源",                   ID_SOUND_MIDI
+        MENUITEM "CD 音源",                     ID_SOUND_CD
+    END
+    POPUP "消息"
+    BEGIN
+        MENUITEM "跳过",                        ID_TEXT_SKIP
+        MENUITEM "等待",                        ID_TEXT_WAIT
+    END
 END
 
 /////////////////////////////////////////////////////////////////////////////
