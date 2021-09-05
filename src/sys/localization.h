@@ -1,17 +1,19 @@
 #ifndef _LOCALIZATION_H_
 #define _LOCALIZATION_H_
 
+class Encoding;
+
 enum Language {
 	JAPANESE = 0,
 	ENGLISH = 1,
 };
 
-namespace strings {
+struct Strings {
+	Strings(Language lang, Encoding* encoding);
 
-extern const char* back[];
-extern const char* next_page[];
-extern const char* dps_initial_tvars[][7];
-
-} // namespace strings
+	const char* back;
+	const char* next_page;
+	const char* dps_initial_tvars[7];
+};
 
 #endif // _LOCALIZATION_H_

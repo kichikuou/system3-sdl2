@@ -266,8 +266,8 @@ public:
 	int sys_ver;
 	uint32 crc32_a;		// ADISK
 	uint32 crc32_b;		// BDISK for D.P.S -SG- and Super D.P.S
-	Language lang;
 	std::unique_ptr<Encoding> encoding;
+	Strings strings;
 
 	// for Y27
 	char tvar[10][33];

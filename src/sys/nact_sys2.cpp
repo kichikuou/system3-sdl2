@@ -490,7 +490,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	// 戻るを追加
 	ags->menu_dest_x = 2;
 	ags->menu_dest_y += 2;
-	ags->draw_text(strings::back[lang]);
+	ags->draw_text(strings.back);
 	id[index++] = 0;
 	ags->menu_dest_y += ags->menu_font_size + 2;
 	ags->draw_menu = false;
