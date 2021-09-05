@@ -4,6 +4,7 @@
 #include <time.h>
 #include "nact.h"
 #include "SDL_syswm.h"
+#include "encoding.h"
 #include "ags.h"
 #include "mako.h"
 #include "msgskip.h"
@@ -63,50 +64,57 @@ INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPara
 	static NACT* nact;
 	char string[64];
 	wchar_t wstring[64];
-	int len;
 
 	switch(msg) {
-		case WM_CLOSE:
-			EndDialog(hDlg, IDCANCEL);
-			break;
-		case WM_INITDIALOG:
+	case WM_CLOSE:
+		EndDialog(hDlg, IDCANCEL);
+		break;
+
+	case WM_INITDIALOG:
+		{
 			// get this pointer
 			nact = (NACT *)lParam;
 			// init dialog
 			swprintf_s(wstring, 64, L"文字列を入力してください（最大%d文字）", nact->tvar_maxlen);
 			SetWindowTextW(GetDlgItem(hDlg, IDC_TEXT), wstring);
-			// FIXME: encoding conversion
-			Edit_SetText(GetDlgItem(hDlg, IDC_EDITBOX), nact->tvar[nact->tvar_index - 1]);
-			if(nact->tvar[nact->tvar_index - 1][0] == '\0') {
-				EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
-			} else {
-				EnableWindow(GetDlgItem(hDlg, IDOK), TRUE);
+
+			char *oldstr = nact->encoding->toUtf8(nact->tvar[nact->tvar_index - 1]);
+			MultiByteToWideChar(CP_UTF8, 0, oldstr, -1, wstring, 64);
+			SetWindowTextW(GetDlgItem(hDlg, IDC_EDITBOX), wstring);
+			EnableWindow(GetDlgItem(hDlg, IDOK), oldstr[0] != '\0');
+			free(oldstr);
+		}
+		break;
+
+	case WM_COMMAND:
+		switch(LOWORD(wParam)) {
+		case IDC_EDITBOX:
+			{
+				int len = GetWindowTextLengthW(GetDlgItem(hDlg, IDC_EDITBOX));
+				if (len == 0 || len > nact->tvar_maxlen) {
+					EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
+				} else {
+					EnableWindow(GetDlgItem(hDlg, IDOK), TRUE);
+				}
 			}
 			break;
-		
-		case WM_COMMAND:
-			switch(LOWORD(wParam)) {
-				case IDC_EDITBOX:
-					len = GetWindowTextLengthW(GetDlgItem(hDlg, IDC_EDITBOX));
-					if (len == 0 || len > nact->tvar_maxlen) {
-						EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
-					} else {
-						EnableWindow(GetDlgItem(hDlg, IDOK), TRUE);
-					}
-					break;
-				case IDOK:
-					GetDlgItemText(hDlg, IDC_EDITBOX, string, 32);
-					// FIXME: encoding conversion
-					strcpy_s(nact->tvar[nact->tvar_index - 1], 22, string);
-					EndDialog(hDlg, IDOK);
-					break;
-				default:
-					return FALSE;
+		case IDOK:
+			{
+				GetDlgItemTextW(hDlg, IDC_EDITBOX, wstring, 64);
+				WideCharToMultiByte(CP_UTF8, 0, wstring, -1, string, sizeof(string), NULL, NULL);
+				char *newstr = nact->encoding->fromUtf8(string);
+				strcpy_s(nact->tvar[nact->tvar_index - 1], 22, newstr);
+				free(newstr);
+				EndDialog(hDlg, IDOK);
 			}
 			break;
-		
 		default:
 			return FALSE;
+		}
+		break;
+
+	default:
+		return FALSE;
 	}
 	return TRUE;
 }
