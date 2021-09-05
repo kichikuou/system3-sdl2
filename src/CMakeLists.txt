@@ -140,7 +140,6 @@ target_sources(system3 PRIVATE
   config.cpp
   fileio.cpp
   resource.cpp
-  utfsjis.cpp
   encoding.cpp
   texthook.cpp
   fm/makofm.cpp

@@ -7,7 +7,6 @@
 #include <string.h>
 #include "ags.h"
 #include "encoding.h"
-#include "utfsjis.h"
 #include "texthook.h"
 
 namespace {

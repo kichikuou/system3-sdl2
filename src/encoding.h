@@ -3,6 +3,10 @@
 
 #include <memory>
 
+// Gaiji characters are mapped to Unicode Private Use Area U+E000-U+E0BB.
+const int GAIJI_FIRST = 0xE000;
+const int GAIJI_LAST = 0xE0BB;
+
 class Encoding {
  public:
 	static std::unique_ptr<Encoding> create(const char* name);
@@ -25,6 +29,10 @@ class Encoding {
 	int mbslen(const char* s) {
 		return mbslen(reinterpret_cast<const unsigned char*>(s));
 	}
+
+	// Convert from/to utf-8 encoding. Caller must free() the returned buffer.
+	virtual char* fromUtf8(const char* s) = 0;
+	virtual char* toUtf8(const char* s) = 0;
 };
 
 #endif // _ENCODING_H_

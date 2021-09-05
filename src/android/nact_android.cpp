@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "nact.h"
-#include "utfsjis.h"
+#include "encoding.h"
 #include "jnihelper.h"
 
 #define STRING "Ljava/lang/String;"
@@ -11,8 +11,9 @@ void NACT::text_dialog()
 	if (!jni.env())
 		return;
 
-	char *oldstr = sjis2utf(tvar[tvar_index - 1]);
+	char *oldstr = encoding->toUtf8(tvar[tvar_index - 1]);
 	jstring joldstr = jni.env()->NewStringUTF(oldstr);
+	free(oldstr);
 	if (!joldstr) {
 		WARNING("Failed to allocate a string");
 		return;
@@ -22,9 +23,9 @@ void NACT::text_dialog()
 	if (!jnewstr)
 		return;
 	const char* newstr_utf8 = jni.env()->GetStringUTFChars(jnewstr, NULL);
-	char* newstr_sjis = utf2sjis((char*)newstr_utf8);
-	strcpy_s(tvar[tvar_index - 1], 22, newstr_sjis);
-	free(newstr_sjis);
+	char* newstr = encoding->fromUtf8(newstr_utf8);
+	strcpy_s(tvar[tvar_index - 1], 22, newstr);
+	free(newstr);
 	jni.env()->ReleaseStringUTFChars(jnewstr, newstr_utf8);
 }
 
