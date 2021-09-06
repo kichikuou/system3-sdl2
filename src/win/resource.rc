@@ -220,3 +220,16 @@ BEGIN
 END
 
 /////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG1 DIALOG DISCARDABLE  0, 0, 122, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "字符串输入"
+FONT 9, "微软雅黑"
+BEGIN
+    EDITTEXT        IDC_EDITBOX,7,15,112,12
+    LTEXT           "请输入字符串（最多８个字符）",IDC_TEXT,7,3,112,8
+    DEFPUSHBUTTON   "OK",IDOK,35,36,50,14
+END
