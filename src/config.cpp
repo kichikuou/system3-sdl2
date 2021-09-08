@@ -83,6 +83,8 @@ Config::Config(int argc, char *argv[])
 			game_id = argv[++i];
 		else if (strcmp(argv[i], "-encoding") == 0)
 			encoding = argv[++i];
+		else if (strcmp(argv[i], "-title") == 0)
+			title = argv[++i];
 	}
 }
 
@@ -130,6 +132,8 @@ void Config::load_ini()
 				game_id = val;
 			else if (!strcasecmp(key, "encoding"))
 				encoding = val;
+			else if (!strcasecmp(key, "title"))
+				title = val;
 			else
 				WARNING(INIFILENAME ":%d unknown key '%s'", lineno, key);
 		} else if (!is_empty_line(line)) {

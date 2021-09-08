@@ -258,7 +258,7 @@ public:
 	static const int get_sys_ver(uint32 crc32_a, uint32 crc32_b);
 	const char* get_title();
 	Language get_language();
-	const char* get_encoding_name(const Config& config);
+	const char* get_encoding_name();
 	void text_wait();
 	void set_skip_menu_state(bool enabled, bool checked);
 
@@ -266,6 +266,7 @@ public:
 	int sys_ver;
 	uint32 crc32_a;		// ADISK
 	uint32 crc32_b;		// BDISK for D.P.S -SG- and Super D.P.S
+	const Config& config;
 	std::unique_ptr<Encoding> encoding;
 	Strings strings;
 

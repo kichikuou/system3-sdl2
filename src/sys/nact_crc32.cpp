@@ -146,6 +146,8 @@ const int NACT::get_sys_ver(uint32 crc32_a, uint32 crc32_b)
 
 const char* NACT::get_title()
 {
+	if (!config.title.empty())
+		return config.title.c_str();
 	if (const CRCTable* entry = lookup(crc32_a, crc32_b))
 		return entry->title;
 	return NULL;
@@ -158,7 +160,7 @@ Language NACT::get_language()
 	return JAPANESE;
 }
 
-const char* NACT::get_encoding_name(const Config& config)
+const char* NACT::get_encoding_name()
 {
 	if (!config.encoding.empty())
 		return config.encoding.c_str();

@@ -10,6 +10,7 @@ struct Config {
 	std::string encoding;
 	std::string save_dir;
 	std::string playlist;
+	std::string title;
 	bool use_fm = false;
 	bool no_antialias = false;
 
