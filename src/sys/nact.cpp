@@ -35,7 +35,8 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 		int d0, d1, d2, d3;
 		char string[MAX_CAPTION];
 		fio->Fgets(string, MAX_CAPTION);
-		sscanf_s(string, "%d,%d,%d,%d", &d0, &d1, &d2, &d3);
+		if (sscanf_s(string, "%d,%d,%d,%d", &d0, &d1, &d2, &d3) != 4)
+			fatal("AG00.DAT: parse error");
 		for(int i = 0; i < d1; i++) {
 			// 動詞の読み込み
 			fio->Fgets(string, MAX_CAPTION);
