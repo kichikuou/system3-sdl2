@@ -75,8 +75,13 @@ NACT_Sys1::NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const Config& config)
 	//case CRC32_DPS_SG2:
 	case CRC32_DPS_SG3:
 		text_refresh = false;
-		for (int i = 0; i < 7; i++)
-			strcpy(tvar[i], strings.dps_initial_tvars[i]);
+		strcpy(tvar[0], strings.dps_custom.c_str());
+		strcpy(tvar[1], strings.dps_linus.c_str());
+		strcpy(tvar[2], strings.dps_katsumi.c_str());
+		strcpy(tvar[3], strings.dps_yumiko.c_str());
+		strcpy(tvar[4], strings.dps_itsumi.c_str());
+		strcpy(tvar[5], strings.dps_hitomi.c_str());
+		strcpy(tvar[6], strings.dps_mariko.c_str());
 		break;
 	case CRC32_INTRUDER:
 		paint_x = paint_y = map_page = 0;
@@ -419,7 +424,7 @@ top2:
 		// 次のページを追加
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
-		ags->draw_text(strings.next_page);
+		ags->draw_text(strings.next_page.c_str());
 		id[index++] = -1;
 		ags->menu_dest_y += ags->menu_font_size + 2;
 	}
@@ -490,7 +495,7 @@ top:
 		// 戻るを追加
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
-		ags->draw_text(strings.back);
+		ags->draw_text(strings.back.c_str());
 		id[index++] = 0;
 		ags->menu_dest_y += ags->menu_font_size + 2;
 	} else {
@@ -516,14 +521,14 @@ top2:
 		// 戻るを追加
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
-		ags->draw_text(strings.back);
+		ags->draw_text(strings.back.c_str());
 		id[index++] = 0;
 		ags->menu_dest_y += ags->menu_font_size + 2;
 
 		// 次のページを追加
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
-		ags->draw_text(strings.next_page);
+		ags->draw_text(strings.next_page.c_str());
 		id[index++] = -1;
 		ags->menu_dest_y += ags->menu_font_size + 2;
 	}

@@ -25,7 +25,7 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 	  crc32_b(crc32_b),
 	  config(config),
 	  encoding(Encoding::create(get_encoding_name())),
-	  strings(get_language(), encoding.get())
+	  strings(config.get_strings(encoding.get(), get_language() == ENGLISH))
 {
 	platform_initialize();
 

@@ -11,7 +11,7 @@
 #include <string>
 #include <stdio.h>
 #include "../common.h"
-#include "localization.h"
+#include "config.h"
 
 #define RND var[ 0]
 #define D01 var[ 1]
@@ -84,7 +84,11 @@ class AGS;
 class MAKO;
 class MsgSkip;
 class Encoding;
-struct Config;
+
+enum Language {
+	JAPANESE = 0,
+	ENGLISH = 1,
+};
 
 class NACT
 {
