@@ -146,8 +146,14 @@ bool MAKO::check_music()
 
 void MAKO::get_mark(int* mark, int* loop)
 {
-	WARNING("not implemented");
-	*mark = *loop = 0;
+	SDL_LockMutex(fm_mutex);
+	if (fm) {
+		fm->get_mark(mark, loop);
+	} else {
+		*mark = 0;
+		*loop = 0;
+	}
+	SDL_UnlockMutex(fm_mutex);
 }
 
 void MAKO::play_pcm(int page, bool loop)

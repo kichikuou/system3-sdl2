@@ -8,6 +8,7 @@ class MakoFMgen : private MakoFM {
 public:
 	MakoFMgen(int rate, const uint8_t* data, bool free_data);
 	void Process(int16* stream, int len);
+	void get_mark(int* mark, int* loop);
 
 private:
 	void SetReg(RegType type, uint8_t addr, uint8_t val) override;

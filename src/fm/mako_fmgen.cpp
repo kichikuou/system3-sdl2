@@ -60,3 +60,8 @@ void MakoFMgen::Mix(int samples) {
 	out_samples -= samples;
 	output += samples * 2;
 }
+
+void MakoFMgen::get_mark(int* mark, int* loop) {
+	*mark = GetMark();
+	*loop = Looped() ? 1 : 0;
+}

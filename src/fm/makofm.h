@@ -18,6 +18,7 @@ public:
 
 	double GetTime() const { return time_ms; }
 	bool Looped() const { return part_looped == (1 << MAKO_MAXCH) - 1; }
+	uint8_t GetMark() const { return current_mark; }
 
 protected:
 	enum RegType {

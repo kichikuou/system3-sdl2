@@ -75,8 +75,12 @@ bool MAKO::check_music()
 
 void MAKO::get_mark(int* mark, int* loop)
 {
-	WARNING("not implemented");
-	*mark = *loop = 0;
+	if (fm) {
+		fm->get_mark(mark, loop);
+	} else {
+		*mark = 0;
+		*loop = 0;
+	}
 }
 
 void MAKO::play_pcm(int page, bool loop)
