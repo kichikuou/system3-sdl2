@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 
+# Enable CMAKE_MSVC_RUNTIME_LIBRARY, requires CMake >=3.15
+cmake_policy(SET CMP0091 NEW)
+
 project(System3 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 
@@ -7,6 +10,11 @@ set(CMAKE_CXX_STANDARD 14)
 # find it in default search paths.
 if (MSYS)
   list(APPEND CMAKE_LIBRARY_PATH $ENV{MINGW_PREFIX}/$ENV{MINGW_CHOST}/lib)
+endif ()
+
+if (MSVC)
+  # Use statically-linked runtime library.
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif ()
 
 add_subdirectory(../deps/fmgen fmgen)
