@@ -66,7 +66,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
     include(FetchContent)
     FetchContent_Declare(sdl2
-      URL http://libsdl.org/release/SDL2-devel-2.0.14-VC.zip)
+      URL https://libsdl.org/release/SDL2-devel-2.0.16-VC.zip)
     FetchContent_GetProperties(sdl2)
     if (NOT sdl2_POPULATED)
       FetchContent_Populate(sdl2)
