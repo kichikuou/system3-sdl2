@@ -27,6 +27,7 @@ jobs:
         cmake -G "Visual Studio 16 2019" -A ${{ matrix.arch }} ../src/
         cmake --build . --config Release
         cmake --install . --prefix artifacts
+        cp ../COPYING.txt artifacts/
 
     - name: Upload
       uses: actions/upload-artifact@v2
