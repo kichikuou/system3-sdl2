@@ -1,0 +1,47 @@
+; encoding: utf-8
+
+; System3-sdl2 configuration file.
+; Lines beginning with a semicolon are comments.
+
+[config]
+
+; If true, turn off text anti-aliasing.
+noantialias = false
+
+; A folder to store the save files.
+savedir = save
+
+; A font file used to render text. *.ttf and *.otf files are supported.
+fontfile = custom_font.ttf
+
+; A text file that lists audio files to be played instead of CD audio tracks,
+; one per line.
+playlist = bgm/playlist.txt
+
+; Use FM tone generator emulation. If not specified, MIDI sound is used.
+fm = true
+
+; The game ID. No need to specify if you use AliceSoft's original game data.
+; See README.md for possible values.
+game = rance41
+
+; Character encoding of the game data. shift_jis or utf-8.
+encoding = shift_jis
+
+; Text displayed in the window's title bar. If not specified, original Japanese
+; game title will be used.
+title = Rance 4.1 ~Save the Medicine Plant!~
+
+
+; The [string] section allows overriding Japanese text embedded in the game
+; engine. The values below are original Japanese text.
+[string]
+back        = 戻る
+next_page   = 次のページ
+dps_custom  = カスタム
+dps_linus   = リーナス
+dps_katsumi = かつみ
+dps_yumiko  = 由美子
+dps_itsumi  = いつみ
+dps_hitomi  = ひとみ
+dps_mariko  = 真理子

@@ -145,12 +145,11 @@ Here's the list of available game IDs and corresponding titles:
 
 ### Configuration file `system3.ini`
 Every option that can be set via the command line flags can also be configured
-via the `system3.ini` file placed in the game folder. The following is an
-example of `system3.ini` file:
-```
-[config]
-playlist = playlist.txt
-fontfile = customfont.ttf
-fm = yes
-```
-Options specified on the command line override `system3.ini`.
+via the `system3.ini` file placed in the game folder. See
+[`system3.ini.example`](system3.ini.example) for the file format and available
+options. Options specified on the command line override `system3.ini`.
+
+## Localizing a game
+System3-sdl2 supports localization, while the original System1-3 only supported
+Japanese. If you are interested in translating games, check out
+[Sys0Decompiler](https://alicesoft.fandom.com/wiki/User_blog:RottenBlock/System_Programming_Resources).
