@@ -12,10 +12,6 @@
 #include "nact.h"
 #include <SDL_ttf.h>
 
-// フェード処理
-static const int fade_x[16] = {0, 2, 2, 0, 1, 3, 3, 1, 1, 3, 3, 1, 0, 2, 2, 0};
-static const int fade_y[16] = {0, 2, 0, 2, 1, 3, 1, 3, 0, 2, 0, 2, 1, 3, 1, 3};
-
 #define MAX_CG 10000
 
 static inline uint32 SETPALETTE256(uint32 R, uint32 G, uint32 B)
@@ -89,8 +85,8 @@ private:
 	uint32 screen_palette[256];
 	uint8 gaiji[188][32];
 
-	bool fader;	// フェードの状態
-	uint32 fader_screen[640 * 480];
+	int fade_level = 0;  // 0-255
+	int fade_color = 0;  // 0: black, 255: white
 
 public:
 	AGS(NACT* parent, const Config& config);
@@ -106,11 +102,8 @@ public:
 	uint8 get_pixel(int dest, int x, int y);
 	void set_pixel(int dest, int x, int y, uint8 color);
 
-	void fade_start();
-	void fade_end();
-	void fade_out(int depth, bool white);
-	void fade_in(int depth);
-	bool now_fade() { return fader; }
+	void fade_out(int duration_ms, bool white);
+	void fade_in(int duration_ms);
 
 	void copy(int sx, int sy, int ex, int ey, int dx, int dy);
 	void gcopy(int gsc, int gde, int glx, int gly, int gsw);

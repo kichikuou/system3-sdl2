@@ -15,7 +15,7 @@ void AGS::clear_text_window(int index, bool erase)
 	int ey = text_w[index - 1].ey;
 
 	if(erase) {
-		if(text_w[index - 1].frame && fader) {
+		if(text_w[index - 1].frame && fade_level) {
 			draw_window(sx - 8, sy - 8, ex + 8, ey + 8, true, text_frame_color, text_back_color);
 		} else {
 			box_fill(0, sx, sy, ex, ey, text_back_color);
@@ -95,7 +95,7 @@ void AGS::open_text_window(int index, bool erase)
 		text_w[index - 1].screen_height = height;
 
 		for(int y = 0; y < height && y + sy < 480; y++) {
-			uint32* scr = fader ? &fader_screen[640 * (y + sy) + sx] : surface_line(hBmpDest, y + sy) + sx;
+			uint32* scr = surface_line(hBmpDest, y + sy) + sx;
 			for(int x = 0; x < width && x + sx < 640; x++) {
 				uint32 col = vram[0][y + sy][x + sx];
 				if(!(col & 0x80000000)) {
@@ -157,7 +157,7 @@ void AGS::close_text_window(int index, bool update)
 		text_w[index - 1].window_height = height;
 
 		for(int y = 0; y < height && y + sy < 480; y++) {
-			uint32* scr = fader ? &fader_screen[640 * (y + sy) + sx] : surface_line(hBmpDest, y + sy) + sx;
+			uint32* scr = surface_line(hBmpDest, y + sy) + sx;
 			for(int x = 0; x < width && x + sx < 640; x++) {
 				uint32 col = vram[0][y + sy][x + sx];
 				if(!(col & 0x80000000)) {
@@ -230,7 +230,7 @@ void AGS::open_menu_window(int index)
 		menu_w[index - 1].screen_height = wheight;
 
 		for(int y = 0; y < wheight && y + wsy < 480; y++) {
-			uint32* scr = fader ? &fader_screen[640 * (y + wsy) + wsx] : surface_line(hBmpDest, y + wsy) + wsx;
+			uint32* scr = surface_line(hBmpDest, y + wsy) + wsx;
 			for(int x = 0; x < wwidth && x + wsx < 640; x++) {
 				uint32 col = vram[0][y + wsy][x + wsx];
 				if(!(col & 0x80000000)) {

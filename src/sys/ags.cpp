@@ -330,10 +330,6 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	// マウスカーソル
 	cursor_color = 15;
 	cursor_index = 0;
-
-	// フェード状態
-	fader = false;
-	memset(fader_screen, 0, sizeof(fader_screen));
 }
 
 AGS::~AGS()
@@ -405,51 +401,36 @@ void AGS::set_pixel(int dest, int x, int y, uint8 color)
 	vram[dest][y][x] = color;
 }
 
-void AGS::fade_start()
+void AGS::fade_out(int duration_ms, bool white)
 {
-	memcpy(fader_screen, hBmpDest->pixels, sizeof(fader_screen));
-}
+	if (fade_level)
+		return;
 
-void AGS::fade_end()
-{
-	memcpy(hBmpDest->pixels, fader_screen, sizeof(fader_screen));
-}
+	fade_color = white ? 255 : 0;
 
-void AGS::fade_out(int depth, bool white)
-{
-	// 通常画面 → 白黒画面
-	int fx = fade_x[depth];
-	int fy = fade_y[depth];
-	fader = true;
-
-	for(int y = 0; y < 480; y += 4) {
-		uint32* dest = surface_line(hBmpDest, y + fy) + fx;
-		for(int x = 0; x < 640; x += 4) {
-			dest[x] = white ? 0xffffff : 0;
-		}
+	Uint32 dwStart = SDL_GetTicks();
+	while (fade_level < 255) {
+		nact->sys_sleep(16);
+		int t = SDL_GetTicks() - dwStart;
+		fade_level = t >= duration_ms ? 255 : t * 255 / duration_ms;
+		dirty = true;
 	}
-
-	// 画面更新
-	invalidate_screen(0, 0, 640, screen_height);
+	update_screen();
 }
 
-void AGS::fade_in(int depth)
+void AGS::fade_in(int duration_ms)
 {
-	// 白黒画面 → 通常画面
-	int fx = fade_x[depth];
-	int fy = fade_y[depth];
-	fader = (depth == 15) ? false : true;
+	if (fade_level == 0)
+		return;
 
-	for(int y = 0; y < 480; y += 4) {
-		uint32* src = &fader_screen[640 * (y + fy) + fx];
-		uint32* dest = surface_line(hBmpDest, y + fy) + fx;
-		for(int x = 0; x < 640; x += 4) {
-			dest[x] = src[x];
-		}
+	Uint32 dwStart = SDL_GetTicks();
+	while (fade_level > 0) {
+		nact->sys_sleep(16);
+		int t = SDL_GetTicks() - dwStart;
+		fade_level = t >= duration_ms ? 0 : (duration_ms - t) * 255 / duration_ms;
+		dirty = true;
 	}
-
-	// 画面更新
-	invalidate_screen(0, 0, 640, screen_height);
+	update_screen();
 }
 
 void AGS::flush_screen(bool update)
@@ -473,36 +454,20 @@ void AGS::flush_screen(bool update)
 
 void AGS::draw_screen(int sx, int sy, int width, int height)
 {
-	if(fader) {
-		for(int y = sy; y < (sy + height) && y < 480; y++) {
-			uint32* src = vram[0][y];
-			uint32* dest = &fader_screen[640 * y];
-			for(int x = sx; x < (sx + width) && x < 640; x++) {
-				uint32 a=src[x];
-				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
-					// あゆみちゃん物語 フルカラー実写版
-					dest[x] = src[x] & 0xffffff;
-				} else {
-					dest[x] = screen_palette[src[x] & 0xff];
-				}
+	for(int y = sy; y < (sy + height) && y < 480; y++) {
+		uint32* src = vram[0][y];
+		uint32* dest = surface_line(hBmpDest, y);
+		for(int x = sx; x < (sx + width) && x < 640; x++) {
+			uint32 a=src[x];
+			if (nact->sys_ver == 3 && src[x] & 0x80000000) {
+				// あゆみちゃん物語 フルカラー実写版
+				dest[x] = src[x] & 0xffffff;
+			} else {
+				dest[x] = screen_palette[src[x] & 0xff];
 			}
 		}
-	} else {
-		for(int y = sy; y < (sy + height) && y < 480; y++) {
-			uint32* src = vram[0][y];
-			uint32* dest = surface_line(hBmpDest, y);
-			for(int x = sx; x < (sx + width) && x < 640; x++) {
-				uint32 a=src[x];
-				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
-					// あゆみちゃん物語 フルカラー実写版
-					dest[x] = src[x] & 0xffffff;
-				} else {
-					dest[x] = screen_palette[src[x] & 0xff];
-				}
-			}
-		}
-		invalidate_screen(sx, sy, width, height);
 	}
+	invalidate_screen(sx, sy, width, height);
 }
 
 void AGS::invalidate_screen(int sx, int sy, int width, int height)
@@ -528,6 +493,12 @@ void AGS::update_screen()
 		return;
 	SDL_RenderClear(sdlRenderer);
 	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+	if (fade_level) {
+		SDL_SetRenderDrawBlendMode(sdlRenderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(sdlRenderer, fade_color, fade_color, fade_color, fade_level);
+		SDL_RenderFillRect(sdlRenderer, NULL);
+		SDL_SetRenderDrawBlendMode(sdlRenderer, SDL_BLENDMODE_NONE);
+	}
 	SDL_RenderPresent(sdlRenderer);
 	dirty = false;
 }

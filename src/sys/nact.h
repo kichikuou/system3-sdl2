@@ -227,7 +227,6 @@ protected:
 	int menu_select(int num_items);
 	void wait_after_open_menu();
 
-	void sys_sleep(int ms);
 	uint8 get_key();
 	void get_cursor(int* x, int* y);
 	void set_cursor(int x, int y);
@@ -253,6 +252,7 @@ protected:
 
 public:
 	bool mainloop();
+	void sys_sleep(int ms);
 
 	int get_screen_height();
 

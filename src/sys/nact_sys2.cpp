@@ -1188,29 +1188,11 @@ void NACT_Sys2::cmd_y()
 			break;
 		case 40:
 		case 42:
-			if(ags->now_fade()) {
-				Uint32 dwStart = SDL_GetTicks();
-				for(int i = 0; i < 16; i++) {
-					ags->fade_in(i);
-					int32 ms = dwStart + param * 1000 / 60 * i - SDL_GetTicks();
-					if (ms > 0)
-						sys_sleep(ms);
-				}
-				ags->fade_end();
-			}
+			ags->fade_in(param * 16 * 1000 / 60);
 			break;
 		case 41:
 		case 43:
-			if(!ags->now_fade()) {
-				ags->fade_start();
-				Uint32 dwStart = SDL_GetTicks();
-				for(int i = 0; i < 16; i++) {
-					ags->fade_out(i, (cmd == 41) ? false : true);
-					int32 ms = dwStart + param * 1000 / 60 * i - SDL_GetTicks();
-					if (ms > 0)
-						sys_sleep(ms);
-				}
-			}
+			ags->fade_out(param * 16 * 1000 / 60, cmd == 43);
 			break;
 		case 221:
 		case 222:
