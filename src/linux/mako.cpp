@@ -69,16 +69,19 @@ MAKO::~MAKO()
 
 bool MAKO::load_playlist(const char* path)
 {
-	FILE* fp = fopen(path, "rt");
+	FILE* fp = fopen(path, "r");
 	if (!fp) {
 		WARNING("Cannot open %s", path);
 		return false;
 	}
 	char buf[256];
 	while (fgets(buf, sizeof(buf) - 1, fp)) {
-		char *p = &buf[strlen(buf) - 1];
-		if (*p == '\n')
-			*p = '\0';
+		for (char *p = buf; *p; p++) {
+			if (*p == '\\')
+				*p = '/';
+			else if (*p == '\r' || *p == '\n')
+				*p = '\0';
+		}
 		playlist.push_back(buf[0] ? strdup(buf) : NULL);
 	}
 	fclose(fp);

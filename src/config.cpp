@@ -26,6 +26,15 @@ bool to_bool(const char *s, int lineno)
 	return true;
 }
 
+std::string normalize_path(std::string s)
+{
+	for (char& c : s) {
+		if (c == '\\')
+			c = '/';
+	}
+	return s;
+}
+
 bool is_empty_line(const char *s)
 {
 	for (; *s; s++) {
@@ -132,11 +141,11 @@ void Config::load_ini()
 			if (!strcasecmp(key, "noantialias"))
 				no_antialias = to_bool(val, lineno);
 			else if (!strcasecmp(key, "savedir"))
-				save_dir = val;
+				save_dir = normalize_path(val);
 			else if (!strcasecmp(key, "fontfile"))
-				font_file = val;
+				font_file = normalize_path(val);
 			else if (!strcasecmp(key, "playlist"))
-				playlist = val;
+				playlist = normalize_path(val);
 			else if (!strcasecmp(key, "fm"))
 				use_fm = to_bool(val, lineno);
 			else if (!strcasecmp(key, "game"))
