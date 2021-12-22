@@ -51,7 +51,7 @@ class GameActivity : SDLActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        gameRoot = File(intent.getStringExtra(EXTRA_GAME_ROOT))
+        gameRoot = File(intent.getStringExtra(EXTRA_GAME_ROOT)!!)
         cdda = CddaPlayer(File(gameRoot, Launcher.PLAYLIST_FILE))
         prefs = getSharedPreferences("system3", Context.MODE_PRIVATE)
         useFM = prefs.getBoolean(PREF_USE_FM, useFM)
@@ -71,13 +71,13 @@ class GameActivity : SDLActivity() {
     }
 
     override fun getLibraries(): Array<String> {
-        return arrayOf("hidapi", "SDL2", "system3")
+        return arrayOf("SDL2", "system3")
     }
 
     override fun getArguments(): Array<String> {
         val args = arrayListOf(
-                "-gamedir", intent.getStringExtra(EXTRA_GAME_ROOT),
-                "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR) + "/@")
+                "-gamedir", intent.getStringExtra(EXTRA_GAME_ROOT)!!,
+                "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR)!! + "/@")
         if (useFM)
             args.add("-fm")
         return args.toTypedArray()
@@ -148,7 +148,7 @@ class GameActivity : SDLActivity() {
         }
     }
 
-    override fun onContextMenuClosed(menu: Menu?) {
+    override fun onContextMenuClosed(menu: Menu) {
         super.onContextMenuClosed(menu)
         menuShown = false
     }

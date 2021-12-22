@@ -9,13 +9,13 @@ else {
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
     defaultConfig {
         if (buildAsApplication) {
             applicationId "io.github.kichikuou.system3"
         }
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 31
         versionCode 6
         versionName "0.7.0"
         externalNativeBuild {
