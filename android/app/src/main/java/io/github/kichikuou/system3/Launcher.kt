@@ -110,7 +110,7 @@ class Launcher private constructor(private val rootDir: File) {
     private fun updateGameList() {
         var saveDirFound = false
         games.clear()
-        for (path in rootDir.listFiles()) {
+        for (path in rootDir.listFiles() ?: emptyArray()) {
             if (!path.isDirectory)
                 continue
             if (path.name == SAVE_DIR) {
@@ -148,7 +148,7 @@ class Launcher private constructor(private val rootDir: File) {
             for (path in saveDir.walkTopDown()) {
                 if (path.isDirectory)
                     continue
-                val pathInZip = path.relativeTo(saveDir.parentFile).path
+                val pathInZip = path.relativeTo(saveDir.parentFile!!).path
                 Log.i("exportSaveData", pathInZip)
                 zip.putNextEntry(ZipEntry(pathInZip))
                 path.inputStream().buffered().use {
@@ -167,7 +167,7 @@ class Launcher private constructor(private val rootDir: File) {
                     return@forEachZipEntry
                 Log.i("importSaveData", zipEntry.name)
                 val path = File(rootDir, zipEntry.name)
-                path.parentFile.mkdirs()
+                path.parentFile?.mkdirs()
                 FileOutputStream(path).buffered().use {
                     zip.copyTo(it)
                 }
