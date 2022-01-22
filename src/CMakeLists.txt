@@ -66,7 +66,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
     include(FetchContent)
     FetchContent_Declare(sdl2
-      URL https://libsdl.org/release/SDL2-devel-2.0.16-VC.zip)
+      URL https://libsdl.org/release/SDL2-devel-2.0.20-VC.zip
+      URL_HASH SHA1=4824400cc7ee56cc05061734fa04be081241b67c)
     FetchContent_GetProperties(sdl2)
     if (NOT sdl2_POPULATED)
       FetchContent_Populate(sdl2)
@@ -81,7 +82,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     target_link_libraries(SDL2 INTERFACE ${SDL2_LIB_DIR}/SDL2main.lib)
 
     FetchContent_Declare(sdl2_ttf
-      URL http://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.15-VC.zip)
+      URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.0.18/SDL2_ttf-devel-2.0.18-VC.zip
+      URL_HASH SHA1=a421d47e9336ab722eac4ba107fab7f7b080eb4e)
     FetchContent_GetProperties(sdl2_ttf)
     if (NOT sdl2_ttf_POPULATED)
       FetchContent_Populate(sdl2_ttf)
@@ -105,8 +107,6 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     install(FILES
       ${SDL2_LIB_DIR}/SDL2.dll
       ${SDL2TTF_LIB_DIR}/SDL2_ttf.dll
-      ${SDL2TTF_LIB_DIR}/libfreetype-6.dll
-      ${SDL2TTF_LIB_DIR}/zlib1.dll
       DESTINATION .)
     install(TARGETS system3 RUNTIME DESTINATION .)
   else()
