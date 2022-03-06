@@ -6,32 +6,21 @@ jobs:
     runs-on: windows-2019
     strategy:
       matrix:
-        mingw: ["MINGW32", "MINGW64"]
-        include:
-          - mingw: "MINGW32"
-            package: "mingw-w64-i686"
-          - mingw: "MINGW64"
-            package: "mingw-w64-x86_64"
+        sys: ["MINGW32", "MINGW64"]
     defaults:
       run:
-        shell: bash.exe --login -eo pipefail "{0}"
-    env:
-      MSYSTEM: ${{ matrix.mingw }}
-      CHERE_INVOKING: 1
-    name: MSYS2 ${{ matrix.mingw }}
+        shell: msys2 {0}
+    name: MSYS2 ${{ matrix.sys }}
     steps:
 
-    - name: Set up shell
-      run: echo "C:\msys64\usr\bin\" >> $env:GITHUB_PATH
-      shell: pwsh
-
-    - name: Print system version
-      run: |
-        uname
-        echo PATH: $PATH
-
-    - name: Install Deps
-      run: pacman -S --noconfirm ${{ matrix.package }}-SDL2 ${{ matrix.package }}-SDL2_ttf
+    - name: Set up MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.sys }}
+        release: false
+        pacboy: >-
+          SDL2:p
+          SDL2_ttf:p
 
     - name: Checkout
       uses: actions/checkout@v2
