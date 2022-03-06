@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
       matrix:
         sys: ["MINGW32", "MINGW64"]
@@ -17,8 +17,10 @@ jobs:
       uses: msys2/setup-msys2@v2
       with:
         msystem: ${{ matrix.sys }}
-        release: false
         pacboy: >-
+          gcc:p
+          cmake:p
+          ninja:p
           SDL2:p
           SDL2_ttf:p
 
@@ -31,5 +33,5 @@ jobs:
       run: |
         mkdir -p out/debug
         cd out/debug
-        cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
-        make
+        cmake -G"Ninja" -DCMAKE_BUILD_TYPE=Debug ../../src/
+        ninja
