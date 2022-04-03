@@ -1353,7 +1353,7 @@ void NACT_Sys3::cmd_y()
 			break;
 		case 250:
 #if 0
-			if(FILEIO::GetRootPath()[1] == ':') {
+			if(FILEIO::GetRootPath()[1] == ':') {
 				_TCHAR root_path[4];
 				root_path[0] = FILEIO::GetRootPath()[0];
 				root_path[1] = ':';
