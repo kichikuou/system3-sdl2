@@ -234,7 +234,7 @@ class Launcher private constructor(private val rootDir: File) {
         fun maybeAdd(path: String) {
             val name = File(path).name
 
-            if (name.toLowerCase(Locale.US) == "adisk.dat") {
+            if (name.lowercase(Locale.US) == "adisk.dat") {
                 hasAdisk = true
             }
             audioRegex.matchEntire(name)?.let {
