@@ -8,6 +8,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <algorithm>
 #include <string.h>
 #include "dri.h"
 #include "crc32.h"
