@@ -139,7 +139,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     install(TARGETS system3 RUNTIME DESTINATION bin)
     install(DIRECTORY ../resources/
       DESTINATION share/system3
-      FILES_MATCHING PATTERN *.MDA)
+      FILES_MATCHING PATTERN *.MDA PATTERN *.ttf)
   endif()
 endif()
 
