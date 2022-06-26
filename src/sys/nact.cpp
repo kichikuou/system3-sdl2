@@ -137,6 +137,12 @@ bool NACT::mainloop()
 	return restart_after_terminate;
 }
 
+void NACT::quit(bool restart)
+{
+	terminate = true;
+	restart_after_terminate = restart;
+}
+
 // コマンドパーサ
 
 EMSCRIPTEN_KEEPALIVE  // Prevent inlining, because this function is listed in ASYNCIFY_ADD
@@ -150,7 +156,7 @@ void NACT::execute()
 	// 致命的なエラー発生 or 正常終了
 	if(fatal_error) {
 		if(!post_quit) {
-			terminate = true;
+			quit(false);
 		}
 		post_quit = true;
 		return;

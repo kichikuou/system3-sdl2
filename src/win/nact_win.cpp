@@ -175,10 +175,10 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			save_screenshot(ags);
 			break;
 		case ID_RESTART:
-			terminate = restart_after_terminate = true;
+			quit(true);
 			break;
 		case ID_EXIT:
-			terminate = true;
+			quit(false);
 			break;
 		case ID_SCREEN_WINDOW:
 			SDL_SetWindowFullscreen(g_window, 0);

@@ -15,6 +15,7 @@
 #endif
 
 SDL_Window* g_window;
+NACT* g_nact;
 
 int main(int argc, char *argv[])
 {
@@ -36,13 +37,13 @@ int main(int argc, char *argv[])
 	g_window = SDL_CreateWindow("Scenario Decoder SYSTEM3", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 
 	// system3 初期化
-	NACT* nact = NACT::create(config);
+	g_nact = NACT::create(config);
 
 	if (!config.save_dir.empty()) {
 		std::string path = config.save_dir;
 		if (path[path.size() - 1] == '@') {
 			path.pop_back();
-			const char* gid = nact->get_game_id();
+			const char* gid = g_nact->get_game_id();
 			if (gid) {
 				path += gid;
 #ifdef WIN32
@@ -55,17 +56,17 @@ int main(int argc, char *argv[])
 		FILEIO::SetSaveDir(path);
 	}
 
-	const char* title = nact->get_title();
+	const char* title = g_nact->get_title();
 	if (title) {
 		char buf[128];
-		sprintf_s(buf, 128, "Scenario Decoder SYSTEM%d: %s", nact->sys_ver, title);
+		sprintf_s(buf, 128, "Scenario Decoder SYSTEM%d: %s", g_nact->sys_ver, title);
 #ifdef __EMSCRIPTEN__
 		EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, buf);
 #else
 		SDL_SetWindowTitle(g_window, buf);
 #endif
 	} else {
-		WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", nact->crc32_a, nact->crc32_b);
+		WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", g_nact->crc32_a, g_nact->crc32_b);
 	}
 
 #ifdef __EMSCRIPTEN__
@@ -77,10 +78,10 @@ int main(int argc, char *argv[])
 
 	bool restart = true;
 	while (restart) {
-		restart = nact->mainloop();
-		delete nact;
+		restart = g_nact->mainloop();
+		delete g_nact;
 		if (restart)
-			nact = NACT::create(config);
+			g_nact = NACT::create(config);
 	}
 
 	SDL_DestroyWindow(g_window);
@@ -88,3 +89,14 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+#ifdef __EMSCRIPTEN__
+
+extern "C"
+EMSCRIPTEN_KEEPALIVE
+void sys_restart()
+{
+	g_nact->quit(true);
+}
+
+#endif

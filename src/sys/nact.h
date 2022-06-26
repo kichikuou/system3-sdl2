@@ -253,6 +253,7 @@ protected:
 public:
 	bool mainloop();
 	void sys_sleep(int ms);
+	void quit(bool restart);
 
 	int get_screen_height();
 
