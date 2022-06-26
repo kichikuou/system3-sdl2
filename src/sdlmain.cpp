@@ -15,6 +15,7 @@
 #endif
 
 SDL_Window* g_window;
+SDL_Renderer* g_renderer;
 NACT* g_nact;
 
 int main(int argc, char *argv[])
@@ -35,6 +36,7 @@ int main(int argc, char *argv[])
 	Uint32 flags = SDL_WINDOW_RESIZABLE;
 #endif
 	g_window = SDL_CreateWindow("Scenario Decoder SYSTEM3", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
+	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 
 	// system3 初期化
 	g_nact = NACT::create(config);
@@ -84,6 +86,7 @@ int main(int argc, char *argv[])
 			g_nact = NACT::create(config);
 	}
 
+	SDL_DestroyRenderer(g_renderer);
 	SDL_DestroyWindow(g_window);
 	SDL_Quit();
 

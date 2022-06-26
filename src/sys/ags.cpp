@@ -11,6 +11,7 @@
 #include "../fileio.h"
 
 extern SDL_Window* g_window;
+extern SDL_Renderer* g_renderer;
 static SDL_Surface* display_surface;
 
 #define SET_TEXT(n, x1, y1, x2, y2, f) { \
@@ -37,9 +38,8 @@ static SDL_Surface* display_surface;
 
 AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 {
-	sdlRenderer = SDL_CreateRenderer(g_window, -1, 0);
-	SDL_RenderSetLogicalSize(sdlRenderer, 640, 400);
-	sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, 640, 400); // TOOD: pixelformat?
+	SDL_RenderSetLogicalSize(g_renderer, 640, 400);
+	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, 640, 400); // TOOD: pixelformat?
 
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
 	for(int i = 0; i < 3; i++) {
@@ -375,7 +375,6 @@ AGS::~AGS()
 	SDL_FreeSurface(hBmpDest);
 
 	SDL_DestroyTexture(sdlTexture);
-	SDL_DestroyRenderer(sdlRenderer);
 }
 
 void AGS::set_palette(int index, int r, int g, int b)
@@ -491,15 +490,15 @@ void AGS::update_screen()
 {
 	if (!dirty)
 		return;
-	SDL_RenderClear(sdlRenderer);
-	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+	SDL_RenderClear(g_renderer);
+	SDL_RenderCopy(g_renderer, sdlTexture, NULL, NULL);
 	if (fade_level) {
-		SDL_SetRenderDrawBlendMode(sdlRenderer, SDL_BLENDMODE_BLEND);
-		SDL_SetRenderDrawColor(sdlRenderer, fade_color, fade_color, fade_color, fade_level);
-		SDL_RenderFillRect(sdlRenderer, NULL);
-		SDL_SetRenderDrawBlendMode(sdlRenderer, SDL_BLENDMODE_NONE);
+		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+		SDL_SetRenderDrawColor(g_renderer, fade_color, fade_color, fade_color, fade_level);
+		SDL_RenderFillRect(g_renderer, NULL);
+		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
 	}
-	SDL_RenderPresent(sdlRenderer);
+	SDL_RenderPresent(g_renderer);
 	dirty = false;
 }
 

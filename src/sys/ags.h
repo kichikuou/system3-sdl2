@@ -39,7 +39,6 @@ class AGS
 protected:
 	NACT* nact;
 private:
-	SDL_Renderer* sdlRenderer;
 	SDL_Texture* sdlTexture;
 
 	// Surface
