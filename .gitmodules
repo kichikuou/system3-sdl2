@@ -1,3 +1,3 @@
-[submodule "deps/fmgen"]
-	path = deps/fmgen
-	url = https://github.com/kichikuou/fmgen.git
+[submodule "deps/ymfm"]
+	path = deps/ymfm
+	url = https://github.com/aaronsgiles/ymfm.git

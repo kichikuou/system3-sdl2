@@ -6,13 +6,15 @@
 
 #include <windows.h>
 #undef ERROR
+#undef min
+#undef max
 #include <memory>
 #include <string>
 #include <SDL.h>
 #include <SDL_syswm.h>
 #include "mako.h"
 #include "mako_midi.h"
-#include "fm/mako_fmgen.h"
+#include "fm/mako_ymfm.h"
 #include "../config.h"
 #include "dri.h"
 #include "crc32.h"
@@ -232,11 +234,11 @@ private:
 Music* music;
 uint8* wav_buffer;
 SDL_mutex* fm_mutex;
-std::unique_ptr<MakoFMgen> fm;
+std::unique_ptr<MakoYmfm> fm;
 
 void audio_callback(void*, Uint8* stream, int len) {
 	SDL_LockMutex(fm_mutex);
-	fm->Process(reinterpret_cast<int16*>(stream), len/ 4);
+	fm->Process(reinterpret_cast<int16_t*>(stream), len/ 4);
 	SDL_UnlockMutex(fm_mutex);
 }
 
@@ -332,7 +334,7 @@ void MAKO::play_music(int page)
 			return;
 
 		SDL_LockMutex(fm_mutex);
-		fm = std::make_unique<MakoFMgen>(SAMPLE_RATE, data, true);
+		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, data, true);
 		SDL_UnlockMutex(fm_mutex);
 		SDL_PauseAudio(0);
 	} else {

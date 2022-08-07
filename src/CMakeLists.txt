@@ -17,7 +17,12 @@ if (MSVC)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif ()
 
-add_subdirectory(../deps/fmgen fmgen)
+add_library(ymfm
+  ../deps/ymfm/src/ymfm_opn.cpp
+  ../deps/ymfm/src/ymfm_adpcm.cpp
+  ../deps/ymfm/src/ymfm_ssg.cpp)
+target_include_directories(ymfm PUBLIC ../deps/ymfm/src)
+
 
 if (ANDROID)
   add_library(system3 SHARED)
@@ -27,7 +32,7 @@ if (ANDROID)
     android/mako.cpp
     sys/mako_midi.cpp
     )
-  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf fmgen)
+  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf ymfm)
 
 elseif (EMSCRIPTEN)
   add_executable(system3)
@@ -39,7 +44,7 @@ elseif (EMSCRIPTEN)
   set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
   target_compile_options(system3 PRIVATE ${LIBS})
   target_link_options(system3 PRIVATE ${LIBS})
-  target_link_libraries(system3 PRIVATE idbfs.js fmgen)
+  target_link_libraries(system3 PRIVATE idbfs.js ymfm)
 
   # Without optimizations, Asyncify generates very large code.
   list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG "-O1")
@@ -55,7 +60,7 @@ elseif (EMSCRIPTEN)
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
   add_executable(system3)
-  target_link_libraries(system3 PRIVATE fmgen)
+  target_link_libraries(system3 PRIVATE ymfm)
 
   if (MSVC)
     if (CMAKE_VS_PLATFORM_NAME STREQUAL "Win32")
@@ -151,7 +156,7 @@ target_sources(system3 PRIVATE
   encoding.cpp
   texthook.cpp
   fm/makofm.cpp
-  fm/mako_fmgen.cpp
+  fm/mako_ymfm.cpp
   sys/ags.cpp
   sys/ags_bmp.cpp
   sys/ags_cursor.cpp

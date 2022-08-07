@@ -10,7 +10,7 @@
 
 #include "mako.h"
 #include "mako_midi.h"
-#include "fm/mako_fmgen.h"
+#include "fm/mako_ymfm.h"
 #include "../config.h"
 #include "dri.h"
 
@@ -27,11 +27,11 @@ std::vector<uint8> smf;
 Mix_Music *mix_music;
 Mix_Chunk *mix_chunk;
 SDL_mutex* fm_mutex;
-std::unique_ptr<MakoFMgen> fm;
+std::unique_ptr<MakoYmfm> fm;
 
 void FMHook(void *udata, Uint8 *stream, int len) {
 	SDL_LockMutex(fm_mutex);
-	fm->Process(reinterpret_cast<int16*>(stream), len / 4);
+	fm->Process(reinterpret_cast<int16_t*>(stream), len / 4);
 	SDL_UnlockMutex(fm_mutex);
 }
 
@@ -119,7 +119,7 @@ void MAKO::play_music(int page)
 			fm_mutex = SDL_CreateMutex();
 
 		SDL_LockMutex(fm_mutex);
-		fm = std::make_unique<MakoFMgen>(SAMPLE_RATE, data, true);
+		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, data, true);
 		Mix_HookMusic(&FMHook, this);
 		SDL_UnlockMutex(fm_mutex);
 	} else {

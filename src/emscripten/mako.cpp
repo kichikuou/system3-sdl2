@@ -6,13 +6,13 @@
 #include <memory>
 #include <emscripten.h>
 #include "mako.h"
-#include "fm/mako_fmgen.h"
+#include "fm/mako_ymfm.h"
 #include "dri.h"
 
 namespace {
 
 MAKO *g_mako;
-std::unique_ptr<MakoFMgen> fm;
+std::unique_ptr<MakoYmfm> fm;
 
 } // namespace
 
@@ -48,7 +48,7 @@ void MAKO::play_music(int page)
 		if (!data)
 			return;
 		int rate = EM_ASM_INT({ return xsystem35.audio.enable_audio_hook(); });
-		fm = std::make_unique<MakoFMgen>(rate, data, true);
+		fm = std::make_unique<MakoYmfm>(rate, data, true);
 	}
 
 	current_music = page;
@@ -101,7 +101,7 @@ EMSCRIPTEN_KEEPALIVE
 bool audio_callback(Uint8 *stream, int len) {
 	if (!fm)
 		return false;
-	fm->Process(reinterpret_cast<int16*>(stream), len);
+	fm->Process(reinterpret_cast<int16_t*>(stream), len);
 	return true;
 }
 
