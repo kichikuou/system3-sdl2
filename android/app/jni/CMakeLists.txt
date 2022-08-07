@@ -5,8 +5,8 @@ project(GAME)
 include(FetchContent)
 FetchContent_Declare(
   SDL
-  URL https://libsdl.org/release/SDL2-2.0.20.tar.gz
-  URL_HASH SHA1=18ce006cbf07502f48abfedc088c14404091f3d3
+  URL https://github.com/libsdl-org/SDL/releases/download/release-2.0.22/SDL2-2.0.22.tar.gz
+  URL_HASH SHA1=66dd460befa7f4c4664b7591228a3951bbbb19a7
 )
 FetchContent_Declare(
   SDL_ttf
