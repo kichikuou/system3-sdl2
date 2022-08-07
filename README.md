@@ -48,7 +48,7 @@ This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/al
     $ git submodule update --init
     $ mkdir -p out/wasm
     $ cd out/wasm
-    $ emcmake cmake -DCMAKE_BUILD_TYPE=MinSizeRel ../../src/
+    $ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../../src/
     $ make
 
 To use the Emscripten build, check out https://github.com/kichikuou/web and copy `out/wasm/system3.*` into its `docs` directory.

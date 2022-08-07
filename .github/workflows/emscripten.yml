@@ -31,7 +31,7 @@ jobs:
       run: |
         mkdir -p out/wasm
         cd out/wasm
-        emcmake cmake -DCMAKE_BUILD_TYPE=MinSizeRel ../../src/
+        emcmake cmake -DCMAKE_BUILD_TYPE=Release ../../src/
         make
         mkdir system3
         mv system3.* system3/
