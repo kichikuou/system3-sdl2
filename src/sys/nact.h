@@ -268,6 +268,7 @@ public:
 	void set_skip_menu_state(bool enabled, bool checked);
 
 	bool text_wait_enb;	// テキスト表示のウェイト有効／無効
+	bool mouse_move_enabled = true;
 	int sys_ver;
 	uint32 crc32_a;		// ADISK
 	uint32 crc32_b;		// BDISK for D.P.S -SG- and Super D.P.S

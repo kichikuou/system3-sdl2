@@ -22,12 +22,13 @@
 #define ID_SCREENSHOT                   40000
 #define ID_RESTART                      40001
 #define ID_EXIT                         40002
-#define ID_SCREEN_WINDOW                40003
-#define ID_SCREEN_FULL                  40004
-#define ID_SOUND_FM                     40005
-#define ID_SOUND_MIDI                   40006
-#define ID_SOUND_CD                     40007
-#define ID_TEXT_SKIP                    40008
-#define ID_TEXT_WAIT                    40009
+#define ID_SCREEN_WINDOW                40010
+#define ID_SCREEN_FULL                  40011
+#define ID_OPTION_MOUSE_MOVE            40020
+#define ID_OPTION_FM                    40021
+#define ID_OPTION_MIDI                  40022
+#define ID_OPTION_CD                    40023
+#define ID_TEXT_SKIP                    40030
+#define ID_TEXT_WAIT                    40031
 
 #endif // _RESOURCE_H_

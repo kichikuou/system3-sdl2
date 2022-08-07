@@ -98,11 +98,13 @@ BEGIN
         MENUITEM "Window",                      ID_SCREEN_WINDOW
         MENUITEM "Fullscreen",                  ID_SCREEN_FULL
     END
-    POPUP "Sound"
+    POPUP "Option"
     BEGIN
-        MENUITEM "FM Sound",                    ID_SOUND_FM
-        MENUITEM "MIDI Sound",                  ID_SOUND_MIDI
-        MENUITEM "CD Audio",                    ID_SOUND_CD
+        MENUITEM "Mouse Movement",              ID_OPTION_MOUSE_MOVE
+        MENUITEM SEPARATOR
+        MENUITEM "FM Sound",                    ID_OPTION_FM
+        MENUITEM "MIDI Sound",                  ID_OPTION_MIDI
+        MENUITEM "CD Audio",                    ID_OPTION_CD
     END
     POPUP "Message"
     BEGIN
@@ -152,11 +154,13 @@ BEGIN
         MENUITEM "ウィンドウ",                  ID_SCREEN_WINDOW
         MENUITEM "フルスクリーン",              ID_SCREEN_FULL
     END
-    POPUP "サウンド"
+    POPUP "オプション"
     BEGIN
-        MENUITEM "FM音源",                      ID_SOUND_FM
-        MENUITEM "MIDI音源",                    ID_SOUND_MIDI
-        MENUITEM "CD音源",                      ID_SOUND_CD
+        MENUITEM "マウスカーソル移動",          ID_OPTION_MOUSE_MOVE
+        MENUITEM SEPARATOR
+        MENUITEM "FM音源",                      ID_OPTION_FM
+        MENUITEM "MIDI音源",                    ID_OPTION_MIDI
+        MENUITEM "CD音源",                      ID_OPTION_CD
     END
     POPUP "メッセージ"
     BEGIN
@@ -206,11 +210,13 @@ BEGIN
         MENUITEM "窗口化",                      ID_SCREEN_WINDOW
         MENUITEM "全屏化",                      ID_SCREEN_FULL
     END
-    POPUP "音源"
+    POPUP "选项"
     BEGIN
-        MENUITEM "FM 音源",                     ID_SOUND_FM
-        MENUITEM "MIDI 音源",                   ID_SOUND_MIDI
-        MENUITEM "CD 音源",                     ID_SOUND_CD
+        MENUITEM "Mouse Movement",              ID_OPTION_MOUSE_MOVE
+        MENUITEM SEPARATOR
+        MENUITEM "FM 音源",                     ID_OPTION_FM
+        MENUITEM "MIDI 音源",                   ID_OPTION_MIDI
+        MENUITEM "CD 音源",                     ID_OPTION_CD
     END
     POPUP "消息"
     BEGIN

@@ -114,6 +114,8 @@ void NACT::get_cursor(int* x, int* y)
 
 void NACT::set_cursor(int x, int y)
 {
+	if (!mouse_move_enabled)
+		return;
 	ags->translate_mouse_coords(&x, &y);
 	SDL_WarpMouseInWindow(g_window, x, y);
 }

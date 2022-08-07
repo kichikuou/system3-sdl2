@@ -21,13 +21,15 @@ HWND get_hwnd(SDL_Window* window) {
 	return info.info.win.window;
 }
 
-void init_menu()
+void init_menu(bool mouse_move_enabled)
 {
 	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
 	HMENU hmenu = LoadMenu(hinst, MAKEINTRESOURCE(IDR_MENU1));
 	SetMenu(get_hwnd(g_window), hmenu);
 	// Let SDL recalc the window size, taking menu height into account.
 	SDL_SetWindowSize(g_window, 640, 400);
+	if (mouse_move_enabled)
+		CheckMenuItem(hmenu, ID_OPTION_MOUSE_MOVE, MF_BYCOMMAND | MFS_CHECKED);
 }
 
 void init_console(int sys_ver)
@@ -129,7 +131,7 @@ void NACT::text_dialog()
 
 void NACT::platform_initialize()
 {
-	init_menu();
+	init_menu(mouse_move_enabled);
 	init_console(sys_ver);
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 }
@@ -188,13 +190,18 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			SDL_SetWindowFullscreen(g_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 			ags->flush_screen(true);
 			break;
-		case ID_SOUND_FM:
+		case ID_OPTION_MOUSE_MOVE:
+			mouse_move_enabled = !mouse_move_enabled;
+			CheckMenuItem(GetMenu(get_hwnd(g_window)), ID_OPTION_MOUSE_MOVE,
+						  MF_BYCOMMAND | mouse_move_enabled ? MFS_CHECKED : MFS_UNCHECKED);
+			break;
+		case ID_OPTION_FM:
 			mako->select_sound(BGM_FM);
 			break;
-		case ID_SOUND_MIDI:
+		case ID_OPTION_MIDI:
 			mako->select_sound(BGM_MIDI);
 			break;
-		case ID_SOUND_CD:
+		case ID_OPTION_CD:
 			mako->select_sound(BGM_CD);
 			break;
 		case ID_TEXT_SKIP:
