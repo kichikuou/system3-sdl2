@@ -31,6 +31,7 @@ void NACT::text_dialog()
 
 void NACT::platform_initialize()
 {
+	mouse_move_enabled = false;
 }
 
 void NACT::platform_finalize()

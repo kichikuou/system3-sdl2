@@ -504,21 +504,18 @@ uint16 NACT::random(uint16 range)
 
 void NACT::wait_after_open_menu()
 {
-	// 連打による誤クリック防止
-	Uint32 dwTime = SDL_GetTicks();
-	Uint32 dwWait = dwTime + 400;
+	if (mouse_move_enabled) {
+		// 連打による誤クリック防止
+		Uint32 dwTime = SDL_GetTicks();
+		Uint32 dwWait = dwTime + 400;
 
-	while(dwTime < dwWait) {
-		if(terminate) {
-			return;
+		while(dwTime < dwWait) {
+			if(terminate) {
+				return;
+			}
+			sys_sleep(10);
+			dwTime = SDL_GetTicks();
 		}
-/*
-		if(get_key() == 16) {
-			break;
-		}
-*/
-		sys_sleep(10);
-		dwTime = SDL_GetTicks();
 	}
 
 	// クリック中の間は待機

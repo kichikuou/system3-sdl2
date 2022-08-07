@@ -38,6 +38,7 @@ void NACT::text_dialog()
 
 void NACT::platform_initialize()
 {
+	mouse_move_enabled = false;
 	if (custom_event_type == static_cast<Uint32>(-1)) {
 		custom_event_type = SDL_RegisterEvents(1);
 		EM_ASM({ setInterval(() => _msgskip_syncFile(), 5000); });
