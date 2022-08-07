@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 #else
 	Uint32 flags = SDL_WINDOW_RESIZABLE;
 #endif
-	g_window = SDL_CreateWindow("Scenario Decoder SYSTEM3", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
+	g_window = SDL_CreateWindow("System3-sdl2 " SYSTEM3_VERSION, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 
 	// system3 初期化
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	const char* title = g_nact->get_title();
 	if (title) {
 		char buf[128];
-		sprintf_s(buf, 128, "Scenario Decoder SYSTEM%d: %s", g_nact->sys_ver, title);
+		sprintf_s(buf, 128, "System3-sdl2 " SYSTEM3_VERSION ": %s", title);
 #ifdef __EMSCRIPTEN__
 		EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, buf);
 #else

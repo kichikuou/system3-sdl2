@@ -7,6 +7,8 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#define SYSTEM3_VERSION "0.7.0"
+
 #include <SDL.h>
 #include <assert.h>
 #include <limits.h>
