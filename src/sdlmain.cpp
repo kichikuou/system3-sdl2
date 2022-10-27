@@ -13,6 +13,9 @@
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #endif
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
 
 SDL_Window* g_window;
 SDL_Renderer* g_renderer;
@@ -20,6 +23,9 @@ NACT* g_nact;
 
 int main(int argc, char *argv[])
 {
+#ifdef __SWITCH__
+	romfsInit();
+#endif
 	Config config(argc, argv);
 
 	if (!config.timidity_cfg.empty()) {
@@ -93,6 +99,10 @@ int main(int argc, char *argv[])
 	SDL_DestroyRenderer(g_renderer);
 	SDL_DestroyWindow(g_window);
 	SDL_Quit();
+
+#ifdef __SWITCH__
+	romfsExit();
+#endif
 
     return 0;
 }

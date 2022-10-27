@@ -1,0 +1,27 @@
+name: Nintendo Switch Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkita64:latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Build
+      run: |
+        mkdir -p out/switch
+        cd out/switch
+        /opt/devkitpro/portlibs/switch/bin/aarch64-none-elf-cmake -DCMAKE_BUILD_TYPE=Release ../../src/
+        make
+        mkdir system3
+        mv system3.* system3/
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: system3-switch
+        path: out/switch/system3
