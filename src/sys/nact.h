@@ -235,6 +235,10 @@ protected:
 	int joy_num;
 	JOYCAPS joycaps;
 #endif
+
+#ifdef USE_JOY_SDL
+	SDL_GameController *sdl_gamecontroller = NULL;
+#endif
 	int mouse_x = 0, mouse_y = 0;
 
 	static uint32 calc_crc32(const char* file_name, const std::string& game_id);
