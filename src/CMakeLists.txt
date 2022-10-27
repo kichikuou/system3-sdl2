@@ -178,6 +178,22 @@ target_sources(system3 PRIVATE
   sys/nact_sys3.cpp
   )
 
+if(NINTENDO_SWITCH)
+  set(RESOURCE_PATH romfs:/)
+
+  nx_generate_nacp(system3.nacp
+    NAME "system3"
+    AUTHOR "kichikuou"
+    VERSION "0.8.0"
+  )
+
+  nx_create_nro(system3
+    NACP system3.nacp
+    ICON "../switch/icon.jpg"
+    ROMFS "../resources"
+  )
+endif()
+
 target_compile_definitions(system3 PRIVATE
   $<$<CONFIG:Debug>:_DEBUG_CONSOLE>
   RESOURCE_PATH="${RESOURCE_PATH}")
