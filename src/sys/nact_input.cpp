@@ -85,24 +85,6 @@ uint8 NACT::get_key()
 
 	// マウス移動で方向入力はサポートしない
 
-#ifdef USE_JOY
-	// ジョイスティック
-	if(joy_num > 0) {
-		JOYINFO joyinfo;
-		if(joyGetPos(JOYSTICKID1, &joyinfo) == JOYERR_NOERROR) {
-			if(joyinfo.wYpos == joycaps.wYmin) val |= 0x01;
-			if(joyinfo.wYpos == joycaps.wYmax) val |= 0x02;
-			if(joyinfo.wXpos == joycaps.wXmin) val |= 0x04;
-			if(joyinfo.wXpos == joycaps.wXmax) val |= 0x08;
-			if(joyinfo.wButtons & JOY_BUTTON1) val |= 0x10;
-			if(joyinfo.wButtons & JOY_BUTTON2) val |= 0x20;
-			if(joyinfo.wButtons & JOY_BUTTON3) val |= 0x40;
-			if(joyinfo.wButtons & JOY_BUTTON4) val |= 0x80;
-		}
-	}
-#endif
-
-#ifdef USE_JOY_SDL
 	if(sdl_gamecontroller) {
 		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_UP) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTY) <= -8000) val |= 0x01;
 		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_DOWN) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTY) >= 8000) val |= 0x02;
@@ -113,7 +95,6 @@ uint8 NACT::get_key()
 		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_X)) val |= 0x40;
 		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_Y)) val |= 0x80;
 	}
-#endif
 
 	return val;
 }

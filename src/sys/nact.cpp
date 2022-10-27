@@ -96,15 +96,6 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 	mako = new MAKO(this, config);
 	msgskip = new MsgSkip(this);
 
-#ifdef USE_JOY
-	// 入力初期化
-	joy_num = joyGetNumDevs();
-	if(joy_num) {
-		joyGetDevCaps(JOYSTICKID1, &joycaps, sizeof(JOYCAPS));
-	}
-#endif
-
-#ifdef USE_JOY_SDL
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
 	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
 		if (SDL_IsGameController(i)) {
@@ -116,7 +107,6 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 			}
 		}
 	}
-#endif
 
 	terminate = false;
 	restart_after_terminate = false;
