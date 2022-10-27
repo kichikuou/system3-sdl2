@@ -22,6 +22,10 @@ int main(int argc, char *argv[])
 {
 	Config config(argc, argv);
 
+	if (!config.timidity_cfg.empty()) {
+		SDL_setenv("TIMIDITY_CFG", config.timidity_cfg.c_str(), 1);
+	}
+
 	SDL_Init(SDL_INIT_VIDEO);
 #ifdef __EMSCRIPTEN__
 	// Stop SDL from calling emscripten_sleep() in functions that are called
