@@ -104,6 +104,20 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 	}
 #endif
 
+#ifdef USE_JOY_SDL
+	SDL_Init(SDL_INIT_GAMECONTROLLER);
+	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+		if (SDL_IsGameController(i)) {
+			sdl_gamecontroller = SDL_GameControllerOpen(i);
+			if (sdl_gamecontroller) {
+				break;
+			} else {
+				WARNING("Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+			}
+		}
+	}
+#endif
+
 	terminate = false;
 	restart_after_terminate = false;
 }
