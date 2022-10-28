@@ -56,6 +56,11 @@ To use the Emscripten build, check out https://github.com/kichikuou/web and copy
 ### Android
 
 See [android/README.md](android/).
+To use the Emscripten build, check out https://github.com/kichikuou/web and copy `out/wasm/system3.*` into its `docs` directory.
+
+### Nintendo Switch
+
+See [switch/README.md](switch/README.md).
 
 ## Running
 Usage:
@@ -84,6 +89,9 @@ The first line is not used, because track 1 of game CD is usually a data track.
 
 #### `-fm`
 Use FM tone generator emulation. If not specified, MIDI sound is used.
+
+#### `-timiditycfg` _filename_
+Specified a specific configuration file in a [format for TiMidity](https://manpages.ubuntu.com/manpages/bionic/en/man5/timidity.cfg.5.html) to use (used in some platforms by SDL_Mixer).
 
 #### `-game` _game_id_
 Since System1-3 behave slightly differently depending on the game, `system3` uses fingerprint of the scenario file (ADISK.DAT) to determine which game you are playing. This option allows you to override this. This is useful when running patched games.
