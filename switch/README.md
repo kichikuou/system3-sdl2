@@ -3,7 +3,7 @@
 ## Build
 Prerequisites:
 - CMake >=3.20
-- devkitPro environment ([how to install](https://devkitpro.org/wiki/devkitPro_pacman]))
+- devkitPro environment ([how to install](https://devkitpro.org/wiki/devkitPro_pacman))
 - Nintendo Switch development tools package (switch-dev)
 - SDL2, SDL2_Mixer and SDL2_ttf Switch ports (switch-sdl2, switch-sdl2_ttf, switch-sdl2_mixer)
 

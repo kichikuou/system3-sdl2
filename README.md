@@ -56,7 +56,6 @@ To use the Emscripten build, check out https://github.com/kichikuou/web and copy
 ### Android
 
 See [android/README.md](android/).
-To use the Emscripten build, check out https://github.com/kichikuou/web and copy `out/wasm/system3.*` into its `docs` directory.
 
 ### Nintendo Switch
 
