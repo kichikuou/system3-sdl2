@@ -5,13 +5,13 @@ project(GAME)
 include(FetchContent)
 FetchContent_Declare(
   SDL
-  URL https://github.com/libsdl-org/SDL/releases/download/release-2.0.22/SDL2-2.0.22.tar.gz
-  URL_HASH SHA1=66dd460befa7f4c4664b7591228a3951bbbb19a7
+  URL https://github.com/libsdl-org/SDL/releases/download/release-2.26.1/SDL2-2.26.1.tar.gz
+  URL_HASH SHA1=08a8cec21ffcebf44e4633a786d594a7811100d2
 )
 FetchContent_Declare(
   SDL_ttf
-  URL https://github.com/libsdl-org/SDL_ttf/archive/refs/tags/release-2.0.18.tar.gz
-  URL_HASH SHA1=6fc5130757b447d46c3da6abd58687e8576de8b8
+  URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.20.1/SDL2_ttf-2.20.1.tar.gz
+  URL_HASH SHA1=f774ff407915ae4afa3d03e5a9395283d9090f28
 )
 
 # Compilation of SDL and companion libraries
@@ -23,6 +23,9 @@ endif()
 FetchContent_GetProperties(SDL_ttf)
 if(NOT sdl_ttf_POPULATED)
   FetchContent_Populate(SDL_ttf)
+  set(SDL2TTF_SAMPLES OFF CACHE BOOL "Build the SDL2_ttf sample program(s)" FORCE)
+  set(SDL2TTF_INSTALL OFF CACHE BOOL "Enable SDL2_ttf install target" FORCE)
+  set(SDL2TTF_VENDORED ON CACHE BOOL "Use vendored third-party libraries" FORCE)
   add_subdirectory(${sdl_ttf_SOURCE_DIR} ${sdl_ttf_BINARY_DIR})
 endif()
 
