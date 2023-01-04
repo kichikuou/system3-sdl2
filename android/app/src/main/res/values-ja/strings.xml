@@ -3,6 +3,7 @@
     <string name="app_name">System3</string>
     <string name="action_export_save_data">セーブデータをエクスポート</string>
     <string name="action_import_save_data">セーブデータをインポート</string>
+    <string name="action_licenses">オープンソースライセンス</string>
     <string name="action_quit_game">ゲーム終了</string>
     <string name="cancel">キャンセル</string>
     <string name="cannot_find_adisk">System3 のファイル (*.dat) が見つかりません。</string>

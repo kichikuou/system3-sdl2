@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(GAME)
+set(PROJECT_ROOT_DIR ../../..)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -30,4 +31,14 @@ if(NOT sdl_ttf_POPULATED)
 endif()
 
 # The main CMakeLists.txt of system3
-add_subdirectory(../../../src src)
+add_subdirectory(${PROJECT_ROOT_DIR}/src src)
+
+# Copy asset files
+set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src/main/assets)
+file(MAKE_DIRECTORY ${ASSETS_DIR}/licenses)
+file(COPY_FILE ${PROJECT_ROOT_DIR}/COPYING.txt ${ASSETS_DIR}/licenses/system3)
+file(COPY_FILE ${PROJECT_ROOT_DIR}/resources/fonts/MTLc3m.ttf.license ${ASSETS_DIR}/licenses/MTLc3m)
+file(COPY_FILE ${sdl_SOURCE_DIR}/LICENSE.txt ${ASSETS_DIR}/licenses/SDL)
+file(COPY_FILE ${sdl_ttf_SOURCE_DIR}/LICENSE.txt ${ASSETS_DIR}/licenses/SDL_ttf)
+file(COPY_FILE ${sdl_ttf_SOURCE_DIR}/external/freetype/docs/GPLv2.TXT ${ASSETS_DIR}/licenses/freetype)
+file(COPY_FILE ${sdl_ttf_SOURCE_DIR}/external/harfbuzz/COPYING ${ASSETS_DIR}/licenses/harfbuzz)
