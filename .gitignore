@@ -1,5 +1,6 @@
 out
 android/.gradle
+android/keystore.jks
 android/app/.externalNativeBuild
 android/app/build
 android/app/src/main/assets
