@@ -56,6 +56,7 @@ elseif (EMSCRIPTEN)
     "SHELL:-s ALLOW_MEMORY_GROWTH=1"
     "SHELL:-s NO_EXIT_RUNTIME=1"
     "SHELL:-s ASYNCIFY_ADD=NACT::execute()"
+    "SHELL:-s EXPORTED_FUNCTIONS=_main,_malloc"
     "SHELL:-s EXPORTED_RUNTIME_METHODS=getValue,addRunDependency,removeRunDependency")
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
