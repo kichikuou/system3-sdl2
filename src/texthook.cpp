@@ -9,17 +9,17 @@ void texthook_character(int page, int character) {
 			character, page);
 }
 
-EM_JS(void, texthook_newline, (void), {
-	xsystem35.texthook.newline();
-});
+void texthook_newline() {
+	EM_ASM(xsystem35.texthook.newline());
+}
 
-EM_JS(void, texthook_nextpage, (void), {
-	xsystem35.texthook.nextpage();
-});
+void texthook_nextpage() {
+	EM_ASM(xsystem35.texthook.nextpage());
+}
 
-EM_JS(void, texthook_keywait, (void), {
-	xsystem35.texthook.keywait();
-});
+void texthook_keywait(void) {
+	EM_ASM(xsystem35.texthook.keywait());
+}
 
 #elif defined(TEXTHOOK_PRINT)  // --------------------------------------
 
