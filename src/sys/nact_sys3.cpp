@@ -517,6 +517,19 @@ void NACT_Sys3::cmd_k()
 		return;
 	}
 
+	if (cmd == 3) {
+		switch (crc32_a) {
+		case CRC32_YAKATA3_CD:
+			if (k3_hack(yakata3cd_k3_hack_table))
+				return;
+			break;
+		case CRC32_YAKATA3_FD:
+			if (k3_hack(yakata3fd_k3_hack_table))
+				return;
+			break;
+		}
+	}
+
 	// マウスの初期取得
 	int mx, my;
 	get_cursor(&mx, &my);
@@ -1506,4 +1519,112 @@ uint16 NACT_Sys3::cali2()
 		fatal("cali2: invalid expression");
 	}
 	return val;
+}
+
+struct NACT_Sys3::K3HackInfo {
+	int page;
+	int var;  // variable that holds the current selection
+	int left;
+	int top;
+	int rows;
+	int cols;
+	int w;  // column width
+	int h;  // row height
+	bool draw_window;
+};
+
+const NACT_Sys3::K3HackInfo NACT_Sys3::yakata3cd_k3_hack_table[] = {
+	//page, var, left, top, rows, cols,   w,   h, draw_win
+	{   71,  61,  463,  28,    5,    1, 162,  48, false },  // main menu
+	{   72,  60,   32,   0,    2,    3, 192, 138, false },  // game selection
+	{   35,  61,  192, 136,    3,    1, 256,  56, false },  // quiz
+	{   37,  61,  192, 136,    3,    1, 256,  56, false },  // quiz
+	{   39,  61,  192, 136,    3,    1, 256,  56, false },  // quiz
+	{   36,  61,  200, 200,    1,    5,  48,  48,  true },  // quiz (CG selection)
+	{   -1 }
+};
+
+const NACT_Sys3::K3HackInfo NACT_Sys3::yakata3fd_k3_hack_table[] = {
+	//page, var, left, top, rows, cols,   w,   h, draw_win
+	{   71,  59,  463,  28,    5,    1, 162,  48, false },  // main menu
+	{   72,  58,   32,   0,    2,    3, 192, 138, false },  // game selection
+	{   35,  59,  192, 136,    3,    1, 256,  56, false },  // quiz
+	{   37,  59,  192, 136,    3,    1, 256,  56, false },  // quiz
+	{   39,  59,  192, 136,    3,    1, 256,  56, false },  // quiz
+	{   36,  59,  200, 200,    1,    5,  48,  48,  true },  // quiz (CG selection)
+	{   -1 }
+};
+
+bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
+{
+	const K3HackInfo* info;
+	for (info = info_table; info->page >= 0; info++) {
+		if (scenario_page == info->page)
+			break;
+	}
+	if (info->page < 0)
+		return false;
+
+	if (info->draw_window) {
+		// Draw a simple menu to indicate clickable areas.
+		ags->draw_window(
+			info->left - 6, info->top - 6,
+			info->left + info->w * info->cols + 6, info->top + info->h + 6,
+			true, ags->menu_frame_color, ags->menu_back_color);
+		int orig_font_size = ags->text_font_size;
+		ags->text_dest_x = info->left;
+		ags->text_dest_y = info->top;
+		ags->text_font_size = info->w;
+		ags->draw_text("12345");
+		ags->text_font_size = orig_font_size;
+		int left = info->left + info->w * (var[info->var] - 1);
+		ags->box_line(0, left, info->top, left + info->w, info->top + info->h, ags->text_font_color);
+	}
+
+	while (!terminate) {
+		int mx, my;
+		get_cursor(&mx, &my);
+		if (info->left <= mx && mx < info->left + info->w * info->cols &&
+			info->top <= my && my < info->top + info->h * info->rows) {
+			int target_row = (my - info->top) / info->h;
+			int target_col = (mx - info->left) / info->w;
+			int current_row = (var[info->var] - 1) / info->cols;
+			int current_col = (var[info->var] - 1) % info->cols;
+
+			if (target_row < current_row) {
+				RND = 1;  // UP
+				break;
+			}
+			if (target_row > current_row) {
+				RND = 2;  // DOWN
+				break;
+			}
+			if (target_col < current_col) {
+				RND = 4;  // LEFT
+				break;
+			}
+			if (target_col > current_col) {
+				RND = 8;  // RIGHT
+				break;
+			}
+		}
+		int key = get_key();
+		if (key) {
+			// Wait for key release
+			while (!terminate && get_key())
+				sys_sleep(16);
+			RND = key;
+			break;
+		}
+		sys_sleep(16);
+	}
+
+	if (info->draw_window) {
+		// Clear the menu window.
+		ags->box_fill(
+			0, info->left - 6, info->top - 6,
+			info->left + info->w * info->cols + 6, info->top + info->h + 6, 0);
+	}
+
+	return true;
 }

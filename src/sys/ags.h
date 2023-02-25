@@ -68,8 +68,6 @@ private:
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);
 	void draw_gaiji(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
 
-	void draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color);
-
 	void draw_screen(int sx, int sy, int width, int heignt);
 	void invalidate_screen(int sx, int sy, int width, int height);
 
@@ -111,6 +109,7 @@ public:
 	void draw_mesh(int sx, int sy, int width, int height);
 	void box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color);
 	void box_line(int dest, int sx, int sy, int ex, int ey, uint8 color);
+	void draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color);
 
 	void draw_text(const char* string, bool text_wait = false);
 
