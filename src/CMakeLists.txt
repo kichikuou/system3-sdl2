@@ -73,8 +73,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
     include(FetchContent)
     FetchContent_Declare(sdl2
-      URL https://github.com/libsdl-org/SDL/releases/download/release-2.0.22/SDL2-devel-2.0.22-VC.zip
-      URL_HASH SHA1=efa040633c4faf8b006c0c1e552456ca4e5a3a53)
+      URL https://github.com/libsdl-org/SDL/releases/download/release-2.26.4/SDL2-devel-2.26.4-VC.zip
+      URL_HASH SHA1=0dea77fd5ead8c1a2134af3fc256578327e25879)
     FetchContent_GetProperties(sdl2)
     if (NOT sdl2_POPULATED)
       FetchContent_Populate(sdl2)
@@ -89,8 +89,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     target_link_libraries(SDL2 INTERFACE ${SDL2_LIB_DIR}/SDL2main.lib)
 
     FetchContent_Declare(sdl2_ttf
-      URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.0.18/SDL2_ttf-devel-2.0.18-VC.zip
-      URL_HASH SHA1=a421d47e9336ab722eac4ba107fab7f7b080eb4e)
+      URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.20.2/SDL2_ttf-devel-2.20.2-VC.zip
+      URL_HASH SHA1=dee48e9c5184c139aa8bcab34a937d1b3df4f503)
     FetchContent_GetProperties(sdl2_ttf)
     if (NOT sdl2_ttf_POPULATED)
       FetchContent_Populate(sdl2_ttf)
