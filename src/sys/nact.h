@@ -433,6 +433,7 @@ private:
 	struct K3HackInfo;
 	static const K3HackInfo yakata3cd_k3_hack_table[];
 	static const K3HackInfo yakata3fd_k3_hack_table[];
+	static const K3HackInfo onlyyou_k3_hack_table[];
 	bool k3_hack(const K3HackInfo* info_table);
 };
 

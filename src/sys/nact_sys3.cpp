@@ -527,6 +527,10 @@ void NACT_Sys3::cmd_k()
 			if (k3_hack(yakata3fd_k3_hack_table))
 				return;
 			break;
+		case CRC32_ONLYYOU:
+			if (k3_hack(onlyyou_k3_hack_table))
+				return;
+			break;
 		}
 	}
 
@@ -1555,6 +1559,12 @@ const NACT_Sys3::K3HackInfo NACT_Sys3::yakata3fd_k3_hack_table[] = {
 	{   -1 }
 };
 
+const NACT_Sys3::K3HackInfo NACT_Sys3::onlyyou_k3_hack_table[] = {
+	//page, var, left, top, rows, cols,   w,   h, draw_win
+	{    7, 235,  392,   0,    2,    3,  48,  48, false },  // map area selection
+	{   -1 }
+};
+
 bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 {
 	const K3HackInfo* info;
@@ -1581,6 +1591,10 @@ bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 		ags->box_line(0, left, info->top, left + info->w, info->top + info->h, ags->text_font_color);
 	}
 
+	// Only You: Prevents the cursor from being locked due to unselectable cells.
+	static bool row_first;
+	row_first = !row_first;
+
 	while (!terminate) {
 		int mx, my;
 		get_cursor(&mx, &my);
@@ -1591,13 +1605,15 @@ bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 			int current_row = (var[info->var] - 1) / info->cols;
 			int current_col = (var[info->var] - 1) % info->cols;
 
-			if (target_row < current_row) {
-				RND = 1;  // UP
-				break;
-			}
-			if (target_row > current_row) {
-				RND = 2;  // DOWN
-				break;
+			if (row_first) {
+				if (target_row < current_row) {
+					RND = 1;  // UP
+					break;
+				}
+				if (target_row > current_row) {
+					RND = 2;  // DOWN
+					break;
+				}
 			}
 			if (target_col < current_col) {
 				RND = 4;  // LEFT
@@ -1606,6 +1622,16 @@ bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 			if (target_col > current_col) {
 				RND = 8;  // RIGHT
 				break;
+			}
+			if (!row_first) {
+				if (target_row < current_row) {
+					RND = 1;  // UP
+					break;
+				}
+				if (target_row > current_row) {
+					RND = 2;  // DOWN
+					break;
+				}
 			}
 		}
 		int key = get_key();
