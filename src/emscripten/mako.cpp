@@ -14,6 +14,10 @@ namespace {
 MAKO *g_mako;
 std::unique_ptr<MakoYmfm> fm;
 
+EM_JS(int, muspcm_load_data, (uint8_t *buf, uint32_t len), {  // async
+	return xsystem35.audio.pcm_load_data(0, buf, len);
+});
+
 } // namespace
 
 MAKO::MAKO(NACT* parent, const Config& config) :
@@ -93,14 +97,57 @@ void MAKO::get_mark(int* mark, int* loop)
 
 void MAKO::play_pcm(int page, bool loop)
 {
-	WARNING("not implemented");
+	static const char header[44] = {
+		'R' , 'I' , 'F' , 'F' , 0x00, 0x00, 0x00, 0x00,
+		'W' , 'A' , 'V' , 'E' , 'f' , 'm' , 't' , ' ' ,
+		0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00,
+		0x40, 0x1f, 0x00, 0x00, 0x40, 0x1f, 0x00, 0x00,
+		0x01, 0x00, 0x08, 0x00, 'd' , 'a' , 't' , 'a' ,
+		0x00, 0x00, 0x00, 0x00
+	};
+
+	uint8* wav_buffer;
+	uint8* buffer;
+	int size;
+	DRI* dri = new DRI();
+
+	if ((buffer = dri->load("AWAV.DAT", page, &size)) != NULL) {
+		// WAV形式 (Only You)
+		wav_buffer = buffer;
+	} else if ((buffer = dri->load("AMSE.DAT", page, &size)) != NULL) {
+		// AMSE形式 (乙女戦記)
+		int total = (size - 12) * 2 + 0x24;
+		int samples = (size - 12) * 2;
+
+		wav_buffer = (uint8*)malloc(total + 8);
+		memcpy(wav_buffer, header, 44);
+		wav_buffer[ 4] = (total >>  0) & 0xff;
+		wav_buffer[ 5] = (total >>  8) & 0xff;
+		wav_buffer[ 6] = (total >> 16) & 0xff;
+		wav_buffer[ 7] = (total >> 24) & 0xff;
+		wav_buffer[40] = (samples >>  0) & 0xff;
+		wav_buffer[41] = (samples >>  8) & 0xff;
+		wav_buffer[42] = (samples >> 16) & 0xff;
+		wav_buffer[43] = (samples >> 24) & 0xff;
+		for(int i = 12, p = 44; i < size; i++) {
+			wav_buffer[p++] = buffer[i] & 0xf0;
+			wav_buffer[p++] = (buffer[i] & 0x0f) << 4;
+		}
+		free(buffer);
+		size = total + 8;
+	}
+	if (muspcm_load_data(wav_buffer, size) == 0)
+		EM_ASM({ xsystem35.audio.pcm_start(0, $0); }, loop ? 0 : 1);
+	free(wav_buffer);
 }
 
-void MAKO::stop_pcm() {}
+void MAKO::stop_pcm() {
+	EM_ASM({ xsystem35.audio.pcm_stop(0); });
+}
 
 bool MAKO::check_pcm()
 {
-	return false;
+	return EM_ASM_INT({ return xsystem35.audio.pcm_isplaying(0); });
 }
 
 extern "C" {
