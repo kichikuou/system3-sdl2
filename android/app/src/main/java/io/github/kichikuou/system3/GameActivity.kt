@@ -195,6 +195,10 @@ private class CddaPlayer(private val playlistPath: File) {
     private val player = MediaPlayer()
     private var playerPaused = false
 
+    init {
+        player.setOnCompletionListener { currentTrack = 0 }
+    }
+
     fun start(track: Int, loop: Boolean) {
         val f = playlist.elementAtOrNull(track - 1)
         if (f.isNullOrEmpty()) {
@@ -250,6 +254,10 @@ private class MidiPlayer {
     private val player = MediaPlayer()
     private var playing = false
     private var playerPaused = false
+
+    init {
+        player.setOnCompletionListener { playing = false }
+    }
 
     fun start(path: String, loop: Boolean) {
         try {

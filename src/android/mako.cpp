@@ -123,25 +123,47 @@ void MAKO::stop_music()
 		return;
 
 	JNILocalFrame jni(16);
-	if (!jni.env())
-		return;
-
-	if (current_music < 100 && cd_track[current_music]) {
-		jmethodID mid = jni.GetMethodID("cddaStop", "()V");
-		jni.env()->CallVoidMethod(jni.context(), mid);
-	} else {
-		jmethodID mid = jni.GetMethodID("midiStop", "()V");
-		jni.env()->CallVoidMethod(jni.context(), mid);
+	if (jni.env()) {
+		if (current_music < 100 && cd_track[current_music]) {
+			jmethodID cdda = jni.GetMethodID("cddaStop", "()V");
+			jni.env()->CallVoidMethod(jni.context(), cdda);
+		} else {
+			jmethodID mid = jni.GetMethodID("midiStop", "()V");
+			jni.env()->CallVoidMethod(jni.context(), mid);
+		}
 	}
 
-	if (use_fm)
+	if (fm) {
 		SDL_PauseAudio(1);
+		SDL_LockMutex(fm_mutex);
+		fm = nullptr;
+		SDL_UnlockMutex(fm_mutex);
+	}
 	current_music = 0;
 }
 
 bool MAKO::check_music()
 {
-	return current_music != 0;
+	if (!current_music)
+		return false;
+	if (fm) {
+		int mark, loop;
+		SDL_LockMutex(fm_mutex);
+		fm->get_mark(&mark, &loop);
+		SDL_UnlockMutex(fm_mutex);
+		return !loop;
+	}
+
+	JNILocalFrame jni(16);
+	if (!jni.env())
+		return false;
+	if (current_music < 100 && cd_track[current_music]) {
+		jmethodID cdda = jni.GetMethodID("cddaCurrentPosition", "()I");
+		return jni.env()->CallIntMethod(jni.context(), cdda) != 0;
+	} else {
+		jmethodID mid = jni.GetMethodID("midiCurrentPosition", "()I");
+		return jni.env()->CallIntMethod(jni.context(), mid) != 0;
+	}
 }
 
 void MAKO::get_mark(int* mark, int* loop)

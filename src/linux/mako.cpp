@@ -150,12 +150,24 @@ void MAKO::stop_music()
 		mix_music = NULL;
 		smf.clear();
 	}
-	Mix_HookMusic(NULL, NULL);
+	if (fm) {
+		Mix_HookMusic(NULL, NULL);
+		SDL_LockMutex(fm_mutex);
+		fm = nullptr;
+		SDL_UnlockMutex(fm_mutex);
+	}
 	current_music = 0;
 }
 
 bool MAKO::check_music()
 {
+	if (fm) {
+		int mark, loop;
+		SDL_LockMutex(fm_mutex);
+		fm->get_mark(&mark, &loop);
+		SDL_UnlockMutex(fm_mutex);
+		return !loop;
+	}
 	return Mix_PlayingMusic();
 }
 

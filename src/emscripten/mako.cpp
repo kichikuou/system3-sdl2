@@ -70,7 +70,15 @@ void MAKO::stop_music()
 
 bool MAKO::check_music()
 {
-	return current_music != 0;
+	if (!current_music)
+		return false;
+	if (fm) {
+		int mark, loop;
+		fm->get_mark(&mark, &loop);
+		return !loop;
+	}
+
+	return EM_ASM_INT_V( return xsystem35.cdPlayer.getPosition(); ) != 0;
 }
 
 void MAKO::get_mark(int* mark, int* loop)

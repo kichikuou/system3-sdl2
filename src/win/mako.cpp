@@ -353,12 +353,24 @@ void MAKO::stop_music()
 		delete music;
 		music = nullptr;
 	}
-	SDL_PauseAudio(1);
+	if (fm) {
+		SDL_PauseAudio(1);
+		SDL_LockMutex(fm_mutex);
+		fm = nullptr;
+		SDL_UnlockMutex(fm_mutex);
+	}
 	current_music = 0;
 }
 
 bool MAKO::check_music()
 {
+	if (fm) {
+		int mark, loop;
+		SDL_LockMutex(fm_mutex);
+		fm->get_mark(&mark, &loop);
+		SDL_UnlockMutex(fm_mutex);
+		return !loop;
+	}
 	return music && music->is_playing();
 }
 
