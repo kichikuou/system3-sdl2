@@ -29,7 +29,7 @@ Mix_Chunk *mix_chunk;
 SDL_mutex* fm_mutex;
 std::unique_ptr<MakoYmfm> fm;
 
-void FMHook(void *udata, Uint8 *stream, int len) {
+void FMHook(void*, Uint8* stream, int len) {
 	SDL_LockMutex(fm_mutex);
 	fm->Process(reinterpret_cast<int16_t*>(stream), len / 4);
 	SDL_UnlockMutex(fm_mutex);
@@ -48,12 +48,11 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	if (!config.playlist.empty() && load_playlist(config.playlist.c_str()))
 		mix_init_flags |= MIX_INIT_MP3 | MIX_INIT_OGG;
 
-	strcpy_s(amus, 16, "AMUS.DAT");
-	strcpy_s(amse, 16, "AMSE.DAT");	// 実際には使わない
-
-	for(int i = 1; i <= 99; i++) {
+	strcpy(amus, "AMUS.DAT");
+	strcpy(amse, "AMSE.DAT"); // unused
+	for (int i = 1; i <= 99; i++)
 		cd_track[i] = 0;
-	}
+
 	if (Mix_Init(mix_init_flags) != mix_init_flags)
 		WARNING("Mix_Init(0x%x) failed", mix_init_flags);
 	if (Mix_OpenAudio(SAMPLE_RATE, AUDIO_S16LSB, 2, 4096) < 0)
@@ -90,13 +89,13 @@ bool MAKO::load_playlist(const char* path)
 
 void MAKO::play_music(int page)
 {
-	if(current_music == page)
+	if (current_music == page)
 		return;
 
 	stop_music();
 
 	int track = page < 100 ? cd_track[page] : 0;
-	if(track) {
+	if (track) {
 		if (track < playlist.size() && playlist[track]) {
 			mix_music = Mix_LoadMUS(playlist[track]);
 			if (!mix_music) {
@@ -120,8 +119,8 @@ void MAKO::play_music(int page)
 
 		SDL_LockMutex(fm_mutex);
 		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, data, true);
-		Mix_HookMusic(&FMHook, this);
 		SDL_UnlockMutex(fm_mutex);
+		Mix_HookMusic(&FMHook, this);
 	} else {
 		auto midi = std::make_unique<MAKOMidi>(nact, amus);
 		if (midi->load_mml(page)) {
@@ -140,7 +139,9 @@ void MAKO::play_music(int page)
 			}
 		}
 	}
+
 	current_music = page;
+	next_loop = 0;
 }
 
 void MAKO::stop_music()
@@ -161,6 +162,8 @@ void MAKO::stop_music()
 
 bool MAKO::check_music()
 {
+	if (mix_music)
+		return Mix_PlayingMusic();
 	if (fm) {
 		int mark, loop;
 		SDL_LockMutex(fm_mutex);
@@ -168,19 +171,19 @@ bool MAKO::check_music()
 		SDL_UnlockMutex(fm_mutex);
 		return !loop;
 	}
-	return Mix_PlayingMusic();
+	return false;
 }
 
 void MAKO::get_mark(int* mark, int* loop)
 {
-	SDL_LockMutex(fm_mutex);
 	if (fm) {
+		SDL_LockMutex(fm_mutex);
 		fm->get_mark(mark, loop);
+		SDL_UnlockMutex(fm_mutex);
 	} else {
 		*mark = 0;
 		*loop = 0;
 	}
-	SDL_UnlockMutex(fm_mutex);
 }
 
 void MAKO::play_pcm(int page, bool loop)
@@ -240,7 +243,6 @@ void MAKO::stop_pcm()
 
 bool MAKO::check_pcm()
 {
-	// 再生中でtrue
 	return Mix_Playing(-1) != 0;
 }
 

@@ -60,7 +60,7 @@ private:
 	NACT* nact;
 	int cd_track[100];	// Z
 
-#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+#if !defined(__EMSCRIPTEN__)
 	bool load_playlist(const char* path);
 
 	std::vector<const char*> playlist;

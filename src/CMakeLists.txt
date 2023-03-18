@@ -32,7 +32,7 @@ if (ANDROID)
     android/mako.cpp
     sys/mako_midi.cpp
     )
-  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf ymfm)
+  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf SDL2_mixer ymfm)
 
 elseif (EMSCRIPTEN)
   add_executable(system3)
