@@ -496,6 +496,7 @@ void AGS::update_screen()
 		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 		SDL_SetRenderDrawColor(g_renderer, fade_color, fade_color, fade_color, fade_level);
 		SDL_RenderFillRect(g_renderer, NULL);
+		SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
 	}
 	SDL_RenderPresent(g_renderer);
