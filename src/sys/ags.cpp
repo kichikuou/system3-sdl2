@@ -179,9 +179,18 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	program_palette[0xdf] = SETPALETTE16(0xf, 0xf, 0xf);
 	program_palette[0xef] = SETPALETTE16(0xf, 0xf, 0xf);
 
-	// This improves text antialias
-	for (int i = 1; i <= 0xf; i++)
-		program_palette[0xf0 + i] = SETPALETTE16(i, i, i);
+	// To improve the quality of text antialiasing, preset the antialiasing
+	// colors for text drawn in the primary colors (red, green, blue, yellow,
+	// magenta, cyan, and white) on a black background.
+	for (int i = 1; i <= 7; i++) {
+		for (int j = 0; j <= 7; j++) {
+			int n = 255 * j / 7;
+			int r = (i & 4) ? n : 0;
+			int g = (i & 2) ? n : 0;
+			int b = (i & 1) ? n : 0;
+			program_palette[0xc0 + i * 8 + j] = SETPALETTE16(r, g, b);
+		}
+	}
 
 	memcpy(screen_palette, program_palette, sizeof(program_palette));
 
