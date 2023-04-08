@@ -129,6 +129,7 @@ public:
 	void translate_mouse_coords(int* x, int* y);
 
 	void save_screenshot(const char* path);
+	int calculate_menu_max(int window);
 
 	bool dirty;
 
@@ -140,7 +141,7 @@ public:
 	int dest_screen;
 
 	int scroll;
-	int screen_height;
+	int screen_width, screen_height;
 
 	// メッセージ表示
 	int text_dest_x;

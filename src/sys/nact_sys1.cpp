@@ -20,9 +20,6 @@
 #include "encoding.h"
 #include "texthook.h"
 
-// メニューの改ページ
-#define MENU_MAX (crc32_a == CRC32_INTRUDER ? 6 : 11)
-
 #define WAIT(tm) \
 { \
 	Uint32 dwTime = SDL_GetTicks() + (tm); \
@@ -111,6 +108,17 @@ void NACT_Sys1::opening()
 		ags->load_cg(38, -1);
 		cmd_a();
 		ags->draw_box(0);
+		break;
+	case CRC32_GAKUEN:
+	case CRC32_GAKUEN_ENG:
+		mako->set_cd_track(1, 1);
+		ags->load_cg(302, -1);
+		WAIT(3000);
+		ags->load_cg(303, -1);
+		WAIT(3000);
+		mako->play_music(1);
+		ags->load_cg(304, -1);
+		WAIT(4000);
 		break;
 	}
 }
@@ -303,6 +311,9 @@ void NACT_Sys1::cmd_set_menu()
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
+		if (crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG)
+			menu_window = 2;
+
 		output_console("\n$%x,", menu_addr[menu_index - 1]);
 	}
 }
@@ -372,6 +383,10 @@ void NACT_Sys1::cmd_open_verb()
 	// 表示する動詞のチェック
 	int chk[MAX_VERB], page = 0, cnt = 0;
 	
+	if (crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG)
+		menu_window = 1;
+	int menu_max = ags->calculate_menu_max(menu_window);
+
 	memset(chk, 0, sizeof(chk));
 	for(int i = 0; i < menu_index; i++) {
 		chk[menu_verb[i]] = 1;
@@ -390,7 +405,7 @@ top:
 	ags->menu_dest_y = 0;
 	ags->draw_menu = true;
 
-	if(cnt <= MENU_MAX) {
+	if(cnt <= menu_max) {
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_VERB; i++) {
 			if(chk[i]) {
@@ -412,7 +427,7 @@ top2:
 				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
 			page = i + 1;
-			if(index == MENU_MAX - 1) {
+			if(index == menu_max - 1) {
 				break;
 			}
 		}
@@ -446,6 +461,8 @@ top2:
 
 void NACT_Sys1::cmd_open_obj(int verb)
 {
+	int menu_max = ags->calculate_menu_max(menu_window);
+
 	// 目的語メニューの表示
 	verb_obj = false;
 
@@ -481,7 +498,7 @@ top:
 	ags->menu_dest_y = 0;
 	ags->draw_menu = true;
 
-	if(cnt <= MENU_MAX - 1) {
+	if(cnt <= menu_max - 1) {
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_OBJ; i++) {
 			if(chk[i]) {
@@ -509,7 +526,7 @@ top2:
 				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
 			page = i + 1;
-			if(index == MENU_MAX - 2) {
+			if(index == menu_max - 2) {
 				break;
 			}
 		}
@@ -620,11 +637,14 @@ void NACT_Sys1::cmd_g()
 
 	output_console("\nG %d:", page);
 
-	if(crc32_a == CRC32_INTRUDER) {
+	if (crc32_a == CRC32_INTRUDER) {
 		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
+	} else if (crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG) {
+		page = (page == 3) ? 94 : page;
 	}
 
-	ags->load_cg(page, -1);
+	if (enable_graphics)
+		ags->load_cg(page, -1);
 
 	if(crc32_a == CRC32_INTRUDER) {
 		if(page == 94) {
@@ -1011,6 +1031,41 @@ void NACT_Sys1::cmd_y()
 				fatal_error = true;
 				break;
 		}
+	} else if (crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG) {
+		switch (cmd) {
+			case 1:
+				RND = (param == 0 || param == 1) ? 0 : random(param);
+				break;
+			case 2:
+				// Clear variables up to param, though in practice param is always 21.
+				for (int i = 0; i <= param; i++) {
+					var[i] = 0;
+				}
+				break;
+			case 3:
+				{
+					char buf[16];
+					sprintf(buf, "%d", param);
+					ags->draw_text(buf);
+				}
+				break;
+			case 4:
+				if (param == 0) {
+					mako->play_music(1);
+				} else {
+					mako->stop_music();
+				}
+				break;
+			case 5:
+				enable_graphics = (param == 0);
+				break;
+			case 6:
+				// Dummied. 0 - "Display text slowly," 1 - disable.
+				break;
+			case 7:
+				// Dummied. 0 - "Switch to interlace mode," 1 - disable.
+				break;
+		}
 	} else {
 		switch(cmd) {
 			case 0:
@@ -1190,6 +1245,64 @@ void NACT_Sys1::cmd_z()
 			}
 		}
 		break;
+
+	case CRC32_GAKUEN:
+	case CRC32_GAKUEN_ENG:
+		if (param != 30 && (param < 34 || param > 46)) {
+			if (enable_graphics) {
+				ags->load_cg(param + 250, -1);
+			}
+		}
+
+		// Display the Gakuen Senki party status bar for party members. The Z commands make the slots appear in reverse, so 39 and 45 draw
+		// the box for character 1, 38 and 44 draw for character 2, and so on. Z 1, 30: draws the first character slot, which is always occupied.
+		//
+		// One the actual MSX, this bar was constructed in an irregular fashion. This code constructs a more consistent version, where each square
+		// is 35px wide with 2px borders on each side. Since the borders are overlapped, this means each sub-sprite is placed 37px apart.
+		else if (param == 46) {
+			// Originally this would have loaded Image 296, the party status bar, to screen 1 for future reference. However, due to trouble with
+			// the palette, I decided to load it before using each subcommand, instead.
+			/*ags->dest_screen = 1;
+			ags->load_cg(296, -1);
+			ags->dest_screen = 0;*/
+		}
+		else if (param == 30) {
+			// Load party status bar to screen 1.
+			ags->dest_screen = 1;
+			ags->load_cg(296, -1);
+			ags->dest_screen = 0;
+
+			// Draw Wataru's icon.
+			ags->src_screen = 1;
+			ags->copy(10, 182, 48, 224, 7, 210);
+			ags->src_screen = 0;
+		}
+		else if (param >= 34 && param <= 39) {
+			int x = (39 - param) * 37 + 45;
+
+			// Load party status bar to screen 1.
+			ags->dest_screen = 1;
+			ags->load_cg(296, -1);
+			ags->dest_screen = 0;
+
+			// Draw a blank party icon to init or clear the party box.
+			ags->src_screen = 1;
+			ags->copy(269, 182, 307, 224, x, 210);
+			ags->src_screen = 0;
+		}
+		else {
+			int x = (45 - param) * 37 + 45;
+
+			// Load party status bar to screen 1.
+			ags->dest_screen = 1;
+			ags->load_cg(296, -1);
+			ags->dest_screen = 0;
+
+			// Draw a party member's icon to the party bar.
+			ags->src_screen = 1;
+			ags->copy(x + 2, 182, x + 38, 224, x, 210);
+			ags->src_screen = 0;
+		}
 	}
 }
 

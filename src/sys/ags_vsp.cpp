@@ -141,7 +141,13 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 				c[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4) | ((b3 << 2) & 8);
 				c[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4) | ((b3 << 3) & 8);
 
-				uint32* dest = &vram[dest_screen][y + sy][(x + sx) * 8];
+				uint32* dest;
+				// Gakuen Senki uses exact sx values rather than 8x.
+				if (nact->crc32_a == CRC32_GAKUEN || nact->crc32_a == CRC32_GAKUEN_ENG)
+					dest = &vram[dest_screen][y + sy][(x * 8) + sx];
+				else
+					dest = &vram[dest_screen][y + sy][(x + sx) * 8];
+
 				if(transparent == -1) {
 					for(int i = 0; i < 8; i++) {
 						dest[i] = c[i] | base;
@@ -159,7 +165,20 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 
 	// 画面更新
 	if(dest_screen == 0 && extract_cg) {
-		draw_screen(sx * 8, sy, width * 8, height);
+		if (nact->crc32_a == CRC32_GAKUEN || nact->crc32_a == CRC32_GAKUEN_ENG) {
+			// Gakuen Senki's images were converted to VSP for the modern port, but don't always adhere to VSP's width restrictions, which demand
+			// every image width be a factor of 8. Thankfully, the exceptions are designed to fit into specific parts of the GUI, and so have
+			// consistent widths for each output position.
+			//
+			// As above, GS also uses exact sx values rather than values that are meant to be multiplied by 8.
+			if (sx == 289 && sy == 26) draw_screen(sx, sy, 188, height);
+			else if (sx == 289 && sy == 92) draw_screen(sx, sy, 190, height);
+			else if (sx == 278 && sy == 208) draw_screen(sx, sy, 212, height);
+			else draw_screen(sx, sy, width * 8, height);
+		}
+		else {
+			draw_screen(sx * 8, sy, width * 8, height);
+		}
 	}
 }
 

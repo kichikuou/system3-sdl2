@@ -32,6 +32,8 @@
 #define CRC32_VAMPIRE		0x957bcfbf	// Little Vampire
 #define CRC32_VAMPIRE_ENG		0x61985a7f	// Little Vampire (English) Patch 1.5
 #define CRC32_YAKATA		0x8cef6fa6	// ALICEの館
+#define CRC32_GAKUEN		0xe4d6ec66  // 学園戦記 (unofficial system1 port) 1.0JP
+#define CRC32_GAKUEN_ENG	0x6ba8c102  // Gakuen Senki (English) 1.0
 
 // SYSTEM2
 

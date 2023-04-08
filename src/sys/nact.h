@@ -183,6 +183,9 @@ protected:
 	// DPS
 	bool text_refresh;
 
+	// GAKUEN
+	bool enable_graphics = true;
+
 	bool column;		// 座標モード
 	bool wait_keydown;	// ウェイト時のキー受付
 	int text_wait_time;	// テキスト表示のウェイト

@@ -26,8 +26,6 @@ void init_menu(bool mouse_move_enabled)
 	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
 	HMENU hmenu = LoadMenu(hinst, MAKEINTRESOURCE(IDR_MENU1));
 	SetMenu(get_hwnd(g_window), hmenu);
-	// Let SDL recalc the window size, taking menu height into account.
-	SDL_SetWindowSize(g_window, 640, 400);
 	if (mouse_move_enabled)
 		CheckMenuItem(hmenu, ID_OPTION_MOUSE_MOVE, MF_BYCOMMAND | MFS_CHECKED);
 }

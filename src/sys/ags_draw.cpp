@@ -37,6 +37,8 @@ void AGS::load_cg(int page, int transparent)
 		case 1:
 			switch (nact->crc32_a) {
 			case CRC32_BUNKASAI:
+			case CRC32_GAKUEN:
+			case CRC32_GAKUEN_ENG:
 				load_vsp(data, page, transparent);
 				break;
 			case CRC32_INTRUDER:

@@ -38,8 +38,19 @@ static SDL_Surface* display_surface;
 
 AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 {
-	SDL_RenderSetLogicalSize(g_renderer, 640, 400);
-	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, 640, 400); // TOOD: pixelformat?
+	// 画面サイズ
+	if (nact->crc32_a == CRC32_GAKUEN || nact->crc32_a == CRC32_GAKUEN_ENG) {
+		screen_width = 512;
+		screen_height = 424;
+	} else {
+		screen_width = 640;
+		screen_height = 400;
+	}
+	scroll = screen_height;
+
+	SDL_SetWindowSize(g_window, screen_width, screen_height);
+	SDL_RenderSetLogicalSize(g_renderer, screen_width, screen_height);
+	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, screen_width, screen_height); // TOOD: pixelformat?
 
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
 	for(int i = 0; i < 3; i++) {
@@ -232,9 +243,11 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 			SET_MENU(i, 452, 14, 627, 214, true);
 			break;
 		case CRC32_VAMPIRE:
-		case CRC32_VAMPIRE_ENG:
 			SET_TEXT(i, 8, 255, 615, 383, false);
 			SET_MENU(i, 448, 11, 615, 224, false);
+		case CRC32_VAMPIRE_ENG:
+			SET_TEXT(i, 8, 255, 615, 383, false);
+			SET_MENU(i, 448, 11, 615, 234, false);
 			break;
 		case CRC32_YAKATA:
 			SET_TEXT(i, 48, 288, 594, 393, false);
@@ -251,6 +264,15 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 		case CRC32_YAKATA2:
 			SET_TEXT(i, 104, 304, 620, 382, false);
 			SET_MENU(i, 420, 28, 620, 244, true);
+			break;
+		case CRC32_GAKUEN:
+		case CRC32_GAKUEN_ENG:
+			SET_TEXT(i, 8, 260, 505, 384, false);
+			if (i == 1) {
+				SET_MENU(i, 128, 32, 337, 178, true);
+			} else {
+				SET_MENU(i, 288, 30, 433, 210, true);
+			}
 			break;
 		default:
 			SET_TEXT(i, 8, 311, 623, 391, true);
@@ -289,10 +311,6 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 
 	// 画面選択
 	src_screen = dest_screen = 0;
-
-	// 画面サイズ
-	screen_height = 400;
-	scroll = 400;
 
 	// メッセージ表示
 	text_dest_x = text_w[0].sx;
@@ -447,7 +465,7 @@ void AGS::flush_screen(bool update)
 		for(int y = 0; y < screen_height; y++) {
 			uint32* src = vram[0][y];
 			uint32* dest = surface_line(hBmpDest, y);
-			for(int x = 0; x < 640; x++) {
+			for(int x = 0; x < screen_width; x++) {
 				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
 					// あゆみちゃん物語 フルカラー実写版
 					dest[x] = src[x] & 0xffffff;
@@ -457,7 +475,7 @@ void AGS::flush_screen(bool update)
 			}
 		}
 	}
-	invalidate_screen(0, 0, 640, screen_height);
+	invalidate_screen(0, 0, screen_width, screen_height);
 }
 
 void AGS::draw_screen(int sx, int sy, int width, int height)
@@ -514,8 +532,8 @@ void AGS::update_screen()
 
 void AGS::save_screenshot(const char* path)
 {
-	SDL_Surface* sf = SDL_CreateRGBSurface(0, 640, screen_height, 32, 0, 0, 0, 0);
-	SDL_Rect r = {0, 0, 640, screen_height};
+	SDL_Surface* sf = SDL_CreateRGBSurface(0, screen_width, screen_height, 32, 0, 0, 0, 0);
+	SDL_Rect r = {0, 0, screen_width, screen_height};
 	SDL_UnlockSurface(hBmpDest);
 	SDL_BlitSurface(hBmpDest, &r, sf, NULL);
 	SDL_LockSurface(hBmpDest);
@@ -527,6 +545,14 @@ void AGS::save_screenshot(const char* path)
 	}
 
 	SDL_FreeSurface(sf);
+}
+
+int AGS::calculate_menu_max(int window) {
+	if (nact->crc32_a == CRC32_INTRUDER)
+		return 6;
+	if (nact->crc32_a == CRC32_GAKUEN || nact->crc32_a == CRC32_GAKUEN_ENG)
+		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (menu_font_size + 4);
+	return 11;
 }
 
 #ifdef __EMSCRIPTEN__

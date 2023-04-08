@@ -39,6 +39,8 @@ const struct CRCTable {
 	{"little_vampire", 1, "Little Vampire", JAPANESE, CRC32_VAMPIRE},
 	{"little_vampire_eng", 1, "Little Vampire", ENGLISH, CRC32_VAMPIRE_ENG},
 	{"yakata", 1, "ALICEの館", JAPANESE, CRC32_YAKATA},
+	{"gakuen", 1, "学園戦記", JAPANESE, CRC32_GAKUEN},
+	{"gakuen_eng", 1, "Gakuen Senki", ENGLISH, CRC32_GAKUEN_ENG},
 
 	{"ayumi_fd", 2, "あゆみちゃん物語", JAPANESE, CRC32_AYUMI_FD},
 	{"ayumi_hint", 2, "あゆみちゃん物語 ヒントディスク", JAPANESE, CRC32_AYUMI_HINT},
