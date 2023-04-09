@@ -97,6 +97,8 @@ BEGIN
     BEGIN
         MENUITEM "Window",                      ID_SCREEN_WINDOW
         MENUITEM "Fullscreen",                  ID_SCREEN_FULL
+        MENUITEM SEPARATOR
+        MENUITEM "Scanline effect",             ID_SCANLINE
     END
     POPUP "Option"
     BEGIN
@@ -153,6 +155,8 @@ BEGIN
     BEGIN
         MENUITEM "ウィンドウ",                  ID_SCREEN_WINDOW
         MENUITEM "フルスクリーン",              ID_SCREEN_FULL
+        MENUITEM SEPARATOR
+        MENUITEM "走査線エフェクト",            ID_SCANLINE
     END
     POPUP "オプション"
     BEGIN
@@ -209,6 +213,8 @@ BEGIN
     BEGIN
         MENUITEM "窗口化",                      ID_SCREEN_WINDOW
         MENUITEM "全屏化",                      ID_SCREEN_FULL
+        MENUITEM SEPARATOR
+        MENUITEM "Scanline effect",             ID_SCANLINE
     END
     POPUP "选项"
     BEGIN

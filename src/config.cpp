@@ -104,6 +104,8 @@ Config::Config(int argc, char *argv[])
 			title = argv[++i];
 		else if (strcmp(argv[i], "-timiditycfg") == 0)
 			timidity_cfg = argv[++i];
+		else if (strcmp(argv[i], "-scanline") == 0)
+			scanline = true;
 	}
 }
 
@@ -158,6 +160,8 @@ void Config::load_ini()
 				title = val;
 			else if (!strcasecmp(key, "timiditycfg"))
 				timidity_cfg = normalize_path(val);
+			else if (!strcasecmp(key, "scanline"))
+				scanline = to_bool(val, lineno);
 			else
 				WARNING(INIFILENAME ":%d unknown key '%s'", lineno, key);
 		} else if (current_section == STRING) {

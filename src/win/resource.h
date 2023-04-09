@@ -24,6 +24,7 @@
 #define ID_EXIT                         40002
 #define ID_SCREEN_WINDOW                40010
 #define ID_SCREEN_FULL                  40011
+#define ID_SCANLINE                     40012
 #define ID_OPTION_MOUSE_MOVE            40020
 #define ID_OPTION_FM                    40021
 #define ID_OPTION_MIDI                  40022

@@ -21,13 +21,15 @@ HWND get_hwnd(SDL_Window* window) {
 	return info.info.win.window;
 }
 
-void init_menu(bool mouse_move_enabled)
+void init_menu(bool mouse_move_enabled, bool scanline_enabled)
 {
 	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
 	HMENU hmenu = LoadMenu(hinst, MAKEINTRESOURCE(IDR_MENU1));
 	SetMenu(get_hwnd(g_window), hmenu);
 	if (mouse_move_enabled)
 		CheckMenuItem(hmenu, ID_OPTION_MOUSE_MOVE, MF_BYCOMMAND | MFS_CHECKED);
+	if (scanline_enabled)
+		CheckMenuItem(hmenu, ID_SCANLINE, MF_BYCOMMAND | MFS_CHECKED);
 }
 
 void init_console(int sys_ver)
@@ -129,7 +131,7 @@ void NACT::text_dialog()
 
 void NACT::platform_initialize()
 {
-	init_menu(mouse_move_enabled);
+	init_menu(mouse_move_enabled, config.scanline);
 	init_console(sys_ver);
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 }
@@ -187,6 +189,11 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 		case ID_SCREEN_FULL:
 			SDL_SetWindowFullscreen(g_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 			ags->flush_screen(true);
+			break;
+		case ID_SCANLINE:
+			ags->set_scanline_mode(!ags->get_scanline_mode());
+			CheckMenuItem(GetMenu(get_hwnd(g_window)), ID_SCANLINE, MF_BYCOMMAND |
+						  ags->get_scanline_mode() ? MFS_CHECKED : MFS_UNCHECKED);
 			break;
 		case ID_OPTION_MOUSE_MOVE:
 			mouse_move_enabled = !mouse_move_enabled;

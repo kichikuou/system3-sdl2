@@ -31,6 +31,7 @@ struct Config {
 	std::string timidity_cfg;
 	bool use_fm = false;
 	bool no_antialias = false;
+	bool scanline = false;
 
  private:
 	void load_ini();

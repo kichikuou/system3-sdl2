@@ -40,6 +40,7 @@ protected:
 	NACT* nact;
 private:
 	SDL_Texture* sdlTexture;
+	SDL_Texture* scanline_texture;
 
 	// Surface
 	SDL_Surface* hBmpScreen[3]; // 8bpp * 3 (表, 裏, メニュー)
@@ -128,6 +129,8 @@ public:
 	void select_cursor();
 	void translate_mouse_coords(int* x, int* y);
 
+	bool get_scanline_mode() const { return scanline_texture; }
+	void set_scanline_mode(bool enable);
 	void save_screenshot(const char* path);
 	int calculate_menu_max(int window);
 

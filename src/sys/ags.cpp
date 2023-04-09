@@ -36,6 +36,28 @@ static SDL_Surface* display_surface;
 	box[n].ey = y2; \
 }
 
+namespace {
+
+const uint32 SCANLINE_ALPHA = 0x38;  // 0-255
+
+SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int height)
+{
+	SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+	for (int y = 0; y < height; y++) {
+		uint32* p = surface_line(sf, y);
+		uint32 v = y % 2 ? (SCANLINE_ALPHA << 24) : 0;
+		for (int x = 0; x < width; x++) {
+			p[x] = v;
+		}
+	}
+	SDL_Texture* tx = SDL_CreateTextureFromSurface(renderer, sf);
+	SDL_SetTextureBlendMode(tx, SDL_BLENDMODE_BLEND);
+	SDL_FreeSurface(sf);
+	return tx;
+}
+
+} // namespace
+
 AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 {
 	// 画面サイズ
@@ -52,6 +74,7 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	SDL_SetWindowSize(g_window, window_width, window_height);
 	SDL_RenderSetLogicalSize(g_renderer, window_width, window_height);
 	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, screen_width, screen_height); // TOOD: pixelformat?
+	scanline_texture = NULL;
 
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
 	for(int i = 0; i < 3; i++) {
@@ -358,6 +381,8 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	// マウスカーソル
 	cursor_color = 15;
 	cursor_index = 0;
+
+	set_scanline_mode(config.scanline);
 }
 
 AGS::~AGS()
@@ -527,8 +552,24 @@ void AGS::update_screen()
 		SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
 	}
+	if (scanline_texture)
+		SDL_RenderCopy(g_renderer, scanline_texture, NULL, NULL);
 	SDL_RenderPresent(g_renderer);
 	dirty = false;
+}
+
+void AGS::set_scanline_mode(bool enable)
+{
+	if (enable && !scanline_texture) {
+		scanline_texture = create_scanline_texture(g_renderer, screen_width, screen_height);
+		dirty = true;
+		update_screen();
+	} else if (!enable && scanline_texture) {
+		SDL_DestroyTexture(scanline_texture);
+		scanline_texture = NULL;
+		dirty = true;
+		update_screen();
+	}
 }
 
 void AGS::save_screenshot(const char* path)
@@ -538,6 +579,14 @@ void AGS::save_screenshot(const char* path)
 	SDL_UnlockSurface(hBmpDest);
 	SDL_BlitSurface(hBmpDest, &r, sf, NULL);
 	SDL_LockSurface(hBmpDest);
+
+	if (scanline_texture) {
+		SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(sf);
+		SDL_Texture *tx = create_scanline_texture(renderer, screen_width, screen_height);
+		SDL_RenderCopy(renderer, tx, NULL, NULL);
+		SDL_DestroyTexture(tx);
+		SDL_DestroyRenderer(renderer);
+	}
 
 	if (SDL_SaveBMP(sf, path) != 0) {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3",
