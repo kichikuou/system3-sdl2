@@ -45,8 +45,8 @@ void NACT::pump_events()
 			break;
 
 		case SDL_MOUSEMOTION:
-			mousex = e.motion.x;
-			mousey = e.motion.y;
+			mousex = e.motion.x * ags->screen_width / ags->window_width;
+			mousey = e.motion.y * ags->screen_height / ags->window_height;
 			break;
 
 		case SDL_FINGERDOWN:

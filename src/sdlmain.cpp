@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 #ifdef __EMSCRIPTEN__
 	// Stop SDL from calling emscripten_sleep() in functions that are called
 	// indirectly, which does not work with ASYNCIFY_IGNORE_INDIRECT=1. For

@@ -40,16 +40,17 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 {
 	// 画面サイズ
 	if (nact->crc32_a == CRC32_GAKUEN || nact->crc32_a == CRC32_GAKUEN_ENG) {
+		window_width = 582;
 		screen_width = 512;
-		screen_height = 424;
+		window_height = screen_height = 424;
 	} else {
-		screen_width = 640;
-		screen_height = 400;
+		window_width = screen_width = 640;
+		window_height = screen_height = 400;
 	}
 	scroll = screen_height;
 
-	SDL_SetWindowSize(g_window, screen_width, screen_height);
-	SDL_RenderSetLogicalSize(g_renderer, screen_width, screen_height);
+	SDL_SetWindowSize(g_window, window_width, window_height);
+	SDL_RenderSetLogicalSize(g_renderer, window_width, window_height);
 	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, screen_width, screen_height); // TOOD: pixelformat?
 
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)

@@ -141,6 +141,7 @@ public:
 	int dest_screen;
 
 	int scroll;
+	int window_width, window_height;
 	int screen_width, screen_height;
 
 	// メッセージ表示
