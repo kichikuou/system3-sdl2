@@ -25,6 +25,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import java.io.*
 
@@ -32,10 +33,11 @@ private const val CONTENT_TYPE_ZIP = "application/zip"
 private const val INSTALL_REQUEST = 1
 private const val SAVEDATA_EXPORT_REQUEST = 2
 private const val SAVEDATA_IMPORT_REQUEST = 3
+private const val STATE_PROGRESS_TEXT = "progressText"
 
 class LauncherActivity : Activity(), LauncherObserver {
     private lateinit var launcher: Launcher
-    private var progressDialog: ProgressDialogFragment? = null
+    private var progressDialog: Dialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +46,7 @@ class LauncherActivity : Activity(), LauncherObserver {
         launcher = Launcher.getInstance(filesDir)
         launcher.observer = this
         if (launcher.isInstalling) {
-            showProgressDialog()
+            showProgressDialog(savedInstanceState)
         }
 
         onGameListChange()
@@ -59,7 +61,15 @@ class LauncherActivity : Activity(), LauncherObserver {
 
     override fun onDestroy() {
         launcher.observer = null
+        dismissProgressDialog()
         super.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        progressDialog?.let {
+            outState.putCharSequence(STATE_PROGRESS_TEXT, it.findViewById<TextView>(R.id.text).text)
+        }
+        super.onSaveInstanceState(outState)
     }
 
     private fun onListItemClick(position: Int) {
@@ -151,7 +161,7 @@ class LauncherActivity : Activity(), LauncherObserver {
     }
 
     override fun onInstallProgress(path: String) {
-        progressDialog?.setProgress(getString(R.string.install_progress, path))
+        progressDialog?.findViewById<TextView>(R.id.text)?.text = getString(R.string.install_progress, path)
     }
 
     override fun onInstallSuccess(path: File) {
@@ -176,9 +186,17 @@ class LauncherActivity : Activity(), LauncherObserver {
         launcher.uninstall(id)
     }
 
-    private fun showProgressDialog() {
-        progressDialog = ProgressDialogFragment()
-        progressDialog!!.show(fragmentManager, "progress_dialog")
+    private fun showProgressDialog(savedInstanceState: Bundle? = null) {
+        progressDialog = Dialog(this)
+        progressDialog!!.apply {
+            setTitle(R.string.install_dialog_title)
+            setCancelable(false)
+            setContentView(R.layout.progress_dialog)
+            savedInstanceState?.let {
+                findViewById<TextView>(R.id.text)?.text = it.getCharSequence(STATE_PROGRESS_TEXT)
+            }
+            show()
+        }
     }
 
     private fun dismissProgressDialog() {
@@ -191,20 +209,5 @@ class LauncherActivity : Activity(), LauncherObserver {
                 .setMessage(msgId)
                 .setPositiveButton(R.string.ok) {_, _ -> }
                 .show()
-    }
-}
-
-@Suppress("DEPRECATION") // for ProgressDialog
-class ProgressDialogFragment : DialogFragment() {
-    private lateinit var dialog: ProgressDialog
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        dialog = ProgressDialog(activity)
-        return dialog.apply {
-            setTitle(R.string.install_dialog_title)
-            setCancelable(true)
-        }
-    }
-    fun setProgress(msg: String) {
-        dialog.setMessage(msg)
     }
 }
