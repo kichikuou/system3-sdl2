@@ -339,6 +339,7 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	// メッセージ表示
 	text_dest_x = text_w[0].sx;
 	text_dest_y = text_w[0].sy + 2;
+	text_font_maxsize = 0;
 	text_space = 2;
 	text_font_size = 16;
 	if (nact->sys_ver == 1) {
