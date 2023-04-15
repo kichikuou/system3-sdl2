@@ -17,11 +17,13 @@
 */
 package io.github.kichikuou.system3
 
-import android.annotation.SuppressLint
 import android.os.Build
-import android.os.Handler
-import android.os.Message
 import android.util.Log
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.*
 import java.nio.charset.Charset
 import java.util.*
@@ -39,9 +41,6 @@ interface LauncherObserver {
 }
 
 private const val SAVE_DIR = "save"
-private const val PROGRESS = 0
-private const val SUCCESS = 1
-private const val FAILURE = 2
 
 class Launcher private constructor(private val rootDir: File) {
     companion object {
@@ -75,31 +74,28 @@ class Launcher private constructor(private val rootDir: File) {
         updateGameList()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun install(input: InputStream) {
         val dir = createDirForGame()
-        @SuppressLint("HandlerLeak")
-        val handler = object : Handler() {
-            override fun handleMessage(msg: Message) {
-                when (msg.what) {
-                    PROGRESS -> {
-                        observer?.onInstallProgress(msg.obj as String)
-                    }
-                    SUCCESS -> {
-                        isInstalling = false
-                        observer?.onInstallSuccess(msg.obj as File)
-                    }
-                    FAILURE -> {
-                        isInstalling = false
-                        observer?.onInstallFailure(msg.obj as Int)
+        isInstalling = true
+        GlobalScope.launch(Dispatchers.Main) {
+            try {
+                withContext(Dispatchers.IO) {
+                    extractFiles(input, dir) { msg ->
+                        GlobalScope.launch(Dispatchers.Main) {
+                            observer?.onInstallProgress(msg)
+                        }
                     }
                 }
+                observer?.onInstallSuccess(dir)
+            } catch (e: InstallFailureException) {
+                observer?.onInstallFailure(e.msgId)
+            } catch (e: Exception) {
+                Log.e("launcher", "Failed to extract ZIP", e)
+                observer?.onInstallFailure(R.string.zip_extraction_error)
             }
+            isInstalling = false
         }
-        val t = Thread {
-            extractFiles(input, dir, handler)
-        }
-        t.start()
-        isInstalling = true
     }
 
     fun uninstall(id: Int) {
@@ -185,28 +181,20 @@ class Launcher private constructor(private val rootDir: File) {
         }
     }
 
-    private fun extractFiles(input: InputStream, outDir: File, handler: Handler) {
-        try {
-            val configWriter = GameConfigWriter()
-            forEachZipEntry(input) { zipEntry, zip ->
-                Log.i("extractFiles", zipEntry.name)
-                val entryName = File(zipEntry.name).name
-                if (zipEntry.isDirectory)
-                    return@forEachZipEntry
-                handler.sendMessage(handler.obtainMessage(PROGRESS, entryName))
-                FileOutputStream(File(outDir, entryName)).buffered().use {
-                    zip.copyTo(it)
-                }
-                configWriter.maybeAdd(entryName)
+    private fun extractFiles(input: InputStream, outDir: File, progressCallback: (String) -> Unit) {
+        val configWriter = GameConfigWriter()
+        forEachZipEntry(input) { zipEntry, zip ->
+            Log.i("extractFiles", zipEntry.name)
+            val entryName = File(zipEntry.name).name
+            if (zipEntry.isDirectory)
+                return@forEachZipEntry
+            progressCallback(entryName)
+            FileOutputStream(File(outDir, entryName)).buffered().use {
+                zip.copyTo(it)
             }
-            configWriter.write(outDir)
-            handler.sendMessage(handler.obtainMessage(SUCCESS, outDir))
-        } catch (e: InstallFailureException) {
-            handler.sendMessage(handler.obtainMessage(FAILURE, e.msgId))
-        } catch (e: IOException) {
-            Log.e("launcher", "Failed to extract ZIP", e)
-            handler.sendMessage(handler.obtainMessage(FAILURE, R.string.zip_extraction_error))
+            configWriter.maybeAdd(entryName)
         }
+        configWriter.write(outDir)
     }
 
     // System3-sdl2 <=0.7.0 had a bug where playlist had an extra empty line at
@@ -217,7 +205,7 @@ class Launcher private constructor(private val rootDir: File) {
         if (!oldPlaylist.exists())
             return
         var tracks = oldPlaylist.readLines()
-        if (!tracks.isEmpty())
+        if (tracks.isNotEmpty())
             tracks = tracks.subList(1, tracks.size)
         File(dir, PLAYLIST_FILE).writeText(tracks.joinToString("\n"))
         oldPlaylist.delete()
