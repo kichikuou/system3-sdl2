@@ -619,7 +619,7 @@ void NACT_Sys3::cmd_l()
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
 		char file_name[_MAX_PATH];
-		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
+		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
@@ -711,7 +711,7 @@ void NACT_Sys3::cmd_l()
 	} else if(101 <= index && index <= 126) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
 		char file_name[_MAX_PATH];
-		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 101);
+		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 101);
 
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
@@ -880,7 +880,7 @@ void NACT_Sys3::cmd_q()
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
 		char file_name[_MAX_PATH];
-		sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
+		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
 		FILEIO* fio = new FILEIO();
 		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
@@ -1344,7 +1344,7 @@ void NACT_Sys3::cmd_y()
 		case 239:
 			if(1 <= param && param <= 26) {
 				char file_name[_MAX_PATH];
-				sprintf_s(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + param - 1);
+				snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + param - 1);
 
 				struct stat statbuf;
 				if (FILEIO::StatSavedata(file_name, &statbuf) != -1) {

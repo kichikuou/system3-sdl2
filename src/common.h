@@ -40,7 +40,6 @@ typedef int32_t int32;
 
 #define _MAX_PATH PATH_MAX
 #define sscanf_s sscanf
-#define sprintf_s snprintf
 
 inline void strcpy_s(char* dst, size_t n, const char* src)
 {

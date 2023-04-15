@@ -19,7 +19,7 @@ SDL_RWops* open_resource(const char* name, const char* type) {
 	// On Android, read from APK assets.
 	// On other platforms, read from a file under RESOURCE_PATH.
 	char path[_MAX_PATH];
-	sprintf_s(path, _MAX_PATH, "%s%s/%s", RESOURCE_PATH, type, name);
+	snprintf(path, _MAX_PATH, "%s%s/%s", RESOURCE_PATH, type, name);
 	return SDL_RWFromFile(path, "rb");
 #endif
 }

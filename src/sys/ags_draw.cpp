@@ -19,12 +19,12 @@ void AGS::load_cg(int page, int transparent)
 		// あゆみちゃん物語 フルカラー実写版
 		if(strncmp(acg, "CGA000.BMP", 10) == 0) {
 			char file_name[16];
-			sprintf(file_name, "CGA%03d.BMP", page);
+			snprintf(file_name, sizeof(file_name), "CGA%03d.BMP", page);
 			load_bmp(file_name);
 			return;
 		} else if(strncmp(acg, "CGB000.BMP", 10) == 0) {
 			char file_name[16];
-			sprintf(file_name, "CGB%03d.BMP",  page);
+			snprintf(file_name, sizeof(file_name), "CGB%03d.BMP", page);
 			load_bmp(file_name);
 			return;
 		}

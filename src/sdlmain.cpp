@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	const char* title = g_nact->get_title();
 	if (title) {
 		char buf[128];
-		sprintf_s(buf, 128, "System3-sdl2 " SYSTEM3_VERSION ": %s", title);
+		snprintf(buf, 128, "System3-sdl2 " SYSTEM3_VERSION ": %s", title);
 #ifdef __EMSCRIPTEN__
 		EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, buf);
 #else
