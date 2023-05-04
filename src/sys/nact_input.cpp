@@ -133,3 +133,14 @@ void NACT::set_cursor(int x, int y)
 	ags->translate_mouse_coords(&x, &y);
 	SDL_WarpMouseInWindow(g_window, x, y);
 }
+
+#ifdef __EMSCRIPTEN__
+extern "C" {
+
+EMSCRIPTEN_KEEPALIVE
+void simulate_right_button(int pressed) {
+	touch_state = pressed ? TOUCH_RBUTTON : TOUCH_NONE;
+}
+
+} // extern "C"
+#endif
