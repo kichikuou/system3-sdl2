@@ -73,8 +73,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
     include(FetchContent)
     FetchContent_Declare(sdl2
-      URL https://github.com/libsdl-org/SDL/releases/download/release-2.26.4/SDL2-devel-2.26.4-VC.zip
-      URL_HASH SHA1=0dea77fd5ead8c1a2134af3fc256578327e25879)
+      URL https://github.com/libsdl-org/SDL/releases/download/release-2.28.2/SDL2-devel-2.28.2-VC.zip
+      URL_HASH SHA1=50355b5cb6556fa86379cc62359150d74286f15c)
     FetchContent_GetProperties(sdl2)
     if (NOT sdl2_POPULATED)
       FetchContent_Populate(sdl2)
