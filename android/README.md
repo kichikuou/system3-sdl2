@@ -19,7 +19,7 @@ Then open `system3-sdl2/android` directory as an Android Studio project.
 ### Command line build
 Configure environment variables and run the `gradlew` script in this folder.
 
-Example build instructions (for Debian bullseye):
+Example build instructions (for Debian bookworm):
 ```sh
 # Install necessary packages
 sudo apt install git wget unzip default-jdk-headless ninja-build
@@ -27,8 +27,8 @@ sudo apt install git wget unzip default-jdk-headless ninja-build
 # Install Android SDK / NDK
 export ANDROID_SDK_ROOT=$HOME/android-sdk
 mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-unzip commandlinetools-linux-8512546_latest.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+unzip commandlinetools-linux-10406996_latest.zip -d $ANDROID_SDK_ROOT/cmdline-tools
 mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/tools
 yes |$ANDROID_SDK_ROOT/cmdline-tools/tools/bin/sdkmanager --licenses
 $ANDROID_SDK_ROOT/cmdline-tools/tools/bin/sdkmanager ndk-bundle 'cmake;3.22.1'
