@@ -1,69 +1,90 @@
 # System3 for SDL2
 
-This is a SDL2 port of [System3 for Win32](http://takeda-toshiya.my.coocan.jp/alice/) by Takeda Toshiya that supports multiple platforms, including Android and Emscripten.
+This is an SDL2 port of
+[System3 for Win32](http://takeda-toshiya.my.coocan.jp/alice/) by Takeda
+Toshiya. It supports multiple platforms, including Android and Emscripten.
 
 ## Building
 
 ### Linux (Debian, Ubuntu)
 
-    $ git submodule update --init
-    $ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
-    $ mkdir -p out/debug
-    $ cd out/debug
-    $ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
-    $ make
-    $ sudo make install
+```bash
+$ git submodule update --init
+$ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
+$ mkdir -p out/debug
+$ cd out/debug
+$ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
+$ make
+$ sudo make install
+```
 
 ### MacOS
 
-    $ git submodule update --init
-    $ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer
-    $ mkdir -p out/debug
-    $ cd out/debug
-    $ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
-    $ make
-    $ sudo make install
+```bash
+$ git submodule update --init
+$ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer
+$ mkdir -p out/debug
+$ cd out/debug
+$ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
+$ make
+$ sudo make install
+```
 
 ### Windows (MSYS2 mingw64)
 
-    $ git submodule update --init
-    $ pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
-    $ mkdir -p out/debug
-    $ cd out/debug
-    $ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
-    $ make
+```bash
+$ git submodule update --init
+$ pacman -S make mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_ttf
+$ mkdir -p out/debug
+$ cd out/debug
+$ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
+$ make
+```
 
 ### Windows (Microsoft Visual Studio)
-- Visual Studio 2019 can be used to clone this repository. It will automatically clone submodules too.
-  - If you're using an older version of Visual Studio, install Git and clone this repository with `--recurse-submodules` option.
-- Install [CMake](https://cmake.org/download/). (Visual Studio's CMake integration doesn't work.)
-- In the CMake GUI, press "Browse Source..." button and select the `src` folder of this repository.
-- Press "Browse Build..." button. Create a new folder (e.g. `out`) under the top folder of the repository, and select it.
-- Press "Configure" button. Specify the generator for your version of Visual Studio, and hit "Finish".
-- Press "Generate" button.
-- `System3.sln` file should be generated in the build folder. Open it with Visual Studio.
+
+- Visual Studio 2019 can be used to clone this repository and will
+  automatically clone submodules as well.
+  - If you're using an older version of Visual Studio, install Git and clone
+    this repository using the `--recurse-submodules` option.
+- Install [CMake](https://cmake.org/download/). (The CMake integration in
+  Visual Studio does not work.)
+- In the CMake GUI, press the "Browse Source..." button and select the `src`
+  folder of this repository.
+- Press the "Browse Build..." button. Create a new folder (e.g., `out`) under
+  the top-level directory of the repository and select it.
+- Press the "Configure" button. Specify the generator for your version of
+  Visual Studio and click "Finish."
+- Press the "Generate" button.
+- A `System3.sln` file should be generated in the build folder. Open it with
+  Visual Studio.
 
 ### Emscripten
 
-    $ git submodule update --init
-    $ mkdir -p out/wasm
-    $ cd out/wasm
-    $ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../../src/
-    $ make
+```bash
+$ git submodule update --init
+$ mkdir -p out/wasm
+$ cd out/wasm
+$ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../../src/
+$ make
+```
 
-To use the Emscripten build, check out https://github.com/kichikuou/web and copy `out/wasm/system3.*` into its `docs` directory.
+To use the Emscripten build, check out https://github.com/kichikuou/web and
+copy the `out/wasm/system3.*` files into its `docs` directory.
 
 ### Android
 
-See [android/README.md](android/).
+See [android/README.md](android/README.md).
 
 ### Nintendo Switch
 
 See [switch/README.md](switch/README.md).
 
 ## Running
+
 Usage:
-```
+
+```bash
 system3 [options]
 ```
 
@@ -73,29 +94,38 @@ system3 [options]
 Disables text anti-aliasing.
 
 #### `-fontfile` _filename_
-Specifies a font file used to render text. `.ttf` and `.otf` files are supported.
+Specifies the font file used for rendering text. Both `.ttf` and `.otf` files
+are supported.
 
 #### `-playlist` _filename_
-_filename_ is a text file that specifies audio files to be played instead of CD audio tracks, one per line. For example:
+_filename_ is a text file that lists the audio files to play in lieu of CD
+audio tracks, one per line. For example:
 
-```
+```plaintext
 # This line is ignored
 BGM/track02.mp3
 BGM/track03.mp3
 ...
 ```
-The first line is not used, because track 1 of game CD is usually a data track.
+The first line is not used because track 1 on a game CD is usually a data
+track.
 
 #### `-fm`
-Use FM tone generator emulation. If not specified, MIDI sound is used.
+Uses FM tone generator emulation. If not specified, MIDI sound is used.
 
 #### `-timiditycfg` _filename_
-Specified a specific configuration file in a [format for TiMidity](https://manpages.ubuntu.com/manpages/bionic/en/man5/timidity.cfg.5.html) to use (used in some platforms by SDL_Mixer).
+Specifies a particular configuration file in a
+[format compatible with TiMidity](https://manpages.ubuntu.com/manpages/bionic/en/man5/timidity.cfg.5.html)
+to use (this is utilized by SDL_Mixer on some platforms).
 
 #### `-game` _game_id_
-Since System1-3 behave slightly differently depending on the game, `system3` uses fingerprint of the scenario file (ADISK.DAT) to determine which game you are playing. This option allows you to override this. This is useful when running patched games.
+As System1-3 have slight variations depending on the game, `system3` uses the
+fingerprint of the scenario file (ADISK.DAT) to identify the game being played.
+This option allows you to override this detection, which is useful when running
+patched games.
 
-Here's the list of available game IDs and corresponding titles:
+Here is a list of available game IDs and their corresponding titles:
+
 | game_id | Title |
 ----------|--------
 | `bunkasai` | あぶない文化祭前夜 |
@@ -150,13 +180,16 @@ Here's the list of available game IDs and corresponding titles:
 | `ningyo` | 人魚 -蘿子- |
 | `mugen` | 夢幻泡影 |
 
-### Configuration file `system3.ini`
-Every option that can be set via the command line flags can also be configured
-via the `system3.ini` file placed in the game folder. See
-[`system3.ini.example`](system3.ini.example) for the file format and available
-options. Options specified on the command line override `system3.ini`.
+### Configuration File `system3.ini`
 
-## Localizing a game
-System3-sdl2 supports localization, while the original System1-3 only supported
-Japanese. If you are interested in translating games, check out
+Every option that can be set via command line flags can also be configured
+through the `system3.ini` file located in the game folder. Refer to
+[`system3.ini.example`](system3.ini.example) for the file format and available
+options. Options specified on the command line will override those in
+`system3.ini`.
+
+## Localizing a Game
+
+System3-sdl2 supports localization, whereas the original System1-3 only
+supported Japanese. If you're interested in translating games, check out
 [Sys0Decompiler](https://alicesoft.fandom.com/wiki/User_blog:RottenBlock/System_Programming_Resources).

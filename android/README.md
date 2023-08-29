@@ -1,7 +1,8 @@
 # System3 for Android
 
 ## Download
-Prebuilt APKs are [here](https://github.com/kichikuou/system3-sdl2/releases).
+You can download prebuilt APKs
+[here](https://github.com/kichikuou/system3-sdl2/releases).
 
 ## Build
 Prerequisites:
@@ -9,15 +10,15 @@ Prerequisites:
 - Android NDK >=r15c
 
 ### Using Android Studio
-Clone this repository and its submodules:
+Clone this repository along with its submodules:
 ```sh
 git clone --recurse-submodules https://github.com/kichikuou/system3-sdl2.git
 ```
 
-Then open `system3-sdl2/android` directory as an Android Studio project.
+Next, open the `system3-sdl2/android` directory as an Android Studio project.
 
-### Command line build
-Configure environment variables and run the `gradlew` script in this folder.
+### Command Line Build
+Set environment variables and run the `gradlew` script in this directory.
 
 Example build instructions (for Debian bookworm):
 ```sh
@@ -30,36 +31,44 @@ mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
 wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
 unzip commandlinetools-linux-10406996_latest.zip -d $ANDROID_SDK_ROOT/cmdline-tools
 mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/tools
-yes |$ANDROID_SDK_ROOT/cmdline-tools/tools/bin/sdkmanager --licenses
+yes | $ANDROID_SDK_ROOT/cmdline-tools/tools/bin/sdkmanager --licenses
 $ANDROID_SDK_ROOT/cmdline-tools/tools/bin/sdkmanager ndk-bundle 'cmake;3.22.1'
 export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk-bundle
 
-# Check out and build system3-sdl2
+# Clone and build system3-sdl2
 git clone --recurse-submodules https://github.com/kichikuou/system3-sdl2.git
 cd system3-sdl2/android
 ./gradlew build  # or ./gradlew installDebug if you have a connected device
 ```
 
-## Use
+## Usage
 ### Basic Usage
-1. Create a ZIP file containing all the game files and BGM files (see [below](#preparing-a-zip) for details), and transfer it to your device.
-2. Open the app. A list of installed games is displayed. Since nothing has been installed yet, only the "Install from ZIP" button is displayed. Tap it.
-3. Select the ZIP file you created in 1.
-4. The game starts. Two-finger touch is treated as a right click.
+1. Create a ZIP file containing all the game files and BGM files (see
+   [below](#preparing-a-zip) for details), and transfer it to your device.
+2. Open the app. A list of installed games will be displayed. Since no games
+   have been installed yet, only the "Install from ZIP" button will be visible.
+   Tap it.
+3. Select the ZIP file you created in step 1.
+4. The game will start. To simulate a right-click, tap the black bars on either
+   the left or right, or top or bottom of the screen.
 
 ### Preparing a ZIP
 - Include all `.DAT` files.
-- Music files (`.mp3`, `.ogg` or `.wav`) whose file names end with a number are recognized as BGM files. For example:
+- Music files (`.mp3`, `.ogg`, or `.wav`) whose filenames end with a number are
+  recognized as BGM files. For example:
   - `Track2.mp3`
   - `15.ogg`
-  - `rance41_03.wav` (This shouldn't be `rance4103.wav`, because it would be treated as the 4103rd track)
+  - `rance41_03.wav` (Note: The filename shouldn't be `rance4103.wav`, as it
+    would be treated as the 4103rd track.)
 
-Note: This form of ZIP can be used in [Kichikuou on Web](http://kichikuou.github.io/web/) as well.
+Note: This ZIP format is also compatible with
+[Kichikuou on Web](http://kichikuou.github.io/web/).
 
 ### Miscellaneous
-- You can export / import saved files using the option menu of the game list.
-- To uninstall a game, long-tap the title in the game list.
-- System menu pops up with 3-finger touch during game play.
+- You can export or import save files via the game list's option menu.
+- To uninstall a game, long-tap its title in the game list.
+- A system menu will appear when you use a three-finger touch during gameplay.
 
 ## Known Issues
-- Installation from a ZIP containing multiple games (e.g. DPS series) does not work well.
+- Installing from a ZIP file containing multiple games (e.g., the DPS series)
+  may not work correctly.
