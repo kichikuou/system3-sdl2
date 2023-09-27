@@ -90,11 +90,11 @@ int main(int argc, char *argv[])
 	EM_ASM( xsystem35.shell.windowSizeChanged(); );
 #endif
 
-	bool restart = true;
-	while (restart) {
-		restart = g_nact->mainloop();
+	int exit_code = NACT_RESTART;
+	while (exit_code == NACT_RESTART) {
+		exit_code = g_nact->mainloop();
 		delete g_nact;
-		if (restart)
+		if (exit_code == NACT_RESTART)
 			g_nact = NACT::create(config);
 	}
 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 	romfsExit();
 #endif
 
-    return 0;
+    return exit_code;
 }
 
 #ifdef __EMSCRIPTEN__
@@ -115,7 +115,7 @@ extern "C"
 EMSCRIPTEN_KEEPALIVE
 void sys_restart()
 {
-	g_nact->quit(true);
+	g_nact->quit(NACT_RESTART);
 }
 
 #endif

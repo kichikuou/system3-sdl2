@@ -1402,8 +1402,7 @@ void NACT_Sys3::cmd_y()
 			RND = (crc32_a == CRC32_YAKATA3_CD || crc32_a == CRC32_YAKATA3_FD || crc32_a == CRC32_NINGYO) ? 1 : 0;
 			break;
 		case 255:
-			post_quit = (param == 1) ? true : false;
-			fatal_error = true;
+			quit(param == 1 ? NACT_HALT : 0);
 			break;
 	}
 }

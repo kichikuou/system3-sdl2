@@ -109,7 +109,6 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 	}
 
 	terminate = false;
-	restart_after_terminate = false;
 }
 
 NACT::~NACT()
@@ -126,7 +125,7 @@ NACT::~NACT()
 	platform_finalize();
 }
 
-bool NACT::mainloop()
+int NACT::mainloop()
 {
 	msgskip->load_from_file();
 
@@ -138,13 +137,17 @@ bool NACT::mainloop()
 			sys_sleep(10);
 		}
 	}
-	return restart_after_terminate;
+	while (exit_code == NACT_HALT) {
+		// exit_code can change if the user selects restart or exit from the menu.
+		sys_sleep(16);
+	}
+	return exit_code;
 }
 
-void NACT::quit(bool restart)
+void NACT::quit(int code)
 {
+	exit_code = code;
 	terminate = true;
-	restart_after_terminate = restart;
 }
 
 // コマンドパーサ
@@ -155,14 +158,6 @@ void NACT::execute()
 	// アドレスの確認
 	if(scenario_addr < 2 || scenario_addr >= scenario_size) {
 		fatal("Scenario error");
-	}
-
-	// 致命的なエラー発生 or 正常終了
-	if(fatal_error) {
-		if(!post_quit) {
-			quit(false);
-		}
-		post_quit = true;
 		return;
 	}
 
@@ -563,7 +558,7 @@ void NACT::fatal(const char* format, ...) {
 	vsnprintf(buf, sizeof buf, format, args);
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Fatal Error: %s", buf);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3", buf, g_window);
-	fatal_error = true;
+	quit(0);
 }
 
 NACT* NACT::create(const Config& config) {

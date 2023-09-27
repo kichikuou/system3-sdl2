@@ -90,6 +90,10 @@ enum Language {
 	ENGLISH = 1,
 };
 
+// special codes for NACT::exit_code
+const int NACT_HALT = -1;
+const int NACT_RESTART = -2;
+
 class NACT
 {
 public:
@@ -105,9 +109,6 @@ protected:
 	// コマンドパーサ
 	void execute();
 	void load_scenario(int page);
-
-	bool fatal_error = false;
-	bool post_quit = false;
 
 	// ADISK.DAT, ASLEEP.DAT
 	char adisk[16];
@@ -245,16 +246,16 @@ protected:
 
 	// 終了フラグ
 	bool terminate;
-	bool restart_after_terminate;
+	int exit_code;
 
 	// Platform-specific setup / cleanup code
 	void platform_initialize();
 	void platform_finalize();
 
 public:
-	bool mainloop();
+	int mainloop();
 	void sys_sleep(int ms);
-	void quit(bool restart);
+	void quit(int code);
 
 	int get_screen_height();
 

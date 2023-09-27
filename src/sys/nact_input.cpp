@@ -32,7 +32,7 @@ void NACT::pump_events()
 
 		switch (e.type) {
 		case SDL_QUIT:
-			quit(false);
+			quit(0);
 			break;
 
 		case SDL_WINDOWEVENT:

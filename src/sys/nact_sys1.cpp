@@ -1017,8 +1017,7 @@ void NACT_Sys1::cmd_y()
 				break;
 			case 2:
 				if(param == 0) {
-					post_quit = true;
-					fatal_error = true;
+					quit(NACT_HALT);
 				} else {
 					WAIT(100)
 				}
@@ -1027,8 +1026,7 @@ void NACT_Sys1::cmd_y()
 				WAIT(param * 1000)
 				break;
 			case 255:
-				post_quit = true;
-				fatal_error = true;
+				quit(NACT_HALT);
 				break;
 		}
 	} else if (crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG) {
@@ -1154,19 +1152,17 @@ void NACT_Sys1::cmd_y()
 				ags->draw_hankaku = (param == 1) ? true : false;
 				break;
 			case 253:
-				post_quit = false;
-				fatal_error = true;
+				quit(0);
 				break;
 			case 254:
 				RND = 0;
 				break;
 			case 255:
 				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
-					post_quit = false;
+					quit(0);
 				} else {
-					post_quit = true;
+					quit(NACT_HALT);
 				}
-				fatal_error = true;
 				break;
 		}
 	}
