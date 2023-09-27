@@ -32,7 +32,11 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 		cd_track[i] = 0;
 }
 
-MAKO::~MAKO() {}
+MAKO::~MAKO()
+{
+	stop_pcm();
+	stop_music();
+}
 
 void MAKO::play_music(int page)
 {
