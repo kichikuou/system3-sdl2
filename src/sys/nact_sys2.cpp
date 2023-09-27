@@ -1242,7 +1242,7 @@ void NACT_Sys2::cmd_y()
 			RND = 0;
 			break;
 		case 255:
-			quit(param == 1 ? NACT_HALT : 0);
+			quit(param == 1 ? NACT_HALT : RND);
 			break;
 	}
 // Y1
