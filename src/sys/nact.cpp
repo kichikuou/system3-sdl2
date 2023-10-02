@@ -147,8 +147,7 @@ int NACT::mainloop()
 void NACT::quit(int code)
 {
 #ifdef __EMSCRIPTEN__
-	if (code >= 0)
-		code = NACT_RESTART;  // Restarts the game instead of exiting.
+	code = EM_ASM_INT({ return xsystem35.shell.onExit($0); }, code);
 #endif
 	exit_code = code;
 	terminate = true;
