@@ -33,5 +33,5 @@ jobs:
       run: |
         mkdir -p out/debug
         cd out/debug
-        cmake -G"Ninja" -DCMAKE_BUILD_TYPE=Debug ../../src/
+        cmake -G"Ninja" -DCMAKE_BUILD_TYPE=Debug ../../
         ninja

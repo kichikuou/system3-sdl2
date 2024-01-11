@@ -13,7 +13,7 @@ $ git submodule update --init
 $ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
 $ mkdir -p out/debug
 $ cd out/debug
-$ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
+$ cmake -DCMAKE_BUILD_TYPE=Debug ../../
 $ make
 $ sudo make install
 ```
@@ -25,7 +25,7 @@ $ git submodule update --init
 $ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer
 $ mkdir -p out/debug
 $ cd out/debug
-$ cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
+$ cmake -DCMAKE_BUILD_TYPE=Debug ../../
 $ make
 $ sudo make install
 ```
@@ -37,7 +37,7 @@ $ git submodule update --init
 $ pacman -S make mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_ttf
 $ mkdir -p out/debug
 $ cd out/debug
-$ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../src/
+$ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../
 $ make
 ```
 
@@ -49,7 +49,7 @@ $ make
     this repository using the `--recurse-submodules` option.
 - Install [CMake](https://cmake.org/download/). (The CMake integration in
   Visual Studio does not work.)
-- In the CMake GUI, press the "Browse Source..." button and select the `src`
+- In the CMake GUI, press the "Browse Source..." button and select the root
   folder of this repository.
 - Press the "Browse Build..." button. Create a new folder (e.g., `out`) under
   the top-level directory of the repository and select it.
@@ -65,7 +65,7 @@ $ make
 $ git submodule update --init
 $ mkdir -p out/wasm
 $ cd out/wasm
-$ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../../src/
+$ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../../
 $ make
 ```
 

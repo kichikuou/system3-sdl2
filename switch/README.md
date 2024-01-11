@@ -12,7 +12,7 @@ git submodule update --init
 sudo (dkp-)pacman -S switch-dev switch-sdl2 switch-sdl2_ttf switch-sdl2_mixer
 mkdir -p out/debug
 cd out/debug
-/opt/devkitpro/portlibs/switch/bin/aarch64-none-elf-cmake -DCMAKE_BUILD_TYPE=Debug ../../src/
+/opt/devkitpro/portlibs/switch/bin/aarch64-none-elf-cmake -DCMAKE_BUILD_TYPE=Debug ../../
 make
 ```
 

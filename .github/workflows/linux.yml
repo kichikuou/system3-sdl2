@@ -23,5 +23,5 @@ jobs:
       run: |
         mkdir -p out/${{ matrix.build-type }}
         cd out/${{ matrix.build-type }}
-        cmake -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} ../../src/
+        cmake -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} ../../
         make

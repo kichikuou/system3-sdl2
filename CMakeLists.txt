@@ -18,19 +18,19 @@ if (MSVC)
 endif ()
 
 add_library(ymfm
-  ../deps/ymfm/src/ymfm_opn.cpp
-  ../deps/ymfm/src/ymfm_adpcm.cpp
-  ../deps/ymfm/src/ymfm_ssg.cpp)
-target_include_directories(ymfm PUBLIC ../deps/ymfm/src)
+  deps/ymfm/src/ymfm_opn.cpp
+  deps/ymfm/src/ymfm_adpcm.cpp
+  deps/ymfm/src/ymfm_ssg.cpp)
+target_include_directories(ymfm PUBLIC deps/ymfm/src)
 
 
 if (ANDROID)
   add_library(system3 SHARED)
 
   target_sources(system3 PRIVATE
-    android/nact_android.cpp
-    android/mako.cpp
-    sys/mako_midi.cpp
+    src/android/nact_android.cpp
+    src/android/mako.cpp
+    src/sys/mako_midi.cpp
     )
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf SDL2_mixer ymfm)
 
@@ -38,8 +38,8 @@ elseif (EMSCRIPTEN)
   add_executable(system3)
 
   target_sources(system3 PRIVATE
-    emscripten/nact_emscripten.cpp
-    emscripten/mako.cpp
+    src/emscripten/nact_emscripten.cpp
+    src/emscripten/mako.cpp
     )
   set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
   target_compile_options(system3 PRIVATE ${LIBS})
@@ -125,10 +125,10 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(system3 PRIVATE
-      win/nact_win.cpp
-      win/mako.cpp
-      win/resource.rc
-      sys/mako_midi.cpp
+      src/win/nact_win.cpp
+      src/win/mako.cpp
+      src/win/resource.rc
+      src/sys/mako_midi.cpp
       )
     target_link_libraries(system3 PRIVATE winmm)
     if (MSYS)
@@ -137,47 +137,47 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   else()
     pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
     target_sources(system3 PRIVATE
-      linux/nact_linux.cpp
-      linux/mako.cpp
-      sys/mako_midi.cpp
+      src/linux/nact_linux.cpp
+      src/linux/mako.cpp
+      src/sys/mako_midi.cpp
       )
     target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
     set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
     install(TARGETS system3 RUNTIME DESTINATION bin)
-    install(DIRECTORY ../resources/
+    install(DIRECTORY resources/
       DESTINATION share/system3
       FILES_MATCHING PATTERN *.MDA PATTERN *.ttf)
   endif()
 endif()
 
 target_sources(system3 PRIVATE
-  sdlmain.cpp
-  config.cpp
-  fileio.cpp
-  resource.cpp
-  encoding.cpp
-  texthook.cpp
-  fm/makofm.cpp
-  fm/mako_ymfm.cpp
-  sys/ags.cpp
-  sys/ags_bmp.cpp
-  sys/ags_cursor.cpp
-  sys/ags_draw.cpp
-  sys/ags_gl3.cpp
-  sys/ags_gm3.cpp
-  sys/ags_pms.cpp
-  sys/ags_text.cpp
-  sys/ags_vsp.cpp
-  sys/ags_vsp2l.cpp
-  sys/ags_window.cpp
-  sys/dri.cpp
-  sys/msgskip.cpp
-  sys/nact.cpp
-  sys/nact_crc32.cpp
-  sys/nact_input.cpp
-  sys/nact_sys1.cpp
-  sys/nact_sys2.cpp
-  sys/nact_sys3.cpp
+  src/sdlmain.cpp
+  src/config.cpp
+  src/fileio.cpp
+  src/resource.cpp
+  src/encoding.cpp
+  src/texthook.cpp
+  src/fm/makofm.cpp
+  src/fm/mako_ymfm.cpp
+  src/sys/ags.cpp
+  src/sys/ags_bmp.cpp
+  src/sys/ags_cursor.cpp
+  src/sys/ags_draw.cpp
+  src/sys/ags_gl3.cpp
+  src/sys/ags_gm3.cpp
+  src/sys/ags_pms.cpp
+  src/sys/ags_text.cpp
+  src/sys/ags_vsp.cpp
+  src/sys/ags_vsp2l.cpp
+  src/sys/ags_window.cpp
+  src/sys/dri.cpp
+  src/sys/msgskip.cpp
+  src/sys/nact.cpp
+  src/sys/nact_crc32.cpp
+  src/sys/nact_input.cpp
+  src/sys/nact_sys1.cpp
+  src/sys/nact_sys2.cpp
+  src/sys/nact_sys3.cpp
   )
 
 if(NINTENDO_SWITCH)
@@ -191,12 +191,12 @@ if(NINTENDO_SWITCH)
 
   nx_create_nro(system3
     NACP system3.nacp
-    ICON "../switch/icon.jpg"
-    ROMFS "../resources"
+    ICON "switch/icon.jpg"
+    ROMFS "resources"
   )
 endif()
 
 target_compile_definitions(system3 PRIVATE
   $<$<CONFIG:Debug>:_DEBUG_CONSOLE>
   RESOURCE_PATH="${RESOURCE_PATH}")
-target_include_directories(system3 PRIVATE . sys)
+target_include_directories(system3 PRIVATE src src/sys)

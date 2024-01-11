@@ -47,7 +47,7 @@ if(NOT sdl_mixer_POPULATED)
 endif()
 
 # The main CMakeLists.txt of system3
-add_subdirectory(${PROJECT_ROOT_DIR}/src src)
+add_subdirectory(${PROJECT_ROOT_DIR} src)
 
 # Copy asset files
 set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src/main/assets)

@@ -24,7 +24,7 @@ jobs:
       run: |
         mkdir out
         cd out
-        cmake -G "Visual Studio 17 2022" -A ${{ matrix.arch }} ../src/
+        cmake -G "Visual Studio 17 2022" -A ${{ matrix.arch }} ../
         cmake --build . --config Release
         cmake --install . --prefix artifacts
         cp ../COPYING.txt artifacts/
