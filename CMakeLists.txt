@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 
 # Enable CMAKE_MSVC_RUNTIME_LIBRARY, requires CMake >=3.15
-cmake_policy(SET CMP0091 NEW)
+if (POLICY CMP0091)
+  cmake_policy(SET CMP0091 NEW)
+endif ()
 
 project(System3 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
@@ -69,20 +71,14 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     FetchContent_Declare(sdl2
       URL https://github.com/libsdl-org/SDL/releases/download/release-2.28.5/SDL2-devel-2.28.5-VC.zip
       URL_HASH SHA1=7469e9ea44d30a48b0510328cd94b25596e0aa0f)
-    FetchContent_GetProperties(sdl2)
-    if (NOT sdl2_POPULATED)
-      FetchContent_Populate(sdl2)
-    endif()
+    FetchContent_MakeAvailable(sdl2)
     find_package(SDL2 REQUIRED CONFIG PATHS ${sdl2_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
     get_target_property(SDL2_DLL SDL2::SDL2 IMPORTED_LOCATION)
 
     FetchContent_Declare(sdl2_ttf
       URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.20.2/SDL2_ttf-devel-2.20.2-VC.zip
       URL_HASH SHA1=dee48e9c5184c139aa8bcab34a937d1b3df4f503)
-    FetchContent_GetProperties(sdl2_ttf)
-    if (NOT sdl2_ttf_POPULATED)
-      FetchContent_Populate(sdl2_ttf)
-    endif()
+    FetchContent_MakeAvailable(sdl2_ttf)
     find_package(SDL2_ttf REQUIRED CONFIG PATHS ${sdl2_ttf_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
     get_target_property(SDL2TTF_DLL SDL2_ttf::SDL2_ttf IMPORTED_LOCATION)
     get_filename_component(SDL2TTF_LIBDIR ${SDL2TTF_DLL} DIRECTORY)
