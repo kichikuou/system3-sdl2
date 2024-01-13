@@ -65,12 +65,6 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   target_link_libraries(system3 PRIVATE ymfm)
 
   if (MSVC)
-    if (CMAKE_VS_PLATFORM_NAME STREQUAL "Win32")
-      set(ARCH "x86")
-    else()
-      set(ARCH "x64")
-    endif()
-
     include(FetchContent)
     FetchContent_Declare(sdl2
       URL https://github.com/libsdl-org/SDL/releases/download/release-2.28.5/SDL2-devel-2.28.5-VC.zip
@@ -79,14 +73,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     if (NOT sdl2_POPULATED)
       FetchContent_Populate(sdl2)
     endif()
-    set(SDL2_LIB_DIR "${sdl2_SOURCE_DIR}/lib/${ARCH}")
-    add_library(SDL2 SHARED IMPORTED)
-    target_include_directories(SDL2 INTERFACE ${sdl2_SOURCE_DIR}/include)
-    set_target_properties(SDL2 PROPERTIES
-      IMPORTED_LOCATION ${SDL2_LIB_DIR}/SDL2.dll
-      IMPORTED_IMPLIB ${SDL2_LIB_DIR}/SDL2.lib
-      )
-    target_link_libraries(SDL2 INTERFACE ${SDL2_LIB_DIR}/SDL2main.lib)
+    find_package(SDL2 REQUIRED CONFIG PATHS ${sdl2_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
+    get_target_property(SDL2_DLL SDL2::SDL2 IMPORTED_LOCATION)
 
     FetchContent_Declare(sdl2_ttf
       URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.20.2/SDL2_ttf-devel-2.20.2-VC.zip
@@ -95,26 +83,19 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     if (NOT sdl2_ttf_POPULATED)
       FetchContent_Populate(sdl2_ttf)
     endif()
-    set(SDL2TTF_LIB_DIR "${sdl2_ttf_SOURCE_DIR}/lib/${ARCH}")
-    add_library(SDL2TTF SHARED IMPORTED)
-    target_include_directories(SDL2TTF INTERFACE ${sdl2_ttf_SOURCE_DIR}/include)
-    set_target_properties(SDL2TTF PROPERTIES
-      IMPORTED_LOCATION ${SDL2TTF_LIB_DIR}/SDL2_ttf.dll
-      IMPORTED_IMPLIB ${SDL2TTF_LIB_DIR}/SDL2_ttf.lib
-      )
+    find_package(SDL2_ttf REQUIRED CONFIG PATHS ${sdl2_ttf_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
+    get_target_property(SDL2TTF_DLL SDL2_ttf::SDL2_ttf IMPORTED_LOCATION)
+    get_filename_component(SDL2TTF_LIBDIR ${SDL2TTF_DLL} DIRECTORY)
 
     target_compile_definitions(system3 PRIVATE _CRT_NONSTDC_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
     target_compile_options(system3 PRIVATE /utf-8 /wd4244)
-    target_link_libraries(system3 PRIVATE SDL2 SDL2TTF)
+    target_link_libraries(system3 PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2_ttf::SDL2_ttf)
     set_target_properties(system3 PROPERTIES
       WIN32_EXECUTABLE TRUE
-      VS_DEBUGGER_ENVIRONMENT "PATH=${SDL2_LIB_DIR}$<SEMICOLON>${SDL2TTF_LIB_DIR}$<SEMICOLON>$ENV{PATH}")
+      VS_DEBUGGER_ENVIRONMENT "PATH=${SDL2_LIBDIR}$<SEMICOLON>${SDL2TTF_LIBDIR}$<SEMICOLON>$ENV{PATH}")
     set_directory_properties(PROPERTIES VS_STARTUP_PROJECT system3)
 
-    install(FILES
-      ${SDL2_LIB_DIR}/SDL2.dll
-      ${SDL2TTF_LIB_DIR}/SDL2_ttf.dll
-      DESTINATION .)
+    install(FILES ${SDL2_DLL} ${SDL2TTF_DLL} DESTINATION .)
     install(TARGETS system3 RUNTIME DESTINATION .)
   else()
     include(FindPkgConfig)
