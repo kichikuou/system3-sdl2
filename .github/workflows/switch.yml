@@ -7,7 +7,7 @@ jobs:
     container: devkitpro/devkita64:latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -16,12 +16,12 @@ jobs:
         mkdir -p out/switch
         cd out/switch
         /opt/devkitpro/portlibs/switch/bin/aarch64-none-elf-cmake -DCMAKE_BUILD_TYPE=Release ../../
-        make
+        make -j4
         mkdir system3
         mv system3.* system3/
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: system3-switch
         path: out/switch/system3
