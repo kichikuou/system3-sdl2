@@ -40,14 +40,19 @@ int main(int argc, char *argv[])
 	// indirectly, which does not work with ASYNCIFY_IGNORE_INDIRECT=1. For
 	// details, see https://github.com/emscripten-core/emscripten/issues/10746.
 	SDL_SetHint(SDL_HINT_EMSCRIPTEN_ASYNCIFY, "0");
+
+	const char* initial_title = NULL;  // Don't let SDL change document.title.
+#else
+	const char initial_title[] = "System3-sdl2 " SYSTEM3_VERSION;
 #endif
+
 #ifdef __ANDROID__
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 	Uint32 flags = SDL_WINDOW_FULLSCREEN;
 #else
 	Uint32 flags = SDL_WINDOW_RESIZABLE;
 #endif
-	g_window = SDL_CreateWindow("System3-sdl2 " SYSTEM3_VERSION, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
+	g_window = SDL_CreateWindow(initial_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 
 	// system3 初期化
