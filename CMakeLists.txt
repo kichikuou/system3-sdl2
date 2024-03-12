@@ -43,7 +43,7 @@ elseif (EMSCRIPTEN)
     src/emscripten/nact_emscripten.cpp
     src/emscripten/mako.cpp
     )
-  set(LIBS "SHELL:-s USE_SDL=2" "SHELL:-s USE_SDL_TTF=2")
+  set(LIBS -sUSE_SDL=2 -sUSE_SDL_TTF=2)
   target_compile_options(system3 PRIVATE ${LIBS})
   target_link_options(system3 PRIVATE ${LIBS})
   target_link_libraries(system3 PRIVATE idbfs.js ymfm)
@@ -52,15 +52,16 @@ elseif (EMSCRIPTEN)
   list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG "-O1")
 
   target_link_options(system3 PRIVATE
-    "SHELL:-s ENVIRONMENT=web"
-    "SHELL:-s ASYNCIFY=1 -s ASYNCIFY_IGNORE_INDIRECT=1"
-    "SHELL:-s ASYNCIFY_REMOVE=SDL_Delay"
-    "SHELL:-s ALLOW_MEMORY_GROWTH=1"
-    "SHELL:-s NO_EXIT_RUNTIME=1"
-    "SHELL:-s ASYNCIFY_ADD=NACT::execute()"
-    "SHELL:-s ASYNCIFY_IMPORTS=muspcm_load_data"
-    "SHELL:-s EXPORTED_FUNCTIONS=_main,_malloc"
-    "SHELL:-s EXPORTED_RUNTIME_METHODS=getValue,addRunDependency,removeRunDependency")
+    -sENVIRONMENT=web
+    -sASYNCIFY=1
+    -sASYNCIFY_IGNORE_INDIRECT=1
+    -sASYNCIFY_REMOVE=SDL_Delay
+    -sALLOW_MEMORY_GROWTH=1
+    -sNO_EXIT_RUNTIME=1
+    "-sASYNCIFY_ADD=NACT::execute()"
+    -sASYNCIFY_IMPORTS=muspcm_load_data
+    -sEXPORTED_FUNCTIONS=_main,_malloc
+    -sEXPORTED_RUNTIME_METHODS=getValue,addRunDependency,removeRunDependency)
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
   add_executable(system3)
