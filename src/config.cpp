@@ -127,6 +127,8 @@ void Config::load_ini()
 
 		if (line[0] == ';')  // comment
 			continue;
+		if (is_empty_line(line))
+			continue;
 
 		if (sscanf(line, "[%[^]]]", val)) {
 			if (strcasecmp(val, "config") == 0)
@@ -138,7 +140,7 @@ void Config::load_ini()
 		} else if (current_section == CONFIG) {
 			char *key, *val;
 			std::tie(key, val) = parse_keyval(line);
-			if (!key && !is_empty_line(line)) {
+			if (!key) {
 				WARNING(INIFILENAME ":%d parse error", lineno);
 				continue;
 			}
@@ -167,7 +169,7 @@ void Config::load_ini()
 		} else if (current_section == STRING) {
 			char *key, *val;
 			std::tie(key, val) = parse_keyval(line);
-			if (!key && !is_empty_line(line)) {
+			if (!key) {
 				WARNING(INIFILENAME ":%d parse error", lineno);
 				continue;
 			}
@@ -191,7 +193,7 @@ void Config::load_ini()
 				strings.dps_mariko = val;
 			else
 				WARNING(INIFILENAME ":%d unknown key '%s'", lineno, key);
-		} else if (!is_empty_line(line)) {
+		} else {
 			WARNING(INIFILENAME ":%d parse error", lineno);
 		}
 	}
