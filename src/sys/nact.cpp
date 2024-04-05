@@ -5,6 +5,7 @@
 */
 
 #include <stdarg.h>
+#include <stdlib.h>
 #include "nact.h"
 #include "encoding.h"
 #include "ags.h"
@@ -554,14 +555,14 @@ void NACT::select_cursor()
 	ags->select_cursor();
 }
 
-void NACT::fatal(const char* format, ...) {
+[[noreturn]] void NACT::fatal(const char* format, ...) {
 	char buf[512];
 	va_list args;
 	va_start(args, format);
 	vsnprintf(buf, sizeof buf, format, args);
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Fatal Error: %s", buf);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3", buf, g_window);
-	quit(0);
+	exit(1);
 }
 
 NACT* NACT::create(const Config& config) {

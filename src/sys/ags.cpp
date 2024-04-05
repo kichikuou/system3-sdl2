@@ -106,19 +106,17 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 		if (!rw_font)
 			parent->fatal("Cannot open default font");
 	}
-	if (rw_font) {
-		hFont16 = TTF_OpenFontRW(rw_font, 0, 16);
-		SDL_RWseek(rw_font, 0, SEEK_SET);
-		hFont24 = TTF_OpenFontRW(rw_font, 0, 24);
-		SDL_RWseek(rw_font, 0, SEEK_SET);
-		hFont32 = TTF_OpenFontRW(rw_font, 0, 32);
-		SDL_RWseek(rw_font, 0, SEEK_SET);
-		hFont48 = TTF_OpenFontRW(rw_font, 0, 48);
-		SDL_RWseek(rw_font, 0, SEEK_SET);
-		hFont64 = TTF_OpenFontRW(rw_font, 0, 64);
-		if (!hFont16 || !hFont24 || !hFont32 || !hFont48 || !hFont64) {
-			parent->fatal("TTF_OpenFontRW failed: %s", TTF_GetError());
-		}
+	hFont16 = TTF_OpenFontRW(rw_font, 0, 16);
+	SDL_RWseek(rw_font, 0, SEEK_SET);
+	hFont24 = TTF_OpenFontRW(rw_font, 0, 24);
+	SDL_RWseek(rw_font, 0, SEEK_SET);
+	hFont32 = TTF_OpenFontRW(rw_font, 0, 32);
+	SDL_RWseek(rw_font, 0, SEEK_SET);
+	hFont48 = TTF_OpenFontRW(rw_font, 0, 48);
+	SDL_RWseek(rw_font, 0, SEEK_SET);
+	hFont64 = TTF_OpenFontRW(rw_font, 0, 64);
+	if (!hFont16 || !hFont24 || !hFont32 || !hFont48 || !hFont64) {
+		parent->fatal("TTF_OpenFontRW failed: %s", TTF_GetError());
 	}
 	if (config.no_antialias)
 		ags_setAntialiasedStringMode(0);

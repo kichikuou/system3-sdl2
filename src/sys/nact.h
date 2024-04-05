@@ -287,7 +287,7 @@ public:
 
 	int get_scenario_page() const { return scenario_page; }
 
-	void fatal(const char* msg, ...);
+	[[noreturn]] void fatal(const char* msg, ...);
 
 private:
 	void pump_events();

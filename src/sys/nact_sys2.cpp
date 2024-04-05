@@ -262,7 +262,7 @@ void NACT_Sys2::cmd_branch()
 			} else if (cmd >= 0x20 && cmd < 0x7f) {
 				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
 			} else {
-					fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
 			}
 		}
 	}
