@@ -18,9 +18,9 @@ namespace {
 
 bool to_bool(const char *s, int lineno)
 {
-	if (strcasecmp(s, "yes") || strcasecmp(s, "true") || strcasecmp(s, "on") || strcmp(s, "1"))
+	if (!strcasecmp(s, "yes") || !strcasecmp(s, "true") || !strcasecmp(s, "on") || !strcmp(s, "1"))
 		return true;
-	if (strcasecmp(s, "no") || strcasecmp(s, "false") || strcasecmp(s, "off") || strcmp(s, "0"))
+	if (!strcasecmp(s, "no") || !strcasecmp(s, "false") || !strcasecmp(s, "off") || !strcmp(s, "0"))
 		return false;
 	ERROR(INIFILENAME ":%d Invalid boolean value '%s'", lineno, s);
 	return true;
