@@ -53,6 +53,8 @@ elseif (EMSCRIPTEN)
 
   target_link_options(system3 PRIVATE
     -sENVIRONMENT=web
+    -sMODULARIZE=1
+    -sEXPORT_ES6=1
     -sASYNCIFY=1
     -sASYNCIFY_IGNORE_INDIRECT=1
     -sASYNCIFY_REMOVE=SDL_Delay
@@ -61,7 +63,9 @@ elseif (EMSCRIPTEN)
     "-sASYNCIFY_ADD=NACT::execute()"
     -sASYNCIFY_IMPORTS=muspcm_load_data
     -sEXPORTED_FUNCTIONS=_main,_malloc
-    -sEXPORTED_RUNTIME_METHODS=getValue,addRunDependency,removeRunDependency)
+    -sEXPORTED_RUNTIME_METHODS=FS,IDBFS,getValue,addRunDependency,removeRunDependency
+    --emit-tsd=system3.d.ts
+    )
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
   add_executable(system3)
