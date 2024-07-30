@@ -61,7 +61,6 @@ elseif (EMSCRIPTEN)
     -sALLOW_MEMORY_GROWTH=1
     -sNO_EXIT_RUNTIME=1
     "-sASYNCIFY_ADD=NACT::execute()"
-    -sASYNCIFY_IMPORTS=muspcm_load_data
     -sEXPORTED_FUNCTIONS=_main,_malloc
     -sEXPORTED_RUNTIME_METHODS=FS,IDBFS,getValue,addRunDependency,removeRunDependency
     --emit-tsd=system3.d.ts

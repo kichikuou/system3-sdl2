@@ -14,8 +14,8 @@ namespace {
 MAKO *g_mako;
 std::unique_ptr<MakoYmfm> fm;
 
-EM_JS(int, muspcm_load_data, (uint8_t *buf, uint32_t len), {  // async
-	return xsystem35.audio.pcm_load_data(0, buf, len);
+EM_ASYNC_JS(int, muspcm_load_data, (uint8_t *buf, uint32_t len), {
+	return await xsystem35.audio.pcm_load_data(0, buf, len);
 });
 
 } // namespace
