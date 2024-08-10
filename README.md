@@ -192,4 +192,4 @@ options. Options specified on the command line will override those in
 
 System3-sdl2 supports localization, whereas the original System1-3 only
 supported Japanese. If you're interested in translating games, check out
-[Sys0Decompiler](https://alicesoft.fandom.com/wiki/User_blog:RottenBlock/System_Programming_Resources).
+[Sys0Decompiler](https://alicesoft.miraheze.org/wiki/User_blog:RottenBlock/System_Programming_Resources).
