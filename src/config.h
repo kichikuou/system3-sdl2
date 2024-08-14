@@ -28,7 +28,6 @@ struct Config {
 	std::string save_dir;
 	std::string playlist;
 	std::string title;
-	std::string timidity_cfg;
 	bool use_fm = false;
 	bool no_antialias = false;
 	bool scanline = false;

@@ -28,10 +28,6 @@ int main(int argc, char *argv[])
 #endif
 	Config config(argc, argv);
 
-	if (!config.timidity_cfg.empty()) {
-		SDL_setenv("TIMIDITY_CFG", config.timidity_cfg.c_str(), 1);
-	}
-
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");

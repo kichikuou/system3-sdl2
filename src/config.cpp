@@ -102,8 +102,6 @@ Config::Config(int argc, char *argv[])
 			encoding = argv[++i];
 		else if (strcmp(argv[i], "-title") == 0)
 			title = argv[++i];
-		else if (strcmp(argv[i], "-timiditycfg") == 0)
-			timidity_cfg = argv[++i];
 		else if (strcmp(argv[i], "-scanline") == 0)
 			scanline = true;
 	}
@@ -160,8 +158,6 @@ void Config::load_ini()
 				encoding = val;
 			else if (!strcasecmp(key, "title"))
 				title = val;
-			else if (!strcasecmp(key, "timiditycfg"))
-				timidity_cfg = normalize_path(val);
 			else if (!strcasecmp(key, "scanline"))
 				scanline = to_bool(val, lineno);
 			else

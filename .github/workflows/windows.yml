@@ -23,6 +23,7 @@ jobs:
           ninja:p
           SDL2:p
           SDL2_ttf:p
+          rtmidi:p
 
     - name: Checkout
       uses: actions/checkout@v4

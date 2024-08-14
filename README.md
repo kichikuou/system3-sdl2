@@ -10,7 +10,7 @@ Toshiya. It supports multiple platforms, including Android and Emscripten.
 
 ```bash
 $ git submodule update --init
-$ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
+$ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev librtmidi-dev
 $ mkdir -p out/debug
 $ cd out/debug
 $ cmake -DCMAKE_BUILD_TYPE=Debug ../../
@@ -22,7 +22,7 @@ $ sudo make install
 
 ```bash
 $ git submodule update --init
-$ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer
+$ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer rtmidi
 $ mkdir -p out/debug
 $ cd out/debug
 $ cmake -DCMAKE_BUILD_TYPE=Debug ../../
@@ -34,7 +34,7 @@ $ sudo make install
 
 ```bash
 $ git submodule update --init
-$ pacman -S make mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_ttf
+$ pacman -S make mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_ttf mingw-w64-ucrt-x86_64-rtmidi
 $ mkdir -p out/debug
 $ cd out/debug
 $ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../
@@ -111,12 +111,7 @@ The first line is not used because track 1 on a game CD is usually a data
 track.
 
 #### `-fm`
-Uses FM tone generator emulation. If not specified, MIDI sound is used.
-
-#### `-timiditycfg` _filename_
-Specifies a particular configuration file in a
-[format compatible with TiMidity](https://manpages.ubuntu.com/manpages/bionic/en/man5/timidity.cfg.5.html)
-to use (this is utilized by SDL_Mixer on some platforms).
+By default, system3-sdl2 uses MIDI sound if available. This option forces FM tone generator emulation.
 
 #### `-game` _game_id_
 As System1-3 have slight variations depending on the game, `system3` uses the

@@ -14,20 +14,15 @@
 #include "../config.h"
 #include "dri.h"
 
-// MIX_INIT_FLUIDSYNTH was renamed to MIX_INIT_MID in SDL_mixer 2.0.2
-#if (SDL_MIXER_MAJOR_VERSION == 2) && (SDL_MIXER_MINOR_VERSION == 0) && (SDL_MIXER_PATCHLEVEL < 2)
-#define MIX_INIT_MID MIX_INIT_FLUIDSYNTH
-#endif
-
 namespace {
 
 const int SAMPLE_RATE = 44100;
 
-std::vector<uint8> smf;
 Mix_Music *mix_music;
 Mix_Chunk *mix_chunk;
 SDL_mutex* fm_mutex;
 std::unique_ptr<MakoYmfm> fm;
+std::unique_ptr<MAKOMidi> midi;
 
 void FMHook(void*, Uint8* stream, int len) {
 	SDL_LockMutex(fm_mutex);
@@ -43,7 +38,7 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	next_loop(0),
 	nact(parent)
 {
-	int mix_init_flags = MIX_INIT_MID;
+	int mix_init_flags = 0;
 
 	if (!config.playlist.empty() && load_playlist(config.playlist.c_str()))
 		mix_init_flags |= MIX_INIT_MP3 | MIX_INIT_OGG;
@@ -57,10 +52,15 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 		WARNING("Mix_Init(0x%x) failed", mix_init_flags);
 	if (Mix_OpenAudio(SAMPLE_RATE, AUDIO_S16LSB, 2, 4096) < 0)
 		WARNING("Mix_OpenAudio failed: %s", Mix_GetError());
+
+	midi = std::make_unique<MAKOMidi>();
+	if (!midi->is_available())
+		use_fm = true;
 }
 
 MAKO::~MAKO()
 {
+	midi.reset();
 	stop_pcm();
 	Mix_CloseAudio();
 	Mix_Quit();
@@ -121,23 +121,9 @@ void MAKO::play_music(int page)
 		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, data, true);
 		SDL_UnlockMutex(fm_mutex);
 		Mix_HookMusic(&FMHook, this);
-	} else {
-		auto midi = std::make_unique<MAKOMidi>(nact, amus);
-		if (midi->load_mml(page)) {
-			midi->load_mda(page);
-			smf = midi->generate_smf(next_loop);
-			SDL_RWops *rwops = SDL_RWFromConstMem(smf.data(), smf.size());
-			mix_music = Mix_LoadMUSType_RW(rwops, MUS_MID, SDL_TRUE /* freesrc */);
-			if (!mix_music) {
-				WARNING("Mix_LoadMUS failed: %s", Mix_GetError());
-				return;
-			}
-			if (Mix_PlayMusic(mix_music, -1) != 0) {
-				WARNING("Mix_PlayMusic failed: %s", Mix_GetError());
-				Mix_FreeMusic(mix_music);
-				return;
-			}
-		}
+	} else if (midi->is_available()) {
+		if (!midi->play(nact, amus, page, next_loop))
+			return;
 	}
 
 	current_music = page;
@@ -149,13 +135,15 @@ void MAKO::stop_music()
 	if (mix_music) {
 		Mix_FreeMusic(mix_music);
 		mix_music = NULL;
-		smf.clear();
 	}
 	if (fm) {
 		Mix_HookMusic(NULL, NULL);
 		SDL_LockMutex(fm_mutex);
 		fm = nullptr;
 		SDL_UnlockMutex(fm_mutex);
+	}
+	if (midi->is_available()) {
+		midi->stop();
 	}
 	current_music = 0;
 }
@@ -171,19 +159,19 @@ bool MAKO::check_music()
 		SDL_UnlockMutex(fm_mutex);
 		return !loop;
 	}
-	return false;
+	return midi->is_playing();
 }
 
 void MAKO::get_mark(int* mark, int* loop)
 {
+	SDL_LockMutex(fm_mutex);
 	if (fm) {
-		SDL_LockMutex(fm_mutex);
 		fm->get_mark(mark, loop);
 		SDL_UnlockMutex(fm_mutex);
-	} else {
-		*mark = 0;
-		*loop = 0;
+		return;
 	}
+	SDL_UnlockMutex(fm_mutex);
+	midi->get_mark(mark, loop);
 }
 
 void MAKO::play_pcm(int page, bool loop)

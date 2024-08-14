@@ -17,6 +17,7 @@ endif ()
 if (MSVC)
   # Use statically-linked runtime library.
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  option(BUILD_SHARED_LIBS "Build as shared library" OFF)
 endif ()
 
 add_library(ymfm
@@ -86,6 +87,16 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     get_target_property(SDL2TTF_DLL SDL2_ttf::SDL2_ttf IMPORTED_LOCATION)
     get_filename_component(SDL2TTF_LIBDIR ${SDL2TTF_DLL} DIRECTORY)
 
+    FetchContent_Declare(rtmidi
+      URL https://github.com/thestk/rtmidi/archive/refs/tags/6.0.0.zip
+      URL_HASH SHA1=43287aff8c2c03d3b38cff4d44611763f5e149fa)
+    set(RTMIDI_BUILD_TESTING OFF CACHE BOOL "Build test programs" FORCE)
+    FetchContent_MakeAvailable(rtmidi)
+    set_property(TARGET rtmidi PROPERTY COMPILE_WARNING_AS_ERROR OFF)
+    target_compile_definitions(system3 PRIVATE USE_MIDI)
+    target_link_libraries(system3 PRIVATE rtmidi)
+    target_sources(system3 PRIVATE src/sys/mako_midi.cpp)
+
     target_compile_definitions(system3 PRIVATE _CRT_NONSTDC_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
     target_compile_options(system3 PRIVATE /utf-8 /wd4244)
     target_link_libraries(system3 PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2_ttf::SDL2_ttf)
@@ -101,6 +112,12 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
     pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
     target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
+    pkg_check_modules(RTMIDI IMPORTED_TARGET rtmidi)
+    if (RTMIDI_FOUND)
+      target_compile_definitions(system3 PRIVATE USE_MIDI)
+      target_link_libraries(system3 PRIVATE PkgConfig::RTMIDI)
+      target_sources(system3 PRIVATE src/sys/mako_midi.cpp)
+    endif()
   endif()
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -108,7 +125,6 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
       src/win/nact_win.cpp
       src/win/mako.cpp
       src/win/resource.rc
-      src/sys/mako_midi.cpp
       )
     target_link_libraries(system3 PRIVATE winmm)
     if (MSYS)
@@ -119,7 +135,6 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     target_sources(system3 PRIVATE
       src/linux/nact_linux.cpp
       src/linux/mako.cpp
-      src/sys/mako_midi.cpp
       )
     target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
     set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)

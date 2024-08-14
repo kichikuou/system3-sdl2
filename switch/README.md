@@ -20,6 +20,3 @@ make
 1. Copy the resulting `system3.nro` file to a folder inside your Nintendo Switch's SD card (eg. `/switch/[game name]/`)
 2. Copy all the game files, BGM files and configuration.
 3. Open system3 through the Homebrew Launcher
-
-## Notes
-- The Switch needs its own MIDI Sound Library (eg. freepats, configurable through `timiditycfg` on the `system3.ini` config) due to the lack of built-in MIDI files.

@@ -1,42 +1,50 @@
 #ifndef _MAKO_MIDI_H_
 #define _MAKO_MIDI_H_
 
-#include <vector>
+#include <memory>
+#include <queue>
+#include <SDL.h>
 #include "../common.h"
-
-#define MAX_MMLS (128 * 1024)
 
 class NACT;
 
+#ifdef USE_MIDI
+
 class MAKOMidi {
 public:
-	MAKOMidi(NACT* nact, char* amus) : nact(nact), amus(amus) {}
-	bool load_mml(int page);
-	void load_mda(int page);
-	std::vector<uint8> generate_smf(int current_max);
+	MAKOMidi();
+	~MAKOMidi();
+	bool is_available();
+	bool play(NACT* nact, char* amus, int page, int loop);
+	void stop();
+	bool is_playing();
+	void get_mark(int* mark, int* loop);
 
 private:
-	NACT* nact;
-	char* amus;
+	struct Command;
+	std::queue<std::unique_ptr<Command>> queue;
+	SDL_mutex* queue_mutex = nullptr;
+	SDL_Thread* thread = nullptr;
+	SDL_atomic_t current_seq;
+	SDL_atomic_t current_loop;
+	SDL_atomic_t current_mark;
+	int next_seq = 0;
 
-	struct MML {
-		uint8 data[MAX_MMLS];
-		int addr;
-	};
-	MML mml[9];
-
-	struct MDA {
-		int bank_select;
-		int program_change;
-		int level;
-		int reverb;
-		int chorus;
-		int key_shift;
-		int pan;
-	};
-	MDA mda[259];
-	int drum_map[8][128];
-	int tempo, tempo_dif;
+	void thread_loop();
+	static int thread_main(void* data);
 };
+
+#else // USE_MIDI
+
+class MAKOMidi {
+public:
+	bool is_available() { return false; }
+	bool play(NACT* nact, char* amus, int page, int loop) { return false; }
+	void stop() {}
+	bool is_playing() { return false; }
+	void get_mark(int* mark, int* loop) { *mark = *loop = 0; }
+};
+
+#endif // USE_MIDI
 
 #endif // _MAKO_MIDI_H_

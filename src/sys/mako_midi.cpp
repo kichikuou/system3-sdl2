@@ -4,159 +4,152 @@
 	[ MAKO - midi ]
 */
 
+#include <memory>
+#include <SDL.h>
+#include <RtMidi.h>
+
 #include "mako_midi.h"
 #include "nact.h"
 #include "dri.h"
 #include "crc32.h"
 
+#define MAX_MMLS (128 * 1024)
+
 #define next_mml(p) mml[p].data[mml[p].addr++]
 
 namespace {
 
-// MIDI playing status
-struct Play {
-	int timbre;
-	int timbre_type;
-	int level;
-	int reverb;
-	int chorus;
-	int pan;
-	int key_shift;
-	int velocity;
-	int channel;
-	int note;
-	int loop_cnt;
-	int wait_time;
-	bool loop_flag;
-	bool note_flag;
-};
+std::unique_ptr<RtMidiOut> midiout;
 
-// Standard MIDI File header, where 1 time unit is 10 milliseconds.
-const uint8 smf_header[] = {
-	0x4d, 0x54, 0x68, 0x64, // "MThd"
-	0x00, 0x00, 0x00, 0x06, // Header length
-	0x00, 0x00,             // Format
-	0x00, 0x01,             // Number of tracks
-	0x00, 0x32,             // Division (50 ticks per beat)
-	0x4d, 0x54, 0x72, 0x6b, // "MTrk"
-	0x00, 0x00, 0x00, 0x00, // Track length (to be filled later)
-	0x00, 0xff, 0x51, 0x03, 0x07, 0xa1, 0x20 // Tempo (120 BPM)
-};
-const size_t TRACK_LENGTH_OFFSET = 18;
-
-const int FADEOUT_DURATION = 100;  // 1 second
-const int MINIMUM_MUSIC_DURATION = 6000;  // 60 seconds
-
-class SmfWriter {
-public:
-	SmfWriter() :
-		dt(0), total_ticks(0), fadeout_start(-1),
-		buf(smf_header, smf_header + sizeof(smf_header)) {
-		for (int i = 0; i < 16; i++)
-			volume[i] = -1;
-	}
-
-	std::vector<uint8> get_smf() {
-		// "End of track" event
-		buf.push_back(0x00);
-		buf.push_back(0xFF);
-		buf.push_back(0x2F);
-		buf.push_back(0x00);
-
-		size_t length = buf.size() - (TRACK_LENGTH_OFFSET + 4);
-		buf[TRACK_LENGTH_OFFSET] = length >> 24 & 0xff;
-		buf[TRACK_LENGTH_OFFSET + 1] = length >> 16 & 0xff;
-		buf[TRACK_LENGTH_OFFSET + 2] = length >> 8 & 0xff;
-		buf[TRACK_LENGTH_OFFSET + 3] = length & 0xff;
-
-		NOTICE("Generated %d seconds of MIDI data", total_ticks / 100);
-
-		return std::move(buf);
-	}
-
-	bool tick() {
-		dt++;
-		total_ticks++;
-		return fadeout_start < 0 || total_ticks < fadeout_start + FADEOUT_DURATION;
-	}
-
-	void start_fadeout() {
-		if (fadeout_start < 0 && total_ticks >= MINIMUM_MUSIC_DURATION)
-			fadeout_start = total_ticks;
-	}
-
-	void send_2bytes(uint8 d1, uint8 d2) {
-		write_delta_time();
-		buf.push_back(d1);
-		buf.push_back(d2);
-	}
-
-	void send_3bytes(uint8 d1, uint8 d2, uint8 d3) {
-		write_delta_time();
-		buf.push_back(d1);
-		buf.push_back(d2);
-		buf.push_back(d3);
-	}
-
-	void set_volume(uint8 ch, uint8 level) {
-		volume[ch] = level;
-		send_3bytes(0xb0 + ch, 0x07, fade(level));
-	}
-
-	void update_fader() {
-		if (fadeout_start < 0)
+void initialize_midi()
+{
+	try {
+		midiout = std::make_unique<RtMidiOut>();
+		int n = midiout->getPortCount();
+		if (n == 0) {
+			NOTICE("No MIDI output device available.");
+			midiout.reset();
 			return;
-		for (int ch = 0; ch < 16; ch++) {
-			if (volume[ch] < 0)
-				continue;
-			send_3bytes(0xb0 + ch, 0x07, fade(volume[ch]));
 		}
+		for (int i = 0; i < n; i++) {
+			NOTICE("MIDI #%d: %s", i, midiout->getPortName(i).c_str());
+		}
+		// Open first available port.
+		midiout->openPort(0);
+	} catch (RtMidiError &error) {
+		WARNING("Cannot initialize MIDI: %s", error.getMessage().c_str());
+		midiout.reset();
 	}
+}
+
+void release_midi()
+{
+	midiout.reset();
+}
+
+void reset_midi()
+{
+	uint8_t gs_reset[11] = {0xf0, 0x41, 0x20, 0x42, 0x12, 0x40, 0x00, 0x7f, 0x00, 0x41, 0xf7};
+	try {
+		midiout->sendMessage(gs_reset, sizeof(gs_reset));
+	} catch (RtMidiError &error) {
+		WARNING("MIDI error: %s", error.getMessage().c_str());
+	}
+}
+
+void send_2bytes(uint8 d1, uint8 d2)
+{
+	try {
+		uint8_t msg[2] = {d1, d2};
+		midiout->sendMessage(msg, sizeof(msg));
+	} catch (RtMidiError &error) {
+		WARNING("MIDI error: %s", error.getMessage().c_str());
+	}
+}
+
+void send_3bytes(uint8 d1, uint8 d2, uint8 d3)
+{
+	try {
+		uint8_t msg[3] = {d1, d2, d3};
+		midiout->sendMessage(msg, sizeof(msg));
+	} catch (RtMidiError &error) {
+		WARNING("MIDI error: %s", error.getMessage().c_str());
+	}
+}
+
+void stop_midi()
+{
+	for(int i = 0; i < 10; i++) {
+		send_3bytes(0xb0 + i, 0x78, 0x00);
+	}
+	for(int i = 0; i < 10; i++) {
+		send_3bytes(0xb0 + i, 0x79, 0x00);
+	}
+}
+
+class Playback {
+public:
+	Playback(NACT* nact, char* amus, int loop, int seq) : nact(nact), amus(amus), loop_(loop), seq_(seq) {}
+	bool load_mml(int page);
+	void load_mda(int page);
+	void start_midi();
+	bool play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark);
+	int seq() const { return seq_; }
 
 private:
-	void write_delta_time() {
-		if (dt < 0x80) {
-			buf.push_back(dt);
-		} else if (dt < 0x4000) {
-			buf.push_back((dt >> 7) | 0x80);
-			buf.push_back(dt & 0x7f);
-		} else if (dt < 0x200000) {
-			buf.push_back((dt >> 14) | 0x80);
-			buf.push_back((dt >> 7 & 0x7f) | 0x80);
-			buf.push_back(dt & 0x7f);
-		} else {
-			buf.push_back((dt >> 21) | 0x80);
-			buf.push_back((dt >> 14 & 0x7f) | 0x80);
-			buf.push_back((dt >> 7 & 0x7f) | 0x80);
-			buf.push_back(dt & 0x7f);
-		}
-		dt = 0;
-	}
+	NACT* nact;
+	char* amus;
+	int loop_;
+	int seq_;
 
-	int fade(int level) {
-		if (fadeout_start < 0)
-			return level;
-		return level * (fadeout_start + FADEOUT_DURATION - total_ticks) / FADEOUT_DURATION;
-	}
+	struct MML {
+		uint8 data[MAX_MMLS];
+		int addr;
+	};
+	MML mml[9];
 
-	std::vector<uint8> buf;
-	int dt;
-	int total_ticks;
-	int fadeout_start;
-	int16 volume[16];
+	struct MDA {
+		int bank_select;
+		int program_change;
+		int level;
+		int reverb;
+		int chorus;
+		int key_shift;
+		int pan;
+	};
+	MDA mda[259];
+	int drum_map[8][128];
+	int tempo, tempo_dif;
+
+	// MIDI playing status
+	struct Play {
+		int timbre;
+		int timbre_type;
+		int level;
+		int reverb;
+		int chorus;
+		int pan;
+		int key_shift;
+		int velocity;
+		int channel;
+		int note;
+		int loop_cnt;
+		int wait_time;
+		bool loop_flag;
+		bool note_flag;
+	};
+	Play play[9];
+	bool mute_flag;
+	float play_time;
+	Uint32 prev_time;
 };
 
-} // namespace
-
-std::vector<uint8> MAKOMidi::generate_smf(int num_loops)
+void Playback::start_midi()
 {
-	SmfWriter w;
-	Play play[9];
-
 	for(int i = 0; i < 9; i++) {
 		play[i].loop_flag = true;
 	}
-	bool mute_flag = false;
+	mute_flag = false;
 
 	// 再生情報の初期化
 	for(int i = 0; i < 9; i++) {
@@ -194,186 +187,187 @@ std::vector<uint8> MAKOMidi::generate_smf(int num_loops)
 		play[i + 3].pan = mda[i + 256].pan;
 	}
 
+	reset_midi();
+
 	// システムリセット、ボリュームリセット
 	for(int i = 0; i < 10; i++) {
-		w.send_3bytes(0xb0 + i, 0x79, 0x00);
+		send_3bytes(0xb0 + i, 0x79, 0x00);
 	}
 	for(int i = 0; i < 10; i++) {
-		w.set_volume(i, 0x64);
+		send_3bytes(0xb0 + i, 0x07, 0x64);
 	}
 
 	// SSG 1-3 の音色
 	for(int i = 0; i < 3; i++) {
 		if(mda[i + 256].bank_select < 128) {
-			w.send_3bytes(0xb3 + i, 0x00, mda[i + 256].bank_select);
-			w.send_3bytes(0xb3 + i, 0x20, 0x00);
-			w.send_2bytes(0xc3 + i, mda[i + 256].program_change);
-			w.set_volume(3 + i, mda[i + 256].level);
-			w.send_3bytes(0xb3 + i, 0x5b, mda[i + 256].reverb);
-			w.send_3bytes(0xb3 + i, 0x5d, mda[i + 256].chorus);
-			w.send_3bytes(0xb3 + i, 0x0a, mda[i + 256].pan);
+			send_3bytes(0xb3 + i, 0x00, mda[i + 256].bank_select);
+			send_3bytes(0xb3 + i, 0x20, 0x00);
+			send_2bytes(0xc3 + i, mda[i + 256].program_change);
+			send_3bytes(0xb3 + i, 0x07, mda[i + 256].level);
+			send_3bytes(0xb3 + i, 0x5b, mda[i + 256].reverb);
+			send_3bytes(0xb3 + i, 0x5d, mda[i + 256].chorus);
+			send_3bytes(0xb3 + i, 0x0a, mda[i + 256].pan);
 		} else {
-			w.set_volume(9, mda[i + 256].level);
-			w.send_3bytes(0xb9, 0x5b, mda[i + 256].reverb);
-			w.send_3bytes(0xb9, 0x5d, mda[i + 256].chorus);
-			w.send_3bytes(0xb9, 0x0a, mda[i + 256].pan);
+			send_3bytes(0xb9, 0x07, mda[i + 256].level);
+			send_3bytes(0xb9, 0x5b, mda[i + 256].reverb);
+			send_3bytes(0xb9, 0x5d, mda[i + 256].chorus);
+			send_3bytes(0xb9, 0x0a, mda[i + 256].pan);
 		}
 	}
 
-	float play_time = 0;
-	int current_loop = 0;
-	int current_mark = 0;
-	while (w.tick()) {
-		play_time += 10;  // elapse 10ms
-		// 各パートの更新
-		while((play[0].loop_flag || play[1].loop_flag || play[2].loop_flag ||
-			   play[3].loop_flag || play[4].loop_flag || play[5].loop_flag ||
-			   play[6].loop_flag || play[7].loop_flag || play[8].loop_flag) && play_time > 0.0) {
-			// 1単位時間だけ経過時間を更新する
-			for(int i = 0; i < 9; i++) {
-				if(play[i].loop_flag && play[i].wait_time) {
-					play[i].wait_time--;
-				}
-			}
-			play_time -= (float)(545455.0 / 480.0 / (float)(tempo + 0x40 - tempo_dif));
-
-			// 1単位時間だけ各パートを更新
-			for(int i = 0; i < 9; i++) {
-				if(!play[i].loop_flag) {
-					play[i].wait_time = 1;
-				}
-				while(play[i].wait_time == 0) {
-					int d0 = next_mml(i), d1, d2, d3;
-					if(d0 == 0xff) {
-						d1 = next_mml(i);
-						d2 = next_mml(i);
-						d3 = next_mml(i);
-						mml[i].addr = d1 | (d2 << 8) | (d3 << 16);
-						if(!play[i].note_flag || mute_flag) {
-							// 再生停止または未使用
-							play[i].loop_flag = false;
-							if(!play[0].loop_flag && !play[1].loop_flag && !play[2].loop_flag &&
-							   !play[3].loop_flag && !play[4].loop_flag && !play[5].loop_flag &&
-							   !play[6].loop_flag && !play[7].loop_flag && !play[8].loop_flag) {
-								// 全チャンネルが再生停止 (ループしない曲)
-								goto finish;
-							}
-							play[i].wait_time = 1;
-						} else {
-							// 全体としてのループ数を取得
-							int loop = ++play[i].loop_cnt;
-							for(int j = 0; j < 9; j++) {
-								if(loop > play[j].loop_cnt && play[j].loop_flag) {
-									loop = play[j].loop_cnt;
-								}
-							}
-							current_loop = loop;
-							if (num_loops) {
-								if (current_loop >= num_loops)
-									goto finish;
-							} else {
-								// Infinite loop mode: fade out after one playback.
-								if (current_loop > 0)
-									w.start_fadeout();
-							}
-						}
-					} else if(d0 < 0x80) {
-						int note = d0;
-						play[i].wait_time = next_mml(i);
-						play[i].wait_time |= next_mml(i) << 8;
-						if(play[i].timbre_type != 128) {
-							note = drum_map[play[i].timbre_type][note];
-						} else {
-							note = (note + play[i].key_shift) - 64;
-						}
-						play[i].note_flag = true;
-						play[i].note = note;
-						w.send_3bytes(0x90 + play[i].channel, note, play[i].velocity);
-					} else if(d0 == 0x80) {
-						play[i].wait_time = next_mml(i);
-						play[i].wait_time |= next_mml(i) << 8;
-						if(play[i].note != 128) {
-							w.send_3bytes(0x90 + play[i].channel, play[i].note, 0x00);
-						}
-						play[i].note = 128;
-					} else if(d0 == 0xe0) {
-						current_mark = next_mml(i);
-					} else if(d0 == 0xe1) {
-						d1 = next_mml(i);
-						play[i].velocity += (d1 > 127) ? (d1 - 256) : d1;
-					} else if(d0 == 0xeb) {
-						play[i].pan = next_mml(i);
-						w.send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
-					}
-					else if(d0 == 0xec) {
-						if(!(nact->crc32_a == CRC32_DPS || nact->crc32_a == CRC32_DPS_SG || nact->crc32_a == CRC32_DPS_SG2 || nact->crc32_a == CRC32_DPS_SG3))
-							mute_flag = true;
-					}
-					else if(d0 == 0xf5) {
-						int n = next_mml(i);
-						if(n != play[i].timbre) {
-							if(mda[n].bank_select < 128) {
-								// 通常のパート
-								play[i].timbre_type = 128;
-								play[i].channel = i;
-								w.send_3bytes(0xb0 + play[i].channel, 0x00, mda[n].bank_select);
-								w.send_3bytes(0xb0 + play[i].channel, 0x20, 0x00);
-								w.send_2bytes(0xc0 + play[i].channel, mda[n].program_change);
-							} else {
-								// ドラムパート (ch.10)
-								play[i].timbre_type = 255 - mda[n].bank_select;
-								play[i].channel = 9;
-							}
-							if(play[i].level != mda[n].level) {
-								w.set_volume(play[i].channel, mda[n].level);
-							}
-							if(play[i].reverb != mda[n].reverb) {
-								w.send_3bytes(0xb0 + play[i].channel, 0x5b, mda[n].reverb);
-							}
-							if(play[i].chorus != mda[n].chorus) {
-								w.send_3bytes(0xb0 + play[i].channel, 0x5d, mda[n].chorus);
-							}
-							if(play[i].pan != mda[n].pan) {
-								w.send_3bytes(0xb0 + play[i].channel, 0x0a, mda[n].pan);
-							}
-						}
-						play[i].timbre = n;
-						play[i].level = mda[n].level;
-						play[i].reverb = mda[n].reverb;
-						play[i].chorus = mda[n].chorus;
-						play[i].key_shift = mda[n].key_shift;
-						play[i].pan = mda[n].pan;
-						play[i].velocity = 120;
-					} else if(d0 == 0xf9) {
-						play[i].velocity = next_mml(i);
-					} else if(d0 == 0xfc) {
-						d1 = next_mml(i);
-						if(d1 > 127) {
-							d1 = 256 - d1;
-							d1 = 0x40 - (d1 > 63 ? 63 : d1);
-						} else {
-							d1 = 0x40 + (d1 > 63 ? 63 : d1);
-						}
-						w.send_3bytes(0xb0 + play[i].channel, 0x65, 0x00);
-						w.send_3bytes(0xb0 + play[i].channel, 0x64, 0x01);
-						w.send_3bytes(0xb0 + play[i].channel, 0x06, d1);
-					}
-				}
-			}
-		}
-		w.update_fader();
-	}
- finish:
-	for(int j = 0; j < 10; j++) {
-		w.send_3bytes(0xb0 + j, 0x78, 0x00);
-	}
-	for(int j = 0; j < 10; j++) {
-		w.send_3bytes(0xb0 + j, 0x79, 0x00);
-	}
-	return w.get_smf();
+	// タイマーリセット
+	prev_time = SDL_GetTicks();
+	play_time = 0;
 }
 
-bool MAKOMidi::load_mml(int page)
+bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
+{
+	// 経過時間の取得
+	Uint32 current_time = SDL_GetTicks();
+	if(current_time > prev_time) {
+		play_time += (float)(current_time - prev_time);
+		prev_time = current_time;
+	}
+
+	// 各パートの更新
+	while((play[0].loop_flag || play[1].loop_flag || play[2].loop_flag ||
+		   play[3].loop_flag || play[4].loop_flag || play[5].loop_flag ||
+		   play[6].loop_flag || play[7].loop_flag || play[8].loop_flag) && play_time > 0.0) {
+		// 1単位時間だけ経過時間を更新する
+		for(int i = 0; i < 9; i++) {
+			if(play[i].loop_flag && play[i].wait_time) {
+				play[i].wait_time--;
+			}
+		}
+		play_time -= (float)(545455.0 / 480.0 / (float)(tempo + 0x40 - tempo_dif));
+
+		// 1単位時間だけ各パートを更新
+		for(int i = 0; i < 9; i++) {
+			if(!play[i].loop_flag) {
+				play[i].wait_time = 1;
+			}
+			while(play[i].wait_time == 0) {
+				int d0 = next_mml(i), d1, d2, d3;
+				if(d0 == 0xff) {
+					d1 = next_mml(i);
+					d2 = next_mml(i);
+					d3 = next_mml(i);
+					mml[i].addr = d1 | (d2 << 8) | (d3 << 16);
+					if(!play[i].note_flag || mute_flag) {
+						// 再生停止または未使用
+						play[i].loop_flag = false;
+						if(!play[0].loop_flag && !play[1].loop_flag && !play[2].loop_flag &&
+						   !play[3].loop_flag && !play[4].loop_flag && !play[5].loop_flag &&
+						   !play[6].loop_flag && !play[7].loop_flag && !play[8].loop_flag) {
+							// 全チャンネルが再生停止 (ループしない曲)
+							stop_midi();
+							SDL_AtomicSet(current_loop, 1);
+							return false;
+						}
+						play[i].wait_time = 1;
+					} else {
+						// 全体としてのループ数を取得
+						int loop = ++play[i].loop_cnt;
+						for(int j = 0; j < 9; j++) {
+							if(loop > play[j].loop_cnt && play[j].loop_flag) {
+								loop = play[j].loop_cnt;
+							}
+						}
+						SDL_AtomicSet(current_loop, loop);
+						if(loop_ && loop >= loop_) {
+							// 指定回数だけ再生完了
+							stop_midi();
+							return false;
+						}
+					}
+				} else if(d0 < 0x80) {
+					int note = d0;
+					play[i].wait_time = next_mml(i);
+					play[i].wait_time |= next_mml(i) << 8;
+					if(play[i].timbre_type != 128) {
+						note = drum_map[play[i].timbre_type][note];
+					} else {
+						note = (note + play[i].key_shift) - 64;
+					}
+					play[i].note_flag = true;
+					play[i].note = note;
+					send_3bytes(0x90 + play[i].channel, note, play[i].velocity);
+				} else if(d0 == 0x80) {
+					play[i].wait_time = next_mml(i);
+					play[i].wait_time |= next_mml(i) << 8;
+					if(play[i].note != 128) {
+						send_3bytes(0x90 + play[i].channel, play[i].note, 0x00);
+					}
+					play[i].note = 128;
+				} else if(d0 == 0xe0) {
+					SDL_AtomicSet(current_mark, next_mml(i));
+				} else if(d0 == 0xe1) {
+					d1 = next_mml(i);
+					play[i].velocity += (d1 > 127) ? (d1 - 256) : d1;
+				} else if(d0 == 0xeb) {
+					play[i].pan = next_mml(i);
+					send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
+				}
+				else if(d0 == 0xec) {
+					if(!(nact->crc32_a == CRC32_DPS || nact->crc32_a == CRC32_DPS_SG || nact->crc32_a == CRC32_DPS_SG2 || nact->crc32_a == CRC32_DPS_SG3))
+						mute_flag = true;
+				}
+				else if(d0 == 0xf5) {
+					int n = next_mml(i);
+					if(n != play[i].timbre) {
+						if(mda[n].bank_select < 128) {
+							// 通常のパート
+							play[i].timbre_type = 128;
+							play[i].channel = i;
+							send_3bytes(0xb0 + play[i].channel, 0x00, mda[n].bank_select);
+							send_3bytes(0xb0 + play[i].channel, 0x20, 0x00);
+							send_2bytes(0xc0 + play[i].channel, mda[n].program_change);
+						} else {
+							// ドラムパート (ch.10)
+							play[i].timbre_type = 255 - mda[n].bank_select;
+							play[i].channel = 9;
+						}
+						if(play[i].level != mda[n].level) {
+							send_3bytes(0xb0 + play[i].channel, 0x07, mda[n].level);
+						}
+						if(play[i].reverb != mda[n].reverb) {
+							send_3bytes(0xb0 + play[i].channel, 0x5b, mda[n].reverb);
+						}
+						if(play[i].chorus != mda[n].chorus) {
+							send_3bytes(0xb0 + play[i].channel, 0x5d, mda[n].chorus);
+						}
+						if(play[i].pan != mda[n].pan) {
+							send_3bytes(0xb0 + play[i].channel, 0x0a, mda[n].pan);
+						}
+					}
+					play[i].timbre = n;
+					play[i].level = mda[n].level;
+					play[i].reverb = mda[n].reverb;
+					play[i].chorus = mda[n].chorus;
+					play[i].key_shift = mda[n].key_shift;
+					play[i].pan = mda[n].pan;
+					play[i].velocity = 120;
+				} else if(d0 == 0xf9) {
+					play[i].velocity = next_mml(i);
+				} else if(d0 == 0xfc) {
+					d1 = next_mml(i);
+					if(d1 > 127) {
+						d1 = 256 - d1;
+						d1 = 0x40 - (d1 > 63 ? 63 : d1);
+					} else {
+						d1 = 0x40 + (d1 > 63 ? 63 : d1);
+					}
+					send_3bytes(0xb0 + play[i].channel, 0x65, 0x00);
+					send_3bytes(0xb0 + play[i].channel, 0x64, 0x01);
+					send_3bytes(0xb0 + play[i].channel, 0x06, d1);
+				}
+			}
+		}
+	}
+	return true;
+}
+
+bool Playback::load_mml(int page)
 {
 	// データ読み込み
 	DRI* dri = new DRI();
@@ -543,7 +537,7 @@ bool MAKOMidi::load_mml(int page)
 	return true;
 }
 
-void MAKOMidi::load_mda(int page)
+void Playback::load_mda(int page)
 {
 	// 未設定時の音色設定 (Piano, Acoustic Bass Drum)
 	for(int i = 0; i < 256 + 3; i++) {
@@ -620,3 +614,132 @@ void MAKOMidi::load_mda(int page)
 	delete dri;
 }
 
+} // namespace
+
+struct MAKOMidi::Command {
+	enum Type {
+		PLAY,
+		STOP,
+		TERMINATE
+	} type;
+	std::unique_ptr<Playback> playback;
+
+	Command(Type t, std::unique_ptr<Playback> p = {}) : type(t), playback(std::move(p)) {}
+};
+
+MAKOMidi::MAKOMidi()
+{
+	initialize_midi();
+	if (midiout) {
+		thread = SDL_CreateThread(thread_main, "MAKOMidi", this);
+		queue_mutex = SDL_CreateMutex();
+	}
+	SDL_AtomicSet(&current_seq, 0);
+	SDL_AtomicSet(&current_loop, 0);
+	SDL_AtomicSet(&current_mark, 0);
+}
+
+MAKOMidi::~MAKOMidi()
+{
+	if (thread) {
+		SDL_LockMutex(queue_mutex);
+		queue.push(std::make_unique<MAKOMidi::Command>(Command::TERMINATE));
+		SDL_UnlockMutex(queue_mutex);
+		SDL_WaitThread(thread, NULL);
+		SDL_DestroyMutex(queue_mutex);
+	}
+	release_midi();
+}
+
+bool MAKOMidi::is_available()
+{
+	return !!midiout;
+}
+
+bool MAKOMidi::play(NACT* nact, char* amus, int page, int loop)
+{
+	int seq = ++next_seq;
+	auto playback = std::make_unique<Playback>(nact, amus, loop, seq);
+	if (!playback->load_mml(page))
+		return false;
+	playback->load_mda(page);
+	SDL_AtomicSet(&current_seq, seq);
+	SDL_LockMutex(queue_mutex);
+	queue.push(std::make_unique<MAKOMidi::Command>(Command::PLAY, std::move(playback)));
+	SDL_UnlockMutex(queue_mutex);
+	return true;
+}
+
+void MAKOMidi::stop()
+{
+	SDL_AtomicSet(&current_seq, 0);
+	SDL_LockMutex(queue_mutex);
+	queue.push(std::make_unique<MAKOMidi::Command>(Command::STOP));
+	SDL_UnlockMutex(queue_mutex);
+}
+
+bool MAKOMidi::is_playing()
+{
+	return SDL_AtomicGet(&current_seq) != 0;
+}
+
+void MAKOMidi::get_mark(int* mark, int* loop)
+{
+	*mark = SDL_AtomicGet(&current_mark);
+	*loop = SDL_AtomicGet(&current_loop);
+}
+
+void MAKOMidi::thread_loop()
+{
+	std::unique_ptr<Playback> current;
+
+	for (;;) {
+		SDL_LockMutex(queue_mutex);
+		while (!queue.empty()) {
+			auto cmd = std::move(queue.front());
+			queue.pop();
+			SDL_UnlockMutex(queue_mutex);
+			switch (cmd->type) {
+			case Command::PLAY:
+				if (current)
+					stop_midi();
+				current = std::move(cmd->playback);
+				current->start_midi();
+				SDL_AtomicSet(&current_loop, 0);
+				SDL_AtomicSet(&current_mark, 0);
+				SDL_Delay(100);  // ?
+				break;
+			case Command::STOP:
+				if (current) {
+					stop_midi();
+					current.reset();
+				}
+				break;
+			case Command::TERMINATE:
+				return;
+			}
+			SDL_LockMutex(queue_mutex);
+		}
+		SDL_UnlockMutex(queue_mutex);
+		if (current) {
+			if (!current->play_midi(&current_loop, &current_mark)) {
+				SDL_AtomicCAS(&current_seq, current->seq(), 0);
+				current.reset();
+			}
+		}
+		SDL_Delay(10);
+	}
+}
+
+// static
+int MAKOMidi::thread_main(void* data)
+{
+	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
+
+	MAKOMidi* mm = reinterpret_cast<MAKOMidi*>(data);
+	mm->thread_loop();
+
+	stop_midi();
+
+	return 0;
+}

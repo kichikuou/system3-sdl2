@@ -41,11 +41,6 @@ enum MakoThreadMessage {
 	MAKO_EXIT
 };
 
-enum MakoOpenFlags {
-	OPEN_CD = 0,
-	OPEN_MIDI = 1,
-};
-
 const char* mci_geterror(DWORD err)
 {
 	static char buf[128];
@@ -82,8 +77,7 @@ private:
 			switch (msg.message) {
 			case MAKO_OPEN:
 				close();
-				open(reinterpret_cast<std::string*>(msg.wParam),
-					 static_cast<MakoOpenFlags>(msg.lParam));
+				open(reinterpret_cast<std::string*>(msg.wParam));
 				break;
 
 			case MAKO_PLAY:
@@ -101,18 +95,13 @@ private:
 		}
 	}
 
-	void open(std::string* file, MakoOpenFlags open_flags)
+	void open(std::string* file)
 	{
 		file_playing = file;
-		is_midi = open_flags & OPEN_MIDI;
 
 		MCI_OPEN_PARMS open;
 		open.lpstrElementName = file_playing->c_str();
 		DWORD flags = MCI_OPEN_ELEMENT | MCI_WAIT;
-		if (is_midi) {
-			flags |= MCI_OPEN_TYPE | MCI_OPEN_TYPE_ID;
-			open.lpstrDeviceType = (LPCSTR)MCI_DEVTYPE_SEQUENCER;
-		}
 		MCIERROR err = mciSendCommand(0, MCI_OPEN, flags, (DWORD_PTR)&open);
 		if (err) {
 			WARNING("MCI_OPEN failed: %s: %s",
@@ -139,8 +128,6 @@ private:
 			devid = 0;
 		}
 		if (file_playing) {
-			if (is_midi)
-				DeleteFile(file_playing->c_str());  // remove temporary file
 			delete file_playing;
 			file_playing = nullptr;
 		}
@@ -149,7 +136,6 @@ private:
 	HWND hwnd_notify;
 	unsigned thread_id;
 	std::string* file_playing = nullptr;
-	bool is_midi;
 	MCIDEVICEID devid = 0;
 };
 
@@ -159,38 +145,7 @@ class Music {
 public:
 	Music(const char* fname, int loop) : loops(loop) {
 		std::string* fname_str = new std::string(fname);
-		mci_thread->post_message(MAKO_OPEN, (WPARAM)fname_str, OPEN_CD);
-		mci_thread->post_message(MAKO_PLAY, 0, 0);
-		playing = true;
-	}
-
-	Music(std::unique_ptr<MAKOMidi> midi, int loop) : loops(loop ? 1 : 0) {
-		std::vector<uint8> smf = midi->generate_smf(loop);
-		char path[MAX_PATH + 1];
-		if (!GetTempPath(sizeof(path), path)) {
-			WARNING("GetTempPath failed: 0x%x", GetLastError());
-			return;
-		}
-		char fname[MAX_PATH + 1];
-		if (!GetTempFileName(path, "mid", 0, fname)) {
-			WARNING("GetTempFileName failed: 0x%x", GetLastError());
-			return;
-		}
-		FILE* fp = fopen(fname, "wb");
-		if (!fp) {
-			WARNING("Cannot open %s: %s", fname, strerror(errno));
-			return;
-		}
-		if (fwrite(smf.data(), smf.size(), 1, fp) != 1) {
-			WARNING("Cannot write to %s: %s", fname, strerror(errno));
-			fclose(fp);
-			DeleteFile(fname);
-			return;
-		}
-		fclose(fp);
-
-		std::string* fname_str = new std::string(fname);
-		mci_thread->post_message(MAKO_OPEN, (WPARAM)fname_str, OPEN_MIDI);
+		mci_thread->post_message(MAKO_OPEN, (WPARAM)fname_str, 0);
 		mci_thread->post_message(MAKO_PLAY, 0, 0);
 		playing = true;
 	}
@@ -235,6 +190,7 @@ Music* music;
 uint8* wav_buffer;
 SDL_mutex* fm_mutex;
 std::unique_ptr<MakoYmfm> fm;
+std::unique_ptr<MAKOMidi> midi;
 
 void audio_callback(void*, Uint8* stream, int len) {
 	SDL_LockMutex(fm_mutex);
@@ -279,6 +235,10 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	if (!SDL_GetWindowWMInfo(g_window, &info))
 		parent->fatal("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
 	mci_thread = new MCIThread(parent, info.info.win.window);
+
+	midi = std::make_unique<MAKOMidi>();
+	if (!midi->is_available())
+		use_fm = true;
 }
 
 MAKO::~MAKO()
@@ -287,6 +247,7 @@ MAKO::~MAKO()
 	stop_pcm();
 	mci_thread->post_message(MAKO_EXIT, 0, 0);
 	mci_thread = nullptr;  // MCIThread self-destructs on the worker thread.
+	midi.reset();
 
 	SDL_LockMutex(fm_mutex);
 	SDL_CloseAudio();
@@ -337,12 +298,9 @@ void MAKO::play_music(int page)
 		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, data, true);
 		SDL_UnlockMutex(fm_mutex);
 		SDL_PauseAudio(0);
-	} else {
-		auto midi = std::make_unique<MAKOMidi>(nact, amus);
-		if (!midi->load_mml(page))
+	} else if (midi->is_available()) {
+		if (!midi->play(nact, amus, page, next_loop))
 			return;
-		midi->load_mda(page);
-		music = new Music(std::move(midi), next_loop);
 	}
 	current_music = page;
 }
@@ -359,6 +317,9 @@ void MAKO::stop_music()
 		fm = nullptr;
 		SDL_UnlockMutex(fm_mutex);
 	}
+	if (midi->is_available()) {
+		midi->stop();
+	}
 	current_music = 0;
 }
 
@@ -371,7 +332,11 @@ bool MAKO::check_music()
 		SDL_UnlockMutex(fm_mutex);
 		return !loop;
 	}
-	return music && music->is_playing();
+	else if (music) {
+		return music->is_playing();
+	} else {
+		return midi->is_playing();
+	}
 }
 
 void MAKO::select_sound(BGMDevice dev)
@@ -386,7 +351,10 @@ void MAKO::select_sound(BGMDevice dev)
 	case BGM_MIDI:
 		for (int i = 1; i <= 99; i++)
 			cd_track[i] = 0;
-		use_fm = dev == BGM_FM;
+		if (midi->is_available())
+			use_fm = dev == BGM_FM;
+		else
+			dev = BGM_FM;
 		break;
 
 	case BGM_CD:
@@ -435,11 +403,11 @@ void MAKO::get_mark(int* mark, int* loop)
 	SDL_LockMutex(fm_mutex);
 	if (fm) {
 		fm->get_mark(mark, loop);
-	} else {
-		*mark = 0;
-		*loop = 0;
+		SDL_UnlockMutex(fm_mutex);
+		return;
 	}
 	SDL_UnlockMutex(fm_mutex);
+	midi->get_mark(mark, loop);
 }
 
 void MAKO::play_pcm(int page, bool loop)
