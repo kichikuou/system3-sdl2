@@ -38,7 +38,7 @@ std::string normalize_path(std::string s)
 bool is_empty_line(const char *s)
 {
 	for (; *s; s++) {
-		if (!isspace(*s))
+		if (!isspace((unsigned char)*s))
 			return false;
 	}
 	return true;
@@ -46,10 +46,10 @@ bool is_empty_line(const char *s)
 
 char *trim(char *s)
 {
-	while (isspace(*s))
+	while (isspace((unsigned char)*s))
 		s++;
 	char *p = s + strlen(s) - 1;
-	while (p > s && isspace(*p))
+	while (p > s && isspace((unsigned char)*p))
 		*p-- = '\0';
 	return s;
 }
