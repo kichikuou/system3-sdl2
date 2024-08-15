@@ -18,12 +18,8 @@
 package io.github.kichikuou.system3
 
 import android.app.AlertDialog
-import android.content.Context
-import android.content.SharedPreferences
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
@@ -31,7 +27,6 @@ import android.view.View
 import android.widget.EditText
 import org.libsdl.app.SDLActivity
 import java.io.File
-import java.io.IOException
 
 // Intent for this activity must have the following extras:
 // - EXTRA_GAME_ROOT (string): A path to the game installation.
@@ -40,30 +35,14 @@ class GameActivity : SDLActivity() {
     companion object {
         const val EXTRA_GAME_ROOT = "GAME_ROOT"
         const val EXTRA_SAVE_DIR = "SAVE_DIR"
-        const val PREF_USE_FM = "use_fm_sound"
     }
 
     private lateinit var gameRoot: File
-    private lateinit var prefs: SharedPreferences
-    private val midi = MidiPlayer()
-    private var useFM = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameRoot = File(intent.getStringExtra(EXTRA_GAME_ROOT)!!)
-        prefs = getSharedPreferences("system3", Context.MODE_PRIVATE)
-        useFM = prefs.getBoolean(PREF_USE_FM, useFM)
         registerForContextMenu(mLayout)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        midi.onActivityStop()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        midi.onActivityResume()
     }
 
     override fun getLibraries(): Array<String> {
@@ -75,8 +54,6 @@ class GameActivity : SDLActivity() {
                 "-gamedir", intent.getStringExtra(EXTRA_GAME_ROOT)!!,
                 "-savedir", intent.getStringExtra(EXTRA_SAVE_DIR)!! + "/@",
                 "-playlist", Launcher.PLAYLIST_FILE)
-        if (useFM)
-            args.add("-fm")
         return args.toTypedArray()
     }
 
@@ -120,25 +97,12 @@ class GameActivity : SDLActivity() {
     override fun onCreateContextMenu(menu: ContextMenu, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
         menuInflater.inflate(R.menu.game_menu, menu)
-        menu.findItem(if (useFM) R.id.fm_sound else R.id.midi_sound).isChecked = true
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.quit_game -> {
                 finish()
-                true
-            }
-            R.id.fm_sound -> {
-                selectSynthesizer(true)
-                useFM = true
-                prefs.edit().putBoolean(PREF_USE_FM, useFM).apply()
-                true
-            }
-            R.id.midi_sound -> {
-                selectSynthesizer(false)
-                useFM = false
-                prefs.edit().putBoolean(PREF_USE_FM, useFM).apply()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -150,14 +114,7 @@ class GameActivity : SDLActivity() {
         menuShown = false
     }
 
-    // C functions we call
-    private external fun selectSynthesizer(use_fm: Boolean)
-
     // The functions below are called in the SDL thread by JNI.
-    @Suppress("unused") fun midiStart(path: String, loop: Boolean) = midi.start(path, loop)
-    @Suppress("unused") fun midiStop() = midi.stop()
-    @Suppress("unused") fun midiCurrentPosition() = midi.currentPosition()
-
     @Suppress("unused") fun inputString(oldVal: String, maxLen: Int): String? {
         val result = arrayOfNulls<String?>(1)
         runOnUiThread { textInputDialog(oldVal, maxLen, result) }
@@ -174,56 +131,5 @@ class GameActivity : SDLActivity() {
 
     @Suppress("unused") fun popupMenu() {
         runOnUiThread { openMenu() }
-    }
-}
-
-private class MidiPlayer {
-    private val player = MediaPlayer()
-    private var playing = false
-    private var playerPaused = false
-
-    init {
-        player.setOnCompletionListener { playing = false }
-    }
-
-    fun start(path: String, loop: Boolean) {
-        try {
-            player.apply {
-                reset()
-                setDataSource(path)
-                isLooping = loop
-                prepare()
-                start()
-            }
-            playing = true
-        } catch (e: IOException) {
-            Log.e("midiStart", "Cannot play midi", e)
-            player.reset()
-        }
-    }
-
-    fun stop() {
-        if (playing && player.isPlaying) {
-            player.stop()
-            playing = false
-        }
-    }
-
-    fun currentPosition(): Int {
-        return if (playing) player.currentPosition else 0
-    }
-
-    fun onActivityStop() {
-        if (playing && player.isPlaying) {
-            player.pause()
-            playerPaused = true
-        }
-    }
-
-    fun onActivityResume() {
-        if (playerPaused) {
-            player.start()
-            playerPaused = false
-        }
     }
 }

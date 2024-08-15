@@ -32,7 +32,6 @@ if (ANDROID)
   target_sources(system3 PRIVATE
     src/android/nact_android.cpp
     src/android/mako.cpp
-    src/sys/mako_midi.cpp
     )
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf SDL2_mixer ymfm)
 

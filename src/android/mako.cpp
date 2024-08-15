@@ -7,14 +7,12 @@
 #include "jnihelper.h"
 #include "dri.h"
 #include "mako.h"
-#include "mako_midi.h"
 #include "fm/mako_ymfm.h"
 
 namespace {
 
 const int SAMPLE_RATE = 44100;
 
-MAKO *g_mako;
 Mix_Music *mix_music;
 Mix_Chunk *mix_chunk;
 SDL_mutex* fm_mutex;
@@ -34,8 +32,6 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	next_loop(0),
 	nact(parent)
 {
-	g_mako = this;
-
 	load_playlist(config.playlist.c_str());
 
 	strcpy(amus, "AMUS.DAT");
@@ -103,7 +99,7 @@ void MAKO::play_music(int page)
 				return;
 			}
 		}
-	} else if (use_fm) {
+	} else {
 		DRI dri;
 		int size;
 		uint8* data = dri.load(amus, page, &size);
@@ -116,36 +112,6 @@ void MAKO::play_music(int page)
 		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, data, true);
 		SDL_UnlockMutex(fm_mutex);
 		Mix_HookMusic(&FMHook, this);
-	} else {
-		JNILocalFrame jni(16);
-		if (!jni.env())
-			return;
-
-		auto midi = std::make_unique<MAKOMidi>(nact, amus);
-		if (!midi->load_mml(page)) {
-			WARNING("load_mml(%d) failed", page);
-			return;
-		}
-		midi->load_mda(page);
-		std::vector<uint8_t> smf = midi->generate_smf(next_loop);
-
-		char path[PATH_MAX];
-		snprintf(path, PATH_MAX, "%s/tmp.mid", SDL_AndroidGetInternalStoragePath());
-		FILE* fp = fopen(path, "w");
-		if (!fp) {
-			WARNING("Failed to create temporary file");
-			return;
-		}
-		fwrite(smf.data(), smf.size(), 1, fp);
-		fclose(fp);
-
-		jstring path_str = jni.env()->NewStringUTF(path);
-		if (!path_str) {
-			WARNING("Failed to allocate a string");
-			return;
-		}
-		jmethodID mid = jni.GetMethodID("midiStart", "(Ljava/lang/String;Z)V");
-		jni.env()->CallVoidMethod(jni.context(), mid, path_str, next_loop ? 0 : 1);
 	}
 
 	current_music = page;
@@ -160,12 +126,6 @@ void MAKO::stop_music()
 	if (mix_music) {
 		Mix_FreeMusic(mix_music);
 		mix_music = NULL;
-	}
-
-	JNILocalFrame jni(16);
-	if (jni.env()) {
-		jmethodID mid = jni.GetMethodID("midiStop", "()V");
-		jni.env()->CallVoidMethod(jni.context(), mid);
 	}
 
 	if (fm) {
@@ -191,11 +151,6 @@ bool MAKO::check_music()
 		return !loop;
 	}
 
-	JNILocalFrame jni(16);
-	if (jni.env()) {
-		jmethodID mid = jni.GetMethodID("midiCurrentPosition", "()I");
-		return jni.env()->CallIntMethod(jni.context(), mid) != 0;
-	}
 	return false;
 }
 
@@ -270,21 +225,3 @@ bool MAKO::check_pcm()
 {
 	return Mix_Playing(-1) != 0;
 }
-
-void MAKO::select_synthesizer(bool use_fm_) {
-	if (use_fm == use_fm_)
-		return;
-	int page = current_music;
-	stop_music();
-	use_fm = use_fm_;
-	play_music(page);
-}
-
-extern "C" {
-
-JNIEXPORT void JNICALL Java_io_github_kichikuou_system3_GameActivity_selectSynthesizer(
-	JNIEnv *env, jobject cls, jboolean use_fm) {
-	g_mako->select_synthesizer(use_fm);
-}
-
-} // extern "C"
