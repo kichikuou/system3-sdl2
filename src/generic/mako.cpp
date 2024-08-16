@@ -97,7 +97,15 @@ void MAKO::play_music(int page)
 	int track = page < 100 ? cd_track[page] : 0;
 	if (track) {
 		if (track < playlist.size() && playlist[track]) {
+#ifdef __ANDROID__
+			// Mix_LoadMUS uses SDL_RWFromFile which requires absolute path on Android
+			char path[PATH_MAX];
+			if (!realpath(playlist[track], path))
+				return;
+			mix_music = Mix_LoadMUS(path);
+#else
 			mix_music = Mix_LoadMUS(playlist[track]);
+#endif
 			if (!mix_music) {
 				WARNING("Mix_LoadMUS failed: %s: %s", playlist[track], Mix_GetError());
 				return;
@@ -132,6 +140,9 @@ void MAKO::play_music(int page)
 
 void MAKO::stop_music()
 {
+	if (!current_music)
+		return;
+
 	if (mix_music) {
 		Mix_FreeMusic(mix_music);
 		mix_music = NULL;
