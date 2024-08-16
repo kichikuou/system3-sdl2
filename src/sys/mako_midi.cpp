@@ -21,7 +21,7 @@ namespace {
 
 std::unique_ptr<RtMidiOut> midiout;
 
-void initialize_midi()
+void initialize_midi(int device)
 {
 	try {
 		midiout = std::make_unique<RtMidiOut>();
@@ -34,8 +34,15 @@ void initialize_midi()
 		for (int i = 0; i < n; i++) {
 			NOTICE("MIDI #%d: %s", i, midiout->getPortName(i).c_str());
 		}
-		// Open first available port.
-		midiout->openPort(0);
+		if (device < 0) {
+			// not specified, use the first device
+			device = 0;
+		} else if (device >= n) {
+			WARNING("Invalid MIDI device number: %d", device);
+			midiout.reset();
+			return;
+		}
+		midiout->openPort(device);
 	} catch (RtMidiError &error) {
 		WARNING("Cannot initialize MIDI: %s", error.getMessage().c_str());
 		midiout.reset();
@@ -627,9 +634,9 @@ struct MAKOMidi::Command {
 	Command(Type t, std::unique_ptr<Playback> p = {}) : type(t), playback(std::move(p)) {}
 };
 
-MAKOMidi::MAKOMidi()
+MAKOMidi::MAKOMidi(int device)
 {
-	initialize_midi();
+	initialize_midi(device);
 	if (midiout) {
 		thread = SDL_CreateThread(thread_main, "MAKOMidi", this);
 		queue_mutex = SDL_CreateMutex();

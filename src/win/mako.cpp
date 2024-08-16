@@ -236,7 +236,7 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 		parent->fatal("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
 	mci_thread = new MCIThread(parent, info.info.win.window);
 
-	midi = std::make_unique<MAKOMidi>();
+	midi = std::make_unique<MAKOMidi>(config.midi_device);
 	if (!midi->is_available())
 		use_fm = true;
 }

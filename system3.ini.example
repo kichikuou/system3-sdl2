@@ -18,9 +18,11 @@ fontfile = custom_font.ttf
 ; line.
 playlist = bgm/playlist.txt
 
-; Enable FM tone generator emulation. If not specified, MIDI sound will be
-; used.
+; Force FM tone generator emulation even if MIDI is available.
 fm = true
+
+; MIDI device number to use for music playback.
+mididevice = 0
 
 ; Game ID. No need to specify if using AliceSoft's original game data.
 ; Refer to README.md for a list of possible values.

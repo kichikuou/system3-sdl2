@@ -4,6 +4,7 @@
 #include <tuple>
 #include <utility>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #ifdef _WIN32
 #include <direct.h>
@@ -24,6 +25,19 @@ bool to_bool(const char *s, int lineno)
 		return false;
 	ERROR(INIFILENAME ":%d Invalid boolean value '%s'", lineno, s);
 	return true;
+}
+
+int to_int(const char *s, int lineno = -1)
+{
+	char *end;
+	int n = strtol(s, &end, 10);
+	if (*end) {
+		if (lineno == -1)
+			ERROR("Command line: Invalid integer value '%s'", s);
+		else
+			ERROR(INIFILENAME ":%d Invalid integer value '%s'", lineno, s);
+	}
+	return n;
 }
 
 std::string normalize_path(std::string s)
@@ -96,6 +110,8 @@ Config::Config(int argc, char *argv[])
 			playlist = argv[++i];
 		else if (strcmp(argv[i], "-fm") == 0)
 			use_fm = true;
+		else if (strcmp(argv[i], "-mididevice") == 0)
+			midi_device = to_int(argv[++i]);
 		else if (strcmp(argv[i], "-game") == 0)
 			game_id = argv[++i];
 		else if (strcmp(argv[i], "-encoding") == 0)
@@ -152,6 +168,8 @@ void Config::load_ini()
 				playlist = normalize_path(val);
 			else if (!strcasecmp(key, "fm"))
 				use_fm = to_bool(val, lineno);
+			else if (!strcasecmp(key, "mididevice"))
+				midi_device = to_int(val, lineno);
 			else if (!strcasecmp(key, "game"))
 				game_id = val;
 			else if (!strcasecmp(key, "encoding"))

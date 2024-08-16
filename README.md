@@ -111,7 +111,12 @@ The first line is not used because track 1 on a game CD is usually a data
 track.
 
 #### `-fm`
-By default, system3-sdl2 uses MIDI sound if available. This option forces FM tone generator emulation.
+By default, system3-sdl2 uses MIDI sound if available. This option forces FM
+tone generator emulation.
+
+#### `-mididevice` _number_
+Specifies the MIDI device number to use. If not specified, the first available
+device is used.
 
 #### `-game` _game_id_
 As System1-3 have slight variations depending on the game, `system3` uses the

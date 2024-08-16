@@ -12,7 +12,7 @@ class NACT;
 
 class MAKOMidi {
 public:
-	MAKOMidi();
+	explicit MAKOMidi(int device);
 	~MAKOMidi();
 	bool is_available();
 	bool play(NACT* nact, char* amus, int page, int loop);
@@ -38,6 +38,7 @@ private:
 
 class MAKOMidi {
 public:
+	explicit MAKOMidi(int device) {}
 	bool is_available() { return false; }
 	bool play(NACT* nact, char* amus, int page, int loop) { return false; }
 	void stop() {}

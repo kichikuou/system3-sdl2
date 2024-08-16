@@ -53,7 +53,7 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	if (Mix_OpenAudio(SAMPLE_RATE, AUDIO_S16LSB, 2, 4096) < 0)
 		WARNING("Mix_OpenAudio failed: %s", Mix_GetError());
 
-	midi = std::make_unique<MAKOMidi>();
+	midi = std::make_unique<MAKOMidi>(config.midi_device);
 	if (!midi->is_available())
 		use_fm = true;
 }
