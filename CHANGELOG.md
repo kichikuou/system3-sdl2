@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 - 2024-08-17
+- Real-time MIDI playback has been restored on Windows. This allows seamless
+  music looping and fixes issues where games cannot detect the end of music.
+  As a trade-off, MIDI is no longer supported on Android.
+
 ## 1.0.2 - 2024-04-12
 - Fixed a bug in parsing boolean values in system3.ini.
 
