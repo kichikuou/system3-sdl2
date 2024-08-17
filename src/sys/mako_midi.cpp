@@ -5,6 +5,7 @@
 */
 
 #include <memory>
+#include <vector>
 #include <SDL.h>
 #include <RtMidi.h>
 
@@ -12,10 +13,6 @@
 #include "nact.h"
 #include "dri.h"
 #include "crc32.h"
-
-#define MAX_MMLS (128 * 1024)
-
-#define next_mml(p) mml[p].data[mml[p].addr++]
 
 namespace {
 
@@ -96,22 +93,29 @@ void stop_midi()
 
 class Playback {
 public:
-	Playback(NACT* nact, char* amus, int loop, int seq) : nact(nact), amus(amus), loop_(loop), seq_(seq) {}
-	bool load_mml(int page);
-	void load_mda(int page);
+	static std::unique_ptr<Playback> create(NACT* nact, char* amus, int page, int loop, int seq);
+	Playback(uint32_t crc32_a, int loop, int seq) : crc32_a(crc32_a), loop_(loop), seq_(seq) {}
+	bool load_mml(uint8_t* data, int size);
+	void load_mda(uint8_t* data, int size);
 	void start_midi();
 	bool play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark);
 	int seq() const { return seq_; }
 
 private:
-	NACT* nact;
-	char* amus;
+	uint32_t crc32_a;
 	int loop_;
 	int seq_;
 
-	struct MML {
-		uint8 data[MAX_MMLS];
-		int addr;
+	class MML {
+	public:
+		MML() : addr(0) {}
+		void write(uint8_t byte) { data.push_back(byte); }
+		uint8_t next() { return data[addr++]; }
+		void seek(size_t pos) { addr = pos; }
+		uint32_t size() { return static_cast<uint32_t>(data.size()); }
+	private:
+		std::vector<uint8_t> data;
+		size_t addr;
 	};
 	MML mml[9];
 
@@ -175,7 +179,7 @@ void Playback::start_midi()
 		play[i].note_flag = false;
 		play[i].loop_cnt = 0;
 		play[i].wait_time = 16;
-		mml[i].addr = 0;
+		mml[i].seek(0);
 	}
 
 	for(int i = 0; i < 3; i++) {
@@ -254,12 +258,12 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 				play[i].wait_time = 1;
 			}
 			while(play[i].wait_time == 0) {
-				int d0 = next_mml(i), d1, d2, d3;
+				int d0 = mml[i].next(), d1, d2, d3;
 				if(d0 == 0xff) {
-					d1 = next_mml(i);
-					d2 = next_mml(i);
-					d3 = next_mml(i);
-					mml[i].addr = d1 | (d2 << 8) | (d3 << 16);
+					d1 = mml[i].next();
+					d2 = mml[i].next();
+					d3 = mml[i].next();
+					mml[i].seek(d1 | (d2 << 8) | (d3 << 16));
 					if(!play[i].note_flag || mute_flag) {
 						// 再生停止または未使用
 						play[i].loop_flag = false;
@@ -289,8 +293,8 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 					}
 				} else if(d0 < 0x80) {
 					int note = d0;
-					play[i].wait_time = next_mml(i);
-					play[i].wait_time |= next_mml(i) << 8;
+					play[i].wait_time = mml[i].next();
+					play[i].wait_time |= mml[i].next() << 8;
 					if(play[i].timbre_type != 128) {
 						note = drum_map[play[i].timbre_type][note];
 					} else {
@@ -300,27 +304,27 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 					play[i].note = note;
 					send_3bytes(0x90 + play[i].channel, note, play[i].velocity);
 				} else if(d0 == 0x80) {
-					play[i].wait_time = next_mml(i);
-					play[i].wait_time |= next_mml(i) << 8;
+					play[i].wait_time = mml[i].next();
+					play[i].wait_time |= mml[i].next() << 8;
 					if(play[i].note != 128) {
 						send_3bytes(0x90 + play[i].channel, play[i].note, 0x00);
 					}
 					play[i].note = 128;
 				} else if(d0 == 0xe0) {
-					SDL_AtomicSet(current_mark, next_mml(i));
+					SDL_AtomicSet(current_mark, mml[i].next());
 				} else if(d0 == 0xe1) {
-					d1 = next_mml(i);
+					d1 = mml[i].next();
 					play[i].velocity += (d1 > 127) ? (d1 - 256) : d1;
 				} else if(d0 == 0xeb) {
-					play[i].pan = next_mml(i);
+					play[i].pan = mml[i].next();
 					send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
 				}
 				else if(d0 == 0xec) {
-					if(!(nact->crc32_a == CRC32_DPS || nact->crc32_a == CRC32_DPS_SG || nact->crc32_a == CRC32_DPS_SG2 || nact->crc32_a == CRC32_DPS_SG3))
+					if(!(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3))
 						mute_flag = true;
 				}
 				else if(d0 == 0xf5) {
-					int n = next_mml(i);
+					int n = mml[i].next();
 					if(n != play[i].timbre) {
 						if(mda[n].bank_select < 128) {
 							// 通常のパート
@@ -355,9 +359,9 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 					play[i].pan = mda[n].pan;
 					play[i].velocity = 120;
 				} else if(d0 == 0xf9) {
-					play[i].velocity = next_mml(i);
+					play[i].velocity = mml[i].next();
 				} else if(d0 == 0xfc) {
-					d1 = next_mml(i);
+					d1 = mml[i].next();
 					if(d1 > 127) {
 						d1 = 256 - d1;
 						d1 = 0x40 - (d1 > 63 ? 63 : d1);
@@ -374,24 +378,42 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 	return true;
 }
 
-bool Playback::load_mml(int page)
+//static
+std::unique_ptr<Playback> Playback::create(NACT* nact, char* amus, int page, int loop, int seq)
 {
-	// データ読み込み
-	DRI* dri = new DRI();
+	auto playback = std::make_unique<Playback>(nact->crc32_a, loop, seq);
+	auto dri = std::make_unique<DRI>();
+
 	int size;
 	uint8* data = dri->load(amus, page, &size);
-	if(data == NULL) {
-		delete dri;
-		return false;
+	if (!data)
+		return nullptr;
+	if (!playback->load_mml(data, size)) {
+		free(data);
+		return nullptr;
 	}
+	free(data);
 
+	// Load MDA
+	char path[16];
+	strcpy_s(path, 16, amus);
+	strcpy(path + strlen(path) - 3, "MDA");
+	data = dri->load(path, page, &size);
+	if (!data)
+		data = dri->load_mda(nact->crc32_a, nact->crc32_b, page, &size);
+	playback->load_mda(data, size);
+	free(data);
+
+	return playback;
+}
+
+bool Playback::load_mml(uint8_t* data, int size)
+{
 	// FM音源データの判定
 	int p, d0, d1, d2;
 
 	p = data[0] + 1;
 	if(data[p] != 0x0f || (data[p + 1] + data[p + 2] + data[p + 3] + data[p + 4] + data[p + 5]) != 0) {
-		free(data);
-		delete dri;
 		return false;
 	}
 
@@ -400,8 +422,7 @@ bool Playback::load_mml(int page)
 		p = 4 * (i + 1);
 		int block_offset_top = data[p++];
 		block_offset_top |= data[p++] << 8;
-		int body_addr = 0;
-		mml[i].addr = 0;
+		uint32_t body_addr = 0;
 
 		if(block_offset_top) {
 			// ブロックの探索
@@ -424,7 +445,7 @@ bool Playback::load_mml(int page)
 
 			for(int j = 0; j < last_block; j++) {
 				if(j == return_block) {
-					body_addr = mml[i].addr;
+					body_addr = mml[i].size();
 				}
 				p = block_offset_top + 2 * j;
 				int block_offset = data[p++];
@@ -478,23 +499,23 @@ bool Playback::load_mml(int page)
 							on_time = 0;
 						}
 						if(on_time != 0) {
-							next_mml(i) = (note - 1) + 12 * (current_octave + 1);
-							next_mml(i) = on_time & 0xff;
-							next_mml(i) = on_time >> 8;
+							mml[i].write((note - 1) + 12 * (current_octave + 1));
+							mml[i].write(on_time & 0xff);
+							mml[i].write(on_time >> 8);
 						}
-						next_mml(i) = 0x80;
-						next_mml(i) = off_time & 0xff;
-						next_mml(i) = off_time >> 8;
+						mml[i].write(0x80);
+						mml[i].write(off_time & 0xff);
+						mml[i].write(off_time >> 8);
 						if(current_octave != base_octave) {
 							current_octave = base_octave;
 						}
 					} else if(d0 == 0xe0 || d0 == 0xe1 || d0 == 0xeb || d0 == 0xf5 || d0 == 0xf9 || d0 == 0xfc) {
-						next_mml(i) = d0;
-						next_mml(i) = data[p++];
+						mml[i].write(d0);
+						mml[i].write(data[p++]);
 					} else if(d0 == 0xea) {
 						gate_time = data[p++];
 					} else if(d0 == 0xec) {
-						next_mml(i) = d0;
+						mml[i].write(d0);
 					} else if(d0 == 0xee) {
 						current_octave = ++base_octave;
 					} else if(d0 == 0xef) {
@@ -534,17 +555,15 @@ bool Playback::load_mml(int page)
 				}
 			}
 		}
-		next_mml(i) = 0xff;
-		next_mml(i) = (body_addr >>  0) & 0xff;
-		next_mml(i) = (body_addr >>  8) & 0xff;
-		next_mml(i) = (body_addr >> 16) & 0xff;
+		mml[i].write(0xff);
+		mml[i].write((body_addr >>  0) & 0xff);
+		mml[i].write((body_addr >>  8) & 0xff);
+		mml[i].write((body_addr >> 16) & 0xff);
 	}
-	free(data);
-	delete dri;
 	return true;
 }
 
-void Playback::load_mda(int page)
+void Playback::load_mda(uint8_t* data, int size)
 {
 	// 未設定時の音色設定 (Piano, Acoustic Bass Drum)
 	for(int i = 0; i < 256 + 3; i++) {
@@ -563,62 +582,49 @@ void Playback::load_mda(int page)
 	}
 	tempo_dif = 0x40;
 
-	// MDAデータの読み込み
-	char path[16];
-	strcpy_s(path, 16, amus);
-	strcpy(path + strlen(path) - 3, "MDA");
+	if (!data)
+		return;
 
-	DRI* dri = new DRI();
-	int size;
-	uint8* data = NULL;
-	if((data = dri->load(path, page, &size)) == NULL) {
-		data = dri->load_mda(nact->crc32_a, nact->crc32_b, page, &size);
+	tempo_dif = data[7];
+	int map_wide = data[24];
+	int inst_num = data[25];
+	int drum_format = data[26];
+
+	// SSGパートの音色設定
+	for(int i = 0; i < 3; i++) {
+		uint8* buf = &data[map_wide * i + 27];
+		mda[i + 256].bank_select = buf[0];
+		mda[i + 256].program_change = buf[1];
+		mda[i + 256].level = buf[2];
+		mda[i + 256].reverb = buf[3];
+		mda[i + 256].chorus = buf[4];
+		mda[i + 256].key_shift = buf[5];
+		mda[i + 256].pan = buf[6];
 	}
 
-	if(data) {
-		tempo_dif = data[7];
-		int map_wide = data[24];
-		int inst_num = data[25];
-		int drum_format = data[26];
-
-		// SSGパートの音色設定
-		for(int i = 0; i < 3; i++) {
-			uint8* buf = &data[map_wide * i + 27];
-			mda[i + 256].bank_select = buf[0];
-			mda[i + 256].program_change = buf[1];
-			mda[i + 256].level = buf[2];
-			mda[i + 256].reverb = buf[3];
-			mda[i + 256].chorus = buf[4];
-			mda[i + 256].key_shift = buf[5];
-			mda[i + 256].pan = buf[6];
-		}
-
-		// 通常の音色設定
-		for(int i = 0; i < inst_num; i++) {
-			uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * i];
-			int n = buf[0];
-			mda[n].bank_select = buf[1];
-			mda[n].program_change = buf[2];
-			mda[n].level = buf[3];
-			mda[n].reverb = buf[4];
-			mda[n].chorus = buf[5];
-			mda[n].key_shift = buf[6];
-			mda[n].pan = buf[7];
-		}
-
-		// ドラムパートの音色設定
-		if(drum_format) {
-			uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * inst_num];
-			int drum_num = buf[0];
-			for(int i = 0; i < drum_num; i++) {
-				int d = buf[i * 3 + 1];
-				int t = buf[i * 3 + 2];
-				drum_map[d][t + 12] = buf[i * 3 + 3];
-			}
-		}
-		free(data);
+	// 通常の音色設定
+	for(int i = 0; i < inst_num; i++) {
+		uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * i];
+		int n = buf[0];
+		mda[n].bank_select = buf[1];
+		mda[n].program_change = buf[2];
+		mda[n].level = buf[3];
+		mda[n].reverb = buf[4];
+		mda[n].chorus = buf[5];
+		mda[n].key_shift = buf[6];
+		mda[n].pan = buf[7];
 	}
-	delete dri;
+
+	// ドラムパートの音色設定
+	if(drum_format) {
+		uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * inst_num];
+		int drum_num = buf[0];
+		for(int i = 0; i < drum_num; i++) {
+			int d = buf[i * 3 + 1];
+			int t = buf[i * 3 + 2];
+			drum_map[d][t + 12] = buf[i * 3 + 3];
+		}
+	}
 }
 
 } // namespace
@@ -666,10 +672,9 @@ bool MAKOMidi::is_available()
 bool MAKOMidi::play(NACT* nact, char* amus, int page, int loop)
 {
 	int seq = ++next_seq;
-	auto playback = std::make_unique<Playback>(nact, amus, loop, seq);
-	if (!playback->load_mml(page))
+	auto playback = Playback::create(nact, amus, page, loop, seq);
+	if (!playback)
 		return false;
-	playback->load_mda(page);
 	SDL_AtomicSet(&current_seq, seq);
 	SDL_LockMutex(queue_mutex);
 	queue.push(std::make_unique<MAKOMidi::Command>(Command::PLAY, std::move(playback)));
