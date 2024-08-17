@@ -73,15 +73,15 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   if (MSVC)
     include(FetchContent)
     FetchContent_Declare(sdl2
-      URL https://github.com/libsdl-org/SDL/releases/download/release-2.30.2/SDL2-devel-2.30.2-VC.zip
-      URL_HASH SHA1=f354c841e99a9894ff0f5ba85ec306184316e7b6)
+      URL https://github.com/libsdl-org/SDL/releases/download/release-2.30.6/SDL2-devel-2.30.6-VC.zip
+      URL_HASH SHA1=038ffed56e04fbc4c6236187472c671596963fdb)
     FetchContent_MakeAvailable(sdl2)
     find_package(SDL2 REQUIRED CONFIG PATHS ${sdl2_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
     get_target_property(SDL2_DLL SDL2::SDL2 IMPORTED_LOCATION)
 
     FetchContent_Declare(sdl2_ttf
-      URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.20.2/SDL2_ttf-devel-2.20.2-VC.zip
-      URL_HASH SHA1=dee48e9c5184c139aa8bcab34a937d1b3df4f503)
+      URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.22.0/SDL2_ttf-devel-2.22.0-VC.zip
+      URL_HASH SHA1=2d4f131909af2985b5ebc5ed296d28628c87c243)
     FetchContent_MakeAvailable(sdl2_ttf)
     find_package(SDL2_ttf REQUIRED CONFIG PATHS ${sdl2_ttf_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
     get_target_property(SDL2TTF_DLL SDL2_ttf::SDL2_ttf IMPORTED_LOCATION)
