@@ -43,9 +43,8 @@ const uint8_t PresetFMTone[TONE_DATA_SIZE] = {
 
 } // namespace
 
-MakoFM::MakoFM(const uint8_t* data, bool free_data) :
-	data(data),
-	free_data(free_data),
+MakoFM::MakoFM(std::vector<uint8_t> data) :
+	data(std::move(data)),
 	tone_offset(GetWord(0)),
 	ver(GetWord(2)) {
 	memset(work, 0, sizeof(work));
@@ -57,11 +56,6 @@ MakoFM::MakoFM(const uint8_t* data, bool free_data) :
 		work[ch].vol = 120;
 		work[ch].panpot = 0x40;
 	}
-}
-
-MakoFM::~MakoFM() {
-	if (free_data)
-		free((void*)data);
 }
 
 void MakoFM::MainLoop() {
@@ -130,7 +124,7 @@ void MakoFM::ExecSequence(int ch, bool execcmd) {
 
  execcmd:
 	cmdFF = 0;
-	work[ch].seq_ptr = ExecCmd(ch, data + work[ch].seq_ptr) - data;
+	work[ch].seq_ptr = ExecCmd(ch, &data[work[ch].seq_ptr]) - data.data();
 	if (cmdFF) {
 		uint16_t block_addr = GetWord(work[ch].jump_ptr);
 		work[ch].jump_ptr += 2;
@@ -335,7 +329,7 @@ const uint8_t* MakoFM::ExecCmd(int ch, const uint8_t* code) {
 
 		case 0xf5:  // FM tone set
 			work[ch].tone_num = *code++;
-			SetFMTone(ch, data + tone_offset + TONE_DATA_SIZE * work[ch].tone_num);
+			SetFMTone(ch, &data[tone_offset + TONE_DATA_SIZE * work[ch].tone_num]);
 			ExecHWLFO(ch);
 			cont = true;
 			break;

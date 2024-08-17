@@ -29,61 +29,56 @@ void AGS::load_cg(int page, int transparent)
 			return;
 		}
 	}
-	DRI* dri = new DRI();
-	int size;
-	uint8* data = dri->load(acg, page, &size);
-	if(data && size > 0) {
-		switch (nact->sys_ver) {
-		case 1:
-			switch (nact->crc32_a) {
-			case CRC32_BUNKASAI:
-			case CRC32_GAKUEN:
-			case CRC32_GAKUEN_ENG:
-				load_vsp(data, page, transparent);
-				break;
-			case CRC32_INTRUDER:
-				// load_gm3(data, page, transparent);
-				load_vsp(data, page, transparent);	// 暫定
-				break;
-			case CRC32_VAMPIRE:
-			case CRC32_VAMPIRE_ENG:
-				load_vsp2l(data, page, transparent);
-				break;
-			default:
-				load_gl3(data, page, transparent);
-				break;
-			}
+	std::vector<uint8_t> data = dri_load(acg, page);
+	if (data.empty())
+		return;
+	switch (nact->sys_ver) {
+	case 1:
+		switch (nact->crc32_a) {
+		case CRC32_BUNKASAI:
+		case CRC32_GAKUEN:
+		case CRC32_GAKUEN_ENG:
+			load_vsp(data.data(), page, transparent);
 			break;
-		case 2:
-			if(nact->crc32_a == CRC32_AYUMI_PROTO) {
-				// あゆみちゃん物語 PROTO
-				load_gl3(data, page, transparent);
-			} else if(nact->crc32_a == CRC32_AYUMI_FD || nact->crc32_a == CRC32_AYUMI_HINT) {
-				// あゆみちゃん物語
-				load_vsp(data, page, transparent);
-			} else if(nact->crc32_a == CRC32_SDPS) {
-				// Super D.P.S
-				load_pms(data, page, transparent);
-			} else {
-				if(data[0x8] == 0) {
-					load_vsp(data, page, transparent);
-				} else {
-					load_pms(data, page, transparent);
-				}
-			}
+		case CRC32_INTRUDER:
+			// load_gm3(data.data(), page, transparent);
+			load_vsp(data.data(), page, transparent);	// 暫定
 			break;
-		case 3:
-			if(data[0x8] == 0) {
-				load_vsp(data, page, transparent);
-			} else {
-				load_pms(data, page, transparent);
-			}
+		case CRC32_VAMPIRE:
+		case CRC32_VAMPIRE_ENG:
+			load_vsp2l(data.data(), page, transparent);
+			break;
+		default:
+			load_gl3(data.data(), page, transparent);
 			break;
 		}
+		break;
+	case 2:
+		if(nact->crc32_a == CRC32_AYUMI_PROTO) {
+			// あゆみちゃん物語 PROTO
+			load_gl3(data.data(), page, transparent);
+		} else if(nact->crc32_a == CRC32_AYUMI_FD || nact->crc32_a == CRC32_AYUMI_HINT) {
+			// あゆみちゃん物語
+			load_vsp(data.data(), page, transparent);
+		} else if(nact->crc32_a == CRC32_SDPS) {
+			// Super D.P.S
+			load_pms(data.data(), page, transparent);
+		} else {
+			if(data[0x8] == 0) {
+				load_vsp(data.data(), page, transparent);
+			} else {
+				load_pms(data.data(), page, transparent);
+			}
+		}
+		break;
+	case 3:
+		if(data[0x8] == 0) {
+			load_vsp(data.data(), page, transparent);
+		} else {
+			load_pms(data.data(), page, transparent);
+		}
+		break;
 	}
-	if (data)
-		free(data);
-	delete dri;
 }
 
 void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)

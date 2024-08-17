@@ -288,14 +288,12 @@ void MAKO::play_music(int page)
 			return;
 		music = new Music(playlist[track], next_loop);
 	} else if (use_fm) {
-		DRI dri;
-		int size;
-		uint8* data = dri.load(amus, page, &size);
-		if (!data)
+		std::vector<uint8_t> data = dri_load(amus, page);
+		if (data.empty())
 			return;
 
 		SDL_LockMutex(fm_mutex);
-		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, data, true);
+		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, std::move(data));
 		SDL_UnlockMutex(fm_mutex);
 		SDL_PauseAudio(0);
 	} else if (midi->is_available()) {
@@ -420,35 +418,32 @@ void MAKO::play_pcm(int page, bool loop)
 
 	stop_pcm();
 
-	uint8* buffer = NULL;
-	int size;
-	DRI* dri = new DRI();
+	// WAV形式 (Only You)
+	std::vector<uint8_t> wav_buffer = dri_load("AWAV.DAT", page);
+	if (wav_buffer.empty()) {
+		std::vector<uint8_t> buffer = dri_load("AMSE.DAT", page);
+		if (!buffer.empty()) {
+			// AMSE形式 (乙女戦記)
+			int samples = (static_cast<int>(buffer.size()) - 12) * 2;
+			int total = samples + 0x24;
 
-	if ((buffer = dri->load("AWAV.DAT", page, &size)) != NULL) {
-		// WAV形式 (Only You)
-		wav_buffer = buffer;
-	} else if ((buffer = dri->load("AMSE.DAT", page, &size)) != NULL) {
-		// AMSE形式 (乙女戦記)
-		int total = (size - 12) * 2 + 0x24;
-		int samples = (size - 12) * 2;
-
-		wav_buffer = (uint8*)malloc(total + 8);
-		memcpy(wav_buffer, header, 44);
-		wav_buffer[ 4] = (total >>  0) & 0xff;
-		wav_buffer[ 5] = (total >>  8) & 0xff;
-		wav_buffer[ 6] = (total >> 16) & 0xff;
-		wav_buffer[ 7] = (total >> 24) & 0xff;
-		wav_buffer[40] = (samples >>  0) & 0xff;
-		wav_buffer[41] = (samples >>  8) & 0xff;
-		wav_buffer[42] = (samples >> 16) & 0xff;
-		wav_buffer[43] = (samples >> 24) & 0xff;
-		for(int i = 12, p = 44; i < size; i++) {
-			wav_buffer[p++] = buffer[i] & 0xf0;
-			wav_buffer[p++] = (buffer[i] & 0x0f) << 4;
+			wav_buffer.resize(total + 8);
+			memcpy(wav_buffer.data(), header, 44);
+			wav_buffer[ 4] = (total >>  0) & 0xff;
+			wav_buffer[ 5] = (total >>  8) & 0xff;
+			wav_buffer[ 6] = (total >> 16) & 0xff;
+			wav_buffer[ 7] = (total >> 24) & 0xff;
+			wav_buffer[40] = (samples >>  0) & 0xff;
+			wav_buffer[41] = (samples >>  8) & 0xff;
+			wav_buffer[42] = (samples >> 16) & 0xff;
+			wav_buffer[43] = (samples >> 24) & 0xff;
+			for (size_t i = 12, p = 44; i < buffer.size(); i++) {
+				wav_buffer[p++] = buffer[i] & 0xf0;
+				wav_buffer[p++] = (buffer[i] & 0x0f) << 4;
+			}
 		}
-		free(buffer);
 	}
-	PlaySound((LPCTSTR)wav_buffer, NULL, SND_ASYNC | SND_MEMORY | (loop ? SND_LOOP : 0));
+	PlaySound((LPCTSTR)wav_buffer.data(), NULL, SND_ASYNC | SND_MEMORY | (loop ? SND_LOOP : 0));
 }
 
 void MAKO::stop_pcm()

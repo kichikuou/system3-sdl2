@@ -59,7 +59,6 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 		strcpy_s(adisk, 16, "ADISK.DAT");
 
 	// シナリオ管理
-	scenario_data = NULL;
 	load_scenario(0);
 	scenario_page = 0;
 	scenario_addr = 2;
@@ -118,11 +117,6 @@ NACT::~NACT()
 	delete mako;
 	delete msgskip;
 
-	// シナリオ開放
-	if(scenario_data) {
-		free(scenario_data);
-	}
-
 	platform_finalize();
 }
 
@@ -160,7 +154,7 @@ EMSCRIPTEN_KEEPALIVE  // Prevent inlining, because this function is listed in AS
 void NACT::execute()
 {
 	// アドレスの確認
-	if(scenario_addr < 2 || scenario_addr >= scenario_size) {
+	if (scenario_addr < 2 || scenario_addr >= static_cast<int>(scenario_data.size())) {
 		fatal("Scenario error");
 		return;
 	}
@@ -320,7 +314,7 @@ void NACT::skip_string(uint8 terminator)
 	for (uint8 c = getd(); c != terminator; c = getd()) {
 		if (c != '\\')
 			ungetd();
-		scenario_addr += encoding->mblen(scenario_data + scenario_addr);
+		scenario_addr += encoding->mblen(&scenario_data[scenario_addr]);
 	}
 }
 
@@ -332,7 +326,7 @@ void NACT::get_string(char* buf, int size, uint8 terminator)
 	for (uint8 c = getd(); c != terminator; c = getd()) {
 		if (c != '\\')
 			ungetd();
-		int len = encoding->mblen(scenario_data + scenario_addr);
+		int len = encoding->mblen(&scenario_data[scenario_addr]);
 		if (i + len >= size)
 			fatal("String buffer overrun. page = %d, addr = %d", scenario_page, start_addr);
 		memcpy(&buf[i], &scenario_data[scenario_addr], len);
@@ -393,14 +387,10 @@ void NACT::text_wait()
 
 void NACT::load_scenario(int page)
 {
-	if(scenario_data) {
-		free(scenario_data);
-	}
-	DRI* dri = new DRI();
-	if((scenario_data = dri->load(adisk, page + 1, &scenario_size)) == NULL) {
+	scenario_data = dri_load(adisk, page + 1);
+	if (scenario_data.empty()) {
 		fatal("Cannot load scenario %d", page);
 	}
-	delete dri;
 }
 
 // 下位関数

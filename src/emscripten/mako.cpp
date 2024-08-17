@@ -50,13 +50,11 @@ void MAKO::play_music(int page)
 		EM_ASM_ARGS({ xsystem35.cdPlayer.play($0, $1); },
 					cd_track[page] + 1, next_loop ? 0 : 1);
 	} else {
-		DRI dri;
-		int size;
-		uint8* data = dri.load(amus, page, &size);
-		if (!data)
+		std::vector<uint8_t> data = dri_load(amus, page);
+		if (data.empty())
 			return;
 		int rate = EM_ASM_INT({ return xsystem35.audio.enable_audio_hook(); });
-		fm = std::make_unique<MakoYmfm>(rate, data, true);
+		fm = std::make_unique<MakoYmfm>(rate, std::move(data));
 	}
 
 	current_music = page;
@@ -110,39 +108,33 @@ void MAKO::play_pcm(int page, bool loop)
 		0x00, 0x00, 0x00, 0x00
 	};
 
-	uint8* wav_buffer;
-	uint8* buffer;
-	int size;
-	DRI* dri = new DRI();
+	// WAV形式 (Only You)
+	std::vector<uint8_t> wav_buffer = dri_load("AWAV.DAT", page);
+	if (wav_buffer.empty()) {
+		std::vector<uint8_t> buffer = dri_load("AMSE.DAT", page);
+		if (!buffer.empty()) {
+			// AMSE形式 (乙女戦記)
+			int samples = (buffer.size() - 12) * 2;
+			int total = samples + 0x24;
 
-	if ((buffer = dri->load("AWAV.DAT", page, &size)) != NULL) {
-		// WAV形式 (Only You)
-		wav_buffer = buffer;
-	} else if ((buffer = dri->load("AMSE.DAT", page, &size)) != NULL) {
-		// AMSE形式 (乙女戦記)
-		int total = (size - 12) * 2 + 0x24;
-		int samples = (size - 12) * 2;
-
-		wav_buffer = (uint8*)malloc(total + 8);
-		memcpy(wav_buffer, header, 44);
-		wav_buffer[ 4] = (total >>  0) & 0xff;
-		wav_buffer[ 5] = (total >>  8) & 0xff;
-		wav_buffer[ 6] = (total >> 16) & 0xff;
-		wav_buffer[ 7] = (total >> 24) & 0xff;
-		wav_buffer[40] = (samples >>  0) & 0xff;
-		wav_buffer[41] = (samples >>  8) & 0xff;
-		wav_buffer[42] = (samples >> 16) & 0xff;
-		wav_buffer[43] = (samples >> 24) & 0xff;
-		for(int i = 12, p = 44; i < size; i++) {
-			wav_buffer[p++] = buffer[i] & 0xf0;
-			wav_buffer[p++] = (buffer[i] & 0x0f) << 4;
+			wav_buffer.resize(total + 8);
+			memcpy(wav_buffer.data(), header, 44);
+			wav_buffer[ 4] = (total >>  0) & 0xff;
+			wav_buffer[ 5] = (total >>  8) & 0xff;
+			wav_buffer[ 6] = (total >> 16) & 0xff;
+			wav_buffer[ 7] = (total >> 24) & 0xff;
+			wav_buffer[40] = (samples >>  0) & 0xff;
+			wav_buffer[41] = (samples >>  8) & 0xff;
+			wav_buffer[42] = (samples >> 16) & 0xff;
+			wav_buffer[43] = (samples >> 24) & 0xff;
+			for (size_t i = 12, p = 44; i < buffer.size(); i++) {
+				wav_buffer[p++] = buffer[i] & 0xf0;
+				wav_buffer[p++] = (buffer[i] & 0x0f) << 4;
+			}
 		}
-		free(buffer);
-		size = total + 8;
 	}
-	if (muspcm_load_data(wav_buffer, size) == 0)
+	if (muspcm_load_data(wav_buffer.data(), wav_buffer.size()) == 0)
 		EM_ASM({ xsystem35.audio.pcm_start(0, $0); }, loop ? 0 : 1);
-	free(wav_buffer);
 }
 
 void MAKO::stop_pcm() {

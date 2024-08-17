@@ -9,7 +9,7 @@
 #include "crc32.h"
 #include "../fileio.h"
 
-uint8* DRI::load(const char* file_name, int page, int* size)
+std::vector<uint8> dri_load(const char* file_name, int page)
 {
 	char tmp_name[20];
 	strcpy_s(tmp_name, sizeof(tmp_name), file_name);
@@ -20,7 +20,7 @@ uint8* DRI::load(const char* file_name, int page, int* size)
 	tmp_name[0] = 'A';
 	if(!fio->Fopen(tmp_name, FILEIO_READ_BINARY)) {
 		delete fio;
-		return NULL;
+		return {};
 	}
 
 	int link_sector = fio->Fgetc();
@@ -32,7 +32,7 @@ uint8* DRI::load(const char* file_name, int page, int* size)
 		// ページ番号不正
 		fio->Fclose();
 		delete fio;
-		return NULL;
+		return {};
 	}
 
 	fio->Fseek((link_sector - 1) * 256 + (page - 1) * 2, FILEIO_SEEK_SET);
@@ -43,7 +43,7 @@ uint8* DRI::load(const char* file_name, int page, int* size)
 		// 欠番
 		fio->Fclose();
 		delete fio;
-		return NULL;
+		return {};
 	}
 
 	// A??.DAT以外にリンクされている場合はファイルを開き直す
@@ -52,7 +52,7 @@ uint8* DRI::load(const char* file_name, int page, int* size)
 		fio->Fclose();
 		if(!fio->Fopen(tmp_name, FILEIO_READ_BINARY)) {
 			delete fio;
-			return NULL;
+			return {};
 		}
 	}
 
@@ -63,16 +63,17 @@ uint8* DRI::load(const char* file_name, int page, int* size)
 	int end_sector = fio->Fgetc();
 	end_sector |= fio->Fgetc() << 8;
 
-	if((*size = (end_sector - start_sector) * 256) == 0) {
+	int size = (end_sector - start_sector) * 256;
+	if (size == 0) {
 		// サイズ不正
 		fio->Fclose();
 		delete fio;
-		return NULL;
+		return {};
 	}
 
-	uint8 *buffer = (uint8 *)malloc(*size);
+	std::vector<uint8_t> buffer(size);
 	fio->Fseek((start_sector - 1) * 256, FILEIO_SEEK_SET);
-	fio->Fread(buffer, 256, end_sector - start_sector);
+	fio->Fread(buffer.data(), 256, end_sector - start_sector);
 
 	fio->Fclose();
 	delete fio;
@@ -80,7 +81,7 @@ uint8* DRI::load(const char* file_name, int page, int* size)
 	return buffer;
 }
 
-uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
+std::vector<uint8> dri_load_mda(uint32_t crc32_a, uint32_t crc32_b, int page)
 {
 	// データ取得
 	const char* name = NULL;
@@ -195,12 +196,12 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 	}
 
 	if(name == NULL) {
-		return NULL;
+		return {};
 	}
 
 	SDL_RWops* rw = open_resource(name, "mda");
 	if (!rw)
-		return NULL;
+		return {};
 	uint8 buf[4];
 
 	// ページの位置を取得
@@ -211,7 +212,7 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 	if(page > (data_sector - link_sector) * 128 - 1) {
 		// ページ番号不正
 		SDL_RWclose(rw);
-		return NULL;
+		return {};
 	}
 
 	SDL_RWseek(rw, (link_sector - 1) * 256 + (page - 1) * 2, RW_SEEK_SET);
@@ -223,7 +224,7 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 	if(disk_index == 0 || disk_index == 0x1a) {
 		// 欠番
 		SDL_RWclose(rw);
-		return NULL;
+		return {};
 	}
 
 	// AMUS.MDA以外にリンクされている場合はリソースを開き直す
@@ -271,10 +272,10 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 				break;
 		}
 		if(name == NULL) {
-			return NULL;
+			return {};
 		}
 		if((rw = open_resource(name, "mda")) == NULL) {
-			return NULL;
+			return {};
 		}
 	} else if(disk_index == 3) {
 		SDL_RWclose(rw);
@@ -287,15 +288,15 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 				break;
 		}
 		if(name == NULL) {
-			return NULL;
+			return {};
 		}
 		if((rw = open_resource(name, "mda")) == NULL) {
-			return NULL;
+			return {};
 		}
 	} else if(disk_index != 1) {
 		// AMUS.MDA以外にリンクされている場合は失敗
 		SDL_RWclose(rw);
-		return NULL;
+		return {};
 	}
 
 	// データ取得
@@ -304,14 +305,15 @@ uint8* DRI::load_mda(uint32 crc32_a, uint32 crc32_b, int page, int* size)
 	int start_sector = buf[0] | (buf[1] << 8);
 	int end_sector = buf[2] | (buf[3] << 8);
 
-	if((*size = (end_sector - start_sector) * 256) == 0) {
+	int size = (end_sector - start_sector) * 256;
+	if (size == 0) {
 		// サイズ不正
 		SDL_RWclose(rw);
-		return NULL;
+		return {};
 	}
-	uint8* buffer = (uint8*)malloc(*size);
+	std::vector<uint8_t> buffer(size);
 	SDL_RWseek(rw, (start_sector - 1) * 256, RW_SEEK_SET);
-	SDL_RWread(rw, buffer, *size, 1);
+	SDL_RWread(rw, buffer.data(), size, 1);
 
 	SDL_RWclose(rw);
 

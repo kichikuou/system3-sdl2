@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <stdio.h>
 #include "../common.h"
 #include "config.h"
@@ -114,8 +115,7 @@ protected:
 	char adisk[16];
 
 	// シナリオデータ
-	uint8* scenario_data;
-	int scenario_size;
+	std::vector<uint8_t> scenario_data;
 
 	// アドレス、ページ管理
 	int scenario_addr, prev_addr;

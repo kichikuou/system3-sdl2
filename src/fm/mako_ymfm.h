@@ -1,12 +1,13 @@
 #ifndef MAKOYMFM_H_
 #define MAKOYMFM_H_
 
+#include <vector>
 #include "ymfm_opn.h"
 #include "makofm.h"
 
 class MakoYmfm : private MakoFM, private ymfm::ymfm_interface {
 public:
-	MakoYmfm(int rate, const uint8_t* data, bool free_data);
+	MakoYmfm(int rate, std::vector<uint8_t> data);
 	void Process(int16_t* stream, int len);
 	void get_mark(int* mark, int* loop);
 

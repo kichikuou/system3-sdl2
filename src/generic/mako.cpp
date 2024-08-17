@@ -117,16 +117,14 @@ void MAKO::play_music(int page)
 			}
 		}
 	} else if (use_fm) {
-		DRI dri;
-		int size;
-		uint8* data = dri.load(amus, page, &size);
-		if (!data)
+		std::vector<uint8_t> data = dri_load(amus, page);
+		if (data.empty())
 			return;
 		if (!fm_mutex)
 			fm_mutex = SDL_CreateMutex();
 
 		SDL_LockMutex(fm_mutex);
-		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, data, true);
+		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, std::move(data));
 		SDL_UnlockMutex(fm_mutex);
 		Mix_HookMusic(&FMHook, this);
 	} else if (midi->is_available()) {
@@ -195,19 +193,18 @@ void MAKO::play_pcm(int page, bool loop)
 
 	stop_pcm();
 
-	uint8* buffer = NULL;
-	int size;
-	DRI* dri = new DRI();
-
-	if((buffer = dri->load("AWAV.DAT", page, &size)) != NULL) {
+	std::vector<uint8_t> buffer = dri_load("AWAV.DAT", page);
+	if (!buffer.empty()) {
 		// WAV形式 (Only You)
-		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(buffer, size), 1 /* freesrc */);
-		free(buffer);
+		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(buffer.data(), buffer.size()), 1 /* freesrc */);
 		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
-	} else if((buffer = dri->load("AMSE.DAT", page, &size)) != NULL) {
+		return;
+	}
+	buffer = dri_load("AMSE.DAT", page);
+	if (!buffer.empty()) {
 		// AMSE形式 (乙女戦記)
-		int total = (size - 12) * 2 + 0x24;
-		int samples = (size - 12) * 2;
+		int samples = (buffer.size() - 12) * 2;
+		int total = samples + 0x24;
 
 		uint8* wav = (uint8*)malloc(total + 8);
 		memcpy(wav, header, 44);
@@ -219,11 +216,10 @@ void MAKO::play_pcm(int page, bool loop)
 		wav[41] = (samples >>  8) & 0xff;
 		wav[42] = (samples >> 16) & 0xff;
 		wav[43] = (samples >> 24) & 0xff;
-		for(int i = 12, p = 44; i < size; i++) {
+		for (size_t i = 12, p = 44; i < buffer.size(); i++) {
 			wav[p++] = buffer[i] & 0xf0;
 			wav[p++] = (buffer[i] & 0x0f) << 4;
 		}
-		free(buffer);
 
 		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(wav, total + 8), 1 /* freesrc */);
 		free(wav);

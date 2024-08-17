@@ -258,7 +258,7 @@ void NACT_Sys2::cmd_branch()
 				skip_string(cmd);
 			} else if (is_message(cmd)) {
 				ungetd();
-				scenario_addr += encoding->mblen(scenario_data + scenario_addr);
+				scenario_addr += encoding->mblen(&scenario_data[scenario_addr]);
 			} else if (cmd >= 0x20 && cmd < 0x7f) {
 				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
 			} else {

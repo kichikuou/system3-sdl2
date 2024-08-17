@@ -95,8 +95,8 @@ class Playback {
 public:
 	static std::unique_ptr<Playback> create(NACT* nact, char* amus, int page, int loop, int seq);
 	Playback(uint32_t crc32_a, int loop, int seq) : crc32_a(crc32_a), loop_(loop), seq_(seq) {}
-	bool load_mml(uint8_t* data, int size);
-	void load_mda(uint8_t* data, int size);
+	bool load_mml(const std::vector<uint8_t>& data);
+	void load_mda(const std::vector<uint8_t>& data);
 	void start_midi();
 	bool play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark);
 	int seq() const { return seq_; }
@@ -382,32 +382,26 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 std::unique_ptr<Playback> Playback::create(NACT* nact, char* amus, int page, int loop, int seq)
 {
 	auto playback = std::make_unique<Playback>(nact->crc32_a, loop, seq);
-	auto dri = std::make_unique<DRI>();
 
-	int size;
-	uint8* data = dri->load(amus, page, &size);
-	if (!data)
+	std::vector<uint8_t> data = dri_load(amus, page);
+	if (data.empty())
 		return nullptr;
-	if (!playback->load_mml(data, size)) {
-		free(data);
+	if (!playback->load_mml(data))
 		return nullptr;
-	}
-	free(data);
 
 	// Load MDA
 	char path[16];
 	strcpy_s(path, 16, amus);
 	strcpy(path + strlen(path) - 3, "MDA");
-	data = dri->load(path, page, &size);
-	if (!data)
-		data = dri->load_mda(nact->crc32_a, nact->crc32_b, page, &size);
-	playback->load_mda(data, size);
-	free(data);
+	data = dri_load(path, page);
+	if (data.empty())
+		data = dri_load_mda(nact->crc32_a, nact->crc32_b, page);
+	playback->load_mda(data);
 
 	return playback;
 }
 
-bool Playback::load_mml(uint8_t* data, int size)
+bool Playback::load_mml(const std::vector<uint8_t>& data)
 {
 	// FM音源データの判定
 	int p, d0, d1, d2;
@@ -563,7 +557,7 @@ bool Playback::load_mml(uint8_t* data, int size)
 	return true;
 }
 
-void Playback::load_mda(uint8_t* data, int size)
+void Playback::load_mda(const std::vector<uint8_t>& data)
 {
 	// 未設定時の音色設定 (Piano, Acoustic Bass Drum)
 	for(int i = 0; i < 256 + 3; i++) {
@@ -582,7 +576,7 @@ void Playback::load_mda(uint8_t* data, int size)
 	}
 	tempo_dif = 0x40;
 
-	if (!data)
+	if (data.empty())
 		return;
 
 	tempo_dif = data[7];
@@ -592,7 +586,7 @@ void Playback::load_mda(uint8_t* data, int size)
 
 	// SSGパートの音色設定
 	for(int i = 0; i < 3; i++) {
-		uint8* buf = &data[map_wide * i + 27];
+		const uint8_t* buf = &data[map_wide * i + 27];
 		mda[i + 256].bank_select = buf[0];
 		mda[i + 256].program_change = buf[1];
 		mda[i + 256].level = buf[2];
@@ -604,7 +598,7 @@ void Playback::load_mda(uint8_t* data, int size)
 
 	// 通常の音色設定
 	for(int i = 0; i < inst_num; i++) {
-		uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * i];
+		const uint8_t* buf = &data[27 + map_wide * 3 + (map_wide + 1) * i];
 		int n = buf[0];
 		mda[n].bank_select = buf[1];
 		mda[n].program_change = buf[2];
@@ -617,7 +611,7 @@ void Playback::load_mda(uint8_t* data, int size)
 
 	// ドラムパートの音色設定
 	if(drum_format) {
-		uint8* buf = &data[27 + map_wide * 3 + (map_wide + 1) * inst_num];
+		const uint8_t* buf = &data[27 + map_wide * 3 + (map_wide + 1) * inst_num];
 		int drum_num = buf[0];
 		for(int i = 0; i < drum_num; i++) {
 			int d = buf[i * 3 + 1];

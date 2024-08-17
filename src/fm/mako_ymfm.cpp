@@ -7,8 +7,8 @@ int16_t mixSample(int32_t fm, int32_t ssg) {
 	return ymfm::clamp(fm * 2 + ssg / 2, -32768, 32767);
 }
 
-MakoYmfm::MakoYmfm(int rate, const uint8_t* data, bool free_data) :
-	MakoFM(data, free_data),
+MakoYmfm::MakoYmfm(int rate, std::vector<uint8_t> data) :
+	MakoFM(std::move(data)),
 	sample_rate(rate),
 	opna(*this)
 {
