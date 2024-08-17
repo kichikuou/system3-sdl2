@@ -89,7 +89,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
     FetchContent_Declare(rtmidi
       URL https://github.com/thestk/rtmidi/archive/refs/tags/6.0.0.zip
-      URL_HASH SHA1=43287aff8c2c03d3b38cff4d44611763f5e149fa)
+      URL_HASH SHA1=43287aff8c2c03d3b38cff4d44611763f5e149fa
+      EXCLUDE_FROM_ALL)
     set(RTMIDI_BUILD_TESTING OFF CACHE BOOL "Build test programs" FORCE)
     FetchContent_MakeAvailable(rtmidi)
     set_property(TARGET rtmidi PROPERTY COMPILE_WARNING_AS_ERROR OFF)
