@@ -82,6 +82,12 @@ int main(int argc, char *argv[])
 #endif
 	} else {
 		WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", g_nact->crc32_a, g_nact->crc32_b);
+		SDL_ShowSimpleMessageBox(
+			SDL_MESSAGEBOX_WARNING, "system3",
+			"Unable to determine game ID.\n"
+			"If you are running a modified game, plsese specify 'game = <original-game-id>' in system3.ini.\n"
+			"See README.md for more information.",
+			g_window);
 	}
 
 #ifdef __EMSCRIPTEN__
