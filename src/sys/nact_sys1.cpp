@@ -1362,7 +1362,7 @@ uint16 NACT_Sys1::cali()
 		}
 	}
 	if (!ok) {
-		fatal("cali: invalid expression");
+		fatal("cali: invalid expression at %d:%04x", scenario_page, scenario_addr);
 	}
 	return (uint16)(cali[1] & 0xffff);
 }
@@ -1377,10 +1377,10 @@ uint16 NACT_Sys1::cali2()
 	} else if(0xc0 <= dat && dat <= 0xff) {
 		val = ((dat & 0x3f) << 8) | getd();
 	} else {
-		fatal("cali2: invalid expression");
+		fatal("cali2: invalid expression at %d:%04x", scenario_page, scenario_addr);
 	}
 	if(getd() != 0x7f) {
-		fatal("cali2: invalid expression");
+		fatal("cali2: invalid expression at %d:%04x", scenario_page, scenario_addr);
 	}
 	return val;
 }
