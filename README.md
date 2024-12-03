@@ -126,59 +126,59 @@ patched games.
 
 Here is a list of available game IDs and their corresponding titles:
 
-| game_id | Title |
-----------|--------
-| `bunkasai` | あぶない文化祭前夜 |
-| `crescent` | クレセントムーンがぁる |
-| `dps` | D.P.S - Dream Program System |
-| `dps_sg_fahren` | D.P.S SG - Fahren Fliegen |
-| `dps_sg_katei` | D.P.S SG - 家庭教師はステキなお仕事 |
-| `dps_sg_nobunaga` | D.P.S SG - 信長の淫謀 |
-| `dps_sg2_antique` | D.P.S SG set2 - ANTIQUE HOUSE |
-| `dps_sg2_ikenai` | D.P.S SG set2 - いけない内科検診再び |
-| `dps_sg2_akai` | D.P.S SG set2 - 朱い夜 |
-| `dps_sg3_rabbit` | D.P.S SG set3 - Rabbit P4P |
-| `dps_sg3_shinkon` | D.P.S SG set3 - しんこんさんものがたり |
-| `dps_sg3_sotsugyou` | D.P.S SG set3 - 卒業 |
-| `fukei` | 婦警さんＶＸ |
-| `intruder` | Intruder -桜屋敷の探索- |
-| `tengu` | あぶないてんぐ伝説 |
-| `toushin_hint` | 闘神都市 ヒントディスク |
-| `little_vampire` | Little Vampire |
-| `yakata` | ALICEの館 |
-| `ayumi_fd` | あゆみちゃん物語 |
-| `ayumi_hint` | あゆみちゃん物語 ヒントディスク |
-| `ayumi_proto` | あゆみちゃん物語 PROTO |
-| `dalk_hint` | DALK ヒントディスク |
-| `drstop` | Dr. STOP! |
-| `prog_fd` | Prostudent G (FD) |
-| `rance3_hint` | Rance3 ヒントディスク |
-| `sdps_maria` | Super D.P.S - マリアとカンパン |
-| `sdps_tono` | Super D.P.S - 遠野の森 |
-| `sdps_kaizoku` | Super D.P.S - うれしたのし海賊稼業 |
-| `yakata2` | ALICEの館II |
-| `ambivalenz_fd` | AmbivalenZ −二律背反− (FD) |
-| `ambivalenz_cd` | AmbivalenZ −二律背反− (CD) |
-| `dps_all` | D.P.S. 全部 |
-| `funnybee_cd` | 宇宙快盗ファニーBee (CD) |
-| `funnybee_fd` | 宇宙快盗ファニーBee (FD) |
-| `onlyyou` | Only You −世紀末のジュリエット達− |
-| `onlyyou_demo` | Only You −世紀末のジュリエット達− デモ版 |
-| `prog_cd` | Prostudent G (CD) |
-| `prog_omake` | Prostudent G おまけ |
-| `rance41` | ランス 4.1 〜お薬工場を救え！〜 |
-| `rance42` | ランス 4.2 〜エンジェル組〜 |
-| `ayumi_cd` | あゆみちゃん物語 (CD) |
-| `ayumi_live_256` | あゆみちゃん物語 実写版 |
-| `ayumi_live_full` | あゆみちゃん物語 フルカラー実写版 |
-| `yakata3_cd` | アリスの館3 (CD) |
-| `yakata3_fd` | アリスの館3 (FD) |
-| `hashirionna2` | 走り女2 |
-| `toushin2_gd` |闘神都市2 グラフィックディスク |
-| `toushin2_sp` | 闘神都市2 そして、それから… |
-| `otome` | 乙女戦記 |
-| `ningyo` | 人魚 -蘿子- |
-| `mugen` | 夢幻泡影 |
+| game_id | Title | Notes |
+----------|-------|--------
+| `bunkasai` | あぶない文化祭前夜 | |
+| `crescent` | クレセントムーンがぁる | |
+| `dps` | D.P.S - Dream Program System | |
+| `dps_sg_fahren` | D.P.S SG - Fahren Fliegen | |
+| `dps_sg_katei` | D.P.S SG - 家庭教師はステキなお仕事 | |
+| `dps_sg_nobunaga` | D.P.S SG - 信長の淫謀 | |
+| `dps_sg2_antique` | D.P.S SG set2 - ANTIQUE HOUSE | |
+| `dps_sg2_ikenai` | D.P.S SG set2 - いけない内科検診再び | |
+| `dps_sg2_akai` | D.P.S SG set2 - 朱い夜 | |
+| `dps_sg3_rabbit` | D.P.S SG set3 - Rabbit P4P | |
+| `dps_sg3_shinkon` | D.P.S SG set3 - しんこんさんものがたり | |
+| `dps_sg3_sotsugyou` | D.P.S SG set3 - 卒業 | |
+| `fukei` | 婦警さんＶＸ | |
+| `intruder` | Intruder -桜屋敷の探索- | |
+| `tengu` | あぶないてんぐ伝説 | |
+| `toushin_hint` | 闘神都市 ヒントディスク | 闘神ランス does not work |
+| `little_vampire` | Little Vampire | |
+| `yakata` | ALICEの館 | |
+| `ayumi_fd` | あゆみちゃん物語 | |
+| `ayumi_hint` | あゆみちゃん物語 ヒントディスク | |
+| `ayumi_proto` | あゆみちゃん物語 PROTO | |
+| `dalk_hint` | DALK ヒントディスク | 零式 does not work |
+| `drstop` | Dr. STOP! | |
+| `prog_fd` | Prostudent G (FD) | |
+| `rance3_hint` | Rance3 ヒントディスク | 走り女 does not work |
+| `sdps_maria` | Super D.P.S - マリアとカンパン | |
+| `sdps_tono` | Super D.P.S - 遠野の森 | |
+| `sdps_kaizoku` | Super D.P.S - うれしたのし海賊稼業 | |
+| `yakata2` | ALICEの館II | 殴りまくりたわぁ and おかゆの逆襲 do not work |
+| `ambivalenz_fd` | AmbivalenZ −二律背反− (FD) | |
+| `ambivalenz_cd` | AmbivalenZ −二律背反− (CD) | |
+| `dps_all` | D.P.S. 全部 | |
+| `funnybee_cd` | 宇宙快盗ファニーBee (CD) | |
+| `funnybee_fd` | 宇宙快盗ファニーBee (FD) | |
+| `onlyyou` | Only You −世紀末のジュリエット達− | |
+| `onlyyou_demo` | Only You −世紀末のジュリエット達− デモ版 | |
+| `prog_cd` | Prostudent G (CD) | |
+| `prog_omake` | Prostudent G おまけ | |
+| `rance41` | ランス 4.1 〜お薬工場を救え！〜 | |
+| `rance42` | ランス 4.2 〜エンジェル組〜 | |
+| `ayumi_cd` | あゆみちゃん物語 (CD) | |
+| `ayumi_live_256` | あゆみちゃん物語 実写版 | |
+| `ayumi_live_full` | あゆみちゃん物語 フルカラー実写版 | |
+| `yakata3_cd` | アリスの館3 (CD) | |
+| `yakata3_fd` | アリスの館3 (FD) | |
+| `hashirionna2` | 走り女2 | |
+| `toushin2_gd` |闘神都市2 グラフィックディスク | |
+| `toushin2_sp` | 闘神都市2 そして、それから… | |
+| `otome` | 乙女戦記 | |
+| `ningyo` | 人魚 -蘿子- | |
+| `mugen` | 夢幻泡影 | |
 
 ### Configuration File `system3.ini`
 
