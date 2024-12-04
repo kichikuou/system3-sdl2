@@ -118,6 +118,13 @@ tone generator emulation.
 Specifies the MIDI device number to use. If not specified, the first available
 device is used.
 
+#### `-texthook` _mode_
+Specifies the text hook mode. This option is used for capturing in-game text
+for translation or other purposes. The available modes are:
+- `none`: Disable text hooking.
+- `print`: Print the captured text to the console.
+- `copy`: Copy the captured text to the clipboard.
+
 #### `-game` _game_id_
 As System1-3 have slight variations depending on the game, `system3` uses the
 fingerprint of the scenario file (ADISK.DAT) to identify the game being played.

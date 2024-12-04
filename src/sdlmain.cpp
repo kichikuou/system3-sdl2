@@ -97,6 +97,8 @@ int main(int argc, char *argv[])
 	EM_ASM( xsystem35.shell.windowSizeChanged(); );
 #endif
 
+	texthook_set_mode(config.texthook_mode);
+
 	int exit_code = NACT_RESTART;
 	while (exit_code == NACT_RESTART) {
 		exit_code = g_nact->mainloop();

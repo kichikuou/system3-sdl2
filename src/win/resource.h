@@ -31,5 +31,6 @@
 #define ID_OPTION_CD                    40023
 #define ID_TEXT_SKIP                    40030
 #define ID_TEXT_WAIT                    40031
+#define ID_TEXT_AUTO_COPY               40032
 
 #endif // _RESOURCE_H_

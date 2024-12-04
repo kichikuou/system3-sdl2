@@ -35,6 +35,12 @@ encoding = shift_jis
 ; original Japanese game title will be used.
 title = Rance 4.1 ~Save the Medicine Plant!~
 
+; Text hook mode.
+;  none  : No text hook (default)
+;  print : Print text to console
+;  copy  : Automatically copy text to clipboard (for use with text hooker tools)
+texthook = none
+
 ; The [string] section allows you to override Japanese text embedded in the
 ; game engine. The values below are the original Japanese text.
 [string]

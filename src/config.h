@@ -2,6 +2,7 @@
 #define CONFIG_H_
 
 #include <string>
+#include "texthook.h"
 
 class Encoding;
 
@@ -32,6 +33,7 @@ struct Config {
 	bool use_fm = false;
 	bool no_antialias = false;
 	bool scanline = false;
+	TexthookMode texthook_mode = TEXTHOOK_NONE;
 
  private:
 	void load_ini();

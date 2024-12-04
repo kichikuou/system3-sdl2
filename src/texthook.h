@@ -3,6 +3,13 @@
 
 extern "C" {
 
+enum TexthookMode {
+	TEXTHOOK_NONE,
+	TEXTHOOK_PRINT,
+	TEXTHOOK_COPY,
+};
+
+void texthook_set_mode(TexthookMode mode);
 void texthook_character(int page, int character);
 void texthook_newline(void);
 void texthook_nextpage(void);

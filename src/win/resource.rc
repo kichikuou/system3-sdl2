@@ -112,6 +112,7 @@ BEGIN
     BEGIN
         MENUITEM "Skip",                        ID_TEXT_SKIP
         MENUITEM "Wait",                        ID_TEXT_WAIT
+        MENUITEM "Auto Copy to Clipboard",      ID_TEXT_AUTO_COPY
     END
 END
 
@@ -170,6 +171,7 @@ BEGIN
     BEGIN
         MENUITEM "スキップ",                    ID_TEXT_SKIP
         MENUITEM "ウェイトあり",                ID_TEXT_WAIT
+        MENUITEM "クリップボードに自動コピー",  ID_TEXT_AUTO_COPY
     END
 END
 
@@ -228,6 +230,7 @@ BEGIN
     BEGIN
         MENUITEM "跳过",                        ID_TEXT_SKIP
         MENUITEM "等待",                        ID_TEXT_WAIT
+        MENUITEM "Auto Copy to Clipboard",      ID_TEXT_AUTO_COPY
     END
 END
 

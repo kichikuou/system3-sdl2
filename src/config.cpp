@@ -77,6 +77,21 @@ std::pair<char*, char*> parse_keyval(char *line)
 	return { trim(line), trim(eq + 1) };
 }
 
+TexthookMode parse_texthook_mode(const char *s, int lineno = -1)
+{
+	if (!strcasecmp(s, "none"))
+		return TEXTHOOK_NONE;
+	if (!strcasecmp(s, "print"))
+		return TEXTHOOK_PRINT;
+	if (!strcasecmp(s, "copy"))
+		return TEXTHOOK_COPY;
+	if (lineno == -1)
+		ERROR("Command line: Invalid texthook mode '%s'", s);
+	else
+		ERROR(INIFILENAME ":%d Invalid texthook mode '%s'", lineno, s);
+	return TEXTHOOK_NONE;
+}
+
 void init_string(std::string& s, Encoding* encoding, const char *dflt)
 {
 	char *encoded = encoding->fromUtf8(s.empty() ? dflt : s.c_str());
@@ -120,6 +135,8 @@ Config::Config(int argc, char *argv[])
 			title = argv[++i];
 		else if (strcmp(argv[i], "-scanline") == 0)
 			scanline = true;
+		else if (strcmp(argv[i], "-texthook") == 0)
+			texthook_mode = parse_texthook_mode(argv[++i]);
 	}
 }
 
@@ -178,6 +195,8 @@ void Config::load_ini()
 				title = val;
 			else if (!strcasecmp(key, "scanline"))
 				scanline = to_bool(val, lineno);
+			else if (!strcasecmp(key, "texthook"))
+				texthook_mode = parse_texthook_mode(val, lineno);
 			else
 				WARNING(INIFILENAME ":%d unknown key '%s'", lineno, key);
 		} else if (current_section == STRING) {

@@ -8,11 +8,14 @@
 #include "ags.h"
 #include "mako.h"
 #include "msgskip.h"
+#include "texthook.h"
 #include "resource.h"
 
 extern SDL_Window* g_window;
 
 namespace {
+
+bool auto_copy_enabled = false;
 
 HWND get_hwnd(SDL_Window* window) {
 	SDL_SysWMinfo info;
@@ -21,15 +24,18 @@ HWND get_hwnd(SDL_Window* window) {
 	return info.info.win.window;
 }
 
-void init_menu(bool mouse_move_enabled, bool scanline_enabled)
+void init_menu(bool mouse_move_enabled, const Config& config)
 {
 	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
 	HMENU hmenu = LoadMenu(hinst, MAKEINTRESOURCE(IDR_MENU1));
 	SetMenu(get_hwnd(g_window), hmenu);
 	if (mouse_move_enabled)
 		CheckMenuItem(hmenu, ID_OPTION_MOUSE_MOVE, MF_BYCOMMAND | MFS_CHECKED);
-	if (scanline_enabled)
+	if (config.scanline)
 		CheckMenuItem(hmenu, ID_SCANLINE, MF_BYCOMMAND | MFS_CHECKED);
+	auto_copy_enabled = config.texthook_mode == TEXTHOOK_COPY;
+	if (auto_copy_enabled)
+		CheckMenuItem(hmenu, ID_TEXT_AUTO_COPY, MF_BYCOMMAND | MFS_CHECKED);
 }
 
 void init_console(int sys_ver)
@@ -131,7 +137,7 @@ void NACT::text_dialog()
 
 void NACT::platform_initialize()
 {
-	init_menu(mouse_move_enabled, config.scanline);
+	init_menu(mouse_move_enabled, config);
 	init_console(sys_ver);
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 }
@@ -216,6 +222,12 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			text_wait_enb = !text_wait_enb;
 			CheckMenuItem(GetMenu(get_hwnd(g_window)), ID_TEXT_WAIT, MF_BYCOMMAND |
 						  text_wait_enb ? MFS_CHECKED : MFS_UNCHECKED);
+			break;
+		case ID_TEXT_AUTO_COPY:
+			auto_copy_enabled = !auto_copy_enabled;
+			CheckMenuItem(GetMenu(get_hwnd(g_window)), ID_TEXT_AUTO_COPY, MF_BYCOMMAND |
+						  auto_copy_enabled ? MFS_CHECKED : MFS_UNCHECKED);
+			texthook_set_mode(auto_copy_enabled ? TEXTHOOK_COPY : TEXTHOOK_NONE);
 			break;
 		}
 		break;
