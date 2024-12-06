@@ -41,6 +41,11 @@ title = Rance 4.1 ~Save the Medicine Plant!~
 ;  copy  : Automatically copy text to clipboard (for use with text hooker tools)
 texthook = none
 
+; Suppress text hook on specified scenario pages.
+; The value is a comma-separated list of page numbers.
+; The example below is for Rance 4.1, to filter out system messages.
+;texthook_suppress = 2,7
+
 ; The [string] section allows you to override Japanese text embedded in the
 ; game engine. The values below are the original Japanese text.
 [string]

@@ -10,6 +10,7 @@ enum TexthookMode {
 };
 
 void texthook_set_mode(TexthookMode mode);
+void texthook_set_suppression_list(const char *suppressions);
 void texthook_character(int page, int character);
 void texthook_newline(void);
 void texthook_nextpage(void);

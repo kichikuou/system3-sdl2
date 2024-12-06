@@ -1,5 +1,8 @@
 #include <string>
+#include <unordered_set>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <SDL.h>
 #include "texthook.h"
 
@@ -129,6 +132,12 @@ private:
 } copy;
 
 TextHookHandler *handler = &none;
+std::unordered_set<int> suppression_set;
+enum {
+	INIT,
+	SUPPRESSING,
+	EMITTING,
+} suppression_state = INIT;
 
 }  // namespace
 
@@ -146,20 +155,42 @@ void texthook_set_mode(TexthookMode mode) {
 	}
 }
 
+// suppressions is a comma-separated list of page numbers to suppress.
+void texthook_set_suppression_list(const char *suppressions) {
+	suppression_set.clear();
+	if (!suppressions || !*suppressions)
+		return;
+
+	char *buf = strdup(suppressions);
+	char *token = strtok(buf, ",");
+	while (token) {
+		suppression_set.insert(atoi(token));
+		token = strtok(NULL, ",");
+	}
+	free(buf);
+}
+
 void texthook_character(int page, int c) {
+	if (suppression_state == INIT)
+		suppression_state = suppression_set.count(page) ? SUPPRESSING : EMITTING;
+	if (suppression_state == SUPPRESSING)
+		return;
 	handler->character(page, c);
 }
 
 void texthook_newline(void) {
 	handler->newline();
+	suppression_state = INIT;
 }
 
 void texthook_nextpage(void) {
 	handler->nextpage();
+	suppression_state = INIT;
 }
 
 void texthook_keywait(void) {
 	handler->keywait();
+	suppression_state = INIT;
 }
 
 #endif

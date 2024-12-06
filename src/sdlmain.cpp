@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 #endif
 
 	texthook_set_mode(config.texthook_mode);
+	texthook_set_suppression_list(config.texthook_suppressions.c_str());
 
 	int exit_code = NACT_RESTART;
 	while (exit_code == NACT_RESTART) {

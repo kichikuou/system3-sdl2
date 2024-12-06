@@ -125,6 +125,10 @@ for translation or other purposes. The available modes are:
 - `print`: Print the captured text to the console.
 - `copy`: Copy the captured text to the clipboard.
 
+#### `-texthook_suppress` _list_
+Suppress text hook on specified scenario pages. _list_ is a comma-separated list
+of page numbers.
+
 #### `-game` _game_id_
 As System1-3 have slight variations depending on the game, `system3` uses the
 fingerprint of the scenario file (ADISK.DAT) to identify the game being played.

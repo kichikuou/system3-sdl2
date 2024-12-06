@@ -137,6 +137,8 @@ Config::Config(int argc, char *argv[])
 			scanline = true;
 		else if (strcmp(argv[i], "-texthook") == 0)
 			texthook_mode = parse_texthook_mode(argv[++i]);
+		else if (strcmp(argv[i], "-texthook_suppress") == 0)
+			texthook_suppressions = argv[++i];
 	}
 }
 
@@ -197,6 +199,8 @@ void Config::load_ini()
 				scanline = to_bool(val, lineno);
 			else if (!strcasecmp(key, "texthook"))
 				texthook_mode = parse_texthook_mode(val, lineno);
+			else if (!strcasecmp(key, "texthook_suppress"))
+				texthook_suppressions = val;
 			else
 				WARNING(INIFILENAME ":%d unknown key '%s'", lineno, key);
 		} else if (current_section == STRING) {

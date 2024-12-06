@@ -34,6 +34,7 @@ struct Config {
 	bool no_antialias = false;
 	bool scanline = false;
 	TexthookMode texthook_mode = TEXTHOOK_NONE;
+	std::string texthook_suppressions;
 
  private:
 	void load_ini();
