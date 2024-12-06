@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0 - 2024-12-06
+- Windows: `Message` -> `Auto Copy to Clipboard` menu command has been added.
+  When enabled, in-game text will be copied to the clipboard automatically. This
+  can be used with text hooker tools that support clipboard monitoring.
+
 ## 1.1.0 - 2024-08-17
 - Real-time MIDI playback has been restored on Windows. This allows seamless
   music looping and fixes issues where games cannot detect the end of music.
