@@ -62,7 +62,7 @@ elseif (EMSCRIPTEN)
     -sNO_EXIT_RUNTIME=1
     "-sASYNCIFY_ADD=NACT::execute()"
     -sEXPORTED_FUNCTIONS=_main,_malloc
-    -sEXPORTED_RUNTIME_METHODS=FS,IDBFS,getValue,addRunDependency,removeRunDependency
+    -sEXPORTED_RUNTIME_METHODS=FS,IDBFS,getValue,addRunDependency,removeRunDependency,stringToUTF8OnStack
     --emit-tsd=system3.d.ts
     )
 

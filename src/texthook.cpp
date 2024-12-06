@@ -4,35 +4,35 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL.h>
+#include "common.h"
 #include "texthook.h"
-
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
-
-void texthook_set_mode(TexthookMode m) {
-	// Do nothing
-}
-
-void texthook_character(int page, int character) {
-	EM_ASM_({ xsystem35.texthook.message(String.fromCharCode($0), $1); },
-			character, page);
-}
-
-EM_JS(void, texthook_newline, (void), {
-	xsystem35.texthook.newline();
-});
-
-EM_JS(void, texthook_nextpage, (void), {
-	xsystem35.texthook.nextpage();
-});
-
-EM_JS(void, texthook_keywait, (void), {
-	xsystem35.texthook.keywait();
-});
-
-#else
+#endif
 
 namespace {
+
+#ifdef __EMSCRIPTEN__
+
+class EmscriptenTextHookHandler {
+public:
+	void character(int page, int c) {
+		EM_ASM(xsystem35.texthook.message(String.fromCharCode($0)), c);
+	}
+	void newline(void) {
+		EM_ASM(xsystem35.texthook.newline());
+	}
+	void nextpage(void) {
+		EM_ASM(xsystem35.texthook.nextpage());
+	}
+	void keywait(void) {
+		EM_ASM(xsystem35.texthook.keywait());
+	}
+};
+EmscriptenTextHookHandler handler_;
+EmscriptenTextHookHandler* handler = &handler_;
+
+#else  // __EMSCRIPTEN__
 
 class TextHookHandler {
 public:
@@ -132,6 +132,9 @@ private:
 } copy;
 
 TextHookHandler *handler = &none;
+
+#endif  // __EMSCRIPTEN__
+
 std::unordered_set<int> suppression_set;
 enum {
 	INIT,
@@ -142,6 +145,7 @@ enum {
 }  // namespace
 
 void texthook_set_mode(TexthookMode mode) {
+#ifndef __EMSCRIPTEN__
 	switch (mode) {
 	case TEXTHOOK_NONE:
 		handler = &none;
@@ -153,9 +157,11 @@ void texthook_set_mode(TexthookMode mode) {
 		handler = &copy;
 		break;
 	}
+#endif
 }
 
 // suppressions is a comma-separated list of page numbers to suppress.
+EMSCRIPTEN_KEEPALIVE
 void texthook_set_suppression_list(const char *suppressions) {
 	suppression_set.clear();
 	if (!suppressions || !*suppressions)
@@ -192,5 +198,3 @@ void texthook_keywait(void) {
 	handler->keywait();
 	suppression_state = INIT;
 }
-
-#endif
