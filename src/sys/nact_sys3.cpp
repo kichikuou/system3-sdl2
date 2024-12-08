@@ -744,13 +744,15 @@ void NACT_Sys3::cmd_m()
 	if(1 <= tvar_index && tvar_index <= 10) {
 		memcpy(tvar[tvar_index - 1], string, 22);
 	} else if(tvar_index == 31) {
-		strcpy_s(adisk, 16, string);
+		adisk.open(string);
 	} else if(tvar_index == 32) {
-		strcpy_s(ags->acg, 16, string);
+		ags->set_cg_file(string);
 	} else if(tvar_index == 33) {
-		strcpy_s(mako->amus, 16, string);
+		mako->amus.open(string);
+		strcpy(string + strlen(string) - 3, "MDA");
+		mako->mda.open(string);
 	} else if(tvar_index == 34) {
-		strcpy_s(mako->amse, 16, string);
+		// mako->amse.open(string);
 	}
 }
 

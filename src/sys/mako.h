@@ -7,12 +7,14 @@
 #ifndef _MAKO_H_
 #define _MAKO_H_
 
+#include <memory>
 #include <vector>
 #include <stdio.h>
 #include <limits.h>
 #include <math.h>
 #include "../common.h"
 #include "nact.h"
+#include "dri.h"
 
 enum BGMDevice {
 	BGM_FM,
@@ -46,9 +48,10 @@ public:
 
 	bool use_fm;
 
-	// AMUS.DAT, AMSE.DAT
-	char amus[16];
-	char amse[16];
+	Dri amus;
+	Dri awav;
+	Dri amse;
+	Dri mda;
 
 	int current_music;
 	int next_loop;		// Y19
@@ -57,7 +60,7 @@ private:
 	NACT* nact;
 	int cd_track[100];	// Z
 
-#if !defined(__EMSCRIPTEN__)
+#ifndef __EMSCRIPTEN__
 	bool load_playlist(const char* path);
 
 	std::vector<const char*> playlist;

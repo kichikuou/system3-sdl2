@@ -54,9 +54,9 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 
 	// ADISK.DAT
 	if (crc32_a == CRC32_PROG_OMAKE)
-		strcpy_s(adisk, 16, "AGAME.DAT");
+		adisk.open("AGAME.DAT");
 	else
-		strcpy_s(adisk, 16, "ADISK.DAT");
+		adisk.open("ADISK.DAT");
 
 	// シナリオ管理
 	load_scenario(0);
@@ -387,7 +387,7 @@ void NACT::text_wait()
 
 void NACT::load_scenario(int page)
 {
-	scenario_data = dri_load(adisk, page + 1);
+	scenario_data = adisk.load(page + 1);
 	if (scenario_data.empty()) {
 		fatal("Cannot load scenario %d", page);
 	}

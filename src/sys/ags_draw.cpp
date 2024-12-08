@@ -15,21 +15,13 @@
 
 void AGS::load_cg(int page, int transparent)
 {
-	if (nact->sys_ver == 3) {
-		// あゆみちゃん物語 フルカラー実写版
-		if(strncmp(acg, "CGA000.BMP", 10) == 0) {
-			char file_name[16];
-			snprintf(file_name, sizeof(file_name), "CGA%03d.BMP", page);
-			load_bmp(file_name);
-			return;
-		} else if(strncmp(acg, "CGB000.BMP", 10) == 0) {
-			char file_name[16];
-			snprintf(file_name, sizeof(file_name), "CGB%03d.BMP", page);
-			load_bmp(file_name);
-			return;
-		}
+	if (bmp_prefix) {
+		char file_name[16];
+		snprintf(file_name, sizeof(file_name), "%s%03d.BMP", bmp_prefix, page);
+		load_bmp(file_name);
+		return;
 	}
-	std::vector<uint8_t> data = dri_load(acg, page);
+	std::vector<uint8_t> data = acg.load(page);
 	if (data.empty())
 		return;
 	switch (nact->sys_ver) {

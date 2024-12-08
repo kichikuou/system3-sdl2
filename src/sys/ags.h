@@ -7,9 +7,11 @@
 #ifndef _AGS_H_
 #define _AGS_H_
 
+#include <memory>
 #include <stdio.h>
 #include "../common.h"
 #include "nact.h"
+#include "dri.h"
 #include <SDL_ttf.h>
 
 #define MAX_CG 10000
@@ -95,6 +97,7 @@ public:
 	void flush_screen(bool update);
 
 	void load_cg(int page, int transparent);
+	void set_cg_file(const char *file_name);
 
 	void set_palette(int index, int r, int g, int b);
 	uint8 get_pixel(int dest, int x, int y);
@@ -135,9 +138,6 @@ public:
 	int calculate_menu_max(int window);
 
 	bool dirty;
-
-	// ACG.DAT
-	char acg[16];
 
 	// 画面選択
 	int src_screen;
@@ -216,6 +216,10 @@ public:
 	// マウスカーソル
 	uint8 cursor_color;
 	int cursor_index;
+
+private:
+	Dri acg;
+	const char* bmp_prefix = NULL;
 };
 
 extern "C" void ags_setAntialiasedStringMode(int on);
