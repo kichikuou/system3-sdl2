@@ -154,7 +154,7 @@ Here is a list of available game IDs and their corresponding titles:
 | `fukei` | 婦警さんＶＸ | |
 | `intruder` | Intruder -桜屋敷の探索- | |
 | `tengu` | あぶないてんぐ伝説 | |
-| `toushin_hint` | 闘神都市 ヒントディスク | 闘神ランス does not work |
+| `toushin_hint` | 闘神都市 ヒントディスク | "ランス外伝 －闘神都市－" does not work |
 | `little_vampire` | Little Vampire | |
 | `yakata` | ALICEの館 | |
 | `ayumi_fd` | あゆみちゃん物語 | |
