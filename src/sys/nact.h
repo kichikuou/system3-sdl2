@@ -14,6 +14,7 @@
 #include "../common.h"
 #include "config.h"
 #include "dri.h"
+#include "scenario.h"
 
 #define RND var[ 0]
 #define D01 var[ 1]
@@ -110,16 +111,12 @@ protected:
 
 	// コマンドパーサ
 	void execute();
-	void load_scenario(int page);
-
-	Dri adisk;
 
 	// シナリオデータ
-	std::vector<uint8_t> scenario_data;
+	Scenario sco;
 
 	// アドレス、ページ管理
-	int scenario_addr, prev_addr;
-	int scenario_page;
+	int prev_addr;
 	int label_depth;
 	int label_stack[MAX_STACK];
 	int page_depth;
@@ -214,16 +211,7 @@ protected:
 	// 下位関数
 	virtual uint16 cali() = 0;
 	virtual uint16 cali2() = 0;
-	uint8 getd() { return scenario_data[scenario_addr++]; }
-	uint16 getw() {
-		uint16 val = scenario_data[scenario_addr] | (scenario_data[scenario_addr + 1] << 8);
-		scenario_addr += 2;
-		return val;
-	}
-	void ungetd() { scenario_addr--; }
 	bool is_message(uint8_t c) { return c == ' ' || c & 0x80; }
-	void skip_string(uint8 terminator);
-	void get_string(char* buf, int size, uint8 terminator);
 
 	uint16 random(uint16 range);
 	uint32 seed;
@@ -285,7 +273,7 @@ public:
 	// デバッグログ
 	void output_console(const char *format, ...);
 
-	int get_scenario_page() const { return scenario_page; }
+	int get_scenario_page() const { return sco.page(); }
 
 	[[noreturn]] void fatal(const char* msg, ...);
 

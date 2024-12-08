@@ -53,14 +53,12 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 
 	// ADISK.DAT
 	if (crc32_a == CRC32_PROG_OMAKE)
-		adisk.open("AGAME.DAT");
+		sco.open("AGAME.DAT");
 	else
-		adisk.open("ADISK.DAT");
+		sco.open("ADISK.DAT");
 
 	// シナリオ管理
-	load_scenario(0);
-	scenario_page = 0;
-	scenario_addr = 2;
+	sco.page_jump(0, 2);
 	label_depth = page_depth = 0;
 
 	// 変数初期化
@@ -152,25 +150,20 @@ void NACT::quit(int code)
 EMSCRIPTEN_KEEPALIVE  // Prevent inlining, because this function is listed in ASYNCIFY_ADD
 void NACT::execute()
 {
-	// アドレスの確認
-	if (scenario_addr < 2 || scenario_addr >= static_cast<int>(scenario_data.size())) {
-		fatal("Scenario error");
+	if (!sco.is_addr_valid()) {
+		fatal("Scenario error: invalid address %d:0x%x", sco.page(), sco.addr());
 		return;
 	}
 
-	if(sys_ver == 1 && scenario_page == 0 && scenario_addr == 2) {
+	if(sys_ver == 1 && sco.page() == 0 && sco.addr() == 2) {
 		opening();
 	}
 
-	// Skip SysEng's "new style" marker
-	if (scenario_page == 0 && scenario_addr == 2 &&
-		memcmp(&scenario_data[2], "REV", 3) == 0) {
-		scenario_addr = 5;
-	}
+	sco.skip_syseng_rev_marker();
 
 	// １コマンド実行
-	prev_addr = scenario_addr;
-	uint8 cmd = getd();
+	prev_addr = sco.addr();
+	uint8 cmd = sco.getd();
 
 	if(set_palette && cmd != 'P') {
 		// パレット設定が終わった
@@ -179,7 +172,7 @@ void NACT::execute()
 	}
 	if(verb_obj && cmd != '[' && cmd != ':') {
 		// 動詞-目的語メニューの表示
-		scenario_addr--;
+		sco.ungetd();
 		cmd_open_verb();
 		return;
 	}
@@ -297,58 +290,31 @@ void NACT::execute()
 			break;
 		default:
 			if (is_message(cmd)) {
-				ungetd();
+				sco.ungetd();
 				message(0);
 			} else if (cmd >= 0x20 && cmd < 0x7f) {
-				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			} else {
-				fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			}
 			break;
 	}
-}
-
-void NACT::skip_string(uint8 terminator)
-{
-	for (uint8 c = getd(); c != terminator; c = getd()) {
-		if (c != '\\')
-			ungetd();
-		scenario_addr += encoding->mblen(&scenario_data[scenario_addr]);
-	}
-}
-
-void NACT::get_string(char* buf, int size, uint8 terminator)
-{
-	int start_addr = scenario_addr;
-
-	int i = 0;
-	for (uint8 c = getd(); c != terminator; c = getd()) {
-		if (c != '\\')
-			ungetd();
-		int len = encoding->mblen(&scenario_data[scenario_addr]);
-		if (i + len >= size)
-			fatal("String buffer overrun. page = %d, addr = %d", scenario_page, start_addr);
-		memcpy(&buf[i], &scenario_data[scenario_addr], len);
-		i += len;
-		scenario_addr += len;
-	}
-	buf[i] = '\0';
 }
 
 void NACT::message(uint8 terminator)
 {
 	char buf[200];
 	if (terminator) {  // SysEng
-		get_string(buf, sizeof(buf), terminator);
+		sco.get_syseng_string(buf, sizeof(buf), encoding.get(), terminator);
 	} else {
-		uint8* begin = &scenario_data[scenario_addr];
-		uint8* p = begin;
+		const uint8* begin = sco.ptr();
+		const uint8* p = begin;
 		while (is_message(*p))
 			p += encoding->mblen(p);
 		int len = p - begin;
-		scenario_addr += len;
+		sco.skip(len);
 
-		strncpy(buf, reinterpret_cast<char*>(begin), len);
+		strncpy(buf, reinterpret_cast<const char*>(begin), len);
 		buf[len] = '\0';
 	}
 
@@ -360,7 +326,7 @@ void NACT::message(uint8 terminator)
 		}
 	}
 	if (!ags->draw_menu)
-		msgskip->on_message(scenario_page, scenario_addr);
+		msgskip->on_message(sco.page(), sco.addr());
 
 	// TODO: Convert hankaku to zenkaku
 	output_console(buf);
@@ -381,14 +347,6 @@ void NACT::text_wait()
 			break;
 		}
 		sys_sleep(16);
-	}
-}
-
-void NACT::load_scenario(int page)
-{
-	scenario_data = adisk.load(page + 1);
-	if (scenario_data.empty()) {
-		fatal("Cannot load scenario %d", page);
 	}
 }
 

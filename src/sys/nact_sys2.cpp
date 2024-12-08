@@ -65,11 +65,11 @@ NACT_Sys2::NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const Config& config)
 
 void NACT_Sys2::cmd_calc()
 {
-	int index = getd();
+	int index = sco.getd();
 	if(0x80 <= index && index <= 0xbf) {
 		index &= 0x3f;
 	} else {
-		index = ((index & 0x3f) << 8) | getd();
+		index = ((index & 0x3f) << 8) | sco.getd();
 	}
 	var[index] = cali();
 
@@ -85,13 +85,13 @@ void NACT_Sys2::cmd_branch()
 	if(!condition) {
 		// 次の'}'命令までスキップする（ネストも考慮する）
 		for(;;) {
-			prev_addr = scenario_addr;
-			uint8 cmd = getd();
+			prev_addr = sco.addr();
+			uint8 cmd = sco.getd();
 
 			if(cmd == '!') {
-				int index = getd();
+				int index = sco.getd();
 				if(!(0x80 <= index && index <= 0xbf)) {
-					getd();
+					sco.getd();
 				}
 				cali();
 			} else if(cmd == '{') {
@@ -104,29 +104,29 @@ void NACT_Sys2::cmd_branch()
 					break;
 				}
 			} else if(cmd == '@') {
-				getw();
+				sco.getw();
 			} else if(cmd == '\\') {
-				getw();
+				sco.getw();
 			} else if(cmd == '&') {
 				cali();
 			} else if(cmd == '%') {
 				cali();
 			} else if(cmd == '$') {
 				if(!set_menu) {
-					getw();
+					sco.getw();
 					set_menu = true;
 				} else {
 					set_menu = false;
 				}
 			} else if(cmd == '[') {
-				getd();
-				getd();
-				getw();
+				sco.getd();
+				sco.getd();
+				sco.getw();
 			} else if(cmd == ':') {
 				cali();
-				getd();
-				getd();
-				getw();
+				sco.getd();
+				sco.getd();
+				sco.getw();
 			} else if(cmd == ']') {
 				
 			} else if(cmd == 'A') {
@@ -157,12 +157,12 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'G') {
 				cali();
 			} else if(cmd == 'H') {
-				getd();
+				sco.getd();
 				cali();
 			} else if(cmd == 'I') {
 				cali();
 				cali();
-//				getd();
+//				sco.getd();
 				cali();
 			} else if(cmd == 'J') {
 				cali();
@@ -170,14 +170,14 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'K') {
 				
 			} else if(cmd == 'L') {
-				getd();
+				sco.getd();
 			} else if(cmd == 'M') {
-				uint8 val = getd();
+				uint8 val = sco.getd();
 				if (val == '\'' || val == '"') {  // SysEng
-					skip_string(val);
+					sco.skip_string(encoding.get(), val);
 				} else {
 					while (val != ':')
-						val = getd();
+						val = sco.getd();
 				}
 			} else if(cmd == 'N') {
 				cali();
@@ -187,13 +187,13 @@ void NACT_Sys2::cmd_branch()
 				cali();
 				cali();
 			} else if(cmd == 'P') {
-				getd();
+				sco.getd();
 			} else if(cmd == 'Q') {
-				getd();
+				sco.getd();
 			} else if(cmd == 'R') {
 				
 			} else if(cmd == 'S') {
-				getd();
+				sco.getd();
 			} else if(cmd == 'T') {
 				cali();
 				cali();
@@ -203,8 +203,8 @@ void NACT_Sys2::cmd_branch()
 					cali();
 					cali();
 				} else {
-					getd();
-					getd();
+					sco.getd();
+					sco.getd();
 				}
 			} else if(cmd == 'V') {
 #if 1
@@ -247,7 +247,7 @@ void NACT_Sys2::cmd_branch()
 				cali();
 				cali();
 			} else if(cmd == 'X') {
-				getd();
+				sco.getd();
 			} else if(cmd == 'Y') {
 				cali();
 				cali();
@@ -255,14 +255,14 @@ void NACT_Sys2::cmd_branch()
 				cali();
 				cali();
 			} else if (cmd == '\'' || cmd == '"') {  // SysEng
-				skip_string(cmd);
+				sco.skip_string(encoding.get(), cmd);
 			} else if (is_message(cmd)) {
-				ungetd();
-				scenario_addr += encoding->mblen(&scenario_data[scenario_addr]);
+				sco.ungetd();
+				sco.skip(encoding->mblen(sco.ptr()));
 			} else if (cmd >= 0x20 && cmd < 0x7f) {
-				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			} else {
-				fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, scenario_page, prev_addr);
+				fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			}
 		}
 	}
@@ -272,15 +272,15 @@ void NACT_Sys2::cmd_branch()
 
 void NACT_Sys2::cmd_label_jump()
 {
-	int next_addr = getw();
-	scenario_addr = next_addr;
+	int next_addr = sco.getw();
+	sco.jump_to(next_addr);
 
 	output_console("\n@%x:", next_addr);
 }
 
 void NACT_Sys2::cmd_label_call()
 {
-	int next_addr = getw();
+	int next_addr = sco.getw();
 
 	output_console("\n\\%x:", next_addr);
 
@@ -290,19 +290,17 @@ void NACT_Sys2::cmd_label_call()
 //			fatal_error = true;
 			return;
 		}
-		scenario_addr = label_stack[--label_depth];
+		sco.jump_to(label_stack[--label_depth]);
 	} else {
-		label_stack[label_depth++] = scenario_addr;
-		scenario_addr = next_addr;
+		label_stack[label_depth++] = sco.addr();
+		sco.jump_to(next_addr);
 	}
 }
 
 void NACT_Sys2::cmd_page_jump()
 {
 	int next_page = cali();
-	load_scenario(next_page);
-	scenario_page = next_page;
-	scenario_addr = 2;
+	sco.page_jump(next_page, 2);
 
 	output_console("\n&%d:", next_page);
 }
@@ -322,13 +320,11 @@ void NACT_Sys2::cmd_page_call()
 		next_page = page_stack[--page_depth];
 		next_addr = addr_stack[page_depth];
 	} else {
-		page_stack[page_depth] = scenario_page;
-		addr_stack[page_depth++] = scenario_addr;
+		page_stack[page_depth] = sco.page();
+		addr_stack[page_depth++] = sco.addr();
 		next_addr = 2;
 	}
-	load_scenario(next_page);
-	scenario_page = next_page;
-	scenario_addr = next_addr;
+	sco.page_jump(next_page, next_addr);
 }
 
 void NACT_Sys2::cmd_set_menu()
@@ -344,7 +340,7 @@ void NACT_Sys2::cmd_set_menu()
 			ags->clear_menu_window();
 			ags->menu_dest_y = 0;
 		}
-		menu_addr[menu_index++] = getw();
+		menu_addr[menu_index++] = sco.getw();
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
@@ -358,7 +354,7 @@ void NACT_Sys2::cmd_open_menu()
 	output_console("\n]");
 
 	if(!menu_index) {
-		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
+		sco.jump_to(sco.default_addr());
 		return;
 	}
 
@@ -367,16 +363,16 @@ void NACT_Sys2::cmd_open_menu()
 		return;
 
 	if (selection != -1) {
-		scenario_addr = menu_addr[selection];
+		sco.jump_to(menu_addr[selection]);
 	}
 	menu_index = 0;
 }
 
 void NACT_Sys2::cmd_set_verbobj()
 {
-	int verb = getd();
-	int obj = getd();
-	int addr = getw();
+	int verb = sco.getd();
+	int obj = sco.getd();
+	int addr = sco.getw();
 
 	menu_addr[menu_index] = addr;
 	menu_verb[menu_index] = verb;
@@ -389,9 +385,9 @@ void NACT_Sys2::cmd_set_verbobj()
 void NACT_Sys2::cmd_set_verbobj2()
 {
 	int condition = cali();
-	int verb = getd();
-	int obj = getd();
-	int addr = getw();
+	int verb = sco.getd();
+	int obj = sco.getd();
+	int addr = sco.getw();
 
 	if(condition) {
 		menu_addr[menu_index] = addr;
@@ -440,7 +436,7 @@ void NACT_Sys2::cmd_open_verb()
 		return;
 
 	if(selection == -1) {
-		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
+		sco.jump_to(sco.default_addr());
 	} else {
 		cmd_open_obj(id[selection]);
 	}
@@ -464,12 +460,12 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	}
 	// 目的語がない場合
 	if(chk[0]) {
-		scenario_addr = addr[0];
+		sco.jump_to(addr[0]);
 		return;
 	}
 	// 以後、obj=0は戻るとして扱う
 	chk[0] = 0;
-	addr[0] = scenario_data[0] | (scenario_data[1] << 8);
+	addr[0] = sco.default_addr();
 
 	// メニュー項目の準備
 	int id[32], index = 0;
@@ -500,9 +496,9 @@ void NACT_Sys2::cmd_open_obj(int verb)
 		return;
 
 	if(selection == -1) {
-		scenario_addr = scenario_data[0] | (scenario_data[1] << 8);
+		sco.jump_to(sco.default_addr());
 	} else {
-		scenario_addr = addr[id[selection]];
+		sco.jump_to(addr[id[selection]]);
 	}
 }
 
@@ -647,7 +643,7 @@ void NACT_Sys2::cmd_f()
 {
 	output_console("\nF");
 
-	scenario_addr = 2;
+	sco.jump_to(2);
 }
 
 void NACT_Sys2::cmd_g()
@@ -676,7 +672,7 @@ void NACT_Sys2::cmd_g()
 
 void NACT_Sys2::cmd_h()
 {
-	int length = getd();
+	int length = sco.getd();
 	int val = cali();
 
 	output_console("\nH %d,%d:", length, val);
@@ -719,7 +715,7 @@ void NACT_Sys2::cmd_i()
 {
 	int p1 = cali();
 	int p2 = cali();
-//	int p3 = getd();
+//	int p3 = sco.getd();
 	int p3 = cali();
 
 	output_console("\nI %d,%d,%d:", p1, p2, p3);
@@ -741,7 +737,7 @@ void NACT_Sys2::cmd_k()
 
 void NACT_Sys2::cmd_l()
 {
-	int index = getd();
+	int index = sco.getd();
 
 	output_console("\nL %d:", index);
 
@@ -830,9 +826,7 @@ void NACT_Sys2::cmd_l()
 			}
 			fio.reset();
 
-			load_scenario(next_page);
-			scenario_page = next_page;
-			scenario_addr = next_addr;
+			sco.page_jump(next_page, next_addr);
 
 			mako->play_music(next_music);
 		}
@@ -843,14 +837,14 @@ void NACT_Sys2::cmd_m()
 {
 	char string[33];
 
-	int d = getd();
+	int d = sco.getd();
 	if (d == '\'' || d == '"') {  // SysEng
-		get_string(string, sizeof(string), d);
+		sco.get_syseng_string(string, sizeof(string), encoding.get(), d);
 	} else {
 		int p = 0;
 		while(d != ':') {
 			string[p++] = d;
-			d = getd();
+			d = sco.getd();
 		}
 		string[p] = '\0';
 	}
@@ -888,7 +882,7 @@ void NACT_Sys2::cmd_o()
 
 void NACT_Sys2::cmd_p()
 {
-	int param = getd();
+	int param = sco.getd();
 
 	if(crc32_a != CRC32_YAKATA2 && crc32_a != CRC32_DALK_HINT && crc32_a != CRC32_RANCE3_HINT) {
 		ags->text_font_color = (uint8)((param & 0x7) + 16);
@@ -919,7 +913,7 @@ void NACT_Sys2::cmd_q()
 		'4', ' ', 'A', 'L', 'I', 'C', 'E', '-', 'S', 'O', 'F', 'T', ' ', ' ', ' ', ' '
 	};
 
-	int index = getd();
+	int index = sco.getd();
 
 	output_console("\nQ %d:", index);
 
@@ -934,13 +928,13 @@ void NACT_Sys2::cmd_q()
 			int p = 0;
 
 			FWRITE(header, 112);
-			FPUTW(scenario_page + 1);
+			FPUTW(sco.page() + 1);
 			FPUTW(0);
 			FPUTW(0);	// cg no?
 			FPUTW(0);
 			FPUTW(mako->current_music);
 			FPUTW(0);
-			FPUTW(scenario_addr);
+			FPUTW(sco.addr());
 			FPUTW(0);
 			for(int i = 0; i < 512; i++) {
 				FPUTW(var[i]);
@@ -1007,7 +1001,7 @@ void NACT_Sys2::cmd_r()
 
 void NACT_Sys2::cmd_s()
 {
-	int page = getd();
+	int page = sco.getd();
 
 	output_console("\nS %d:", page);
 
@@ -1035,8 +1029,8 @@ void NACT_Sys2::cmd_u()
 		page = cali();
 		transparent = cali();
 	} else {
-		page = getd();
-		transparent = getd();
+		page = sco.getd();
+		transparent = sco.getd();
 	}
 
 	output_console("\nU %d,%d:", page, transparent);
@@ -1046,7 +1040,7 @@ void NACT_Sys2::cmd_u()
 
 void NACT_Sys2::cmd_v()
 {
-	int cmd = getd();
+	int cmd = sco.getd();
 	int p01 = cali();
 	int p02 = cali();
 	int p03 = cali();
@@ -1095,7 +1089,7 @@ void NACT_Sys2::cmd_w()
 
 void NACT_Sys2::cmd_x()
 {
-	int index = getd();
+	int index = sco.getd();
 
 	output_console("\nX %d:", index);
 
@@ -1277,14 +1271,14 @@ uint16 NACT_Sys2::cali()
 	bool ok = false;
 
 	while(p > 0) {
-		uint8 dat = getd();
+		uint8 dat = sco.getd();
 
 		if(0x80 <= dat && dat <= 0xbf) {
 			cali[p++] = var[dat & 0x3f];
 		} else if(0xc0 <= dat && dat <= 0xff) {
-			cali[p++] = var[((dat & 0x3f) << 8) | getd()];
+			cali[p++] = var[((dat & 0x3f) << 8) | sco.getd()];
 		} else if(0x00 <= dat && dat <= 0x3f) {
-			cali[p++] = ((dat & 0x3f) << 8) | getd();
+			cali[p++] = ((dat & 0x3f) << 8) | sco.getd();
 		} else if(0x40 <= dat && dat <= 0x76) {
 			cali[p++] = dat & 0x3f;
 		} else if(dat == 0x77) {
@@ -1333,7 +1327,7 @@ uint16 NACT_Sys2::cali()
 		}
 	}
 	if (!ok) {
-		fatal("cali: invalid expression at %d:%04x", scenario_page, scenario_addr);
+		fatal("cali: invalid expression at %d:%04x", sco.page(), sco.addr());
 	}
 	return (uint16)(cali[1] & 0xffff);
 }
@@ -1341,17 +1335,17 @@ uint16 NACT_Sys2::cali()
 uint16 NACT_Sys2::cali2()
 {
 	uint16 val = 0;
-	uint16 dat = getd();
+	uint16 dat = sco.getd();
 
 	if(0x80 <= dat && dat <= 0xbf) {
 		val = dat & 0x3f;
 	} else if(0xc0 <= dat && dat <= 0xff) {
-		val = ((dat & 0x3f) << 8) | getd();
+		val = ((dat & 0x3f) << 8) | sco.getd();
 	} else {
-		fatal("cali2: invalid expression at %d:%04x", scenario_page, scenario_addr);
+		fatal("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
 	}
-	if(getd() != 0x7f) {
-		fatal("cali2: invalid expression at %d:%04x", scenario_page, scenario_addr);
+	if (sco.getd() != 0x7f) {
+		fatal("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
 	}
 	return val;
 }
