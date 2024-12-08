@@ -104,9 +104,9 @@ uint32 NACT::calc_crc32(const char* file_name, const std::string& game_id)
 	}
 
 	uint32 crc = 0;
-	FILEIO* fio = new FILEIO();
+	auto fio = FILEIO::open(file_name, FILEIO_READ_BINARY);
 
-	if(fio->Fopen(file_name, FILEIO_READ_BINARY)) {
+	if (fio) {
 		uint32 table[256];
 		for(int i = 0; i < 256; i++) {
 			uint32 c = i;
@@ -121,14 +121,12 @@ uint32 NACT::calc_crc32(const char* file_name, const std::string& game_id)
 		}
 		// ADISK.DATの先頭256bytes
 		for(int i = 0; i < 256; i++) {
-			int d = fio->Fgetc();
+			int d = fio->getc();
 			uint32 c = ~crc;
 			c = table[(c ^ d) & 0xff] ^ (c >> 8);
 			crc = ~c;
 		}
-		fio->Fclose();
 	}
-	delete fio;
 	return crc;
 }
 

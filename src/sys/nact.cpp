@@ -31,26 +31,25 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 	platform_initialize();
 
 	// AG00.DAT読み込み
-	FILEIO* fio = new FILEIO();
-	if(fio->Fopen("AG00.DAT", FILEIO_READ_BINARY)) {
+	auto fio = FILEIO::open("AG00.DAT", FILEIO_READ_BINARY);
+	if (fio) {
 		int d0, d1, d2, d3;
 		char string[MAX_CAPTION];
-		fio->Fgets(string, MAX_CAPTION);
+		fio->ag00_gets(string, MAX_CAPTION);
 		if (sscanf_s(string, "%d,%d,%d,%d", &d0, &d1, &d2, &d3) != 4)
 			fatal("AG00.DAT: parse error");
 		for(int i = 0; i < d1; i++) {
 			// 動詞の読み込み
-			fio->Fgets(string, MAX_CAPTION);
+			fio->ag00_gets(string, MAX_CAPTION);
 			memcpy(caption_verb[i], string, sizeof(string));
 		}
 		for(int i = 0; i < d2; i++) {
 			// 目的語の読み込み
-			fio->Fgets(string, MAX_CAPTION);
+			fio->ag00_gets(string, MAX_CAPTION);
 			memcpy(caption_obj[i], string, sizeof(string));
 		}
-		fio->Fclose();
+		fio.reset();
 	}
-	delete fio;
 
 	// ADISK.DAT
 	if (crc32_a == CRC32_PROG_OMAKE)

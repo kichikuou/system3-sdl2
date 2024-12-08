@@ -16,18 +16,16 @@ void Dri::open(const char* file_name)
 	fname = file_name;
 	fname[0] = 'A';
 
-	auto fio = std::make_unique<FILEIO>();
-	if (!fio->Fopen(fname.c_str(), FILEIO_READ_BINARY))
+	auto fio = FILEIO::open(fname.c_str(), FILEIO_READ_BINARY);
+	if (!fio)
 		return;
 
-	int link_sector = fio->Fgetc();
-	link_sector |= fio->Fgetc() << 8;
-	int data_sector = fio->Fgetc();
-	data_sector |= fio->Fgetc() << 8;
+	int link_sector = fio->getw();
+	int data_sector = fio->getw();
 
 	link_table.resize((data_sector - link_sector) * 256);
-	fio->Fseek((link_sector - 1) * 256, FILEIO_SEEK_SET);
-	fio->Fread(link_table.data(), 256, data_sector - link_sector);
+	fio->seek((link_sector - 1) * 256, SEEK_SET);
+	fio->read(link_table.data(), 256 * (data_sector - link_sector));
 }
 
 std::vector<uint8> Dri::load(int page)
@@ -40,22 +38,20 @@ std::vector<uint8> Dri::load(int page)
 	if (disk_index == 0 || disk_index == 0x1a)
 		return {};
 
-	auto fio = std::make_unique<FILEIO>();
 	fname[0] = 'A' + disk_index - 1;
-	if (!fio->Fopen(fname.c_str(), FILEIO_READ_BINARY))
+	auto fio = FILEIO::open(fname.c_str(), FILEIO_READ_BINARY);
+	if (!fio)
 		return {};
 
-	fio->Fseek(link_index * 2, FILEIO_SEEK_SET);
-	int start_sector = fio->Fgetc();
-	start_sector |= fio->Fgetc() << 8;
-	int end_sector = fio->Fgetc();
-	end_sector |= fio->Fgetc() << 8;
+	fio->seek(link_index * 2, SEEK_SET);
+	int start_sector = fio->getw();
+	int end_sector = fio->getw();
 	if (end_sector <= start_sector)
 		return {};
 
 	std::vector<uint8_t> buffer((end_sector - start_sector) * 256);
-	fio->Fseek((start_sector - 1) * 256, FILEIO_SEEK_SET);
-	fio->Fread(buffer.data(), 256, end_sector - start_sector);
+	fio->seek((start_sector - 1) * 256, SEEK_SET);
+	fio->read(buffer.data(), 256 * (end_sector - start_sector));
 
 	return buffer;
 }

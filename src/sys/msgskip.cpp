@@ -38,13 +38,12 @@ MsgSkip::~MsgSkip()
 
 void MsgSkip::load_from_file()
 {
-	FILEIO fio;
-	if (fio.Fopen(MSGSKIP_FILENAME, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
-		uint32 size = fio.Fgetw();
-		size |= fio.Fgetw() << 16;
+	auto fio = FILEIO::open(MSGSKIP_FILENAME, FILEIO_READ_BINARY | FILEIO_SAVEDATA);
+	if (fio) {
+		uint32 size = fio->getw();
+		size |= fio->getw() << 16;
 		if (size == BLOOM_FILTER_SIZE)
-			fio.Fread(bloom, BLOOM_FILTER_SIZE / 8, 1);
-		fio.Fclose();
+			fio->read(bloom, BLOOM_FILTER_SIZE / 8);
 	}
 }
 
@@ -52,12 +51,11 @@ bool MsgSkip::write_to_file()
 {
 	if (!dirty)
 		return false;
-	FILEIO fio;
-	if (fio.Fopen(MSGSKIP_FILENAME, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
-		fio.Fputw(BLOOM_FILTER_SIZE & 0xffff);
-		fio.Fputw(BLOOM_FILTER_SIZE >> 16);
-		fio.Fwrite(bloom, BLOOM_FILTER_SIZE / 8, 1);
-		fio.Fclose();
+	auto fio = FILEIO::open(MSGSKIP_FILENAME, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA);
+	if (fio) {
+		fio->putw(BLOOM_FILTER_SIZE & 0xffff);
+		fio->putw(BLOOM_FILTER_SIZE >> 16);
+		fio->write(bloom, BLOOM_FILTER_SIZE / 8);
 		dirty = false;
 	}
 	return true;

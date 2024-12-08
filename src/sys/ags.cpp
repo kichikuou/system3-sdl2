@@ -129,11 +129,11 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	// GAIJI.DAT読み込み
 	memset(gaiji, 0, sizeof(gaiji));
 
-	FILEIO* fio = new FILEIO();
-	if(fio->Fopen("GAIJI.DAT", FILEIO_READ_BINARY)) {
+	auto fio = FILEIO::open("GAIJI.DAT", FILEIO_READ_BINARY);
+	if (fio) {
 		int d1, d2;
-		while((d1 = fio->Fgetc()) != EOF) {
-			d2 = fio->Fgetc();
+		while((d1 = fio->getc()) != EOF) {
+			d2 = fio->getc();
 			// jis to sjis
 			d1 += (d2 & 1) ? 0x1f : 0x7d;
 			d1 += (d1 > 0x7f) ? 1 : 0;
@@ -143,19 +143,18 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 
 			if(0xeb9f <= code && code <= 0xebfc) {
 				for(int i = 0; i < 32; i++) {
-					gaiji[code - 0xeb9f][i] = fio->Fgetc();
+					gaiji[code - 0xeb9f][i] = fio->getc();
 				}
 			} else if(0xec40 <= code && code <= 0xec9e) {
 				for(int i = 0; i < 32; i++) {
-					gaiji[code - 0xec40 + 94][i] = fio->Fgetc();
+					gaiji[code - 0xec40 + 94][i] = fio->getc();
 				}
 			} else {
-				fio->Fseek(32, FILEIO_SEEK_CUR);
+				fio->seek(32, SEEK_CUR);
 			}
 		}
-		fio->Fclose();
 	}
-	delete fio;
+	fio.reset();
 
 	// SYSTEM3 初期化
 

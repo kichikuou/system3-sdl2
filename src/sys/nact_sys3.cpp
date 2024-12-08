@@ -603,60 +603,58 @@ void NACT_Sys3::cmd_l()
 
 	if(index == 0) {
 		// 特殊セーブ
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen("ASLEEP.DAT", FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
+		auto fio = FILEIO::open("ASLEEP.DAT", FILEIO_READ_BINARY | FILEIO_SAVEDATA);
+		if (fio) {
 			// U01 - U20
 			for(int i = 21; i <= 40; i++) {
-				var[i] = fio->Fgetw();
+				var[i] = fio->getw();
 			}
 			// M1 - M10
 			for(int i = 0; i < 10; i++) {
-				fio->Fread(tvar[i], 22, 1);
+				fio->read(tvar[i], 22);
 			}
-			fio->Fclose();
 		}
-		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
 		char file_name[_MAX_PATH];
 		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
-			fio->Fseek(112, FILEIO_SEEK_SET);
+		auto fio = FILEIO::open(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA);
+		if (fio) {
+			fio->seek(112, SEEK_SET);
 
-			int next_page = fio->Fgetw() - 1;
-			fio->Fgetw();
-			fio->Fgetw();	// cg no?
-			fio->Fgetw();
-			int next_music = fio->Fgetw();
-			fio->Fgetw();
-			int next_addr = fio->Fgetw();
-			fio->Fgetw();
+			int next_page = fio->getw() - 1;
+			fio->getw();
+			fio->getw();	// cg no?
+			fio->getw();
+			int next_music = fio->getw();
+			fio->getw();
+			int next_addr = fio->getw();
+			fio->getw();
 			for(int i = 0; i < 512; i++) {
-				var[i] = fio->Fgetw();
+				var[i] = fio->getw();
 			}
-			ags->menu_font_size = fio->Fgetw();
-			ags->text_font_size = fio->Fgetw();
-			ags->palette_bank = fio->Fgetw();
+			ags->menu_font_size = fio->getw();
+			ags->text_font_size = fio->getw();
+			ags->palette_bank = fio->getw();
 			if(!ags->palette_bank) {
 				ags->palette_bank = -1;
 			}
-			ags->text_font_color = fio->Fgetw();
-			ags->menu_font_color = fio->Fgetw();
-			ags->menu_frame_color = fio->Fgetw();
-			ags->menu_back_color = fio->Fgetw();
-			ags->text_frame_color = fio->Fgetw();
-			ags->text_back_color = fio->Fgetw();
+			ags->text_font_color = fio->getw();
+			ags->menu_font_color = fio->getw();
+			ags->menu_frame_color = fio->getw();
+			ags->menu_back_color = fio->getw();
+			ags->text_frame_color = fio->getw();
+			ags->text_back_color = fio->getw();
 			for(int i = 0; i < 10; i++) {
-				ags->menu_w[i].sx = fio->Fgetw();
-				ags->menu_w[i].sy = fio->Fgetw();
-				ags->menu_w[i].ex = fio->Fgetw();
-				ags->menu_w[i].ey = fio->Fgetw();
-				ags->menu_w[i].push = fio->Fgetw() ? true : false;
-				ags->menu_w[i].frame = fio->Fgetw() ? true : false;
-				fio->Fgetw();
-				fio->Fgetw();
+				ags->menu_w[i].sx = fio->getw();
+				ags->menu_w[i].sy = fio->getw();
+				ags->menu_w[i].ex = fio->getw();
+				ags->menu_w[i].ey = fio->getw();
+				ags->menu_w[i].push = fio->getw() ? true : false;
+				ags->menu_w[i].frame = fio->getw() ? true : false;
+				fio->getw();
+				fio->getw();
 
 				if(ags->menu_w[i].screen) {
 					free(ags->menu_w[i].screen);
@@ -668,14 +666,14 @@ void NACT_Sys3::cmd_l()
 				ags->menu_w[i].window = NULL;
 			}
 			for(int i = 0; i < 10; i++) {
-				ags->text_w[i].sx = fio->Fgetw();
-				ags->text_w[i].sy = fio->Fgetw();
-				ags->text_w[i].ex = fio->Fgetw();
-				ags->text_w[i].ey = fio->Fgetw();
-				ags->text_w[i].push = fio->Fgetw() ? true : false;
-				ags->text_w[i].frame = fio->Fgetw() ? true : false;
-				fio->Fgetw();
-				fio->Fgetw();
+				ags->text_w[i].sx = fio->getw();
+				ags->text_w[i].sy = fio->getw();
+				ags->text_w[i].ex = fio->getw();
+				ags->text_w[i].ey = fio->getw();
+				ags->text_w[i].push = fio->getw() ? true : false;
+				ags->text_w[i].frame = fio->getw() ? true : false;
+				fio->getw();
+				fio->getw();
 
 				if(ags->text_w[i].screen) {
 					free(ags->text_w[i].screen);
@@ -687,19 +685,19 @@ void NACT_Sys3::cmd_l()
 				ags->text_w[i].window = NULL;
 			}
 			for(int i = 0; i < 10; i++) {
-				fio->Fread(tvar[i], 22, 1);
+				fio->read(tvar[i], 22);
 			}
 			for(int i = 0; i < 30; i++) {
 				for(int j = 0; j < 10; j++) {
-					fio->Fread(tvar_stack[i][j], 22, 1);
+					fio->read(tvar_stack[i][j], 22);
 				}
 			}
 			for(int i = 0; i < 30; i++) {
 				for(int j = 0; j < 20; j++) {
-					var_stack[i][j] = fio->Fgetw();
+					var_stack[i][j] = fio->getw();
 				}
 			}
-			fio->Fclose();
+			fio.reset();
 
 			load_scenario(next_page);
 			scenario_page = next_page;
@@ -707,19 +705,16 @@ void NACT_Sys3::cmd_l()
 
 			mako->play_music(next_music);
 		}
-		delete fio;
 	} else if(101 <= index && index <= 126) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
 		char file_name[_MAX_PATH];
 		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 101);
 
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA)) {
-			fio->Fseek(112 + 16, FILEIO_SEEK_SET);
-			var[0] = fio->Fgetw();
-			fio->Fclose();
+		auto fio = FILEIO::open(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA);
+		if (fio) {
+			fio->seek(112 + 16, SEEK_SET);
+			var[0] = fio->getw();
 		}
-		delete fio;
 	}
 }
 
@@ -866,26 +861,24 @@ void NACT_Sys3::cmd_q()
 
 	if(index == 0) {
 		// 特殊セーブ
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen("ASLEEP.DAT", FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
+		auto fio = FILEIO::open("ASLEEP.DAT", FILEIO_WRITE_BINARY | FILEIO_SAVEDATA);
+		if (fio) {
 			// U01 - U20
 			for(int i = 21; i <= 40; i++) {
-				fio->Fputw(var[i]);
+				fio->putw(var[i]);
 			}
 			// M1 - M10
 			for(int i = 0; i < 10; i++) {
-				fio->Fwrite(tvar[i], 22, 1);
+				fio->write(tvar[i], 22);
 			}
-			fio->Fclose();
 		}
-		delete fio;
 	} else if(1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
 		char file_name[_MAX_PATH];
 		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
 
-		FILEIO* fio = new FILEIO();
-		if(fio->Fopen(file_name, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA)) {
+		auto fio = FILEIO::open(file_name, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA);
+		if (fio) {
 			uint8 buffer[9510];
 			int p = 0;
 
@@ -944,10 +937,8 @@ void NACT_Sys3::cmd_q()
 				}
 			}
 
-			fio->Fwrite(buffer, 9510, 1);
-			fio->Fclose();
+			fio->write(buffer, 9510);
 		}
-		delete fio;
 	}
 }
 
@@ -1349,7 +1340,7 @@ void NACT_Sys3::cmd_y()
 				snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + param - 1);
 
 				struct stat statbuf;
-				if (FILEIO::StatSavedata(file_name, &statbuf) != -1) {
+				if (FILEIO::stat_save(file_name, &statbuf) != -1) {
 					struct tm *t = localtime(&statbuf.st_mtime);
 					D01 = t->tm_year + 1900;
 					D02 = t->tm_mon + 1;

@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 #endif
 			}
 		}
-		FILEIO::SetSaveDir(path);
+		FILEIO::set_savedir(path);
 	}
 
 	const char* title = g_nact->get_title();
