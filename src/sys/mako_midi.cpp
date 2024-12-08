@@ -93,7 +93,7 @@ void stop_midi()
 
 class Playback {
 public:
-	static std::unique_ptr<Playback> create(NACT* nact, char* amus, int page, int loop, int seq);
+	static std::unique_ptr<Playback> create(NACT* nact, Dri& amus, Dri& mda, int page, int loop, int seq);
 	Playback(uint32_t crc32_a, int loop, int seq) : crc32_a(crc32_a), loop_(loop), seq_(seq) {}
 	bool load_mml(const std::vector<uint8_t>& data);
 	void load_mda(const std::vector<uint8_t>& data);
@@ -379,23 +379,20 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 }
 
 //static
-std::unique_ptr<Playback> Playback::create(NACT* nact, char* amus, int page, int loop, int seq)
+std::unique_ptr<Playback> Playback::create(NACT* nact, Dri& amus, Dri& mda, int page, int loop, int seq)
 {
 	auto playback = std::make_unique<Playback>(nact->crc32_a, loop, seq);
 
-	std::vector<uint8_t> data = dri_load(amus, page);
+	std::vector<uint8_t> data = amus.load(page);
 	if (data.empty())
 		return nullptr;
 	if (!playback->load_mml(data))
 		return nullptr;
 
 	// Load MDA
-	char path[16];
-	strcpy_s(path, 16, amus);
-	strcpy(path + strlen(path) - 3, "MDA");
-	data = dri_load(path, page);
+	data = mda.load(page);
 	if (data.empty())
-		data = dri_load_mda(nact->crc32_a, nact->crc32_b, page);
+		data = Dri::load_mda(nact->crc32_a, nact->crc32_b, page);
 	playback->load_mda(data);
 
 	return playback;
@@ -663,10 +660,10 @@ bool MAKOMidi::is_available()
 	return !!midiout;
 }
 
-bool MAKOMidi::play(NACT* nact, char* amus, int page, int loop)
+bool MAKOMidi::play(NACT* nact, Dri& amus, Dri& mda, int page, int loop)
 {
 	int seq = ++next_seq;
-	auto playback = Playback::create(nact, amus, page, loop, seq);
+	auto playback = Playback::create(nact, amus, mda, page, loop, seq);
 	if (!playback)
 		return false;
 	SDL_AtomicSet(&current_seq, seq);

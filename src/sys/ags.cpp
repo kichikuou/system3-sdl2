@@ -159,8 +159,7 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 
 	// SYSTEM3 初期化
 
-	// ACG.DAT
-	strcpy_s(acg, 16, "ACG.DAT");
+	acg.open("ACG.DAT");
 
 	// パレット
 	memset(program_palette, 0, sizeof(program_palette));
@@ -427,6 +426,22 @@ AGS::~AGS()
 	SDL_FreeSurface(hBmpDest);
 
 	SDL_DestroyTexture(sdlTexture);
+}
+
+void AGS::set_cg_file(const char *file_name)
+{
+	bmp_prefix = NULL;
+	if (nact->sys_ver == 3) {
+		// あゆみちゃん物語 フルカラー実写版
+		if (!strcmp(file_name, "CGA000.BMP")) {
+			bmp_prefix = "CGA";
+			return;
+		} else if (!strcmp(file_name, "CGB000.BMP")) {
+			bmp_prefix = "CGB";
+			return;
+		}
+	}
+	acg.open(file_name);
 }
 
 void AGS::set_palette(int index, int r, int g, int b)

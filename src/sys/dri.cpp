@@ -5,83 +5,63 @@
 */
 
 #include "dri.h"
+#include <memory>
 #include <string.h>
 #include "crc32.h"
 #include "../fileio.h"
 
-std::vector<uint8> dri_load(const char* file_name, int page)
+void Dri::open(const char* file_name)
 {
-	char tmp_name[20];
-	strcpy_s(tmp_name, sizeof(tmp_name), file_name);
+	link_table.clear();
+	fname = file_name;
+	fname[0] = 'A';
 
-	FILEIO* fio = new FILEIO();
-
-	// ページの位置を取得
-	tmp_name[0] = 'A';
-	if(!fio->Fopen(tmp_name, FILEIO_READ_BINARY)) {
-		delete fio;
-		return {};
-	}
+	auto fio = std::make_unique<FILEIO>();
+	if (!fio->Fopen(fname.c_str(), FILEIO_READ_BINARY))
+		return;
 
 	int link_sector = fio->Fgetc();
 	link_sector |= fio->Fgetc() << 8;
 	int data_sector = fio->Fgetc();
 	data_sector |= fio->Fgetc() << 8;
 
-	if(page > (data_sector - link_sector) * 128 - 1) {
-		// ページ番号不正
-		fio->Fclose();
-		delete fio;
+	link_table.resize((data_sector - link_sector) * 256);
+	fio->Fseek((link_sector - 1) * 256, FILEIO_SEEK_SET);
+	fio->Fread(link_table.data(), 256, data_sector - link_sector);
+}
+
+std::vector<uint8> Dri::load(int page)
+{
+	if (static_cast<size_t>(page) >= link_table.size() / 2)
 		return {};
-	}
 
-	fio->Fseek((link_sector - 1) * 256 + (page - 1) * 2, FILEIO_SEEK_SET);
-	int disk_index = fio->Fgetc();
-	int link_index = fio->Fgetc();
-
-	if(disk_index == 0 || disk_index == 0x1a) {
-		// 欠番
-		fio->Fclose();
-		delete fio;
+	int disk_index = link_table[(page - 1) * 2];
+	int link_index = link_table[(page - 1) * 2 + 1];
+	if (disk_index == 0 || disk_index == 0x1a)
 		return {};
-	}
 
-	// A??.DAT以外にリンクされている場合はファイルを開き直す
-	if(disk_index != 1) {
-		tmp_name[0] = 'A' + disk_index - 1;
-		fio->Fclose();
-		if(!fio->Fopen(tmp_name, FILEIO_READ_BINARY)) {
-			delete fio;
-			return {};
-		}
-	}
+	auto fio = std::make_unique<FILEIO>();
+	fname[0] = 'A' + disk_index - 1;
+	if (!fio->Fopen(fname.c_str(), FILEIO_READ_BINARY))
+		return {};
 
-	// データ取得
 	fio->Fseek(link_index * 2, FILEIO_SEEK_SET);
 	int start_sector = fio->Fgetc();
 	start_sector |= fio->Fgetc() << 8;
 	int end_sector = fio->Fgetc();
 	end_sector |= fio->Fgetc() << 8;
-
-	int size = (end_sector - start_sector) * 256;
-	if (size == 0) {
-		// サイズ不正
-		fio->Fclose();
-		delete fio;
+	if (end_sector <= start_sector)
 		return {};
-	}
 
-	std::vector<uint8_t> buffer(size);
+	std::vector<uint8_t> buffer((end_sector - start_sector) * 256);
 	fio->Fseek((start_sector - 1) * 256, FILEIO_SEEK_SET);
 	fio->Fread(buffer.data(), 256, end_sector - start_sector);
-
-	fio->Fclose();
-	delete fio;
 
 	return buffer;
 }
 
-std::vector<uint8> dri_load_mda(uint32_t crc32_a, uint32_t crc32_b, int page)
+// static
+std::vector<uint8> Dri::load_mda(uint32_t crc32_a, uint32_t crc32_b, int page)
 {
 	// データ取得
 	const char* name = NULL;

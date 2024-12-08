@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include "../common.h"
 #include "config.h"
+#include "dri.h"
 
 #define RND var[ 0]
 #define D01 var[ 1]
@@ -111,8 +112,7 @@ protected:
 	void execute();
 	void load_scenario(int page);
 
-	// ADISK.DAT, ASLEEP.DAT
-	char adisk[16];
+	Dri adisk;
 
 	// シナリオデータ
 	std::vector<uint8_t> scenario_data;

@@ -43,8 +43,10 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	if (!config.playlist.empty() && load_playlist(config.playlist.c_str()))
 		mix_init_flags |= MIX_INIT_MP3 | MIX_INIT_OGG;
 
-	strcpy(amus, "AMUS.DAT");
-	strcpy(amse, "AMSE.DAT"); // unused
+	amus.open("AMUS.DAT");
+	awav.open("AWAV.DAT");
+	amse.open("AMSE.DAT");
+	mda.open("AMUS.MDA");
 	for (int i = 1; i <= 99; i++)
 		cd_track[i] = 0;
 
@@ -117,7 +119,7 @@ void MAKO::play_music(int page)
 			}
 		}
 	} else if (use_fm) {
-		std::vector<uint8_t> data = dri_load(amus, page);
+		std::vector<uint8_t> data = amus.load(page);
 		if (data.empty())
 			return;
 		if (!fm_mutex)
@@ -128,7 +130,7 @@ void MAKO::play_music(int page)
 		SDL_UnlockMutex(fm_mutex);
 		Mix_HookMusic(&FMHook, this);
 	} else if (midi->is_available()) {
-		if (!midi->play(nact, amus, page, next_loop))
+		if (!midi->play(nact, amus, mda, page, next_loop))
 			return;
 	}
 
@@ -193,14 +195,14 @@ void MAKO::play_pcm(int page, bool loop)
 
 	stop_pcm();
 
-	std::vector<uint8_t> buffer = dri_load("AWAV.DAT", page);
+	std::vector<uint8_t> buffer = awav.load(page);
 	if (!buffer.empty()) {
 		// WAV形式 (Only You)
 		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(buffer.data(), buffer.size()), 1 /* freesrc */);
 		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
 		return;
 	}
-	buffer = dri_load("AMSE.DAT", page);
+	buffer = amse.load(page);
 	if (!buffer.empty()) {
 		// AMSE形式 (乙女戦記)
 		int samples = (buffer.size() - 12) * 2;

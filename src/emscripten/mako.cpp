@@ -27,7 +27,10 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	nact(parent)
 {
 	g_mako = this;
-	strcpy(amus, "AMUS.DAT");
+	amus.open("AMUS.DAT");
+	awav.open("AWAV.DAT");
+	amse.open("AMSE.DAT");
+	mda.open("AMUS.MDA");
 	for (int i = 1; i <= 99; i++)
 		cd_track[i] = 0;
 }
@@ -50,7 +53,7 @@ void MAKO::play_music(int page)
 		EM_ASM_ARGS({ xsystem35.cdPlayer.play($0, $1); },
 					cd_track[page] + 1, next_loop ? 0 : 1);
 	} else {
-		std::vector<uint8_t> data = dri_load(amus, page);
+		std::vector<uint8_t> data = amus.load(page);
 		if (data.empty())
 			return;
 		int rate = EM_ASM_INT({ return xsystem35.audio.enable_audio_hook(); });
@@ -109,9 +112,9 @@ void MAKO::play_pcm(int page, bool loop)
 	};
 
 	// WAV形式 (Only You)
-	std::vector<uint8_t> wav_buffer = dri_load("AWAV.DAT", page);
+	std::vector<uint8_t> wav_buffer = awav.load(page);
 	if (wav_buffer.empty()) {
-		std::vector<uint8_t> buffer = dri_load("AMSE.DAT", page);
+		std::vector<uint8_t> buffer = amse.load(page);
 		if (!buffer.empty()) {
 			// AMSE形式 (乙女戦記)
 			int samples = (buffer.size() - 12) * 2;

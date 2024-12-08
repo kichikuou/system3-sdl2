@@ -209,8 +209,10 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	if (!config.playlist.empty())
 		load_playlist(config.playlist.c_str());
 
-	strcpy_s(amus, 16, "AMUS.DAT");
-	strcpy_s(amse, 16, "AMSE.DAT");	// 実際には使わない
+	amus.open("AMUS.DAT");
+	awav.open("AWAV.DAT");
+	amse.open("AMSE.DAT");
+	mda.open("AMUS.MDA");
 
 	for(int i = 1; i <= 99; i++) {
 		cd_track[i] = 0;
@@ -288,7 +290,7 @@ void MAKO::play_music(int page)
 			return;
 		music = new Music(playlist[track], next_loop);
 	} else if (use_fm) {
-		std::vector<uint8_t> data = dri_load(amus, page);
+		std::vector<uint8_t> data = amus.load(page);
 		if (data.empty())
 			return;
 
@@ -297,7 +299,7 @@ void MAKO::play_music(int page)
 		SDL_UnlockMutex(fm_mutex);
 		SDL_PauseAudio(0);
 	} else if (midi->is_available()) {
-		if (!midi->play(nact, amus, page, next_loop))
+		if (!midi->play(nact, amus, mda, page, next_loop))
 			return;
 	}
 	current_music = page;
@@ -419,9 +421,9 @@ void MAKO::play_pcm(int page, bool loop)
 	stop_pcm();
 
 	// WAV形式 (Only You)
-	std::vector<uint8_t> wav_buffer = dri_load("AWAV.DAT", page);
+	std::vector<uint8_t> wav_buffer = awav.load(page);
 	if (wav_buffer.empty()) {
-		std::vector<uint8_t> buffer = dri_load("AMSE.DAT", page);
+		std::vector<uint8_t> buffer = amse.load(page);
 		if (!buffer.empty()) {
 			// AMSE形式 (乙女戦記)
 			int samples = (static_cast<int>(buffer.size()) - 12) * 2;
