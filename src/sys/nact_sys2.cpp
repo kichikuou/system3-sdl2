@@ -281,20 +281,9 @@ void NACT_Sys2::cmd_label_jump()
 void NACT_Sys2::cmd_label_call()
 {
 	int next_addr = sco.getw();
+	sco.label_call(next_addr);
 
 	output_console("\n\\%x:", next_addr);
-
-	if(next_addr == 0) {
-		// リターン
-		if(label_depth == 0) {
-//			fatal_error = true;
-			return;
-		}
-		sco.jump_to(label_stack[--label_depth]);
-	} else {
-		label_stack[label_depth++] = sco.addr();
-		sco.jump_to(next_addr);
-	}
 }
 
 void NACT_Sys2::cmd_page_jump()
@@ -307,24 +296,10 @@ void NACT_Sys2::cmd_page_jump()
 
 void NACT_Sys2::cmd_page_call()
 {
-	int next_page = cali(), next_addr;
+	int next_page = cali();
+	sco.page_call(next_page);
 
 	output_console("\n%%%d:", next_page);
-
-	if(next_page == 0) {
-		// リターン
-		if(page_depth == 0) {
-//			fatal_error = true;
-			return;
-		}
-		next_page = page_stack[--page_depth];
-		next_addr = addr_stack[page_depth];
-	} else {
-		page_stack[page_depth] = sco.page();
-		addr_stack[page_depth++] = sco.addr();
-		next_addr = 2;
-	}
-	sco.page_jump(next_page, next_addr);
 }
 
 void NACT_Sys2::cmd_set_menu()

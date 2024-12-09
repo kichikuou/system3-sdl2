@@ -29,3 +29,34 @@ void Scenario::get_syseng_string(char* buf, int size, Encoding *enc, uint8_t ter
 	}
 	buf[i] = '\0';
 }
+
+void Scenario::label_call(int label)
+{
+	if (label == 0) {
+		if (label_stack.empty()) {
+			WARNING("Label stack underflow");
+			return;
+		}
+		jump_to(label_stack.back());
+		label_stack.pop_back();
+	} else {
+		label_stack.push_back(addr());
+		jump_to(label);
+	}
+}
+
+void Scenario::page_call(int target_page)
+{
+	if (target_page == 0) {
+		if (page_stack.empty()) {
+			WARNING("Page stack underflow");
+			return;
+		}
+		auto& pair = page_stack.back();
+		page_jump(pair.first, pair.second);
+		page_stack.pop_back();
+	} else {
+		page_stack.emplace_back(page(), addr());
+		page_jump(target_page, 2);
+	}
+}

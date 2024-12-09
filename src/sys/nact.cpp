@@ -59,7 +59,8 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 
 	// シナリオ管理
 	sco.page_jump(0, 2);
-	label_depth = page_depth = 0;
+	sco.label_stack_clear();
+	sco.page_stack_clear();
 
 	// 変数初期化
 	memset(var, 0, sizeof(var));

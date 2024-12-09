@@ -1,6 +1,7 @@
 #ifndef _SCENARIO_H_
 #define _SCENARIO_H_
 
+#include <utility>
 #include <vector>
 #include <stdint.h>
 #include "dri.h"
@@ -43,11 +44,23 @@ public:
 	void skip_string(Encoding *enc, uint8_t terminator);
 	void get_syseng_string(char* buf, int size, Encoding *enc, uint8_t terminator);
 
+	void label_call(int label);
+	size_t label_stack_size() const { return label_stack.size(); }
+	void label_stack_pop() { label_stack.pop_back(); }
+	void label_stack_clear() { label_stack.clear(); }
+
+	void page_call(int page);
+	size_t page_stack_size() const { return page_stack.size(); }
+	void page_stack_pop() { page_stack.pop_back(); }
+	void page_stack_clear() { page_stack.clear(); }
+
 private:
 	Dri adisk;
 	std::vector<uint8_t> data_;
 	int page_;
 	int addr_;
+	std::vector<int> label_stack;
+	std::vector<std::pair<int, int>> page_stack;
 };
 
 #endif // _SCENARIO_H_

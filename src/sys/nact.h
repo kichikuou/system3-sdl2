@@ -76,7 +76,6 @@
 #define M_X var[57]
 #define M_Y var[58]
 
-#define MAX_STACK 100
 #define MAX_MENU 64
 #define MAX_VERB 128
 #define MAX_OBJ 256
@@ -117,11 +116,6 @@ protected:
 
 	// アドレス、ページ管理
 	int prev_addr;
-	int label_depth;
-	int label_stack[MAX_STACK];
-	int page_depth;
-	int page_stack[MAX_STACK];
-	int addr_stack[MAX_STACK];
 
 	// 変数
 	uint16 var[512];
