@@ -302,6 +302,38 @@ void NACT::execute()
 	}
 }
 
+void NACT::cmd_label_jump()
+{
+	int next_addr = sco.getw();
+	sco.jump_to(next_addr);
+
+	output_console("\n@%x:", next_addr);
+}
+
+void NACT::cmd_label_call()
+{
+	int next_addr = sco.getw();
+	sco.label_call(next_addr);
+
+	output_console("\n\\%x:", next_addr);
+}
+
+void NACT::cmd_page_jump()
+{
+	int next_page = cali();
+	sco.page_jump(next_page, 2);
+
+	output_console("\n&%d:", next_page);
+}
+
+void NACT::cmd_page_call()
+{
+	int next_page = cali();
+	sco.page_call(next_page);
+
+	output_console("\n%%%d:", next_page);
+}
+
 void NACT::message(uint8 terminator)
 {
 	char buf[200];

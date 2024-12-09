@@ -130,10 +130,10 @@ protected:
 	virtual void cmd_calc() = 0;
 
 	virtual void cmd_branch() = 0;
-	virtual void cmd_label_jump() = 0;
-	virtual void cmd_label_call() = 0;
-	virtual void cmd_page_jump() = 0;
-	virtual void cmd_page_call() = 0;
+	void cmd_label_jump();
+	void cmd_label_call();
+	void cmd_page_jump();
+	void cmd_page_call();
 
 	virtual void cmd_set_menu() = 0;
 	virtual void cmd_open_menu() = 0;
@@ -280,10 +280,6 @@ public:
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
-	void cmd_label_jump() override;
-	void cmd_label_call() override;
-	void cmd_page_jump() override;
-	void cmd_page_call() override;
 	void cmd_set_menu() override;
 	void cmd_open_menu() override;
 	void cmd_set_verbobj() override;
@@ -331,10 +327,6 @@ public:
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
-	void cmd_label_jump() override;
-	void cmd_label_call() override;
-	void cmd_page_jump() override;
-	void cmd_page_call() override;
 	void cmd_set_menu() override;
 	void cmd_open_menu() override;
 	void cmd_set_verbobj() override;
@@ -376,10 +368,6 @@ public:
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
-	void cmd_label_jump() override;
-	void cmd_label_call() override;
-	void cmd_page_jump() override;
-	void cmd_page_call() override;
 	void cmd_set_menu() override;
 	void cmd_open_menu() override;
 	void cmd_set_verbobj() override;
