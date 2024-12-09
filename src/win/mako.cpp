@@ -52,7 +52,7 @@ class MCIThread {
 public:
 	MCIThread(NACT* nact, HWND hwnd_notify) : hwnd_notify(hwnd_notify) {
 		if (!_beginthreadex(NULL, 0, &MCIThread::run, this, 0, &thread_id))
-			nact->fatal("Cannot create thread: %s", strerror(errno));
+			sys_error("Cannot create thread: %s", strerror(errno));
 	}
 
 	bool post_message(UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -235,7 +235,7 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if (!SDL_GetWindowWMInfo(g_window, &info))
-		parent->fatal("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
+		sys_error("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
 	mci_thread = new MCIThread(parent, info.info.win.window);
 
 	midi = std::make_unique<MAKOMidi>(config.midi_device);

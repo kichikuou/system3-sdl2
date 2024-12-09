@@ -37,7 +37,7 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 		char string[MAX_CAPTION];
 		fio->ag00_gets(string, MAX_CAPTION);
 		if (sscanf_s(string, "%d,%d,%d,%d", &d0, &d1, &d2, &d3) != 4)
-			fatal("AG00.DAT: parse error");
+			sys_error("AG00.DAT: parse error");
 		for(int i = 0; i < d1; i++) {
 			// 動詞の読み込み
 			fio->ag00_gets(string, MAX_CAPTION);
@@ -151,7 +151,7 @@ EMSCRIPTEN_KEEPALIVE  // Prevent inlining, because this function is listed in AS
 void NACT::execute()
 {
 	if (!sco.is_addr_valid()) {
-		fatal("Scenario error: invalid address %d:0x%x", sco.page(), sco.addr());
+		sys_error("Scenario error: invalid address %d:0x%x", sco.page(), sco.addr());
 		return;
 	}
 
@@ -293,9 +293,9 @@ void NACT::execute()
 				sco.ungetd();
 				message(0);
 			} else if (cmd >= 0x20 && cmd < 0x7f) {
-				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, sco.page(), prev_addr);
+				sys_error("Unknown Command: '%c' at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			} else {
-				fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, sco.page(), prev_addr);
+				sys_error("Unknown Command: %02x at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			}
 			break;
 	}
@@ -500,16 +500,6 @@ int NACT::get_screen_height()
 void NACT::select_cursor()
 {
 	ags->select_cursor();
-}
-
-[[noreturn]] void NACT::fatal(const char* format, ...) {
-	char buf[512];
-	va_list args;
-	va_start(args, format);
-	vsnprintf(buf, sizeof buf, format, args);
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Fatal Error: %s", buf);
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3", buf, g_window);
-	exit(1);
 }
 
 NACT* NACT::create(const Config& config) {

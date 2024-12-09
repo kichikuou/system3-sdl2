@@ -100,11 +100,11 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	if (!config.font_file.empty()) {
 		rw_font = open_file(config.font_file.c_str());
 		if (!rw_font)
-			parent->fatal("Cannot open font file %s", config.font_file.c_str());
+			sys_error("Cannot open font file %s", config.font_file.c_str());
 	} else {
 		rw_font = open_resource(FONT_RESOURCE_NAME, "fonts");
 		if (!rw_font)
-			parent->fatal("Cannot open default font");
+			sys_error("Cannot open default font");
 	}
 	hFont16 = TTF_OpenFontRW(rw_font, 0, 16);
 	SDL_RWseek(rw_font, 0, SEEK_SET);
@@ -116,7 +116,7 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	SDL_RWseek(rw_font, 0, SEEK_SET);
 	hFont64 = TTF_OpenFontRW(rw_font, 0, 64);
 	if (!hFont16 || !hFont24 || !hFont32 || !hFont48 || !hFont64) {
-		parent->fatal("TTF_OpenFontRW failed: %s", TTF_GetError());
+		sys_error("TTF_OpenFontRW failed: %s", TTF_GetError());
 	}
 	if (config.no_antialias)
 		ags_setAntialiasedStringMode(0);

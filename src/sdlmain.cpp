@@ -119,6 +119,16 @@ int main(int argc, char *argv[])
     return exit_code;
 }
 
+[[noreturn]] void sys_error(const char* format, ...) {
+	char buf[512];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf, sizeof buf, format, args);
+	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Fatal Error: %s", buf);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3", buf, g_window);
+	exit(1);
+}
+
 #ifdef __EMSCRIPTEN__
 
 extern "C"

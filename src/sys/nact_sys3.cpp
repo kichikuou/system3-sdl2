@@ -386,7 +386,7 @@ void NACT_Sys3::cmd_b()
 void NACT_Sys3::cmd_d()
 {
 	// 未使用
-	fatal("Unknown Command: 'D' at page = %d, addr = %d", sco.page(), prev_addr);
+	sys_error("Unknown Command: 'D' at page = %d, addr = %d", sco.page(), prev_addr);
 }
 
 void NACT_Sys3::cmd_e()
@@ -1488,7 +1488,7 @@ uint16 NACT_Sys3::cali()
 		}
 	}
 	if (!ok) {
-		fatal("cali: invalid expression at %d:%04x", sco.page(), sco.addr());
+		sys_error("cali: invalid expression at %d:%04x", sco.page(), sco.addr());
 	}
 	return (uint16)(cali[1] & 0xffff);
 }
@@ -1503,10 +1503,10 @@ uint16 NACT_Sys3::cali2()
 	} else if(0xc0 <= dat && dat <= 0xff) {
 		val = ((dat & 0x3f) << 8) | sco.getd();
 	} else {
-		fatal("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
+		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
 	}
 	if (sco.getd() != 0x7f) {
-		fatal("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
+		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
 	}
 	return val;
 }

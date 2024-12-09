@@ -1,5 +1,6 @@
 #include "scenario.h"
 #include <string.h>
+#include "common.h"
 #include "encoding.h"
 
 void Scenario::skip_string(Encoding *enc, uint8_t terminator)
@@ -20,10 +21,10 @@ void Scenario::get_syseng_string(char* buf, int size, Encoding *enc, uint8_t ter
 		if (c != '\\')
 			ungetd();
 		int len = enc->mblen(ptr());
-		if (i + len < size - 1) {
-			memcpy(&buf[i], ptr(), len);
-			i += len;
-		}
+		if (i + len >= size)
+			sys_error("String buffer overrun at %d:0x%x", page(), start_addr);
+		memcpy(&buf[i], ptr(), len);
+		i += len;
 		skip(len);
 	}
 	buf[i] = '\0';

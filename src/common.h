@@ -36,6 +36,8 @@ typedef int32_t int32;
 	SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s:%d: " fmt, __func__, __LINE__, ##__VA_ARGS__)
 #define NOTICE SDL_Log
 
+[[noreturn]] void sys_error(const char* format, ...);
+
 #ifndef WIN32
 
 #define _MAX_PATH PATH_MAX

@@ -260,9 +260,9 @@ void NACT_Sys2::cmd_branch()
 				sco.ungetd();
 				sco.skip(encoding->mblen(sco.ptr()));
 			} else if (cmd >= 0x20 && cmd < 0x7f) {
-				fatal("Unknown Command: '%c' at page = %d, addr = %d", cmd, sco.page(), prev_addr);
+				sys_error("Unknown Command: '%c' at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			} else {
-				fatal("Unknown Command: %02x at page = %d, addr = %d", cmd, sco.page(), prev_addr);
+				sys_error("Unknown Command: %02x at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			}
 		}
 	}
@@ -1327,7 +1327,7 @@ uint16 NACT_Sys2::cali()
 		}
 	}
 	if (!ok) {
-		fatal("cali: invalid expression at %d:%04x", sco.page(), sco.addr());
+		sys_error("cali: invalid expression at %d:%04x", sco.page(), sco.addr());
 	}
 	return (uint16)(cali[1] & 0xffff);
 }
@@ -1342,10 +1342,10 @@ uint16 NACT_Sys2::cali2()
 	} else if(0xc0 <= dat && dat <= 0xff) {
 		val = ((dat & 0x3f) << 8) | sco.getd();
 	} else {
-		fatal("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
+		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
 	}
 	if (sco.getd() != 0x7f) {
-		fatal("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
+		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
 	}
 	return val;
 }

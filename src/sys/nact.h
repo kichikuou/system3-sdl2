@@ -275,8 +275,6 @@ public:
 
 	int get_scenario_page() const { return sco.page(); }
 
-	[[noreturn]] void fatal(const char* msg, ...);
-
 private:
 	void pump_events();
 	bool handle_platform_event(const SDL_Event& e);
