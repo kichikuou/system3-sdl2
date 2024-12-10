@@ -145,7 +145,7 @@ void NACT_Sys1::cmd_branch()
 	if(!condition) {
 		// 次の'}'命令までスキップする（ネストも考慮する）
 		for(;;) {
-			prev_addr = sco.addr();
+			sco.mark_cmd_start();
 			uint8 cmd = sco.getd();
 
 			if(cmd == '!') {
@@ -221,10 +221,8 @@ void NACT_Sys1::cmd_branch()
 			} else if (is_message(cmd)) {
 				sco.ungetd();
 				sco.skip(encoding->mblen(sco.ptr()));
-			} else if (cmd >= 0x20 && cmd < 0x7f) {
-				sys_error("Unknown Command: '%c' at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			} else {
-				sys_error("Unknown Command: %02x at page = %d, addr = %d", cmd, sco.page(), prev_addr);
+				sco.unknown_command(cmd);
 			}
 		}
 	}
@@ -547,20 +545,20 @@ void NACT_Sys1::cmd_a()
 
 void NACT_Sys1::cmd_b()
 {
-	// 未使用
-	sys_error("Unknown Command: 'B' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('B');
 }
 
 void NACT_Sys1::cmd_d()
 {
-	// 未使用
-	sys_error("Unknown Command: 'D' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('D');
 }
 
 void NACT_Sys1::cmd_e()
 {
-	// 未使用
-	sys_error("Unknown Command: 'E' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('E');
 }
 
 void NACT_Sys1::cmd_f()
@@ -597,26 +595,26 @@ void NACT_Sys1::cmd_g()
 
 void NACT_Sys1::cmd_h()
 {
-	// 未使用
-	sys_error("Unknown Command: 'H' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('H');
 }
 
 void NACT_Sys1::cmd_i()
 {
-	// 未使用
-	sys_error("Unknown Command: 'I' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('I');
 }
 
 void NACT_Sys1::cmd_j()
 {
-	// 未使用
-	sys_error("Unknown Command: 'J' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('J');
 }
 
 void NACT_Sys1::cmd_k()
 {
-	// 未使用
-	sys_error("Unknown Command: 'K' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('K');
 }
 
 void NACT_Sys1::cmd_l()
@@ -719,20 +717,20 @@ void NACT_Sys1::cmd_l()
 
 void NACT_Sys1::cmd_m()
 {
-	// 未使用
-	sys_error("Unknown Command: 'M' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('M');
 }
 
 void NACT_Sys1::cmd_n()
 {
-	// 未使用
-	sys_error("Unknown Command: 'N' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('N');
 }
 
 void NACT_Sys1::cmd_o()
 {
-	// 未使用
-	sys_error("Unknown Command: 'O' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('O');
 }
 
 void NACT_Sys1::cmd_p()
@@ -867,8 +865,8 @@ void NACT_Sys1::cmd_s()
 
 void NACT_Sys1::cmd_t()
 {
-	// 未使用
-	sys_error("Unknown Command: 'T' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('T');
 }
 
 void NACT_Sys1::cmd_u()
@@ -891,14 +889,14 @@ void NACT_Sys1::cmd_u()
 
 void NACT_Sys1::cmd_v()
 {
-	// 未使用
-	sys_error("Unknown Command: 'V' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('V');
 }
 
 void NACT_Sys1::cmd_w()
 {
-	// 未使用
-	sys_error("Unknown Command: 'W' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('W');
 }
 
 void NACT_Sys1::cmd_x()

@@ -111,11 +111,7 @@ protected:
 	// コマンドパーサ
 	void execute();
 
-	// シナリオデータ
 	Scenario sco;
-
-	// アドレス、ページ管理
-	int prev_addr;
 
 	// 変数
 	uint16 var[512];

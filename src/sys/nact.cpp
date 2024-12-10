@@ -163,7 +163,7 @@ void NACT::execute()
 	sco.skip_syseng_rev_marker();
 
 	// １コマンド実行
-	prev_addr = sco.addr();
+	sco.mark_cmd_start();
 	uint8 cmd = sco.getd();
 
 	if(set_palette && cmd != 'P') {
@@ -293,10 +293,8 @@ void NACT::execute()
 			if (is_message(cmd)) {
 				sco.ungetd();
 				message(0);
-			} else if (cmd >= 0x20 && cmd < 0x7f) {
-				sys_error("Unknown Command: '%c' at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			} else {
-				sys_error("Unknown Command: %02x at page = %d, addr = %d", cmd, sco.page(), prev_addr);
+				sco.unknown_command(cmd);
 			}
 			break;
 	}

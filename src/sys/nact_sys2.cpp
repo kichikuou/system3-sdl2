@@ -85,7 +85,7 @@ void NACT_Sys2::cmd_branch()
 	if(!condition) {
 		// 次の'}'命令までスキップする（ネストも考慮する）
 		for(;;) {
-			prev_addr = sco.addr();
+			sco.mark_cmd_start();
 			uint8 cmd = sco.getd();
 
 			if(cmd == '!') {
@@ -259,10 +259,8 @@ void NACT_Sys2::cmd_branch()
 			} else if (is_message(cmd)) {
 				sco.ungetd();
 				sco.skip(encoding->mblen(sco.ptr()));
-			} else if (cmd >= 0x20 && cmd < 0x7f) {
-				sys_error("Unknown Command: '%c' at page = %d, addr = %d", cmd, sco.page(), prev_addr);
 			} else {
-				sys_error("Unknown Command: %02x at page = %d, addr = %d", cmd, sco.page(), prev_addr);
+				sco.unknown_command(cmd);
 			}
 		}
 	}

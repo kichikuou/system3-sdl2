@@ -54,11 +54,15 @@ public:
 	void page_stack_pop() { page_stack.pop_back(); }
 	void page_stack_clear() { page_stack.clear(); }
 
+	void mark_cmd_start() { cmd_start_addr = addr_; }
+	[[noreturn]] void unknown_command(uint8_t cmd);
+
 private:
 	Dri adisk;
 	std::vector<uint8_t> data_;
 	int page_;
 	int addr_;
+	int cmd_start_addr;
 	std::vector<int> label_stack;
 	std::vector<std::pair<int, int>> page_stack;
 };

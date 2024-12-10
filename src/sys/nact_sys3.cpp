@@ -328,8 +328,8 @@ void NACT_Sys3::cmd_b()
 
 void NACT_Sys3::cmd_d()
 {
-	// 未使用
-	sys_error("Unknown Command: 'D' at page = %d, addr = %d", sco.page(), prev_addr);
+	// Unused
+	sco.unknown_command('D');
 }
 
 void NACT_Sys3::cmd_e()
