@@ -41,7 +41,7 @@ public:
 		return w;
 	}
 	void ungetd() { addr_--; }
-	void skip_string(Encoding *enc, uint8_t terminator);
+	void skip_syseng_string(Encoding *enc, uint8_t terminator);
 	void get_syseng_string(char* buf, int size, Encoding *enc, uint8_t terminator);
 
 	void label_call(int label);

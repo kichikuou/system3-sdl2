@@ -174,7 +174,7 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'M') {
 				uint8 val = sco.getd();
 				if (val == '\'' || val == '"') {  // SysEng
-					sco.skip_string(encoding.get(), val);
+					sco.skip_syseng_string(encoding.get(), val);
 				} else {
 					while (val != ':')
 						val = sco.getd();
@@ -255,7 +255,7 @@ void NACT_Sys2::cmd_branch()
 				cali();
 				cali();
 			} else if (cmd == '\'' || cmd == '"') {  // SysEng
-				sco.skip_string(encoding.get(), cmd);
+				sco.skip_syseng_string(encoding.get(), cmd);
 			} else if (is_message(cmd)) {
 				sco.ungetd();
 				sco.skip(encoding->mblen(sco.ptr()));

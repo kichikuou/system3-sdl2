@@ -217,7 +217,7 @@ void NACT_Sys1::cmd_branch()
 				cali();
 				cali();
 			} else if (cmd == '\'' || cmd == '"') {  // SysEng
-				sco.skip_string(encoding.get(), cmd);
+				sco.skip_syseng_string(encoding.get(), cmd);
 			} else if (is_message(cmd)) {
 				sco.ungetd();
 				sco.skip(encoding->mblen(sco.ptr()));

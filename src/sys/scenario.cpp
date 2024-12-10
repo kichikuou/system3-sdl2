@@ -3,7 +3,7 @@
 #include "common.h"
 #include "encoding.h"
 
-void Scenario::skip_string(Encoding *enc, uint8_t terminator)
+void Scenario::skip_syseng_string(Encoding *enc, uint8_t terminator)
 {
 	for (uint8_t c = getd(); c != terminator; c = getd()) {
 		if (c != '\\')
