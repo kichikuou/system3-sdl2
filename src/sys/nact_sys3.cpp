@@ -1166,9 +1166,9 @@ void NACT_Sys3::cmd_y()
 			break;
 		case 80:
 			if(param == 0) {
-				RND = sco.label_stack_size();
+				RND = static_cast<uint16>(sco.label_stack_size());
 			} else if(param == 1) {
-				RND = sco.page_stack_size();
+				RND = static_cast<uint16>(sco.page_stack_size());
 			}
 			break;
 		case 81:
