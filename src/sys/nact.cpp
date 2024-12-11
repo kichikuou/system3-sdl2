@@ -24,7 +24,8 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	: config(config),
 	  game_id(game_id),
 	  encoding(Encoding::create(game_id.encoding)),
-	  strings(config.get_strings(encoding.get(), game_id.language == ENGLISH))
+	  strings(config.get_strings(encoding.get(), game_id.language == ENGLISH)),
+	  seed(SDL_GetTicks())
 {
 	platform_initialize();
 
@@ -54,38 +55,7 @@ NACT::NACT(const Config& config, const GameId& game_id)
 		sco.open("AGAME.DAT");
 	else
 		sco.open("ADISK.DAT");
-
-	// シナリオ管理
 	sco.page_jump(0, 2);
-	sco.label_stack_clear();
-	sco.page_stack_clear();
-
-	// 変数初期化
-	memset(var, 0, sizeof(var));
-	memset(var_stack, 0, sizeof(var_stack));
-	memset(tvar, 0, sizeof(tvar));
-	memset(tvar_stack, 0, sizeof(tvar_stack));
-
-	// コマンド初期化
-	column = true;		// 座標モード
-	wait_keydown = true;	// ウェイト時のキー受付
-	seed = SDL_GetTicks();	// 乱数の種
-	text_wait_time = 100;	// メッセージ表示のウェイト
-	text_wait_enb = false;
-	mouse_sence = 16;	// マウス移動感知
-
-	menu_window = text_window = 1;
-	menu_index = 0;
-	show_push = true;
-	clear_text = true;
-
-	verb_obj = false;
-	set_palette = false;
-
-	tvar_index = 0;
-
-	pcm_index = 0;
-	memset(pcm, 0, sizeof(pcm));
 
 	// 各種クラス生成
 	ags = new AGS(config, game_id);
@@ -103,8 +73,6 @@ NACT::NACT(const Config& config, const GameId& game_id)
 			}
 		}
 	}
-
-	terminate = false;
 }
 
 NACT::~NACT()

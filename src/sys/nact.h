@@ -110,11 +110,12 @@ protected:
 	Scenario sco;
 
 	// 変数
-	uint16 var[512];
-	uint16 var_stack[30][20];
-//	char tvar[10][22];
-	char tvar_stack[30][10][22];
-//	int tvar_index;
+	uint16 var[512] = {};
+	uint16 var_stack[30][20] = {};
+	char tvar[10][33] = {};
+	char tvar_stack[30][10][22] = {};
+	int tvar_index = 0;
+	int tvar_maxlen;
 
 	void message(uint8 terminator);
 
@@ -170,17 +171,18 @@ protected:
 	// GAKUEN
 	bool enable_graphics = true;
 
-	bool column;		// 座標モード
-	bool wait_keydown;	// ウェイト時のキー受付
-	int text_wait_time;	// テキスト表示のウェイト
-	int mouse_sence;	// マウス感度
+	bool column = true;		// 座標モード
+	bool wait_keydown = true;	// ウェイト時のキー受付
+	int text_wait_time = 100;	// テキスト表示のウェイト
+	bool text_wait_enb = false;	// テキスト表示のウェイト有効／無効
+	int mouse_sence = 16;	// マウス感度
 
-	int menu_window;	// メニューウィンドウ番号
-	int text_window;	// メッセージウィンドウ番号
-	bool show_push;		// Push表示
-	bool clear_text;	// メニュー後のメッセージウィンドウ消去
+	int menu_window = 1;	// メニューウィンドウ番号
+	int text_window = 1;	// メッセージウィンドウ番号
+	bool show_push = true;		// Push表示
+	bool clear_text = true;	// メニュー後のメッセージウィンドウ消去
 
-	int menu_index;			// メニュー登録のインデックス
+	int menu_index = 0;			// メニュー登録のインデックス
 	int menu_addr[64];		// ジャンプ先のアドレス
 	int menu_verb[64];		// 登録された動詞
 	int menu_obj[64];		// 登録された目的語
@@ -188,11 +190,11 @@ protected:
 	char caption_verb[MAX_VERB][MAX_CAPTION];
 	char caption_obj[MAX_OBJ][MAX_CAPTION];
 
-	bool verb_obj;	// 動詞-形容詞型メニューの定義中
-	bool set_palette;
+	bool verb_obj = false;	// 動詞-形容詞型メニューの定義中
+	bool set_palette = false;
 
-	int pcm_index;
-	int pcm[MAX_PCM];
+	int pcm_index = 0;
+	int pcm[MAX_PCM] = {};
 
 	// 下位関数
 	virtual uint16 cali() = 0;
@@ -200,7 +202,7 @@ protected:
 	bool is_message(uint8_t c) { return c == ' ' || c & 0x80; }
 
 	uint16 random(uint16 range);
-	uint32 seed;
+	uint32 seed;	// 乱数の種
 
 	int menu_select(int num_items);
 	void wait_after_open_menu();
@@ -217,7 +219,7 @@ protected:
 	void text_dialog();
 
 	// 終了フラグ
-	bool terminate;
+	bool terminate = false;
 	int exit_code;
 
 	// Platform-specific setup / cleanup code
@@ -236,16 +238,11 @@ public:
 	void text_wait();
 	void set_skip_menu_state(bool enabled, bool checked);
 
-	bool text_wait_enb;	// テキスト表示のウェイト有効／無効
 	bool mouse_move_enabled = true;
 	const Config& config;
 	const GameId& game_id;
 	std::unique_ptr<Encoding> encoding;
 	Strings strings;
-
-	// for Y27
-	char tvar[10][33];
-	int tvar_index, tvar_maxlen;
 
 	// デバッグログ
 	void output_console(const char *format, ...);
