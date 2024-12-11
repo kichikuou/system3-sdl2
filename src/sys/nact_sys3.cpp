@@ -645,7 +645,9 @@ void NACT_Sys3::cmd_l()
 		auto fio = FILEIO::open(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA);
 		if (fio) {
 			fio->seek(112 + 16, SEEK_SET);
-			var[0] = fio->getw();
+			RND = fio->getw();
+		} else {
+			RND = 255;
 		}
 	}
 }
