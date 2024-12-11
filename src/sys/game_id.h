@@ -1,11 +1,7 @@
-/*
-	ALICE SOFT SYSTEM 3 for Win32
+#ifndef _GAMEID_H_
+#define _GAMEID_H_
 
-	[ crc32 database ]
-*/
-
-#ifndef _CRC32_H_
-#define _CRC32_H_
+#include <stdint.h>
 
 // ADISK.DATの先頭256bytes
 // SYSTEM1
@@ -78,4 +74,23 @@
 #define CRC32_NINGYO		0xd491e7ab	// 人魚 -蘿子-
 #define CRC32_MUGENHOUYOU	0xbb27d1ba	// 夢幻泡影
 
-#endif
+struct Config;
+
+enum Language {
+	JAPANESE = 0,
+	ENGLISH = 1,
+};
+
+struct GameId {
+	uint32_t crc32_a;  // ADISK
+	uint32_t crc32_b;  // BDISK for D.P.S -SG- and Super D.P.S
+	const char* name;
+	int sys_ver;
+	const char* title;
+	Language language;
+	const char* encoding;
+
+	explicit GameId(const Config& config);
+};
+
+#endif  // _GAMEID_H_

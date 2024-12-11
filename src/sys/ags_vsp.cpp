@@ -5,7 +5,7 @@
 */
 
 #include "ags.h"
-#include "crc32.h"
+#include "game_id.h"
 #include <string.h>
 
 void AGS::load_vsp(uint8* data, int page, int transparent)
@@ -29,7 +29,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	}
 
 	// Zコマンドの処理
-	if(nact->crc32_a == CRC32_AMBIVALENZ_FD || nact->crc32_a == CRC32_AMBIVALENZ_CD) {
+	if (game_id.crc32_a == CRC32_AMBIVALENZ_FD || game_id.crc32_a == CRC32_AMBIVALENZ_CD) {
 		// Z 0,numを無視する
 	} else {
 		if(palette_bank != -1) {
@@ -49,7 +49,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	}
 
 	// パレット展開
-	if(nact->crc32_a == CRC32_FUNNYBEE_FD || nact->crc32_a == CRC32_FUNNYBEE_CD || nact->crc32_a == CRC32_FUNNYBEE_PATCH) {
+	if (game_id.crc32_a == CRC32_FUNNYBEE_FD || game_id.crc32_a == CRC32_FUNNYBEE_CD || game_id.crc32_a == CRC32_FUNNYBEE_PATCH) {
 		if(extract_palette_cg[page]) {
 			for(int i = 0; i < 16; i++) {
 				screen_palette[base + i] = program_palette[base + i];
@@ -143,7 +143,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 
 				uint32* dest;
 				// Gakuen Senki uses exact sx values rather than 8x.
-				if (nact->crc32_a == CRC32_GAKUEN || nact->crc32_a == CRC32_GAKUEN_ENG)
+				if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG)
 					dest = &vram[dest_screen][y + sy][(x * 8) + sx];
 				else
 					dest = &vram[dest_screen][y + sy][(x + sx) * 8];
@@ -165,7 +165,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 
 	// 画面更新
 	if(dest_screen == 0 && extract_cg) {
-		if (nact->crc32_a == CRC32_GAKUEN || nact->crc32_a == CRC32_GAKUEN_ENG) {
+		if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG) {
 			// Gakuen Senki's images were converted to VSP for the modern port, but don't always adhere to VSP's width restrictions, which demand
 			// every image width be a factor of 8. Thankfully, the exceptions are designed to fit into specific parts of the GUI, and so have
 			// consistent widths for each output position.

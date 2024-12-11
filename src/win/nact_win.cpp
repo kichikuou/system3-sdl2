@@ -138,7 +138,7 @@ void NACT::text_dialog()
 void NACT::platform_initialize()
 {
 	init_menu(mouse_move_enabled, config);
-	init_console(sys_ver);
+	init_console(game_id.sys_ver);
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 }
 

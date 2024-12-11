@@ -13,7 +13,7 @@
 #include <limits.h>
 #include <math.h>
 #include "../common.h"
-#include "nact.h"
+#include "game_id.h"
 #include "dri.h"
 
 enum BGMDevice {
@@ -27,7 +27,7 @@ struct Config;
 class MAKO
 {
 public:
-	MAKO(NACT* parent, const Config& config);
+	MAKO(const Config& config, const GameId& game_id);
 	~MAKO();
 
 	void play_music(int page);
@@ -57,7 +57,7 @@ public:
 	int next_loop;		// Y19
 
 private:
-	NACT* nact;
+	const GameId& game_id;
 	int cd_track[100];	// Z
 
 #ifndef __EMSCRIPTEN__

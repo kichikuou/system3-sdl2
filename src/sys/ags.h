@@ -40,6 +40,7 @@ class AGS
 {
 protected:
 	NACT* nact;
+	const GameId& game_id;
 private:
 	SDL_Texture* sdlTexture;
 	SDL_Texture* scanline_texture;

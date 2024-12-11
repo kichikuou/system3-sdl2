@@ -14,19 +14,17 @@
 #include "dri.h"
 #include "../config.h"
 #include "../fileio.h"
-#include "crc32.h"
+#include "game_id.h"
 
 extern SDL_Window* g_window;
 
 // 初期化
 
-NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
-	: sys_ver(sys_ver),
-	  crc32_a(crc32_a),
-	  crc32_b(crc32_b),
-	  config(config),
-	  encoding(Encoding::create(get_encoding_name())),
-	  strings(config.get_strings(encoding.get(), get_language() == ENGLISH))
+NACT::NACT(const Config& config, const GameId& game_id)
+	: config(config),
+	  game_id(game_id),
+	  encoding(Encoding::create(game_id.encoding)),
+	  strings(config.get_strings(encoding.get(), game_id.language == ENGLISH))
 {
 	platform_initialize();
 
@@ -52,7 +50,7 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 	}
 
 	// ADISK.DAT
-	if (crc32_a == CRC32_PROG_OMAKE)
+	if (game_id.crc32_a == CRC32_PROG_OMAKE)
 		sco.open("AGAME.DAT");
 	else
 		sco.open("ADISK.DAT");
@@ -91,7 +89,7 @@ NACT::NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config)
 
 	// 各種クラス生成
 	ags = new AGS(this, config);
-	mako = new MAKO(this, config);
+	mako = new MAKO(config, game_id);
 	msgskip = new MsgSkip(this);
 
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
@@ -156,7 +154,7 @@ void NACT::execute()
 		return;
 	}
 
-	if(sys_ver == 1 && sco.page() == 0 && sco.addr() == 2) {
+	if (game_id.sys_ver == 1 && sco.page() == 0 && sco.addr() == 2) {
 		opening();
 	}
 
@@ -351,7 +349,7 @@ void NACT::message(uint8 terminator)
 
 	ags->draw_text(buf, text_wait_enb);
 
-	if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+	if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
 		if(!ags->draw_menu) {
 			text_refresh = false;
 		}
@@ -533,16 +531,13 @@ void NACT::select_cursor()
 	ags->select_cursor();
 }
 
-NACT* NACT::create(const Config& config) {
-	uint32 crc32_a = NACT::calc_crc32("ADISK.DAT", config.game_id);
-	uint32 crc32_b = NACT::calc_crc32("BDISK.DAT", config.game_id);
-	int sys_ver = NACT::get_sys_ver(crc32_a, crc32_b);
-	switch (sys_ver) {
+NACT* NACT::create(const Config& config, const GameId& game_id) {
+	switch (game_id.sys_ver) {
 	case 1:
-		return new NACT_Sys1(crc32_a, crc32_b, config);
+		return new NACT_Sys1(config, game_id);
 	case 2:
-		return new NACT_Sys2(crc32_a, crc32_b, config);
+		return new NACT_Sys2(config, game_id);
 	default:
-		return new NACT_Sys3(crc32_a, crc32_b, config);
+		return new NACT_Sys3(config, game_id);
 	}
 }

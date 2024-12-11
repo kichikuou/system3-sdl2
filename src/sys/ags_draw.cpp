@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <string.h>
 #include "dri.h"
-#include "crc32.h"
+#include "game_id.h"
 
 void AGS::load_cg(int page, int transparent)
 {
@@ -24,9 +24,9 @@ void AGS::load_cg(int page, int transparent)
 	std::vector<uint8_t> data = acg.load(page);
 	if (data.empty())
 		return;
-	switch (nact->sys_ver) {
+	switch (game_id.sys_ver) {
 	case 1:
-		switch (nact->crc32_a) {
+		switch (game_id.crc32_a) {
 		case CRC32_BUNKASAI:
 		case CRC32_GAKUEN:
 		case CRC32_GAKUEN_ENG:
@@ -46,13 +46,13 @@ void AGS::load_cg(int page, int transparent)
 		}
 		break;
 	case 2:
-		if(nact->crc32_a == CRC32_AYUMI_PROTO) {
+		if (game_id.crc32_a == CRC32_AYUMI_PROTO) {
 			// あゆみちゃん物語 PROTO
 			load_gl3(data.data(), page, transparent);
-		} else if(nact->crc32_a == CRC32_AYUMI_FD || nact->crc32_a == CRC32_AYUMI_HINT) {
+		} else if (game_id.crc32_a == CRC32_AYUMI_FD || game_id.crc32_a == CRC32_AYUMI_HINT) {
 			// あゆみちゃん物語
 			load_vsp(data.data(), page, transparent);
-		} else if(nact->crc32_a == CRC32_SDPS) {
+		} else if (game_id.crc32_a == CRC32_SDPS) {
 			// Super D.P.S
 			load_pms(data.data(), page, transparent);
 		} else {

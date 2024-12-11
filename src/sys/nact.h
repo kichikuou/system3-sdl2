@@ -14,6 +14,7 @@
 #include "../common.h"
 #include "config.h"
 #include "dri.h"
+#include "game_id.h"
 #include "scenario.h"
 
 #define RND var[ 0]
@@ -87,11 +88,6 @@ class MAKO;
 class MsgSkip;
 class Encoding;
 
-enum Language {
-	JAPANESE = 0,
-	ENGLISH = 1,
-};
-
 // special codes for NACT::exit_code
 const int NACT_HALT = -1;
 const int NACT_RESTART = -2;
@@ -99,8 +95,8 @@ const int NACT_RESTART = -2;
 class NACT
 {
 public:
-	static NACT* create(const Config& config);
-	NACT(int sys_ver, uint32 crc32_a, uint32 crc32_b, const Config& config);
+	static NACT* create(const Config& config, const GameId& game_id);
+	NACT(const Config& config, const GameId& game_id);
 	virtual ~NACT();
 
 protected:
@@ -217,8 +213,6 @@ protected:
 
 	int mouse_x = 0, mouse_y = 0;
 
-	static uint32 calc_crc32(const char* file_name, const std::string& game_id);
-
 	// Y27 ダイアログ
 	void text_dialog();
 
@@ -239,20 +233,13 @@ public:
 
 	void select_cursor();
 
-	const char* get_game_id();
-	static const int get_sys_ver(uint32 crc32_a, uint32 crc32_b);
-	const char* get_title();
-	Language get_language();
-	const char* get_encoding_name();
 	void text_wait();
 	void set_skip_menu_state(bool enabled, bool checked);
 
 	bool text_wait_enb;	// テキスト表示のウェイト有効／無効
 	bool mouse_move_enabled = true;
-	int sys_ver;
-	uint32 crc32_a;		// ADISK
-	uint32 crc32_b;		// BDISK for D.P.S -SG- and Super D.P.S
 	const Config& config;
+	const GameId& game_id;
 	std::unique_ptr<Encoding> encoding;
 	Strings strings;
 
@@ -272,7 +259,7 @@ private:
 
 class NACT_Sys1 final : public NACT {
 public:
-	NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const Config& config);
+	NACT_Sys1(const Config& config, const GameId& game_id);
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
@@ -319,7 +306,7 @@ private:
 
 class NACT_Sys2 final : public NACT {
 public:
-	NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const Config& config);
+	NACT_Sys2(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;
@@ -360,7 +347,7 @@ protected:
 
 class NACT_Sys3 final : public NACT {
 public:
-	NACT_Sys3(uint32 crc32_a, uint32 crc32_b, const Config& config);
+	NACT_Sys3(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
 protected:
 	void cmd_calc() override;
 	void cmd_branch() override;

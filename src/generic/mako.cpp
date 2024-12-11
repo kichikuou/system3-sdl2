@@ -32,11 +32,11 @@ void FMHook(void*, Uint8* stream, int len) {
 
 } // namespace
 
-MAKO::MAKO(NACT* parent, const Config& config) :
+MAKO::MAKO(const Config& config, const GameId& game_id) :
 	use_fm(config.use_fm),
 	current_music(0),
 	next_loop(0),
-	nact(parent)
+	game_id(game_id)
 {
 	int mix_init_flags = 0;
 
@@ -130,7 +130,7 @@ void MAKO::play_music(int page)
 		SDL_UnlockMutex(fm_mutex);
 		Mix_HookMusic(&FMHook, this);
 	} else if (midi->is_available()) {
-		if (!midi->play(nact, amus, mda, page, next_loop))
+		if (!midi->play(game_id, amus, mda, page, next_loop))
 			return;
 	}
 

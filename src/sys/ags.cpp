@@ -6,7 +6,7 @@
 
 #include "ags.h"
 #include <string.h>
-#include "crc32.h"
+#include "game_id.h"
 #include "../config.h"
 #include "../fileio.h"
 
@@ -58,10 +58,10 @@ SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int heig
 
 } // namespace
 
-AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
+AGS::AGS(NACT* parent, const Config& config) : nact(parent), game_id(parent->game_id), dirty(false)
 {
 	// 画面サイズ
-	if (nact->crc32_a == CRC32_GAKUEN || nact->crc32_a == CRC32_GAKUEN_ENG) {
+	if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG) {
 		window_width = 582;
 		screen_width = 512;
 		window_height = screen_height = 424;
@@ -178,7 +178,7 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	program_palette[0x0d] = SETPALETTE16(0x0, 0xf, 0xf);
 	program_palette[0x0e] = SETPALETTE16(0xf, 0xf, 0x0);
 	program_palette[0x0f] = SETPALETTE16(0xf, 0xf, 0xf);
-	if (nact->sys_ver == 1) {
+	if (game_id.sys_ver == 1) {
 		program_palette[0x10] = SETPALETTE16(0x0, 0x0, 0x0);
 		program_palette[0x11] = SETPALETTE16(0x0, 0x0, 0xf);
 		program_palette[0x12] = SETPALETTE16(0xf, 0x0, 0x0);
@@ -228,7 +228,7 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	// Bコマンド
 	for(int i = 0; i < 10; i++) {
 		// ウィンドウの初期位置はシステムによって異なる
-		switch (nact->crc32_a) {
+		switch (game_id.crc32_a) {
 		case CRC32_BUNKASAI:
 			SET_TEXT(i, 24, 304, 616, 384, false);
 			SET_MENU(i, 440, 18, 620, 178, true);
@@ -312,10 +312,10 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 //		SET_BOX(i, 0, 0, 0, 631, 399);
 		SET_BOX(i, 0, 0, 0, 639, 399);
 	}
-	if (nact->sys_ver == 2) {
-		if(nact->crc32_a == CRC32_SDPS && (nact->crc32_b == CRC32_SDPS_TONO || nact->crc32_b == CRC32_SDPS_KAIZOKU)) {
+	if (game_id.sys_ver == 2) {
+		if (game_id.crc32_a == CRC32_SDPS && (game_id.crc32_b == CRC32_SDPS_TONO || game_id.crc32_b == CRC32_SDPS_KAIZOKU)) {
 			SET_BOX(0, 0, 40, 8, 598, 271);
-		} else if(nact->crc32_a == CRC32_PROSTUDENTG_FD) {
+		} else if (game_id.crc32_a == CRC32_PROSTUDENTG_FD) {
 			SET_BOX(0, 0, 64, 13, 407, 289);
 			SET_BOX(1, 0, 24, 298, 111, 390);
 			SET_BOX(2, 0, 0, 0, 639, 307);
@@ -338,7 +338,7 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	text_font_maxsize = 0;
 	text_space = 2;
 	text_font_size = 16;
-	if (nact->sys_ver == 1) {
+	if (game_id.sys_ver == 1) {
 		text_font_color = 15 + 16;
 		text_frame_color = 15 + 16;
 		text_back_color = 0 + 16;
@@ -352,7 +352,7 @@ AGS::AGS(NACT* parent, const Config& config) : nact(parent), dirty(false)
 	menu_dest_x = 2;
 	menu_dest_y = 0;
 	menu_font_size = 16;
-	if (nact->sys_ver == 1) {
+	if (game_id.sys_ver == 1) {
 		menu_font_color = 15 + 16;
 		menu_frame_color = 15 + 16;
 		menu_back_color = 0 + 16;
@@ -430,7 +430,7 @@ AGS::~AGS()
 void AGS::set_cg_file(const char *file_name)
 {
 	bmp_prefix = NULL;
-	if (nact->sys_ver == 3) {
+	if (game_id.sys_ver == 3) {
 		// あゆみちゃん物語 フルカラー実写版
 		if (!strcmp(file_name, "CGA000.BMP")) {
 			bmp_prefix = "CGA";
@@ -505,7 +505,7 @@ void AGS::flush_screen(bool update)
 			uint32* src = vram[0][y];
 			uint32* dest = surface_line(hBmpDest, y);
 			for(int x = 0; x < screen_width; x++) {
-				if (nact->sys_ver == 3 && src[x] & 0x80000000) {
+				if (game_id.sys_ver == 3 && src[x] & 0x80000000) {
 					// あゆみちゃん物語 フルカラー実写版
 					dest[x] = src[x] & 0xffffff;
 				} else {
@@ -524,7 +524,7 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 		uint32* dest = surface_line(hBmpDest, y);
 		for(int x = sx; x < (sx + width) && x < 640; x++) {
 			uint32 a=src[x];
-			if (nact->sys_ver == 3 && src[x] & 0x80000000) {
+			if (game_id.sys_ver == 3 && src[x] & 0x80000000) {
 				// あゆみちゃん物語 フルカラー実写版
 				dest[x] = src[x] & 0xffffff;
 			} else {
@@ -611,9 +611,9 @@ void AGS::save_screenshot(const char* path)
 }
 
 int AGS::calculate_menu_max(int window) {
-	if (nact->crc32_a == CRC32_INTRUDER)
+	if (game_id.crc32_a == CRC32_INTRUDER)
 		return 6;
-	if (nact->crc32_a == CRC32_GAKUEN || nact->crc32_a == CRC32_GAKUEN_ENG)
+	if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG)
 		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (menu_font_size + 4);
 	return 11;
 }

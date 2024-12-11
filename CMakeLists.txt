@@ -167,9 +167,9 @@ target_sources(system3 PRIVATE
   src/sys/ags_vsp2l.cpp
   src/sys/ags_window.cpp
   src/sys/dri.cpp
+  src/sys/game_id.cpp
   src/sys/msgskip.cpp
   src/sys/nact.cpp
-  src/sys/nact_crc32.cpp
   src/sys/nact_input.cpp
   src/sys/nact_sys1.cpp
   src/sys/nact_sys2.cpp

@@ -1,12 +1,5 @@
-/*
-	ALICE SOFT SYSTEM 3 for Win32
-
-	[ NACT - crc32 ]
-*/
-
-#include "nact.h"
 #include <string.h>
-#include "crc32.h"
+#include "game_id.h"
 #include "../fileio.h"
 #include "config.h"
 
@@ -92,17 +85,8 @@ const CRCTable* lookup(uint32 crc32_a, uint32 crc32_b)
 	return NULL;
 }
 
-} // namespace
-
-uint32 NACT::calc_crc32(const char* file_name, const std::string& game_id)
+uint32 calc_crc32(const char* file_name)
 {
-	if (!game_id.empty()) {
-		for (const CRCTable* t = crc_table; t->id; t++) {
-			if (t->id == game_id)
-				return file_name[0] == 'A' ? t->crc32_a : t->crc32_b;
-		}
-	}
-
 	uint32 crc = 0;
 	auto fio = FILEIO::open(file_name, FILEIO_READ_BINARY);
 
@@ -130,41 +114,33 @@ uint32 NACT::calc_crc32(const char* file_name, const std::string& game_id)
 	return crc;
 }
 
-const char* NACT::get_game_id()
-{
-	if (const CRCTable* entry = lookup(crc32_a, crc32_b))
-		return entry->id;
-	return NULL;
-}
+} // namespace
 
-const int NACT::get_sys_ver(uint32 crc32_a, uint32 crc32_b)
+GameId::GameId(const Config& config)
+	: crc32_a(0), crc32_b(0), name(NULL), sys_ver(3), title(NULL), language(JAPANESE), encoding("Shift_JIS")
 {
-	if (const CRCTable* entry = lookup(crc32_a, crc32_b))
-		return entry->sys_ver;
-	return 3;
-}
-
-const char* NACT::get_title()
-{
+	if (!config.game_id.empty()) {
+		for (const CRCTable* t = crc_table; t->id; t++) {
+			if (t->id == config.game_id) {
+				crc32_a = t->crc32_a;
+				crc32_b = t->crc32_b;
+				break;
+			}
+		}
+	} else {
+		crc32_a = calc_crc32("ADISK.DAT");
+		crc32_b = calc_crc32("BDISK.DAT");
+	}
+	const CRCTable* entry = lookup(crc32_a, crc32_b);
+	if (entry) {
+		name = entry->id;
+		sys_ver = entry->sys_ver;
+		title = entry->title;
+		language = entry->language;
+		// TODO: Determine encoding from crc32
+	}
 	if (!config.title.empty())
-		return config.title.c_str();
-	if (const CRCTable* entry = lookup(crc32_a, crc32_b))
-		return entry->title;
-	return NULL;
-}
-
-Language NACT::get_language()
-{
-	if (const CRCTable* entry = lookup(crc32_a, crc32_b))
-		return entry->language;
-	return JAPANESE;
-}
-
-const char* NACT::get_encoding_name()
-{
+		title = config.title.c_str();
 	if (!config.encoding.empty())
-		return config.encoding.c_str();
-
-	// TODO: Determine encoding from crc32
-	return "Shift_JIS";
+		encoding = config.encoding.c_str();
 }

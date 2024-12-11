@@ -17,7 +17,7 @@
 #include "fm/mako_ymfm.h"
 #include "../config.h"
 #include "dri.h"
-#include "crc32.h"
+#include "game_id.h"
 
 extern SDL_Window* g_window;
 
@@ -50,7 +50,7 @@ const char* mci_geterror(DWORD err)
 
 class MCIThread {
 public:
-	MCIThread(NACT* nact, HWND hwnd_notify) : hwnd_notify(hwnd_notify) {
+	MCIThread(HWND hwnd_notify) : hwnd_notify(hwnd_notify) {
 		if (!_beginthreadex(NULL, 0, &MCIThread::run, this, 0, &thread_id))
 			sys_error("Cannot create thread: %s", strerror(errno));
 	}
@@ -200,11 +200,11 @@ void audio_callback(void*, Uint8* stream, int len) {
 
 } // namespace
 
-MAKO::MAKO(NACT* parent, const Config& config) :
+MAKO::MAKO(const Config& config, const GameId& game_id) :
 	use_fm(config.use_fm),
 	current_music(0),
 	next_loop(0),
-	nact(parent)
+	game_id(game_id)
 {
 	if (!config.playlist.empty())
 		load_playlist(config.playlist.c_str());
@@ -236,7 +236,7 @@ MAKO::MAKO(NACT* parent, const Config& config) :
 	SDL_VERSION(&info.version);
 	if (!SDL_GetWindowWMInfo(g_window, &info))
 		sys_error("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
-	mci_thread = new MCIThread(parent, info.info.win.window);
+	mci_thread = new MCIThread(info.info.win.window);
 
 	midi = std::make_unique<MAKOMidi>(config.midi_device);
 	if (!midi->is_available())
@@ -299,7 +299,7 @@ void MAKO::play_music(int page)
 		SDL_UnlockMutex(fm_mutex);
 		SDL_PauseAudio(0);
 	} else if (midi->is_available()) {
-		if (!midi->play(nact, amus, mda, page, next_loop))
+		if (!midi->play(game_id, amus, mda, page, next_loop))
 			return;
 	}
 	current_music = page;
@@ -360,7 +360,7 @@ void MAKO::select_sound(BGMDevice dev)
 	case BGM_CD:
 		const int8* tracks;
 
-		switch (nact->crc32_a) {
+		switch (game_id.crc32_a) {
 		case CRC32_RANCE41:
 		case CRC32_RANCE41_ENG:
 			tracks = RANCE41_tracks;

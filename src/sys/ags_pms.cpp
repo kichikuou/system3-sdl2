@@ -5,7 +5,7 @@
 */
 
 #include "ags.h"
-#include "crc32.h"
+#include "game_id.h"
 #include <string.h>
 
 void AGS::load_pms(uint8* data, int page, int transparent)
@@ -41,11 +41,11 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 				tmp_palette[i * 16 + j] = SETPALETTE256(r, g, b);
 			}
 		}
-		if(nact->crc32_a == CRC32_RANCE41 ||
-		   nact->crc32_a == CRC32_RANCE41_ENG ||
-		   nact->crc32_a == CRC32_RANCE42 ||
-		   nact->crc32_a == CRC32_RANCE42_ENG ||
-		   nact->crc32_a == CRC32_HASHIRIONNA2) {
+		if (game_id.crc32_a == CRC32_RANCE41 ||
+		    game_id.crc32_a == CRC32_RANCE41_ENG ||
+		    game_id.crc32_a == CRC32_RANCE42 ||
+		    game_id.crc32_a == CRC32_RANCE42_ENG ||
+		    game_id.crc32_a == CRC32_HASHIRIONNA2) {
 			// 上下16色は取得しない
 			for(int i = 1; i < 15; i++) {
 				for(int j = 0; j < 16; j++) {
@@ -54,7 +54,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 					}
 				}
 			}
-		} else if(nact->crc32_a == CRC32_MUGENHOUYOU && transparent != -1) {
+		} else if (game_id.crc32_a == CRC32_MUGENHOUYOU && transparent != -1) {
 			// Uコマンドでは上下32色は取得しない
 			for(int i = 2; i < 14; i++) {
 				for(int j = 0; j < 16; j++) {
@@ -75,13 +75,13 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 	}
 
 	// パレット展開
-	if (nact->sys_ver == 3) {
-		if((extract_palette && extract_palette_cg[page]) || nact->crc32_a == CRC32_FUNNYBEE_CD) {
-			if(nact->crc32_a == CRC32_RANCE41 ||
-			   nact->crc32_a == CRC32_RANCE41_ENG ||
-			   nact->crc32_a == CRC32_RANCE42 ||
-			   nact->crc32_a == CRC32_RANCE42_ENG ||
-			   nact->crc32_a == CRC32_HASHIRIONNA2) {
+	if (game_id.sys_ver == 3) {
+		if ((extract_palette && extract_palette_cg[page]) || game_id.crc32_a == CRC32_FUNNYBEE_CD) {
+			if (game_id.crc32_a == CRC32_RANCE41 ||
+			    game_id.crc32_a == CRC32_RANCE41_ENG ||
+			    game_id.crc32_a == CRC32_RANCE42 ||
+			    game_id.crc32_a == CRC32_RANCE42_ENG ||
+			    game_id.crc32_a == CRC32_HASHIRIONNA2) {
 				// 上下16色は展開しない
 				for(int i = 1; i < 15; i++) {
 					for(int j = 0; j < 16; j++) {
@@ -90,7 +90,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 						}
 					}
 				}
-			} else if(nact->crc32_a == CRC32_MUGENHOUYOU && transparent != -1) {
+			} else if (game_id.crc32_a == CRC32_MUGENHOUYOU && transparent != -1) {
 				// Uコマンドでは上下32色は展開しない
 				for(int i = 2; i < 14; i++) {
 					for(int j = 0; j < 16; j++) {

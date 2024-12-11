@@ -10,9 +10,9 @@
 #include <RtMidi.h>
 
 #include "mako_midi.h"
-#include "nact.h"
+#include "game_id.h"
 #include "dri.h"
-#include "crc32.h"
+#include "game_id.h"
 
 namespace {
 
@@ -93,7 +93,7 @@ void stop_midi()
 
 class Playback {
 public:
-	static std::unique_ptr<Playback> create(NACT* nact, Dri& amus, Dri& mda, int page, int loop, int seq);
+	static std::unique_ptr<Playback> create(const GameId& game_id, Dri& amus, Dri& mda, int page, int loop, int seq);
 	Playback(uint32_t crc32_a, int loop, int seq) : crc32_a(crc32_a), loop_(loop), seq_(seq) {}
 	bool load_mml(const std::vector<uint8_t>& data);
 	void load_mda(const std::vector<uint8_t>& data);
@@ -379,9 +379,9 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 }
 
 //static
-std::unique_ptr<Playback> Playback::create(NACT* nact, Dri& amus, Dri& mda, int page, int loop, int seq)
+std::unique_ptr<Playback> Playback::create(const GameId& game_id, Dri& amus, Dri& mda, int page, int loop, int seq)
 {
-	auto playback = std::make_unique<Playback>(nact->crc32_a, loop, seq);
+	auto playback = std::make_unique<Playback>(game_id.crc32_a, loop, seq);
 
 	std::vector<uint8_t> data = amus.load(page);
 	if (data.empty())
@@ -392,7 +392,7 @@ std::unique_ptr<Playback> Playback::create(NACT* nact, Dri& amus, Dri& mda, int 
 	// Load MDA
 	data = mda.load(page);
 	if (data.empty())
-		data = Dri::load_mda(nact->crc32_a, nact->crc32_b, page);
+		data = Dri::load_mda(game_id.crc32_a, game_id.crc32_b, page);
 	playback->load_mda(data);
 
 	return playback;
@@ -660,10 +660,10 @@ bool MAKOMidi::is_available()
 	return !!midiout;
 }
 
-bool MAKOMidi::play(NACT* nact, Dri& amus, Dri& mda, int page, int loop)
+bool MAKOMidi::play(const GameId& game_id, Dri& amus, Dri& mda, int page, int loop)
 {
 	int seq = ++next_seq;
-	auto playback = Playback::create(nact, amus, mda, page, loop, seq);
+	auto playback = Playback::create(game_id, amus, mda, page, loop, seq);
 	if (!playback)
 		return false;
 	SDL_AtomicSet(&current_seq, seq);

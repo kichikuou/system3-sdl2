@@ -6,7 +6,7 @@
 #include <SDL.h>
 #include "../common.h"
 
-class NACT;
+struct GameId;
 class Dri;
 
 #ifdef USE_MIDI
@@ -16,7 +16,7 @@ public:
 	explicit MAKOMidi(int device);
 	~MAKOMidi();
 	bool is_available();
-	bool play(NACT* nact, Dri& amus, Dri& mda, int page, int loop);
+	bool play(const GameId& game_id, Dri& amus, Dri& mda, int page, int loop);
 	void stop();
 	bool is_playing();
 	void get_mark(int* mark, int* loop);
@@ -41,7 +41,7 @@ class MAKOMidi {
 public:
 	explicit MAKOMidi(int device) {}
 	bool is_available() { return false; }
-	bool play(NACT* nact, Dri& amus, Dri& mda, int page, int loop) { return false; }
+	bool play(const GameId& game_id, Dri& amus, Dri& mda, int page, int loop) { return false; }
 	void stop() {}
 	bool is_playing() { return false; }
 	void get_mark(int* mark, int* loop) { *mark = *loop = 0; }

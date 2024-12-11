@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
 	romfsInit();
 #endif
 	Config config(argc, argv);
+	GameId game_id(config);
 
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
@@ -52,15 +53,14 @@ int main(int argc, char *argv[])
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 
 	// system3 初期化
-	g_nact = NACT::create(config);
+	g_nact = NACT::create(config, game_id);
 
 	if (!config.save_dir.empty()) {
 		std::string path = config.save_dir;
 		if (path[path.size() - 1] == '@') {
 			path.pop_back();
-			const char* gid = g_nact->get_game_id();
-			if (gid) {
-				path += gid;
+			if (game_id.name) {
+				path += game_id.name;
 #ifdef WIN32
 				mkdir(path.c_str());
 #else
@@ -71,17 +71,16 @@ int main(int argc, char *argv[])
 		FILEIO::set_savedir(path);
 	}
 
-	const char* title = g_nact->get_title();
-	if (title) {
+	if (game_id.title) {
 		char buf[128];
-		snprintf(buf, 128, "System3-sdl2 " SYSTEM3_VERSION ": %s", title);
+		snprintf(buf, 128, "System3-sdl2 " SYSTEM3_VERSION ": %s", game_id.title);
 #ifdef __EMSCRIPTEN__
 		EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, buf);
 #else
 		SDL_SetWindowTitle(g_window, buf);
 #endif
 	} else {
-		WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", g_nact->crc32_a, g_nact->crc32_b);
+		WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", game_id.crc32_a, game_id.crc32_b);
 		SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_WARNING, "system3",
 			"Unable to determine game ID.\n"
@@ -105,7 +104,7 @@ int main(int argc, char *argv[])
 		exit_code = g_nact->mainloop();
 		delete g_nact;
 		if (exit_code == NACT_RESTART)
-			g_nact = NACT::create(config);
+			g_nact = NACT::create(config, game_id);
 	}
 
 	SDL_DestroyRenderer(g_renderer);

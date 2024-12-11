@@ -10,7 +10,7 @@
 #include "ags.h"
 #include "mako.h"
 #include "msgskip.h"
-#include "crc32.h"
+#include "game_id.h"
 #include "../fileio.h"
 #include "encoding.h"
 #include "texthook.h"
@@ -56,11 +56,6 @@
 		} \
 		sys_sleep(16); \
 	} \
-}
-
-NACT_Sys2::NACT_Sys2(uint32 crc32_a, uint32 crc32_b, const Config& config)
-	: NACT(2, crc32_a, crc32_b, config)
-{
 }
 
 void NACT_Sys2::cmd_calc()
@@ -199,7 +194,7 @@ void NACT_Sys2::cmd_branch()
 				cali();
 				cali();
 			} else if(cmd == 'U') {
-				if(crc32_a == CRC32_YAKATA2) {
+				if (game_id.crc32_a == CRC32_YAKATA2) {
 					cali();
 					cali();
 				} else {
@@ -494,7 +489,7 @@ void NACT_Sys2::cmd_b()
 	output_console("\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
 
 	if(cmd == 1) {
-		if(crc32_a == CRC32_AYUMI_FD || crc32_a == CRC32_AYUMI_HINT || crc32_a == CRC32_DRSTOP) {
+		if (game_id.crc32_a == CRC32_AYUMI_FD || game_id.crc32_a == CRC32_AYUMI_HINT || game_id.crc32_a == CRC32_DRSTOP) {
 			p5 = 1;
 		}
 		ags->menu_w[index - 1].sx = p1 * 8;
@@ -509,10 +504,10 @@ void NACT_Sys2::cmd_b()
 			ags->menu_w[index - 1].screen = NULL;
 		}
 	} else if(cmd == 2) {
-		if(crc32_a == CRC32_AYUMI_FD || crc32_a == CRC32_AYUMI_HINT || crc32_a == CRC32_DRSTOP) {
+		if (game_id.crc32_a == CRC32_AYUMI_FD || game_id.crc32_a == CRC32_AYUMI_HINT || game_id.crc32_a == CRC32_DRSTOP) {
 			p1 = 1;
 		}
-//		if(crc32_a == CRC32_PROSTUDENTG_FD) {
+//		if (game_id.crc32_a == CRC32_PROSTUDENTG_FD) {
 //			ags->menu_w[index - 1].frame = (index == 1 || index == 3) ? true : false;
 //		} else
 		ags->menu_w[index - 1].frame = p1 ? true : false;
@@ -535,16 +530,16 @@ void NACT_Sys2::cmd_b()
 			ags->text_w[index - 1].window = NULL;
 		}
 	} else if(cmd == 4) {
-		if(crc32_a == CRC32_AYUMI_FD || crc32_a == CRC32_AYUMI_HINT) {
+		if (game_id.crc32_a == CRC32_AYUMI_FD || game_id.crc32_a == CRC32_AYUMI_HINT) {
 			p1 = 1;
 			//p5 ? 0 : 1; // 逆？
 			p5 = 0;
-		} else if(crc32_a == CRC32_DRSTOP) {
+		} else if (game_id.crc32_a == CRC32_DRSTOP) {
 			p1 = 1;
 		}
 		if(p5 == 0) {
 			// ウィンドウ退避
-//			if(crc32_a == CRC32_PROSTUDENTG_FD) {
+//			if (game_id.crc32_a == CRC32_PROSTUDENTG_FD) {
 //				ags->text_w[index - 1].frame = (index == 1 || index == 3) ? true : false;
 //			} else
 			ags->text_w[index - 1].frame = p1 ? true : false;
@@ -593,18 +588,18 @@ void NACT_Sys2::cmd_g()
 
 	output_console("\nG %d:", page);
 
-	if(crc32_a == CRC32_SDPS && (crc32_b == CRC32_SDPS_TONO || crc32_b == CRC32_SDPS_KAIZOKU)) {
+	if (game_id.crc32_a == CRC32_SDPS && (game_id.crc32_b == CRC32_SDPS_TONO || game_id.crc32_b == CRC32_SDPS_KAIZOKU)) {
 		if(20 <= page && page <= 100) {
 			page--;
 		}
 	}
 	ags->load_cg(page, -1);
 
-	if(crc32_a == CRC32_DALK_HINT) {
+	if (game_id.crc32_a == CRC32_DALK_HINT) {
 		if(page == 3) {
 			WAIT(2000)
 		}
-	} else if(crc32_a == CRC32_RANCE3_HINT) {
+	} else if (game_id.crc32_a == CRC32_RANCE3_HINT) {
 		if(page == 25) {
 			WAIT(2000)
 		}
@@ -825,7 +820,7 @@ void NACT_Sys2::cmd_p()
 {
 	int param = sco.getd();
 
-	if(crc32_a != CRC32_YAKATA2 && crc32_a != CRC32_DALK_HINT && crc32_a != CRC32_RANCE3_HINT) {
+	if (game_id.crc32_a != CRC32_YAKATA2 && game_id.crc32_a != CRC32_DALK_HINT && game_id.crc32_a != CRC32_RANCE3_HINT) {
 		ags->text_font_color = (uint8)((param & 0x7) + 16);
 	}
 
@@ -966,7 +961,7 @@ void NACT_Sys2::cmd_u()
 {
 	int page, transparent;
 
-	if(crc32_a == CRC32_YAKATA2) {
+	if (game_id.crc32_a == CRC32_YAKATA2) {
 		page = cali();
 		transparent = cali();
 	} else {
@@ -1087,7 +1082,7 @@ void NACT_Sys2::cmd_y()
 			RND = (param == 0 || param == 1) ? 0 : random(param);
 			break;
 		case 7:
-			if(!(crc32_a == CRC32_SDPS && crc32_b == CRC32_SDPS_MARIA)) {
+			if (!(game_id.crc32_a == CRC32_SDPS && game_id.crc32_b == CRC32_SDPS_MARIA)) {
 				ags->draw_box(param);
 			}
 			break;

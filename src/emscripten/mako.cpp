@@ -20,11 +20,11 @@ EM_ASYNC_JS(int, muspcm_load_data, (uint8_t *buf, uint32_t len), {
 
 } // namespace
 
-MAKO::MAKO(NACT* parent, const Config& config) :
+MAKO::MAKO(const Config& config, const GameId& game_id) :
 	use_fm(true),
 	current_music(0),
 	next_loop(0),
-	nact(parent)
+	game_id(game_id)
 {
 	g_mako = this;
 	amus.open("AMUS.DAT");

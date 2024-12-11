@@ -7,7 +7,7 @@
 #include "dri.h"
 #include <memory>
 #include <string.h>
-#include "crc32.h"
+#include "game_id.h"
 #include "../fileio.h"
 
 void Dri::open(const char* file_name)

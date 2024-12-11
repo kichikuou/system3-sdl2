@@ -10,15 +10,10 @@
 #include "ags.h"
 #include "mako.h"
 #include "msgskip.h"
-#include "crc32.h"
+#include "game_id.h"
 #include "../fileio.h"
 #include "encoding.h"
 #include "texthook.h"
-
-NACT_Sys3::NACT_Sys3(uint32 crc32_a, uint32 crc32_b, const Config& config)
-	: NACT(3, crc32_a, crc32_b, config)
-{
-}
 
 void NACT_Sys3::cmd_calc()
 {
@@ -272,7 +267,7 @@ void NACT_Sys3::cmd_b()
 
 	if(cmd == 1) {
 		// あゆみちゃん物語
-		if(crc32_a == CRC32_AYUMI_CD || crc32_a == CRC32_AYUMI_JISSHA_256 || crc32_a == CRC32_AYUMI_JISSHA_FULL) {
+		if (game_id.crc32_a == CRC32_AYUMI_CD || game_id.crc32_a == CRC32_AYUMI_JISSHA_256 || game_id.crc32_a == CRC32_AYUMI_JISSHA_FULL) {
 			p5 = 1;
 		}
 		ags->menu_w[index - 1].sx = column ? p1 * 8 : p1 & 0xfff8;
@@ -309,7 +304,7 @@ void NACT_Sys3::cmd_b()
 	} else if(cmd == 4) {
 		if(p5 == 0) {
 			// ウィンドウ退避
-			if(crc32_a == CRC32_PROSTUDENTG_CD && p4) {
+			if (game_id.crc32_a == CRC32_PROSTUDENTG_CD && p4) {
 				// prostudent G オープニング画面化け対策
 				if(ags->text_w[index - 1].window) {
 					free(ags->text_w[index - 1].window);
@@ -426,7 +421,7 @@ void NACT_Sys3::cmd_i()
 
 	// X方向はカラム単位で切り捨て
 	sx = column ? sx * 8 : sx & 0xfff8;
-	ex = column ? ex * 8 - 1 : (crc32_a == CRC32_NINGYO) ? (ex & 0xfff8) + 7 : (ex & 0xfff8) - 1;
+	ex = column ? ex * 8 - 1 : (game_id.crc32_a == CRC32_NINGYO) ? (ex & 0xfff8) + 7 : (ex & 0xfff8) - 1;
 	dx = column ? dx * 8 : dx & 0xfff8;
 	ags->copy(sx, sy, ex, ey, dx, dy);
 }
@@ -457,7 +452,7 @@ void NACT_Sys3::cmd_k()
 	}
 
 	if (cmd == 3) {
-		switch (crc32_a) {
+		switch (game_id.crc32_a) {
 		case CRC32_YAKATA3_CD:
 			if (k3_hack(yakata3cd_k3_hack_table))
 				return;
@@ -923,8 +918,8 @@ void NACT_Sys3::cmd_u()
 
 	output_console("\nU %d,%d:", page, transparent);
 
-	if(crc32_a == CRC32_RANCE41 || crc32_a == CRC32_RANCE41_ENG ||
-	   crc32_a == CRC32_RANCE42 || crc32_a == CRC32_RANCE42_ENG) {
+	if (game_id.crc32_a == CRC32_RANCE41 || game_id.crc32_a == CRC32_RANCE41_ENG ||
+	    game_id.crc32_a == CRC32_RANCE42 || game_id.crc32_a == CRC32_RANCE42_ENG) {
 		transparent = (transparent == 28) ? 12 : transparent;
 	}
 	ags->load_cg(page, transparent);
@@ -1236,7 +1231,7 @@ void NACT_Sys3::cmd_y()
 		case 231:
 			D01 = 640;
 			D02 = (param == 1) ? ags->screen_height : 480;
-			D03 = (crc32_a == CRC32_YAKATA3_FD) ? 16 : 256;
+			D03 = (game_id.crc32_a == CRC32_YAKATA3_FD) ? 16 : 256;
 			break;
 		case 232:
 			if(ags->screen_height != (param ? 480 : 400)) {
@@ -1323,13 +1318,13 @@ void NACT_Sys3::cmd_y()
 			column = param ? false : true;
 			break;
 		case 252:
-			RND = (crc32_a == CRC32_YAKATA3_FD) ? 4 : 8;
+			RND = (game_id.crc32_a == CRC32_YAKATA3_FD) ? 4 : 8;
 			break;
 		case 253:
 			show_push = (param == 0) ? true : false;
 			break;
 		case 254:
-			RND = (crc32_a == CRC32_YAKATA3_CD || crc32_a == CRC32_YAKATA3_FD || crc32_a == CRC32_NINGYO) ? 1 : 0;
+			RND = (game_id.crc32_a == CRC32_YAKATA3_CD || game_id.crc32_a == CRC32_YAKATA3_FD || game_id.crc32_a == CRC32_NINGYO) ? 1 : 0;
 			break;
 		case 255:
 			quit(param == 1 ? NACT_HALT : RND);

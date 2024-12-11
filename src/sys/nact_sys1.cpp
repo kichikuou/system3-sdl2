@@ -15,7 +15,7 @@
 #include "ags.h"
 #include "mako.h"
 #include "msgskip.h"
-#include "crc32.h"
+#include "game_id.h"
 #include "../fileio.h"
 #include "encoding.h"
 #include "texthook.h"
@@ -63,10 +63,10 @@
 	} \
 }
 
-NACT_Sys1::NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const Config& config)
-	: NACT(1, crc32_a, crc32_b, config)
+NACT_Sys1::NACT_Sys1(const Config& config, const GameId& game_id)
+	: NACT(config, game_id)
 {
-	switch (crc32_a) {
+	switch (game_id.crc32_a) {
 	case CRC32_DPS:
 	case CRC32_DPS_SG:
 	//case CRC32_DPS_SG2:
@@ -88,7 +88,7 @@ NACT_Sys1::NACT_Sys1(uint32 crc32_a, uint32 crc32_b, const Config& config)
 
 void NACT_Sys1::opening()
 {
-	switch (crc32_a) {
+	switch (game_id.crc32_a) {
 	case CRC32_CRESCENT:
 		mako->play_music(2);
 		ags->load_cg(1, -1);
@@ -248,7 +248,7 @@ void NACT_Sys1::cmd_set_menu()
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
-		if (crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG)
+		if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG)
 			menu_window = 2;
 
 		output_console("\n$%x,", menu_addr[menu_index - 1]);
@@ -264,7 +264,7 @@ void NACT_Sys1::cmd_open_menu()
 		return;
 	}
 
-	if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+	if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
 		if(!text_refresh) {
 			cmd_a();
 		}
@@ -320,7 +320,7 @@ void NACT_Sys1::cmd_open_verb()
 	// 表示する動詞のチェック
 	int chk[MAX_VERB], page = 0, cnt = 0;
 	
-	if (crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG)
+	if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG)
 		menu_window = 1;
 	int menu_max = ags->calculate_menu_max(menu_window);
 
@@ -538,7 +538,7 @@ void NACT_Sys1::cmd_a()
 	// ウィンドウ更新
 	ags->clear_text_window(text_window, true);
 
-	if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+	if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
 		text_refresh = true;
 	}
 }
@@ -574,16 +574,16 @@ void NACT_Sys1::cmd_g()
 
 	output_console("\nG %d:", page);
 
-	if (crc32_a == CRC32_INTRUDER) {
+	if (game_id.crc32_a == CRC32_INTRUDER) {
 		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
-	} else if (crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG) {
+	} else if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG) {
 		page = (page == 3) ? 94 : page;
 	}
 
 	if (enable_graphics)
 		ags->load_cg(page, -1);
 
-	if(crc32_a == CRC32_INTRUDER) {
+	if (game_id.crc32_a == CRC32_INTRUDER) {
 		if(page == 94) {
 			WAIT(400);
 		}
@@ -876,7 +876,7 @@ void NACT_Sys1::cmd_u()
 
 	output_console("\nU %d,%d:", page, transparent);
 
-	if(crc32_a == CRC32_INTRUDER) {
+	if (game_id.crc32_a == CRC32_INTRUDER) {
 		ags->load_cg(page, 11);
 
 		if(page == 5) {
@@ -917,7 +917,7 @@ void NACT_Sys1::cmd_y()
 
 	output_console("\nY %d,%d:", cmd, param);
 
-	if(crc32_a == CRC32_INTRUDER) {
+	if (game_id.crc32_a == CRC32_INTRUDER) {
 		switch(cmd) {
 			case 0:
 				ags->clear_text_window(text_window, true);
@@ -961,7 +961,7 @@ void NACT_Sys1::cmd_y()
 				quit(NACT_HALT);
 				break;
 		}
-	} else if (crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG) {
+	} else if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG) {
 		switch (cmd) {
 			case 1:
 				RND = (param == 0 || param == 1) ? 0 : random(param);
@@ -1025,11 +1025,11 @@ void NACT_Sys1::cmd_y()
 				}
 				break;
 			case 2:
-				if(crc32_a == CRC32_CRESCENT) {
+				if (game_id.crc32_a == CRC32_CRESCENT) {
 					for(int i = 39; i <= 48; i++) {
 						var[i] = 0;
 					}
-				} else if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+				} else if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
 					for(int i = 0; i <= 20; i++) {
 						var[i] = 0;
 					}
@@ -1046,14 +1046,14 @@ void NACT_Sys1::cmd_y()
 				RND = (param == 0 || param == 1) ? 0 : random(param);
 				break;
 			case 7:
-				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+				if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
 					if(param == 1) {
 						ags->box_fill(0, 40, 8, 598, 270, 0);
 					}
 				}
 				break;
 			case 130:
-				if(crc32_a == CRC32_TENGU) {
+				if (game_id.crc32_a == CRC32_TENGU) {
 					WAIT(2000)
 					ags->load_cg(180, -1);
 
@@ -1090,7 +1090,7 @@ void NACT_Sys1::cmd_y()
 				RND = 0;
 				break;
 			case 255:
-				if(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3) {
+				if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
 					quit(0);
 				} else {
 					quit(NACT_HALT);
@@ -1102,7 +1102,7 @@ void NACT_Sys1::cmd_y()
 
 void NACT_Sys1::cmd_z()
 {
-	if (crc32_a == CRC32_CRESCENT) {
+	if (game_id.crc32_a == CRC32_CRESCENT) {
 		cmd_y();
 		return;
 	}
@@ -1111,7 +1111,7 @@ void NACT_Sys1::cmd_z()
 
 	output_console("\nZ %d,%d:", cmd, param);
 
-	switch (crc32_a) {
+	switch (game_id.crc32_a) {
 	case CRC32_INTRUDER:
 		if(cmd == 1 && 1 <= param && param <= 4) {
 			const char* buf[4] = {
