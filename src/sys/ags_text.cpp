@@ -4,6 +4,7 @@
 	[ AGS - text ]
 */
 
+#include <algorithm>
 #include <string.h>
 #include "ags.h"
 #include "nact.h"
@@ -440,7 +441,7 @@ void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* fon
 	SDL_Surface* fs = TTF_RenderGlyph_Solid(font, code, white);
 
 	// パターン出力
-	for(int y = 0; y < fs->h && dest_y + y < 480; y++) {
+	for (int y = std::max(0, -dest_y); y < fs->h && dest_y + y < 480; y++) {
 		uint8 *pattern = (uint8*)surface_line(fs, y);	// FIXME: do not assume 8bpp
 		for(int x = 0; x < fs->w && dest_x + x < 640; x++) {
 			if(pattern[x] != 0) {
@@ -475,7 +476,7 @@ void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF
 	SDL_Surface* fs = TTF_RenderGlyph_Shaded(font, code, white, black);
 
 	// パターン出力
-	for(int y = 0; y < fs->h && dest_y + y < 480; y++) {
+	for (int y = std::max(0, -dest_y); y < fs->h && dest_y + y < 480; y++) {
 		uint8 *pattern = (uint8*)surface_line(fs, y);
 		uint32 *dp = &vram[dest][dest_y + y][dest_x];
 		for(int x = 0; x < fs->w && dest_x + x < 640; x++, dp++) {

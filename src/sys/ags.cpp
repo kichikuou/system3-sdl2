@@ -520,10 +520,15 @@ void AGS::flush_screen(bool update)
 
 void AGS::draw_screen(int sx, int sy, int width, int height)
 {
-	for(int y = sy; y < (sy + height) && y < 480; y++) {
+	SDL_Rect rect = {sx, sy, width, height};
+	SDL_Rect screen = {0, 0, screen_width, screen_height};
+	SDL_Rect clip;
+	SDL_IntersectRect(&rect, &screen, &clip);
+
+	for (int y = clip.y; y < clip.y + clip.h; y++) {
 		uint32* src = vram[0][y];
 		uint32* dest = surface_line(hBmpDest, y);
-		for(int x = sx; x < (sx + width) && x < 640; x++) {
+		for(int x = clip.x; x < clip.x + clip.w; x++) {
 			uint32 a=src[x];
 			if (game_id.sys_ver == 3 && src[x] & 0x80000000) {
 				// あゆみちゃん物語 フルカラー実写版
@@ -533,7 +538,7 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 			}
 		}
 	}
-	invalidate_screen(sx, sy, width, height);
+	invalidate_screen(clip.x, clip.y, clip.w, clip.h);
 }
 
 void AGS::invalidate_screen(int sx, int sy, int width, int height)
