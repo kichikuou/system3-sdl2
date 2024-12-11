@@ -88,9 +88,9 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	memset(pcm, 0, sizeof(pcm));
 
 	// 各種クラス生成
-	ags = new AGS(this, config);
+	ags = new AGS(config, game_id);
 	mako = new MAKO(config, game_id);
-	msgskip = new MsgSkip(this);
+	msgskip = new MsgSkip();
 
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
 	for (int i = 0; i < SDL_NumJoysticks(); ++i) {

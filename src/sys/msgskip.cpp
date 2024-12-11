@@ -19,9 +19,8 @@ inline uint32 hash(uint32 x, int s) {
 
 } // namespace
 
-MsgSkip::MsgSkip(NACT* nact)
-	: nact(nact),
-	  bloom(new uint8[BLOOM_FILTER_SIZE / 8]),
+MsgSkip::MsgSkip()
+	: bloom(new uint8[BLOOM_FILTER_SIZE / 8]),
 	  dirty(false),
 	  flags(MSGSKIP_STOP_ON_UNSEEN | MSGSKIP_STOP_ON_MENU | MSGSKIP_STOP_ON_CLICK),
 	  activated(false),
@@ -65,7 +64,7 @@ void MsgSkip::activate(bool enable)
 {
 	if (activated != enable) {
 		activated = enable;
-		nact->set_skip_menu_state(enabled, activated);
+		g_nact->set_skip_menu_state(enabled, activated);
 	}
 }
 
@@ -95,7 +94,7 @@ void MsgSkip::on_message(int page, int addr)
 		enabled = true;
 	}
 	if (enabled != old_enabled || activated != old_activated)
-		nact->set_skip_menu_state(enabled, activated);
+		g_nact->set_skip_menu_state(enabled, activated);
 }
 
 void MsgSkip::set_flags(unsigned val, unsigned mask) {

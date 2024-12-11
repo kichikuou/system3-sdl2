@@ -392,4 +392,6 @@ private:
 	bool k3_hack(const K3HackInfo* info_table);
 };
 
+extern std::unique_ptr<NACT> g_nact;
+
 #endif // _NACT_H_

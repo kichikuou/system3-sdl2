@@ -10,7 +10,7 @@
 #include <memory>
 #include <stdio.h>
 #include "../common.h"
-#include "nact.h"
+#include "game_id.h"
 #include "dri.h"
 #include <SDL_ttf.h>
 
@@ -39,7 +39,6 @@ struct Config;
 class AGS
 {
 protected:
-	NACT* nact;
 	const GameId& game_id;
 private:
 	SDL_Texture* sdlTexture;
@@ -90,7 +89,7 @@ private:
 	int fade_color = 0;  // 0: black, 255: white
 
 public:
-	AGS(NACT* parent, const Config& config);
+	AGS(const Config& config, const GameId& game_id);
 	~AGS();
 
 	void update_screen();

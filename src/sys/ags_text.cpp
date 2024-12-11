@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include "ags.h"
+#include "nact.h"
 #include "encoding.h"
 #include "texthook.h"
 
@@ -384,7 +385,7 @@ void AGS::draw_text(const char* string, bool text_wait)
 	dest_y -= (ascent - descent - font_size) / 2;
 
 	while (*string) {
-		int code = nact->encoding->next_codepoint(&string);
+		int code = g_nact->encoding->next_codepoint(&string);
 		if(draw_hankaku) {
 			code = convert_to_hankaku(code);
 		} else {
@@ -398,7 +399,7 @@ void AGS::draw_text(const char* string, bool text_wait)
 			dest_x += font_size;
 		} else {
 			if (!draw_menu)
-				texthook_character(nact->get_scenario_page(), code);
+				texthook_character(g_nact->get_scenario_page(), code);
 
 			if (antialias)
 				draw_char_antialias(screen, dest_x, dest_y, code, font, font_color, antialias_cache);
@@ -419,7 +420,7 @@ void AGS::draw_text(const char* string, bool text_wait)
 				draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, ascent - descent);
 			text_dest_x = dest_x;
 			// Wait
-			nact->text_wait();
+			g_nact->text_wait();
 		}
 	}
 	if (draw_menu)

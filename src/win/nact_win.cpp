@@ -67,72 +67,71 @@ void save_screenshot(AGS* ags)
 		ags->save_screenshot(pathbuf);
 }
 
-INT_PTR CALLBACK TextDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	static NACT* nact;
-	char string[64];
-	wchar_t wstring[64];
-
-	switch(msg) {
-	case WM_CLOSE:
-		EndDialog(hDlg, IDCANCEL);
-		break;
-
-	case WM_INITDIALOG:
-		{
-			// get this pointer
-			nact = (NACT *)lParam;
-			// init dialog
-			swprintf_s(wstring, 64, L"文字列を入力してください（最大%d文字）", nact->tvar_maxlen);
-			SetWindowTextW(GetDlgItem(hDlg, IDC_TEXT), wstring);
-
-			char *oldstr = nact->encoding->toUtf8(nact->tvar[nact->tvar_index - 1]);
-			MultiByteToWideChar(CP_UTF8, 0, oldstr, -1, wstring, 64);
-			SetWindowTextW(GetDlgItem(hDlg, IDC_EDITBOX), wstring);
-			EnableWindow(GetDlgItem(hDlg, IDOK), oldstr[0] != '\0');
-			free(oldstr);
-		}
-		break;
-
-	case WM_COMMAND:
-		switch(LOWORD(wParam)) {
-		case IDC_EDITBOX:
-			{
-				int len = GetWindowTextLengthW(GetDlgItem(hDlg, IDC_EDITBOX));
-				if (len == 0 || len > nact->tvar_maxlen) {
-					EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
-				} else {
-					EnableWindow(GetDlgItem(hDlg, IDOK), TRUE);
-				}
-			}
-			break;
-		case IDOK:
-			{
-				GetDlgItemTextW(hDlg, IDC_EDITBOX, wstring, 64);
-				WideCharToMultiByte(CP_UTF8, 0, wstring, -1, string, sizeof(string), NULL, NULL);
-				char *newstr = nact->encoding->fromUtf8(string);
-				strcpy_s(nact->tvar[nact->tvar_index - 1], 22, newstr);
-				free(newstr);
-				EndDialog(hDlg, IDOK);
-			}
-			break;
-		default:
-			return FALSE;
-		}
-		break;
-
-	default:
-		return FALSE;
-	}
-	return TRUE;
-}
-
 } // namespace
 
 void NACT::text_dialog()
 {
+	auto dialog_proc = [](HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) -> INT_PTR
+#ifdef __MINGW32__
+		CALLBACK  // MinGW requires this but MSVC doesn't like it
+#endif
+	{
+		char string[64];
+		wchar_t wstring[64];
+
+		switch(msg) {
+		case WM_CLOSE:
+			EndDialog(hDlg, IDCANCEL);
+			break;
+
+		case WM_INITDIALOG:
+			{
+				// init dialog
+				swprintf_s(wstring, 64, L"文字列を入力してください（最大%d文字）", g_nact->tvar_maxlen);
+				SetWindowTextW(GetDlgItem(hDlg, IDC_TEXT), wstring);
+
+				char *oldstr = g_nact->encoding->toUtf8(g_nact->tvar[g_nact->tvar_index - 1]);
+				MultiByteToWideChar(CP_UTF8, 0, oldstr, -1, wstring, 64);
+				SetWindowTextW(GetDlgItem(hDlg, IDC_EDITBOX), wstring);
+				EnableWindow(GetDlgItem(hDlg, IDOK), oldstr[0] != '\0');
+				free(oldstr);
+			}
+			break;
+
+		case WM_COMMAND:
+			switch(LOWORD(wParam)) {
+			case IDC_EDITBOX:
+				{
+					int len = GetWindowTextLengthW(GetDlgItem(hDlg, IDC_EDITBOX));
+					if (len == 0 || len > g_nact->tvar_maxlen) {
+						EnableWindow(GetDlgItem(hDlg, IDOK), FALSE);
+					} else {
+						EnableWindow(GetDlgItem(hDlg, IDOK), TRUE);
+					}
+				}
+				break;
+			case IDOK:
+				{
+					GetDlgItemTextW(hDlg, IDC_EDITBOX, wstring, 64);
+					WideCharToMultiByte(CP_UTF8, 0, wstring, -1, string, sizeof(string), NULL, NULL);
+					char *newstr = g_nact->encoding->fromUtf8(string);
+					strcpy_s(g_nact->tvar[g_nact->tvar_index - 1], 22, newstr);
+					free(newstr);
+					EndDialog(hDlg, IDOK);
+				}
+				break;
+			default:
+				return FALSE;
+			}
+			break;
+
+		default:
+			return FALSE;
+		}
+		return TRUE;
+	};
 	HINSTANCE hinst = (HINSTANCE)GetModuleHandle(NULL);
-	DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), get_hwnd(g_window), TextDialogProc, (LPARAM)this);
+	DialogBoxParam(hinst, MAKEINTRESOURCE(IDD_DIALOG1), get_hwnd(g_window), dialog_proc, 0);
 }
 
 void NACT::platform_initialize()

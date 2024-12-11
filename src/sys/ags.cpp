@@ -6,6 +6,7 @@
 
 #include "ags.h"
 #include <string.h>
+#include "nact.h"
 #include "game_id.h"
 #include "../config.h"
 #include "../fileio.h"
@@ -58,7 +59,7 @@ SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int heig
 
 } // namespace
 
-AGS::AGS(NACT* parent, const Config& config) : nact(parent), game_id(parent->game_id), dirty(false)
+AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(false)
 {
 	// 画面サイズ
 	if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG) {
@@ -475,7 +476,7 @@ void AGS::fade_out(int duration_ms, bool white)
 
 	Uint32 dwStart = SDL_GetTicks();
 	while (fade_level < 255) {
-		nact->sys_sleep(16);
+		g_nact->sys_sleep(16);
 		int t = SDL_GetTicks() - dwStart;
 		fade_level = t >= duration_ms ? 255 : t * 255 / duration_ms;
 		dirty = true;
@@ -490,7 +491,7 @@ void AGS::fade_in(int duration_ms)
 
 	Uint32 dwStart = SDL_GetTicks();
 	while (fade_level > 0) {
-		nact->sys_sleep(16);
+		g_nact->sys_sleep(16);
 		int t = SDL_GetTicks() - dwStart;
 		fade_level = t >= duration_ms ? 0 : (duration_ms - t) * 255 / duration_ms;
 		dirty = true;

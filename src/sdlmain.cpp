@@ -19,7 +19,7 @@
 
 SDL_Window* g_window;
 SDL_Renderer* g_renderer;
-NACT* g_nact;
+std::unique_ptr<NACT> g_nact;
 
 namespace {
 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 
 	// system3 初期化
-	g_nact = NACT::create(config, game_id);
+	g_nact.reset(NACT::create(config, game_id));
 
 	if (!config.save_dir.empty()) {
 		std::string path = config.save_dir;
@@ -107,12 +107,12 @@ int main(int argc, char *argv[])
 	texthook_set_mode(config.texthook_mode);
 	texthook_set_suppression_list(config.texthook_suppressions.c_str());
 
-	int exit_code = NACT_RESTART;
-	while (exit_code == NACT_RESTART) {
+	int exit_code = 0;
+	while (g_nact) {
 		exit_code = g_nact->mainloop();
-		delete g_nact;
+		g_nact.reset();
 		if (exit_code == NACT_RESTART)
-			g_nact = NACT::create(config, game_id);
+			g_nact.reset(NACT::create(config, game_id));
 	}
 
 	SDL_DestroyRenderer(g_renderer);

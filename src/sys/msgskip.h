@@ -3,8 +3,6 @@
 
 #include "common.h"
 
-class NACT;
-
 enum MsgSkipFlags {
 	MSGSKIP_SKIP_UNSEEN = 1,
 	MSGSKIP_STOP_ON_UNSEEN = 2,
@@ -14,7 +12,7 @@ enum MsgSkipFlags {
 
 class MsgSkip {
  public:
-	MsgSkip(NACT* nact);
+	MsgSkip();
 	~MsgSkip();
 
 	void activate(bool enable);
@@ -27,7 +25,6 @@ class MsgSkip {
 	void set_flags(unsigned flags, unsigned mask);
 
  private:
-	NACT* nact;
 	uint8* bloom;
 	bool dirty;
 	unsigned flags;
