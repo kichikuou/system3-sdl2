@@ -21,13 +21,23 @@ SDL_Window* g_window;
 SDL_Renderer* g_renderer;
 NACT* g_nact;
 
-int main(int argc, char *argv[])
+namespace {
+
+SDL_Window* create_window(const GameId& game_id)
 {
-#ifdef __SWITCH__
-	romfsInit();
-#endif
-	Config config(argc, argv);
-	GameId game_id(config);
+	std::string title = "System3-sdl2 " SYSTEM3_VERSION;
+	if (game_id.title) {
+		title += ": ";
+		title += game_id.title;
+	} else {
+		WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", game_id.crc32_a, game_id.crc32_b);
+		SDL_ShowSimpleMessageBox(
+			SDL_MESSAGEBOX_WARNING, "system3",
+			"Unable to determine game ID.\n"
+			"If you are running a modified game, plsese specify 'game = <original-game-id>' in system3.ini.\n"
+			"See README.md for more information.",
+			NULL);
+	}
 
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
@@ -37,10 +47,6 @@ int main(int argc, char *argv[])
 	// indirectly, which does not work with ASYNCIFY_IGNORE_INDIRECT=1. For
 	// details, see https://github.com/emscripten-core/emscripten/issues/10746.
 	SDL_SetHint(SDL_HINT_EMSCRIPTEN_ASYNCIFY, "0");
-
-	const char* initial_title = NULL;  // Don't let SDL change document.title.
-#else
-	const char initial_title[] = "System3-sdl2 " SYSTEM3_VERSION;
 #endif
 
 #ifdef __ANDROID__
@@ -49,7 +55,27 @@ int main(int argc, char *argv[])
 #else
 	Uint32 flags = SDL_WINDOW_RESIZABLE;
 #endif
-	g_window = SDL_CreateWindow(initial_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, title.c_str());
+	const char *window_title = NULL;  // Don't let SDL change document.title
+#else
+	const char *window_title = title.c_str();
+#endif
+	return SDL_CreateWindow(window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
+}
+
+} // namespace
+
+int main(int argc, char *argv[])
+{
+#ifdef __SWITCH__
+	romfsInit();
+#endif
+	Config config(argc, argv);
+	GameId game_id(config);
+
+	g_window = create_window(game_id);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 
 	// system3 初期化
@@ -69,24 +95,6 @@ int main(int argc, char *argv[])
 			}
 		}
 		FILEIO::set_savedir(path);
-	}
-
-	if (game_id.title) {
-		char buf[128];
-		snprintf(buf, 128, "System3-sdl2 " SYSTEM3_VERSION ": %s", game_id.title);
-#ifdef __EMSCRIPTEN__
-		EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, buf);
-#else
-		SDL_SetWindowTitle(g_window, buf);
-#endif
-	} else {
-		WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", game_id.crc32_a, game_id.crc32_b);
-		SDL_ShowSimpleMessageBox(
-			SDL_MESSAGEBOX_WARNING, "system3",
-			"Unable to determine game ID.\n"
-			"If you are running a modified game, plsese specify 'game = <original-game-id>' in system3.ini.\n"
-			"See README.md for more information.",
-			g_window);
 	}
 
 #ifdef __EMSCRIPTEN__
