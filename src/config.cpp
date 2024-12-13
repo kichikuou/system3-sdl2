@@ -77,6 +77,23 @@ std::pair<char*, char*> parse_keyval(char *line)
 	return { trim(line), trim(eq + 1) };
 }
 
+#ifdef ENABLE_DEBUGGER
+DebuggerMode parse_debugger_mode(const char *s, int lineno = -1)
+{
+	if (!strcasecmp(s, "none"))
+		return DebuggerMode::DISABLED;
+	if (!strcasecmp(s, "cli"))
+		return DebuggerMode::CLI;
+	if (!strcasecmp(s, "dap"))
+		return DebuggerMode::DAP;
+	if (lineno == -1)
+		ERROR("Command line: Invalid debugger mode '%s'", s);
+	else
+		ERROR(INIFILENAME ":%d Invalid debugger mode '%s'", lineno, s);
+	return DebuggerMode::DISABLED;
+}
+#endif
+
 TexthookMode parse_texthook_mode(const char *s, int lineno = -1)
 {
 	if (!strcasecmp(s, "none"))
@@ -135,6 +152,10 @@ Config::Config(int argc, char *argv[])
 			title = argv[++i];
 		else if (strcmp(argv[i], "-scanline") == 0)
 			scanline = true;
+#ifdef ENABLE_DEBUGGER
+		else if (strcmp(argv[i], "-debugger") == 0)
+			debugger_mode = parse_debugger_mode(argv[++i]);
+#endif
 		else if (strcmp(argv[i], "-texthook") == 0)
 			texthook_mode = parse_texthook_mode(argv[++i]);
 		else if (strcmp(argv[i], "-texthook_suppress") == 0)
@@ -197,6 +218,10 @@ void Config::load_ini()
 				title = val;
 			else if (!strcasecmp(key, "scanline"))
 				scanline = to_bool(val, lineno);
+#ifdef ENABLE_DEBUGGER
+			else if (!strcasecmp(key, "debugger"))
+				debugger_mode = parse_debugger_mode(val, lineno);
+#endif
 			else if (!strcasecmp(key, "texthook"))
 				texthook_mode = parse_texthook_mode(val, lineno);
 			else if (!strcasecmp(key, "texthook_suppress"))

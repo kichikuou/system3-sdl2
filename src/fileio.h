@@ -44,6 +44,13 @@ public:
 		int val = getc();
 		return val | (getc() << 8);
 	}
+	uint32_t getdw() {
+		uint32_t val = getc();
+		val |= getc() << 8;
+		val |= getc() << 16;
+		val |= getc() << 24;
+		return val;
+	}
 	void putc(int c) { fputc(c, fp); }
 	void putw(int w) {
 		putc(w & 0xff);

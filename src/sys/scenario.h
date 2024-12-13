@@ -11,13 +11,9 @@ class Encoding;
 class Scenario {
 public:
 	void open(const char* file_name) { adisk.open(file_name); }
-	void page_jump(int page, int addr) {
-		data_ = adisk.load(page + 1);
-		page_ = page;
-		cmd_addr_ = addr_ = addr;
-	}
-	size_t size() const { return data_.size(); }
-	uint8_t& operator[](int i) { return data_[i]; }
+	void page_jump(int page, int addr);
+	size_t size() const { return data_size_; }
+	const uint8_t& operator[](int i) { return data_[i]; }
 	const uint8_t* ptr() const { return &data_[addr_]; }
 	int default_addr() { return data_[0] | data_[1] << 8; }
 
@@ -66,8 +62,12 @@ public:
 	int write_instruction(int page, int addr, uint8_t op);
 
 private:
+	std::vector<uint8_t>* load_page(int page);
+
 	Dri adisk;
-	std::vector<uint8_t> data_;
+	std::vector<std::vector<uint8_t>> pages_;
+	const uint8_t* data_;
+	size_t data_size_;
 	int page_;
 	int addr_;
 	int cmd_addr_;

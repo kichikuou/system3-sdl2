@@ -39,8 +39,7 @@ void MsgSkip::load_from_file()
 {
 	auto fio = FILEIO::open(MSGSKIP_FILENAME, FILEIO_READ_BINARY | FILEIO_SAVEDATA);
 	if (fio) {
-		uint32 size = fio->getw();
-		size |= fio->getw() << 16;
+		uint32 size = fio->getdw();
 		if (size == BLOOM_FILTER_SIZE)
 			fio->read(bloom, BLOOM_FILTER_SIZE / 8);
 	}

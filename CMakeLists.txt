@@ -67,6 +67,10 @@ elseif (EMSCRIPTEN)
     )
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
+  if (NOT NINTENDO_SWITCH)
+    option(ENABLE_DEBUGGER "Enable built-in debugger" ON)
+  endif()
+
   add_executable(system3)
   target_link_libraries(system3 PRIVATE ymfm)
 
@@ -176,6 +180,14 @@ target_sources(system3 PRIVATE
   src/sys/nact_sys3.cpp
   src/sys/scenario.cpp
   )
+if (ENABLE_DEBUGGER)
+  target_compile_definitions(system3 PRIVATE ENABLE_DEBUGGER)
+  target_sources(system3 PRIVATE
+    src/debugger/debug_info.cpp
+    src/debugger/debugger.cpp
+    src/debugger/cli_frontend.cpp
+  )
+endif()
 
 if(NINTENDO_SWITCH)
   set(RESOURCE_PATH romfs:/)
