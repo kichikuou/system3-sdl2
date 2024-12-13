@@ -16,6 +16,7 @@
 #include "../config.h"
 #include "../fileio.h"
 #include "game_id.h"
+#include "debugger/debugger.h"
 
 extern SDL_Window* g_window;
 
@@ -86,6 +87,12 @@ int NACT::mainloop()
 
 	int sleep_cnt = 0;
 	while(!terminate) {
+#ifdef ENABLE_DEBUGGER
+		if (g_debugger && g_debugger->trapped()) {
+			sco.update_cmd_addr();
+			g_debugger->repl(0);
+		}
+#endif
 		execute();
 		// 512コマンド実行毎にSleep(10)
 		if(!(sleep_cnt = (sleep_cnt + 1) & 0x1ff)) {
@@ -131,6 +138,14 @@ void NACT::execute()
 		cmd_open_verb();
 		return;
 	}
+
+#ifdef ENABLE_DEBUGGER
+	if (cmd == debugger::BREAKPOINT_INSTRUCTION) {
+		if (!g_debugger)
+			sys_error("Illegal BREAKPOINT instruction");
+		cmd = g_debugger->handle_breakpoint(sco.page(), sco.cmd_addr());
+	}
+#endif
 
 	switch(cmd) {
 		case '!':
@@ -817,6 +832,10 @@ void NACT::wait_after_open_menu()
 void NACT::sys_sleep(int ms) {
 	pump_events();
 	ags->update_screen();
+#ifdef ENABLE_DEBUGGER
+	if (g_debugger)
+		g_debugger->on_sleep();
+#endif
 #ifdef __EMSCRIPTEN__
 	emscripten_sleep(ms);
 #else

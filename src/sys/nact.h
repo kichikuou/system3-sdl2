@@ -80,6 +80,7 @@
 #define MAX_VERB 128
 #define MAX_OBJ 256
 #define MAX_PCM 256
+#define MAX_STRVAR 10
 
 class AGS;
 class MAKO;
@@ -97,6 +98,8 @@ public:
 	NACT(const Config& config, const GameId& game_id);
 	virtual ~NACT();
 
+	Scenario sco;
+
 protected:
 	AGS* ags;
 	MAKO* mako;
@@ -105,13 +108,11 @@ protected:
 	// コマンドパーサ
 	void execute();
 
-	Scenario sco;
-
 	// 変数
 	uint16 var[512] = {};
 	uint16 var_stack[30][20] = {};
-	char tvar[10][33] = {};
-	char tvar_stack[30][10][22] = {};
+	char tvar[MAX_STRVAR][33] = {};
+	char tvar_stack[30][MAX_STRVAR][22] = {};
 	int tvar_index = 0;
 	int tvar_maxlen;
 
@@ -194,7 +195,6 @@ protected:
 	int pcm[MAX_PCM] = {};
 
 	// 下位関数
-	virtual uint16 cali() = 0;
 	bool is_message(uint8_t c) { return c == ' ' || c & 0x80; }
 
 	uint16 random(uint16 range);
@@ -237,6 +237,8 @@ public:
 	void text_wait();
 	void set_skip_menu_state(bool enabled, bool checked);
 
+	virtual uint16 cali() = 0;
+
 	bool mouse_move_enabled = true;
 	const Config& config;
 	const GameId& game_id;
@@ -247,6 +249,8 @@ public:
 	void output_console(const char *format, ...);
 
 	int get_scenario_page() const { return sco.page(); }
+	uint16 get_var(int index) const { return var[index]; }
+	const char* get_string(int index) const { return tvar[index]; }
 
 private:
 	void pump_events();

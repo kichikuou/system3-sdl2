@@ -4,6 +4,7 @@
 #include "fileio.h"
 #include "texthook.h"
 #include "sys/nact.h"
+#include "debugger/debugger.h"
 #ifdef _WIN32
 #include <direct.h>
 #else
@@ -107,6 +108,12 @@ int main(int argc, char *argv[])
 
 	texthook_set_mode(config.texthook_mode);
 	texthook_set_suppression_list(config.texthook_suppressions.c_str());
+
+#ifdef ENABLE_DEBUGGER
+	if (config.debugger_mode != DebuggerMode::DISABLED) {
+		g_debugger = std::make_unique<debugger::Debugger>("ADISK.DAT.symbols", config.debugger_mode);
+	}
+#endif
 
 	int exit_code = 0;
 	while (g_nact) {

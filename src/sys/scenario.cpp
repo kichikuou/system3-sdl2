@@ -6,15 +6,42 @@
 
 uint8_t Scenario::fetch_command()
 {
-	if (addr_ < 2 || static_cast<size_t>(addr_) >= data_.size())
+	if (addr_ < 2 || static_cast<size_t>(addr_) >= data_size_)
 		sys_error("Scenario error: invalid address %d:%04x", page_, addr_);
 
 	// Skip SysEng's "new style" marker
 	if (page_ == 0 && addr_ == 2 && data_[2] == 'R' && data_[3] == 'E' && data_[4] == 'V')
 		addr_ = 5;
 
-	cmd_addr_ = addr_;
+	update_cmd_addr();
 	return getd();
+}
+
+std::vector<uint8_t>* Scenario::load_page(int page)
+{
+	if (static_cast<size_t>(page) < pages_.size() && !pages_[page].empty())
+		return &pages_[page];
+	std::vector<uint8_t> data = adisk.load(page + 1);
+	if (data.empty())
+		return nullptr;
+	if (static_cast<size_t>(page) >= pages_.size())
+		pages_.resize(page + 1);
+	pages_[page] = std::move(data);
+	return &pages_[page];
+}
+
+void Scenario::page_jump(int page, int addr)
+{
+	std::vector<uint8_t>* page_data = load_page(page);
+	if (page_data) {
+		data_ = page_data->data();
+		data_size_ = page_data->size();
+	} else {
+		data_ = nullptr;
+		data_size_ = 0;
+	}
+	page_ = page;
+	cmd_addr_ = addr_ = addr;
 }
 
 void Scenario::skip_syseng_string(Encoding *enc, uint8_t terminator)
@@ -136,4 +163,16 @@ void Scenario::page_stack_clear()
 	} else {
 		sys_error("Unknown Command: %02x at %d:%04x", cmd, page_, cmd_addr_);
 	}
+}
+
+int Scenario::write_instruction(int page, int addr, uint8_t op)
+{
+	std::vector<uint8_t>* page_data = load_page(page);
+	if (!page_data)
+		return -1;
+	if (addr < 0 || addr >= static_cast<int>(page_data->size()))
+		return -1;
+	uint8_t old_op = (*page_data)[addr];
+	(*page_data)[addr] = op;
+	return old_op;
 }

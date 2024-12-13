@@ -11,6 +11,12 @@ enum class TexthookMode {
 	COPY,
 };
 
+enum class DebuggerMode {
+	DISABLED,
+	CLI,
+	DAP,
+};
+
 struct Strings {
 	std::string back;
 	std::string next_page;
@@ -39,6 +45,7 @@ struct Config {
 	bool no_antialias = false;
 	bool scanline = false;
 	TexthookMode texthook_mode = TexthookMode::NONE;
+	DebuggerMode debugger_mode = DebuggerMode::DISABLED;
 	std::string texthook_suppressions;
 
  private:
