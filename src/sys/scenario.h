@@ -40,16 +40,27 @@ public:
 	void get_syseng_string(char* buf, int size, Encoding *enc, uint8_t terminator);
 
 	void label_call(int label);
-	size_t label_stack_size() const { return label_stack.size(); }
-	void label_stack_pop() { label_stack.pop_back(); }
-	void label_stack_clear() { label_stack.clear(); }
+	size_t label_stack_size() const;
+	void label_stack_pop();
+	void label_stack_clear();
 
 	void page_call(int page);
-	size_t page_stack_size() const { return page_stack.size(); }
-	void page_stack_pop() { page_stack.pop_back(); }
-	void page_stack_clear() { page_stack.clear(); }
+	size_t page_stack_size() const;
+	void page_stack_pop();
+	void page_stack_clear();
 
 	[[noreturn]] void unknown_command(uint8_t cmd);
+
+	struct StackFrame {
+		bool is_page_call;
+		uint8_t page;
+		uint16_t addr;
+
+		StackFrame(bool is_page_call, uint8_t page, uint16_t addr)
+			: is_page_call(is_page_call), page(page), addr(addr) {}
+	};
+	const std::vector<StackFrame>& get_call_stack() const { return call_stack; }
+	int write_instruction(int page, int addr, uint8_t op);
 
 private:
 	Dri adisk;
@@ -57,8 +68,7 @@ private:
 	int page_;
 	int addr_;
 	int cmd_addr_;
-	std::vector<int> label_stack;
-	std::vector<std::pair<int, int>> page_stack;
+	std::vector<StackFrame> call_stack;
 };
 
 #endif // _SCENARIO_H_
