@@ -147,13 +147,13 @@ enum {
 void texthook_set_mode(TexthookMode mode) {
 #ifndef __EMSCRIPTEN__
 	switch (mode) {
-	case TEXTHOOK_NONE:
+	case TexthookMode::NONE:
 		handler = &none;
 		break;
-	case TEXTHOOK_PRINT:
+	case TexthookMode::PRINT:
 		handler = &print;
 		break;
-	case TEXTHOOK_COPY:
+	case TexthookMode::COPY:
 		handler = &copy;
 		break;
 	}

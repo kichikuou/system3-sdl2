@@ -33,7 +33,7 @@ void init_menu(bool mouse_move_enabled, const Config& config)
 		CheckMenuItem(hmenu, ID_OPTION_MOUSE_MOVE, MF_BYCOMMAND | MFS_CHECKED);
 	if (config.scanline)
 		CheckMenuItem(hmenu, ID_SCANLINE, MF_BYCOMMAND | MFS_CHECKED);
-	auto_copy_enabled = config.texthook_mode == TEXTHOOK_COPY;
+	auto_copy_enabled = config.texthook_mode == TexthookMode::COPY;
 	if (auto_copy_enabled)
 		CheckMenuItem(hmenu, ID_TEXT_AUTO_COPY, MF_BYCOMMAND | MFS_CHECKED);
 }
@@ -226,7 +226,7 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			auto_copy_enabled = !auto_copy_enabled;
 			CheckMenuItem(GetMenu(get_hwnd(g_window)), ID_TEXT_AUTO_COPY, MF_BYCOMMAND |
 						  auto_copy_enabled ? MFS_CHECKED : MFS_UNCHECKED);
-			texthook_set_mode(auto_copy_enabled ? TEXTHOOK_COPY : TEXTHOOK_NONE);
+			texthook_set_mode(auto_copy_enabled ? TexthookMode::COPY : TexthookMode::NONE);
 			break;
 		}
 		break;

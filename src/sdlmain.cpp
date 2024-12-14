@@ -2,6 +2,7 @@
 #include "common.h"
 #include "config.h"
 #include "fileio.h"
+#include "texthook.h"
 #include "sys/nact.h"
 #ifdef _WIN32
 #include <direct.h>

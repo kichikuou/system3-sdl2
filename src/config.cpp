@@ -80,16 +80,16 @@ std::pair<char*, char*> parse_keyval(char *line)
 TexthookMode parse_texthook_mode(const char *s, int lineno = -1)
 {
 	if (!strcasecmp(s, "none"))
-		return TEXTHOOK_NONE;
+		return TexthookMode::NONE;
 	if (!strcasecmp(s, "print"))
-		return TEXTHOOK_PRINT;
+		return TexthookMode::PRINT;
 	if (!strcasecmp(s, "copy"))
-		return TEXTHOOK_COPY;
+		return TexthookMode::COPY;
 	if (lineno == -1)
 		ERROR("Command line: Invalid texthook mode '%s'", s);
 	else
 		ERROR(INIFILENAME ":%d Invalid texthook mode '%s'", lineno, s);
-	return TEXTHOOK_NONE;
+	return TexthookMode::NONE;
 }
 
 void init_string(std::string& s, Encoding* encoding, const char *dflt)

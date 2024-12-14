@@ -2,9 +2,14 @@
 #define CONFIG_H_
 
 #include <string>
-#include "texthook.h"
 
 class Encoding;
+
+enum class TexthookMode {
+	NONE,
+	PRINT,
+	COPY,
+};
 
 struct Strings {
 	std::string back;
@@ -33,7 +38,7 @@ struct Config {
 	bool use_fm = false;
 	bool no_antialias = false;
 	bool scanline = false;
-	TexthookMode texthook_mode = TEXTHOOK_NONE;
+	TexthookMode texthook_mode = TexthookMode::NONE;
 	std::string texthook_suppressions;
 
  private:

@@ -1,13 +1,9 @@
 #ifndef _TEXTHOOK_H_
 #define _TEXTHOOK_H_
 
-extern "C" {
+#include "config.h"
 
-enum TexthookMode {
-	TEXTHOOK_NONE,
-	TEXTHOOK_PRINT,
-	TEXTHOOK_COPY,
-};
+extern "C" {
 
 void texthook_set_mode(TexthookMode mode);
 void texthook_set_suppression_list(const char *suppressions);
