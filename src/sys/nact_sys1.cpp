@@ -1297,21 +1297,3 @@ uint16 NACT_Sys1::cali()
 	}
 	return (uint16)(cali[1] & 0xffff);
 }
-
-uint16 NACT_Sys1::cali2()
-{
-	uint16 val = 0;
-	uint16 dat = sco.getd();
-
-	if(0x80 <= dat && dat <= 0xbf) {
-		val = dat & 0x3f;
-	} else if(0xc0 <= dat && dat <= 0xff) {
-		val = ((dat & 0x3f) << 8) | sco.getd();
-	} else {
-		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.cmd_addr());
-	}
-	if (sco.getd() != 0x7f) {
-		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.cmd_addr());
-	}
-	return val;
-}

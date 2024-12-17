@@ -198,7 +198,6 @@ protected:
 
 	// 下位関数
 	virtual uint16 cali() = 0;
-	virtual uint16 cali2() = 0;
 	bool is_message(uint8_t c) { return c == ' ' || c & 0x80; }
 
 	uint16 random(uint16 range);
@@ -293,7 +292,7 @@ protected:
 	void cmd_z() override;
 	void opening() override;
 	uint16 cali() override;
-	uint16 cali2() override;
+
 private:
 	// Intruder Zコマンド
 	int paint_x;
@@ -339,7 +338,6 @@ protected:
 	void cmd_y() override;
 	void cmd_z() override;
 	uint16 cali() override;
-	uint16 cali2() override;
 };
 
 class NACT_Sys3 final : public NACT {
@@ -380,8 +378,10 @@ protected:
 	void cmd_y() override;
 	void cmd_z() override;
 	uint16 cali() override;
-	uint16 cali2() override;
+
 private:
+	uint16 cali2();
+
 	struct K3HackInfo;
 	static const K3HackInfo yakata3cd_k3_hack_table[];
 	static const K3HackInfo yakata3fd_k3_hack_table[];
