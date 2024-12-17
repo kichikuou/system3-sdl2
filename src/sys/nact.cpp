@@ -117,20 +117,12 @@ void NACT::quit(int code)
 EMSCRIPTEN_KEEPALIVE  // Prevent inlining, because this function is listed in ASYNCIFY_ADD
 void NACT::execute()
 {
-	if (!sco.is_addr_valid()) {
-		sys_error("Scenario error: invalid address %d:0x%x", sco.page(), sco.addr());
-		return;
-	}
-
-	if (game_id.sys_ver == 1 && sco.page() == 0 && sco.addr() == 2) {
+	if (game_id.sys_ver == 1 && sco.page() == 0 && sco.current_addr() == 2) {
 		opening();
 	}
 
-	sco.skip_syseng_rev_marker();
-
 	// １コマンド実行
-	sco.mark_cmd_start();
-	uint8 cmd = sco.getd();
+	uint8 cmd = sco.fetch_command();
 
 	if(set_palette && cmd != 'P') {
 		// パレット設定が終わった
@@ -323,7 +315,7 @@ void NACT::message(uint8 terminator)
 		}
 	}
 	if (!ags->draw_menu)
-		msgskip->on_message(sco.page(), sco.addr());
+		msgskip->on_message(sco.page(), sco.current_addr());
 
 	// TODO: Convert hankaku to zenkaku
 	output_console(buf);

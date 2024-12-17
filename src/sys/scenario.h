@@ -14,7 +14,7 @@ public:
 	void page_jump(int page, int addr) {
 		data_ = adisk.load(page + 1);
 		page_ = page;
-		addr_ = addr;
+		cmd_addr_ = addr_ = addr;
 	}
 	size_t size() const { return data_.size(); }
 	uint8_t& operator[](int i) { return data_[i]; }
@@ -22,18 +22,16 @@ public:
 	int default_addr() { return data_[0] | data_[1] << 8; }
 
 	int page() const { return page_; }
-	int addr() const { return addr_; }
-	bool is_addr_valid() const {
-		return addr_ >= 2 && static_cast<size_t>(addr_) < data_.size();
-	}
-	// Skip SysEng's "new style" marker
-	void skip_syseng_rev_marker() {
-		if (page_ == 0 && addr_ == 2 && data_[2] == 'R' && data_[3] == 'E' && data_[4] == 'V')
-			addr_ = 5;
-	}
+	// start address of the current command
+	int cmd_addr() const { return cmd_addr_; }
+	// current address, possibly in the middle of a command
+	int current_addr() const { return addr_; }
 
-	void jump_to(int addr) { addr_ = addr; }
+	void jump_to(int addr) { cmd_addr_ = addr_ = addr; }
 	void skip(int n) { addr_ += n; }
+
+	uint8_t fetch_command();
+
 	uint8_t getd() { return data_[addr_++]; }
 	uint16_t getw() {
 		uint16_t w = data_[addr_++];
@@ -54,7 +52,6 @@ public:
 	void page_stack_pop() { page_stack.pop_back(); }
 	void page_stack_clear() { page_stack.clear(); }
 
-	void mark_cmd_start() { cmd_start_addr = addr_; }
 	[[noreturn]] void unknown_command(uint8_t cmd);
 
 private:
@@ -62,7 +59,7 @@ private:
 	std::vector<uint8_t> data_;
 	int page_;
 	int addr_;
-	int cmd_start_addr;
+	int cmd_addr_;
 	std::vector<int> label_stack;
 	std::vector<std::pair<int, int>> page_stack;
 };

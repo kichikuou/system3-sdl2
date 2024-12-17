@@ -3,6 +3,19 @@
 #include "common.h"
 #include "encoding.h"
 
+uint8_t Scenario::fetch_command()
+{
+	if (addr_ < 2 || static_cast<size_t>(addr_) >= data_.size())
+		sys_error("Scenario error: invalid address %d:%04x", page_, addr_);
+
+	// Skip SysEng's "new style" marker
+	if (page_ == 0 && addr_ == 2 && data_[2] == 'R' && data_[3] == 'E' && data_[4] == 'V')
+		addr_ = 5;
+
+	cmd_addr_ = addr_;
+	return getd();
+}
+
 void Scenario::skip_syseng_string(Encoding *enc, uint8_t terminator)
 {
 	for (uint8_t c = getd(); c != terminator; c = getd()) {
@@ -14,15 +27,13 @@ void Scenario::skip_syseng_string(Encoding *enc, uint8_t terminator)
 
 void Scenario::get_syseng_string(char* buf, int size, Encoding *enc, uint8_t terminator)
 {
-	int start_addr = addr_;
-
 	int i = 0;
 	for (uint8_t c = getd(); c != terminator; c = getd()) {
 		if (c != '\\')
 			ungetd();
 		int len = enc->mblen(ptr());
 		if (i + len >= size)
-			sys_error("String buffer overrun at %d:0x%x", page_, start_addr);
+			sys_error("String buffer overrun at %d:%04x", page_, cmd_addr_);
 		memcpy(&buf[i], ptr(), len);
 		i += len;
 		skip(len);
@@ -63,8 +74,8 @@ void Scenario::page_call(int target_page)
 
 [[noreturn]] void Scenario::unknown_command(uint8_t cmd) {
 	if (cmd >= 0x20 && cmd < 0x7f) {
-		sys_error("Unknown Command: '%c' at %d:0x%d", cmd, page_, cmd_start_addr);
+		sys_error("Unknown Command: '%c' at %d:%04x", cmd, page_, cmd_addr_);
 	} else {
-		sys_error("Unknown Command: %02x at %d:0x%d", cmd, page_, cmd_start_addr);
+		sys_error("Unknown Command: %02x at %d:%04x", cmd, page_, cmd_addr_);
 	}
 }

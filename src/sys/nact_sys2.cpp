@@ -80,8 +80,7 @@ void NACT_Sys2::cmd_branch()
 	if(!condition) {
 		// 次の'}'命令までスキップする（ネストも考慮する）
 		for(;;) {
-			sco.mark_cmd_start();
-			uint8 cmd = sco.getd();
+			uint8 cmd = sco.fetch_command();
 
 			if(cmd == '!') {
 				int index = sco.getd();
@@ -870,7 +869,7 @@ void NACT_Sys2::cmd_q()
 			FPUTW(0);
 			FPUTW(mako->current_music);
 			FPUTW(0);
-			FPUTW(sco.addr());
+			FPUTW(sco.current_addr());
 			FPUTW(0);
 			for(int i = 0; i < 512; i++) {
 				FPUTW(var[i]);
@@ -1263,7 +1262,7 @@ uint16 NACT_Sys2::cali()
 		}
 	}
 	if (!ok) {
-		sys_error("cali: invalid expression at %d:%04x", sco.page(), sco.addr());
+		sys_error("cali: invalid expression at %d:%04x", sco.page(), sco.cmd_addr());
 	}
 	return (uint16)(cali[1] & 0xffff);
 }
@@ -1278,10 +1277,10 @@ uint16 NACT_Sys2::cali2()
 	} else if(0xc0 <= dat && dat <= 0xff) {
 		val = ((dat & 0x3f) << 8) | sco.getd();
 	} else {
-		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
+		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.cmd_addr());
 	}
 	if (sco.getd() != 0x7f) {
-		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.addr());
+		sys_error("cali2: invalid expression at %d:%04x", sco.page(), sco.cmd_addr());
 	}
 	return val;
 }
