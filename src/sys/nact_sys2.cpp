@@ -251,8 +251,7 @@ void NACT_Sys2::cmd_branch()
 			} else if (cmd == '\'' || cmd == '"') {  // SysEng
 				sco.skip_syseng_string(encoding.get(), cmd);
 			} else if (is_message(cmd)) {
-				sco.ungetd();
-				sco.skip(encoding->mblen(sco.ptr()));
+				sco.skip(encoding->mblen(cmd) - 1);
 			} else {
 				sco.unknown_command(cmd);
 			}

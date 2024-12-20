@@ -19,9 +19,9 @@ uint8_t Scenario::fetch_command()
 void Scenario::skip_syseng_string(Encoding *enc, uint8_t terminator)
 {
 	for (uint8_t c = getd(); c != terminator; c = getd()) {
-		if (c != '\\')
-			ungetd();
-		skip(enc->mblen(ptr()));
+		if (c == '\\')
+			c = getd();
+		skip(enc->mblen(c) - 1);
 	}
 }
 
@@ -29,14 +29,14 @@ void Scenario::get_syseng_string(char* buf, int size, Encoding *enc, uint8_t ter
 {
 	int i = 0;
 	for (uint8_t c = getd(); c != terminator; c = getd()) {
-		if (c != '\\')
-			ungetd();
-		int len = enc->mblen(ptr());
+		if (c == '\\')
+			c = getd();
+		int len = enc->mblen(c);
 		if (i + len >= size)
 			sys_error("String buffer overrun at %d:%04x", page_, cmd_addr_);
-		memcpy(&buf[i], ptr(), len);
-		i += len;
-		skip(len);
+		buf[i++] = c;
+		for (int j = 1; j < len; ++j)
+			buf[i++] = getd();
 	}
 	buf[i] = '\0';
 }

@@ -11,12 +11,12 @@ namespace {
 
 class SjisEncoding : public Encoding {
 public:
-	int mblen(const unsigned char* s)
+	int mblen(unsigned char first_byte) override
 	{
-		return is_2byte(*s) ? 2 : 1;
+		return is_2byte(first_byte) ? 2 : 1;
 	}
 
-	int next_codepoint(const unsigned char** s)
+	int next_codepoint(const unsigned char** s) override
 	{
 		int code = *(*s)++;
 		if (is_2byte(code))
@@ -24,7 +24,7 @@ public:
 		return sjis_to_unicode(code);
 	}
 
-	char* fromUtf8(const char* str)
+	char* fromUtf8(const char* str) override
 	{
 		unsigned char* src = (unsigned char*)str;
 		unsigned char* dst = (unsigned char*)malloc(strlen(str) + 1);
@@ -65,7 +65,7 @@ public:
 		return (char*)dst;
 	}
 
-	char* toUtf8(const char* str)
+	char* toUtf8(const char* str) override
 	{
 		unsigned char* src = (unsigned char*)str;
 		unsigned char* dst = (unsigned char*)malloc(strlen(str) * 3 + 1);
@@ -138,18 +138,18 @@ private:
 
 class Utf8Encoding : public Encoding {
 public:
-	int mblen(const unsigned char* s)
+	int mblen(unsigned char first_byte) override
 	{
-		if (*s <= 0xbf)
+		if (first_byte <= 0xbf)
 			return 1;
-		if (*s <= 0xdf)
+		if (first_byte <= 0xdf)
 			return 2;
-		if (*s <= 0xef)
+		if (first_byte <= 0xef)
 			return 3;
 		return 4;
 	}
 
-	int next_codepoint(const unsigned char** str)
+	int next_codepoint(const unsigned char** str) override
 	{
 		int code;
 		const unsigned char *s = *str;
@@ -179,12 +179,12 @@ public:
 		return code;
 	}
 
-	char* fromUtf8(const char* s)
+	char* fromUtf8(const char* s) override
 	{
 		return strdup(s);
 	}
 
-	char* toUtf8(const char* s)
+	char* toUtf8(const char* s) override
 	{
 		return strdup(s);
 	}
@@ -194,7 +194,7 @@ int Encoding::mbslen(const unsigned char* s)
 {
 	int len = 0;
 	while (*s) {
-		s += mblen(s);
+		s += mblen(*s);
 		len++;
 	}
 	return len;

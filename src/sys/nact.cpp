@@ -299,7 +299,7 @@ void NACT::message(uint8 terminator)
 		const uint8* begin = sco.ptr();
 		const uint8* p = begin;
 		while (is_message(*p))
-			p += encoding->mblen(p);
+			p += encoding->mblen(*p);
 		int len = p - begin;
 		sco.skip(len);
 

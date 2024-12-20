@@ -19,11 +19,8 @@ class Encoding {
 	int next_codepoint(const char** s) {
 		return next_codepoint(reinterpret_cast<const unsigned char **>(s));
 	}
-	// Returns byte length of the first character of s.
-	virtual int mblen(const unsigned char* s) = 0;
-	int mblen(const char* s) {
-		return mblen(reinterpret_cast<const unsigned char*>(s));
-	}
+	// Determines the byte length of a character based on the first byte.
+	virtual int mblen(unsigned char first_byte) = 0;
 	// Returns the number of characters in s.
 	int mbslen(const unsigned char* s);
 	int mbslen(const char* s) {
