@@ -117,7 +117,7 @@ protected:
 	int tvar_index = 0;
 	int tvar_maxlen;
 
-	void message(uint8 terminator);
+	void message(uint8_t first_byte);
 
 	// Commands
 	virtual void cmd_calc() = 0;

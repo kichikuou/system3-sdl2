@@ -249,8 +249,7 @@ void NACT::execute()
 			break;
 		default:
 			if (is_message(cmd)) {
-				sco.ungetd();
-				message(0);
+				message(cmd);
 			} else {
 				sco.unknown_command(cmd);
 			}
@@ -290,21 +289,23 @@ void NACT::cmd_page_call()
 	output_console("\n%%%d:", next_page);
 }
 
-void NACT::message(uint8 terminator)
+void NACT::message(uint8_t first_byte)
 {
 	char buf[200];
-	if (terminator) {  // SysEng
-		sco.get_syseng_string(buf, sizeof(buf), encoding.get(), terminator);
+	if (first_byte == '\'' || first_byte == '"') {  // SysEng
+		sco.get_syseng_string(buf, sizeof(buf), encoding.get(), first_byte);
 	} else {
-		const uint8* begin = sco.ptr();
-		const uint8* p = begin;
-		while (is_message(*p))
-			p += encoding->mblen(*p);
-		int len = p - begin;
-		sco.skip(len);
-
-		strncpy(buf, reinterpret_cast<const char*>(begin), len);
-		buf[len] = '\0';
+		int i = 0;
+		uint8_t c = first_byte;
+		while (is_message(c)) {
+			int len = encoding->mblen(c);
+			buf[i++] = c;
+			for (int j = 1; j < len; ++j)
+				buf[i++] = sco.getd();
+			c = sco.getd();
+		}
+		sco.ungetd();
+		buf[i] = '\0';
 	}
 
 	ags->draw_text(buf, text_wait_enb);

@@ -16,9 +16,6 @@ public:
 		page_ = page;
 		cmd_addr_ = addr_ = addr;
 	}
-	size_t size() const { return data_.size(); }
-	uint8_t& operator[](int i) { return data_[i]; }
-	const uint8_t* ptr() const { return &data_[addr_]; }
 	int default_addr() { return data_[0] | data_[1] << 8; }
 
 	int page() const { return page_; }
