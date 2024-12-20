@@ -41,11 +41,12 @@ public:
 	void repl(int bp_no);
 
 	// API for VM
+	void init();
 	bool trapped() const { return state != State::RUNNING; }
 	void on_sleep();
 	void on_palette_change();
 	uint8_t handle_breakpoint(int page, int addr);
-	bool console_vprintf(int lv, const char *format, va_list ap);
+	bool console_vprintf(const char *format, va_list ap);
 	void post_command(void *data);
 
 	// API for frontend

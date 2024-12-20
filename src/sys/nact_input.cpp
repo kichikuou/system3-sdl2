@@ -12,6 +12,7 @@
 #include "nact.h"
 #include "ags.h"
 #include "texthook.h"
+#include "debugger/debugger.h"
 
 enum TouchState {
 	TOUCH_NONE,
@@ -23,63 +24,87 @@ extern SDL_Window* g_window;
 static int mousex, mousey;
 static TouchState touch_state = TOUCH_NONE;
 
+void NACT::handle_event(SDL_Event e)
+{
+	if (handle_platform_event(e))
+		return;
+
+	switch (e.type) {
+	case SDL_QUIT:
+		quit(0);
+		break;
+
+	case SDL_WINDOWEVENT:
+		switch (e.window.event) {
+		case SDL_WINDOWEVENT_EXPOSED:
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+			ags->flush_screen(false);
+			break;
+		}
+		break;
+
+	case SDL_MOUSEMOTION:
+		mousex = e.motion.x * ags->screen_width / ags->window_width;
+		mousey = e.motion.y * ags->screen_height / ags->window_height;
+		break;
+
+	case SDL_FINGERDOWN:
+	case SDL_FINGERUP:
+	case SDL_FINGERMOTION:
+		mousex = e.tfinger.x * ags->screen_width;
+		mousey = e.tfinger.y * ags->screen_height;
+		switch (SDL_GetNumTouchFingers(e.tfinger.touchId)) {
+		case 0:
+			touch_state = TOUCH_NONE;
+			break;
+		case 1:
+			// A touch outside of the viewport (SDL clamps it to 0.0-1.0) is
+			// a right-click.
+			if (e.tfinger.x == 0.0f || e.tfinger.x == 1.0f ||
+				e.tfinger.y == 0.0f || e.tfinger.y == 1.0f) {
+				touch_state = TOUCH_RBUTTON;
+			} else {
+				touch_state = TOUCH_LBUTTON;
+			}
+			break;
+		case 2:
+			// Two-finger touch is a right-click.
+			touch_state = TOUCH_RBUTTON;
+			break;
+		}
+		break;
+
+	case SDL_APP_DIDENTERFOREGROUND:
+		ags->flush_screen(false);
+		break;
+
+	default:
+#ifdef ENABLE_DEBUGGER
+		if (e.type == sdl_custom_event_type) {
+			switch (e.user.code) {
+			case DEBUGGER_COMMAND:
+				g_debugger->post_command(e.user.data1);
+				break;
+			}
+		}
+#endif
+		break;
+	}
+}
+
 void NACT::pump_events()
 {
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
-		if (handle_platform_event(e))
-			continue;
-
-		switch (e.type) {
-		case SDL_QUIT:
-			quit(0);
-			break;
-
-		case SDL_WINDOWEVENT:
-			switch (e.window.event) {
-			case SDL_WINDOWEVENT_EXPOSED:
-			case SDL_WINDOWEVENT_SIZE_CHANGED:
-				ags->flush_screen(false);
-				break;
-			}
-			break;
-
-		case SDL_MOUSEMOTION:
-			mousex = e.motion.x * ags->screen_width / ags->window_width;
-			mousey = e.motion.y * ags->screen_height / ags->window_height;
-			break;
-
-		case SDL_FINGERDOWN:
-		case SDL_FINGERUP:
-		case SDL_FINGERMOTION:
-			mousex = e.tfinger.x * ags->screen_width;
-			mousey = e.tfinger.y * ags->screen_height;
-			switch (SDL_GetNumTouchFingers(e.tfinger.touchId)) {
-			case 0:
-				touch_state = TOUCH_NONE;
-				break;
-			case 1:
-				// A touch outside of the viewport (SDL clamps it to 0.0-1.0) is
-				// a right-click.
-				if (e.tfinger.x == 0.0f || e.tfinger.x == 1.0f ||
-					e.tfinger.y == 0.0f || e.tfinger.y == 1.0f) {
-					touch_state = TOUCH_RBUTTON;
-				} else {
-					touch_state = TOUCH_LBUTTON;
-				}
-				break;
-			case 2:
-				// Two-finger touch is a right-click.
-				touch_state = TOUCH_RBUTTON;
-				break;
-			}
-			break;
-
-		case SDL_APP_DIDENTERFOREGROUND:
-			ags->flush_screen(false);
-			break;
-		}
+		handle_event(std::move(e));
 	}
+}
+
+void NACT::process_next_event()
+{
+	SDL_Event e;
+	SDL_WaitEvent(&e);
+	handle_event(std::move(e));
 }
 
 uint8 NACT::get_key()

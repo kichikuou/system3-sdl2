@@ -132,6 +132,8 @@ Config::Config(int argc, char *argv[])
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-gamedir") == 0)
 			++i;
+		else if (strcmp(argv[i], "-version") == 0)
+			print_version = true;
 		else if (strcmp(argv[i], "-noantialias") == 0)
 			no_antialias = true;
 		else if (strcmp(argv[i], "-savedir") == 0)

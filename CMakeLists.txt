@@ -67,10 +67,6 @@ elseif (EMSCRIPTEN)
     )
 
 else()  # NOT (ANDROID OR EMSCRIPTEN)
-  if (NOT NINTENDO_SWITCH)
-    option(ENABLE_DEBUGGER "Enable built-in debugger" ON)
-  endif()
-
   add_executable(system3)
   target_link_libraries(system3 PRIVATE ymfm)
 
@@ -117,6 +113,13 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
     pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
     target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
+
+    find_package(nlohmann_json 3.2.0)
+    if (nlohmann_json_FOUND)
+      set(ENABLE_DEBUGGER ON)
+      target_link_libraries(system3 PRIVATE nlohmann_json::nlohmann_json)
+    endif()
+
     pkg_check_modules(RTMIDI IMPORTED_TARGET rtmidi)
     if (RTMIDI_FOUND)
       target_compile_definitions(system3 PRIVATE USE_MIDI)
@@ -186,6 +189,7 @@ if (ENABLE_DEBUGGER)
     src/debugger/debug_info.cpp
     src/debugger/debugger.cpp
     src/debugger/cli_frontend.cpp
+    src/debugger/dap_frontend.cpp
   )
 endif()
 

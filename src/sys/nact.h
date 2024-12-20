@@ -80,6 +80,7 @@
 #define MAX_VERB 128
 #define MAX_OBJ 256
 #define MAX_PCM 256
+#define MAX_VAR 512
 #define MAX_STRVAR 10
 
 class AGS;
@@ -109,7 +110,7 @@ protected:
 	void execute();
 
 	// 変数
-	uint16 var[512] = {};
+	uint16 var[MAX_VAR] = {};
 	uint16 var_stack[30][20] = {};
 	char tvar[MAX_STRVAR][33] = {};
 	char tvar_stack[30][MAX_STRVAR][22] = {};
@@ -229,6 +230,8 @@ public:
 	int mainloop();
 	void sys_sleep(int ms);
 	void quit(int code);
+	void process_next_event();
+	bool is_terminating() const { return terminate; }
 
 	int get_screen_height();
 
@@ -250,10 +253,13 @@ public:
 
 	int get_scenario_page() const { return sco.page(); }
 	uint16 get_var(int index) const { return var[index]; }
+	void set_var(int index, uint16_t value) { var[index] = value; }
 	const char* get_string(int index) const { return tvar[index]; }
+	void set_string(int index, const char* value);
 
 private:
 	void pump_events();
+	void handle_event(SDL_Event e);
 	bool handle_platform_event(const SDL_Event& e);
 };
 

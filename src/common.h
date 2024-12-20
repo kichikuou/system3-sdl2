@@ -55,6 +55,11 @@ inline void strcpy_s(char* dst, size_t n, const char* src)
 #define strcasecmp _stricmp
 #endif
 
+extern uint32_t sdl_custom_event_type;
+enum CustomEvent {
+	DEBUGGER_COMMAND,
+};
+
 // resource.cpp
 SDL_RWops* open_resource(const char* name, const char* type);
 SDL_RWops* open_file(const char* name);

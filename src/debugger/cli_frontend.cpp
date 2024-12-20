@@ -42,6 +42,8 @@ public:
 
 	~CliFrontend() override = default;
 
+	void init() override {}
+
 	void repl(int bp_no) override {
 		if (backend->get_state() == State::STOPPED_BREAKPOINT && bp_no)
 			printf("Breakpoint %d\n", bp_no);
@@ -67,6 +69,9 @@ public:
 			}
 		}
 	}
+
+	void on_command(void* data) override {}
+
 	void on_sleep() override  {
 		if (backend->get_state() == State::STOPPED_INTERRUPT)
 			backend->repl(0);
@@ -75,7 +80,8 @@ public:
 	void on_palette_change() override {
 	}
 
-	void console_output(int lv, const char *output) override {
+	bool console_output(const char* format, va_list ap) override {
+		return false;
 	}
 
 private:

@@ -6,6 +6,7 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>
 #include "nact.h"
 #include "encoding.h"
 #include "ags.h"
@@ -841,6 +842,23 @@ void NACT::sys_sleep(int ms) {
 #else
 	SDL_Delay(ms);
 #endif
+}
+
+void NACT::set_string(int index, const char* value)
+{
+	const char *src = value;
+	char *dst = tvar[index];
+	int remaining = sizeof(tvar[0]) - 1;
+	while (*src) {
+		int len = encoding->mblen(*src);
+		if (len > remaining)
+			break;
+		memcpy(dst, src, len);
+		src += len;
+		dst += len;
+		remaining -= len;
+	}
+	*dst = '\0';
 }
 
 // WinMainとのインターフェース

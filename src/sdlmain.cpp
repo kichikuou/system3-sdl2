@@ -69,16 +69,23 @@ SDL_Window* create_window(const GameId& game_id)
 
 } // namespace
 
+uint32_t sdl_custom_event_type;
+
 int main(int argc, char *argv[])
 {
 #ifdef __SWITCH__
 	romfsInit();
 #endif
 	Config config(argc, argv);
+	if (config.print_version) {
+		puts(SYSTEM3_VERSION);
+		return 0;
+	}
 	GameId game_id(config);
 
 	g_window = create_window(game_id);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
+	sdl_custom_event_type = SDL_RegisterEvents(1);
 
 	// system3 初期化
 	g_nact.reset(NACT::create(config, game_id));
@@ -112,6 +119,7 @@ int main(int argc, char *argv[])
 #ifdef ENABLE_DEBUGGER
 	if (config.debugger_mode != DebuggerMode::DISABLED) {
 		g_debugger = std::make_unique<debugger::Debugger>("ADISK.DAT.symbols", config.debugger_mode);
+		g_debugger->init();
 	}
 #endif
 

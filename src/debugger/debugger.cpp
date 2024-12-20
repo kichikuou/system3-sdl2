@@ -65,13 +65,17 @@ int get_retaddr_if_funcall() {
 Debugger::Debugger(const char *symbols_path, DebuggerMode mode) {
 	symbols.load(symbols_path);
 	if (mode == DebuggerMode::DAP) {
-		// frontend = std::make_unique<DapFrontend>(this);
+		frontend = std::unique_ptr<Frontend>(Frontend::create_dap(this, symbols));
 	} else {
 		frontend = std::unique_ptr<Frontend>(Frontend::create_cli(this, symbols));
 	}
 }
 
 Debugger::~Debugger() = default;
+
+void Debugger::init() {
+	frontend->init();
+}
 
 void Debugger::repl(int bp_no) {
 	delete_breakpoint(INTERNAL_BREAKPOINT_NO);
@@ -114,10 +118,12 @@ uint8_t Debugger::handle_breakpoint(int page, int addr) {
 	return restore_op;
 }
 
-bool Debugger::console_vprintf(int lv, const char *format, va_list ap) {
-	return false;
+bool Debugger::console_vprintf(const char *format, va_list ap) {
+	return frontend->console_output(format, ap);
 }
+
 void Debugger::post_command(void *data) {
+	frontend->on_command(data);
 }
 
 int Debugger::set_breakpoint(int page, int addr, bool is_internal)
