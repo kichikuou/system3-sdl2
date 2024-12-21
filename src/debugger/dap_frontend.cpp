@@ -8,6 +8,7 @@
 #include "common.h"
 #include "encoding.h"
 #include "nact.h"
+#include "ags.h"
 #include "debugger/debugger.h"
 using Json = nlohmann::json;
 
@@ -107,6 +108,14 @@ public:
 	}
 
 	void on_palette_change() override {
+		Json event = {
+			{"type", "event"},
+			{"event", "xsystem35.paletteChanged"},
+			{"body", {
+				{"version", ++palette_version}
+			}}
+		};
+		send_json(event);
 	}
 
 	bool console_output(const char* format, va_list ap) override {
@@ -225,6 +234,8 @@ private:
 		} else if (command == "next") {
 			cmd_next(args, resp);
 			continue_repl = false;
+		} else if (command == "xsystem35.palette") {
+			cmd_palette(args, resp);
 		} else {
 			fprintf(stderr, "Unknown command '%s'\n", command.c_str());
 			resp["success"] = false;
@@ -498,10 +509,19 @@ private:
 		resp["success"] = true;
 	}
 
+	void cmd_palette(Json& args, Json& resp) {
+		resp["success"] = true;
+		resp["body"] = {
+			{"version", palette_version},
+			{"palette", g_nact->ags->get_screen_palette()},
+		};
+	}
+
 	std::queue<char*> queue;
 	bool initialized = false;
 	int seq_ = 0;
 	std::string src_dir;
+	unsigned palette_version = 0;
 };
 
 // static

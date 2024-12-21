@@ -132,6 +132,10 @@ void NACT::execute()
 		// パレット設定が終わった
 		ags->flush_screen(true);
 		set_palette = false;
+#ifdef ENABLE_DEBUGGER
+		if (g_debugger)
+			g_debugger->on_palette_change();
+#endif
 	}
 	if(verb_obj && cmd != '[' && cmd != ':') {
 		// 動詞-目的語メニューの表示

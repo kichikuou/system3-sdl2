@@ -103,6 +103,7 @@ public:
 	void set_cg_file(const char *file_name);
 
 	void set_palette(int index, int r, int g, int b);
+	const Palette& get_screen_palette() const { return screen_palette; }
 	uint8 get_pixel(int dest, int x, int y);
 	void set_pixel(int dest, int x, int y, uint8 color);
 

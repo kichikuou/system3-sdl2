@@ -100,9 +100,9 @@ public:
 	virtual ~NACT();
 
 	Scenario sco;
+	AGS* ags;
 
 protected:
-	AGS* ags;
 	MAKO* mako;
 	MsgSkip* msgskip;
 

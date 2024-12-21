@@ -12,6 +12,7 @@
 #include <string.h>
 #include "dri.h"
 #include "game_id.h"
+#include "debugger/debugger.h"
 
 void AGS::load_cg(int page, int transparent)
 {
@@ -71,6 +72,10 @@ void AGS::load_cg(int page, int transparent)
 		}
 		break;
 	}
+#ifdef ENABLE_DEBUGGER
+	if (g_debugger)
+		g_debugger->on_palette_change();
+#endif
 }
 
 void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)
