@@ -122,11 +122,10 @@ void AGS::open_text_window(int index, bool erase)
 			}
 		}
 
-		uint32 palette[256];
-		memcpy(palette, screen_palette, sizeof(screen_palette));
-		memcpy(screen_palette, text_w[index - 1].window_palette, sizeof(screen_palette));
+		Palette palette = screen_palette;
+		screen_palette = text_w[index - 1].window_palette;
 		draw_screen(sx, sy, width, height);
-		memcpy(screen_palette, palette, sizeof(screen_palette));
+		screen_palette = palette;
 	}
 
 	// テキスト描画位置更新
@@ -181,11 +180,10 @@ void AGS::close_text_window(int index, bool update)
 			}
 		}
 
-		uint32 palette[256];
-		memcpy(palette, screen_palette, sizeof(screen_palette));
-		memcpy(screen_palette, text_w[index - 1].screen_palette, sizeof(screen_palette));
+		Palette palette = screen_palette;
+		screen_palette = text_w[index - 1].screen_palette;
 		draw_screen(sx, sy, width, height);
-		memcpy(screen_palette, palette, sizeof(screen_palette));
+		screen_palette = palette;
 	}
 
 	// テキスト描画位置更新
@@ -285,11 +283,10 @@ void AGS::close_menu_window(int index)
 			}
 		}
 
-		uint32 palette[256];
-		memcpy(palette, screen_palette, sizeof(screen_palette));
-		memcpy(screen_palette, menu_w[index - 1].screen_palette, sizeof(screen_palette));
+		Palette palette = screen_palette;
+		screen_palette = menu_w[index - 1].screen_palette;
 		draw_screen(sx, sy, width, height);
-		memcpy(screen_palette, palette, sizeof(screen_palette));
+		screen_palette = palette;
 	}
 }
 

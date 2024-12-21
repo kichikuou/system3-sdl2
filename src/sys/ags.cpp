@@ -162,7 +162,7 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	acg.open("ACG.DAT");
 
 	// パレット
-	memset(program_palette, 0, sizeof(program_palette));
+	program_palette = {0};
 	program_palette[0x00] = SETPALETTE16(0x0, 0x0, 0x0);
 	program_palette[0x01] = SETPALETTE16(0x0, 0x0, 0xa);
 	program_palette[0x02] = SETPALETTE16(0xa, 0x0, 0x0);
@@ -224,7 +224,7 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 		}
 	}
 
-	memcpy(screen_palette, program_palette, sizeof(program_palette));
+	screen_palette = program_palette;
 
 	// Bコマンド
 	for(int i = 0; i < 10; i++) {

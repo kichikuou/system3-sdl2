@@ -7,6 +7,7 @@
 #ifndef _AGS_H_
 #define _AGS_H_
 
+#include <array>
 #include <memory>
 #include <stdio.h>
 #include "../common.h"
@@ -15,6 +16,8 @@
 #include <SDL_ttf.h>
 
 #define MAX_CG 10000
+
+using Palette = std::array<uint32, 256>;
 
 static inline uint32 SETPALETTE256(uint32 R, uint32 G, uint32 B)
 {
@@ -81,8 +84,8 @@ private:
 
 	uint32* vram[3][480];	// 仮想VRAMへのポインタ
 
-	uint32 program_palette[256];
-	uint32 screen_palette[256];
+	Palette program_palette;
+	Palette screen_palette;
 	uint8 gaiji[188][32];
 
 	int fade_level = 0;  // 0-255
@@ -182,13 +185,13 @@ public:
 		int screen_y;
 		int screen_width;
 		int screen_height;
-		uint32 screen_palette[256];
+		Palette screen_palette;
 		uint32* window;
 		int window_x;
 		int window_y;
 		int window_width;
 		int window_height;
-		uint32 window_palette[256];
+		Palette window_palette;
 	} WINDOW;
 	WINDOW menu_w[10];
 	WINDOW text_w[10];
