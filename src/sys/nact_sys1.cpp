@@ -1143,9 +1143,15 @@ void NACT_Sys1::cmd_z()
 			ags->text_font_size = 16;
 			ags->text_font_color = color;
 		} else if(cmd == 2) {
-			ags->load_cg(74, -1);
-			ags->load_cg(81, -1);
-			map_page = 81;
+			if (param == 0) {
+				// Clear the screen
+				ags->box_fill(0, 0, 0, 640, 400, 0);
+			} else {
+				// Restore the screen
+				ags->load_cg(74, 8);
+				ags->load_cg(81, -1);
+				map_page = 81;
+			}
 		} else if(cmd == 3) {
 			RND = (param == 0 || param == 1) ? 0 : random(param);
 		} else if(460 <= cmd && cmd <= 625 && 20 <= param && param <= 55) {
