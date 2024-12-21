@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1 - 2024-12-21
+- Fixed an issue where post-load messages were not displayed in some games
+- Fixed a graphic issue in the underground passage in Intruder (#31)
+- Fixed various issues in 走り女II (#32)
+
 ## 1.2.0 - 2024-12-06
 - Windows: `Message` -> `Auto Copy to Clipboard` menu command has been added.
   When enabled, in-game text will be copied to the clipboard automatically. This
