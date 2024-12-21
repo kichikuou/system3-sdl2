@@ -636,6 +636,7 @@ void NACT_Sys3::cmd_l()
 			sco.page_jump(next_page, next_addr);
 
 			mako->play_music(next_music);
+			RND = 0;
 		}
 	} else if(101 <= index && index <= 126) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
@@ -873,6 +874,7 @@ void NACT_Sys3::cmd_q()
 
 			fio->write(buffer, 9510);
 		}
+		RND = 1;
 	}
 }
 

@@ -763,6 +763,7 @@ void NACT_Sys2::cmd_l()
 			sco.page_jump(next_page, next_addr);
 
 			mako->play_music(next_music);
+			RND = 0;
 		}
 	}
 }
@@ -918,6 +919,7 @@ void NACT_Sys2::cmd_q()
 
 			fio->write(buffer, 9510);
 		}
+		RND = 1;
 	}
 }
 
