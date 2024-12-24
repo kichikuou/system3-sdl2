@@ -406,7 +406,7 @@ void NACT_Sys3::cmd_l()
 
 	output_console("\nL %d:", index);
 
-	if(index == 0) {
+	if (index == 0) {
 		// 特殊セーブ
 		auto fio = FILEIO::open("ASLEEP.DAT", FILEIO_READ_BINARY | FILEIO_SAVEDATA);
 		if (fio) {
@@ -419,97 +419,11 @@ void NACT_Sys3::cmd_l()
 				fio->read(tvar[i], 22);
 			}
 		}
-	} else if(1 <= index && index <= 26) {
+	} else if (1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char file_name[_MAX_PATH];
-		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
-
-		auto fio = FILEIO::open(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA);
-		if (fio) {
-			fio->seek(112, SEEK_SET);
-
-			int next_page = fio->getw() - 1;
-			fio->getw();
-			fio->getw();	// cg no?
-			fio->getw();
-			int next_music = fio->getw();
-			fio->getw();
-			int next_addr = fio->getw();
-			fio->getw();
-			for(int i = 0; i < 512; i++) {
-				var[i] = fio->getw();
-			}
-			ags->menu_font_size = fio->getw();
-			ags->text_font_size = fio->getw();
-			ags->palette_bank = fio->getw();
-			if(!ags->palette_bank) {
-				ags->palette_bank = -1;
-			}
-			ags->text_font_color = fio->getw();
-			ags->menu_font_color = fio->getw();
-			ags->menu_frame_color = fio->getw();
-			ags->menu_back_color = fio->getw();
-			ags->text_frame_color = fio->getw();
-			ags->text_back_color = fio->getw();
-			for(int i = 0; i < 10; i++) {
-				ags->menu_w[i].sx = fio->getw();
-				ags->menu_w[i].sy = fio->getw();
-				ags->menu_w[i].ex = fio->getw();
-				ags->menu_w[i].ey = fio->getw();
-				ags->menu_w[i].push = fio->getw() ? true : false;
-				ags->menu_w[i].frame = fio->getw() ? true : false;
-				fio->getw();
-				fio->getw();
-
-				if(ags->menu_w[i].screen) {
-					free(ags->menu_w[i].screen);
-				}
-				ags->menu_w[i].screen = NULL;
-				if(ags->menu_w[i].window) {
-					free(ags->menu_w[i].window);
-				}
-				ags->menu_w[i].window = NULL;
-			}
-			for(int i = 0; i < 10; i++) {
-				ags->text_w[i].sx = fio->getw();
-				ags->text_w[i].sy = fio->getw();
-				ags->text_w[i].ex = fio->getw();
-				ags->text_w[i].ey = fio->getw();
-				ags->text_w[i].push = fio->getw() ? true : false;
-				ags->text_w[i].frame = fio->getw() ? true : false;
-				fio->getw();
-				fio->getw();
-
-				if(ags->text_w[i].screen) {
-					free(ags->text_w[i].screen);
-				}
-				ags->text_w[i].screen = NULL;
-				if(ags->text_w[i].window) {
-					free(ags->text_w[i].window);
-				}
-				ags->text_w[i].window = NULL;
-			}
-			for(int i = 0; i < 10; i++) {
-				fio->read(tvar[i], 22);
-			}
-			for(int i = 0; i < 30; i++) {
-				for(int j = 0; j < 10; j++) {
-					fio->read(tvar_stack[i][j], 22);
-				}
-			}
-			for(int i = 0; i < 30; i++) {
-				for(int j = 0; j < 20; j++) {
-					var_stack[i][j] = fio->getw();
-				}
-			}
-			fio.reset();
-
-			sco.page_jump(next_page, next_addr);
-
-			mako->play_music(next_music);
+		if (load(index))
 			RND = 0;
-		}
-	} else if(101 <= index && index <= 126) {
+	} else if (101 <= index && index <= 126) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
 		char file_name[_MAX_PATH];
 		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 101);
@@ -627,16 +541,6 @@ void NACT_Sys3::cmd_p()
 	set_palette = true;
 }
 
-#define FWRITE(data, size) { \
-	memcpy(&buffer[p], data, size); \
-	p += size; \
-}
-#define FPUTW(data) { \
-	uint16 tmp = (data); \
-	buffer[p++] = tmp & 0xff; \
-	buffer[p++] = (tmp >> 8) & 0xff; \
-}
-
 void NACT_Sys3::cmd_q()
 {
 	static char header[112] = {
@@ -665,7 +569,7 @@ void NACT_Sys3::cmd_q()
 
 	output_console("\nQ %d:", index);
 
-	if(index == 0) {
+	if (index == 0) {
 		// 特殊セーブ
 		auto fio = FILEIO::open("ASLEEP.DAT", FILEIO_WRITE_BINARY | FILEIO_SAVEDATA);
 		if (fio) {
@@ -678,73 +582,9 @@ void NACT_Sys3::cmd_q()
 				fio->write(tvar[i], 22);
 			}
 		}
-	} else if(1 <= index && index <= 26) {
+	} else if (1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char file_name[_MAX_PATH];
-		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
-
-		auto fio = FILEIO::open(file_name, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA);
-		if (fio) {
-			uint8 buffer[9510];
-			int p = 0;
-
-			FWRITE(header, 112);
-			FPUTW(sco.page() + 1);
-			FPUTW(0);
-			FPUTW(0);	// cg no?
-			FPUTW(0);
-			FPUTW(mako->current_music);
-			FPUTW(0);
-			FPUTW(sco.current_addr());
-			FPUTW(0);
-			for(int i = 0; i < 512; i++) {
-				FPUTW(var[i]);
-			}
-			FPUTW(ags->menu_font_size);
-			FPUTW(ags->text_font_size);
-			FPUTW(ags->palette_bank == -1 ? 0 : ags->palette_bank);
-			FPUTW(ags->text_font_color);
-			FPUTW(ags->menu_font_color);
-			FPUTW(ags->menu_frame_color);
-			FPUTW(ags->menu_back_color);
-			FPUTW(ags->text_frame_color);
-			FPUTW(ags->text_back_color);
-			for(int i = 0; i < 10; i++) {
-				FPUTW(ags->menu_w[i].sx);
-				FPUTW(ags->menu_w[i].sy);
-				FPUTW(ags->menu_w[i].ex);
-				FPUTW(ags->menu_w[i].ey);
-				FPUTW(ags->menu_w[i].push ? 1 : 0);
-				FPUTW(ags->menu_w[i].frame ? 1 : 0);
-				FPUTW(0);
-				FPUTW(0);
-			}
-			for(int i = 0; i < 10; i++) {
-				FPUTW(ags->text_w[i].sx);
-				FPUTW(ags->text_w[i].sy);
-				FPUTW(ags->text_w[i].ex);
-				FPUTW(ags->text_w[i].ey);
-				FPUTW(ags->text_w[i].push ? 1 : 0);
-				FPUTW(ags->text_w[i].frame ? 1 : 0);
-				FPUTW(0);
-				FPUTW(0);
-			}
-			for(int i = 0; i < 10; i++) {
-				FWRITE(tvar[i], 22);
-			}
-			for(int i = 0; i < 30; i++) {
-				for(int j = 0; j < 10; j++) {
-					FWRITE(tvar_stack[i][j], 22);
-				}
-			}
-			for(int i = 0; i < 30; i++) {
-				for(int j = 0; j < 20; j++) {
-					FPUTW(var_stack[i][j]);
-				}
-			}
-
-			fio->write(buffer, 9510);
-		}
+		save(index, header);
 		RND = 1;
 	}
 }

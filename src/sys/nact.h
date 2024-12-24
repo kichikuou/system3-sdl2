@@ -203,6 +203,9 @@ protected:
 	uint16 random(uint16 range);
 	uint32 seed;	// 乱数の種
 
+	bool load(int index);
+	bool save(int index, const char header[112]);
+
 	int menu_select(int num_items);
 	void wait_after_open_menu();
 
