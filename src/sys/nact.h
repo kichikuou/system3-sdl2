@@ -120,7 +120,7 @@ protected:
 	void message(uint8_t first_byte);
 
 	// Commands
-	virtual void cmd_calc() = 0;
+	void cmd_calc();
 
 	virtual void cmd_branch() = 0;
 	void cmd_label_jump();
@@ -128,19 +128,19 @@ protected:
 	void cmd_page_jump();
 	void cmd_page_call();
 
-	virtual void cmd_set_menu() = 0;
-	virtual void cmd_open_menu() = 0;
+	void cmd_set_menu();
+	void cmd_open_menu();
 
-	virtual void cmd_set_verbobj() = 0;
-	virtual void cmd_set_verbobj2() = 0;
+	void cmd_set_verbobj();
+	void cmd_set_verbobj2();
 	virtual void cmd_open_verb() = 0;
 	virtual void cmd_open_obj(int verb) = 0;
 
-	virtual void cmd_a() = 0;
+	void cmd_a();
 	virtual void cmd_b() = 0;
 	virtual void cmd_d() = 0;
 	virtual void cmd_e() = 0;
-	virtual void cmd_f() = 0;
+	void cmd_f();
 	virtual void cmd_g() = 0;
 	virtual void cmd_h() = 0;
 	virtual void cmd_i() = 0;
@@ -152,13 +152,13 @@ protected:
 	virtual void cmd_o() = 0;
 	virtual void cmd_p() = 0;
 	virtual void cmd_q() = 0;
-	virtual void cmd_r() = 0;
-	virtual void cmd_s() = 0;
+	void cmd_r();
+	void cmd_s();
 	virtual void cmd_t() = 0;
 	virtual void cmd_u() = 0;
 	virtual void cmd_v() = 0;
 	virtual void cmd_w() = 0;
-	virtual void cmd_x() = 0;
+	void cmd_x();
 	virtual void cmd_y() = 0;
 	virtual void cmd_z() = 0;
 
@@ -257,19 +257,12 @@ class NACT_Sys1 final : public NACT {
 public:
 	NACT_Sys1(const Config& config, const GameId& game_id);
 protected:
-	void cmd_calc() override;
 	void cmd_branch() override;
-	void cmd_set_menu() override;
-	void cmd_open_menu() override;
-	void cmd_set_verbobj() override;
-	void cmd_set_verbobj2() override;
 	void cmd_open_verb() override;
 	void cmd_open_obj(int verb) override;
-	void cmd_a() override;
 	void cmd_b() override;
 	void cmd_d() override;
 	void cmd_e() override;
-	void cmd_f() override;
 	void cmd_g() override;
 	void cmd_h() override;
 	void cmd_i() override;
@@ -281,13 +274,10 @@ protected:
 	void cmd_o() override;
 	void cmd_p() override;
 	void cmd_q() override;
-	void cmd_r() override;
-	void cmd_s() override;
 	void cmd_t() override;
 	void cmd_u() override;
 	void cmd_v() override;
 	void cmd_w() override;
-	void cmd_x() override;
 	void cmd_y() override;
 	void cmd_z() override;
 	void opening() override;
@@ -304,19 +294,12 @@ class NACT_Sys2 final : public NACT {
 public:
 	NACT_Sys2(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
 protected:
-	void cmd_calc() override;
 	void cmd_branch() override;
-	void cmd_set_menu() override;
-	void cmd_open_menu() override;
-	void cmd_set_verbobj() override;
-	void cmd_set_verbobj2() override;
 	void cmd_open_verb() override;
 	void cmd_open_obj(int verb) override;
-	void cmd_a() override;
 	void cmd_b() override;
 	void cmd_d() override;
 	void cmd_e() override;
-	void cmd_f() override;
 	void cmd_g() override;
 	void cmd_h() override;
 	void cmd_i() override;
@@ -328,13 +311,10 @@ protected:
 	void cmd_o() override;
 	void cmd_p() override;
 	void cmd_q() override;
-	void cmd_r() override;
-	void cmd_s() override;
 	void cmd_t() override;
 	void cmd_u() override;
 	void cmd_v() override;
 	void cmd_w() override;
-	void cmd_x() override;
 	void cmd_y() override;
 	void cmd_z() override;
 	uint16 cali() override;
@@ -344,19 +324,12 @@ class NACT_Sys3 final : public NACT {
 public:
 	NACT_Sys3(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
 protected:
-	void cmd_calc() override;
 	void cmd_branch() override;
-	void cmd_set_menu() override;
-	void cmd_open_menu() override;
-	void cmd_set_verbobj() override;
-	void cmd_set_verbobj2() override;
 	void cmd_open_verb() override;
 	void cmd_open_obj(int verb) override;
-	void cmd_a() override;
 	void cmd_b() override;
 	void cmd_d() override;
 	void cmd_e() override;
-	void cmd_f() override;
 	void cmd_g() override;
 	void cmd_h() override;
 	void cmd_i() override;
@@ -368,13 +341,10 @@ protected:
 	void cmd_o() override;
 	void cmd_p() override;
 	void cmd_q() override;
-	void cmd_r() override;
-	void cmd_s() override;
 	void cmd_t() override;
 	void cmd_u() override;
 	void cmd_v() override;
 	void cmd_w() override;
-	void cmd_x() override;
 	void cmd_y() override;
 	void cmd_z() override;
 	uint16 cali() override;
