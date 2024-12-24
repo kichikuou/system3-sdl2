@@ -34,19 +34,14 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	auto fio = FILEIO::open("AG00.DAT", FILEIO_READ_BINARY);
 	if (fio) {
 		int d0, d1, d2, d3;
-		char string[MAX_CAPTION];
-		fio->ag00_gets(string, MAX_CAPTION);
-		if (sscanf_s(string, "%d,%d,%d,%d", &d0, &d1, &d2, &d3) != 4)
+		std::string line = fio->gets();
+		if (sscanf_s(line.c_str(), "%d,%d,%d,%d", &d0, &d1, &d2, &d3) != 4)
 			sys_error("AG00.DAT: parse error");
-		for(int i = 0; i < d1; i++) {
-			// 動詞の読み込み
-			fio->ag00_gets(string, MAX_CAPTION);
-			memcpy(caption_verb[i], string, sizeof(string));
+		for (int i = 0; i < d1; i++) {
+			caption_verb[i] = fio->gets();
 		}
-		for(int i = 0; i < d2; i++) {
-			// 目的語の読み込み
-			fio->ag00_gets(string, MAX_CAPTION);
-			memcpy(caption_obj[i], string, sizeof(string));
+		for (int i = 0; i < d2; i++) {
+			caption_obj[i] = fio->gets();
 		}
 		fio.reset();
 	}
@@ -312,11 +307,11 @@ void NACT::cmd_set_menu()
 
 		output_console("$");
 	} else {
-		if(!menu_index) {
+		if (menu_items.empty()) {
 			ags->clear_menu_window();
 			ags->menu_dest_y = 0;
 		}
-		menu_addr[menu_index++] = sco.getw();
+		menu_items.emplace_back(sco.getw());
 		ags->menu_dest_x = 2;
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
@@ -324,7 +319,7 @@ void NACT::cmd_set_menu()
 		if (game_id.is_gakuen())
 			menu_window = 2;
 
-		output_console("\n$%x,", menu_addr[menu_index - 1]);
+		output_console("\n$%x,", menu_items.back().addr);
 	}
 }
 
@@ -332,7 +327,7 @@ void NACT::cmd_open_menu()
 {
 	output_console("\n]");
 
-	if (!menu_index) {
+	if (menu_items.empty()) {
 		sco.jump_to(sco.default_addr());
 		return;
 	}
@@ -343,14 +338,14 @@ void NACT::cmd_open_menu()
 		}
 	}
 
-	int selection = menu_select(menu_index);
+	int selection = menu_select(static_cast<int>(menu_items.size()));
 	if (terminate)
 		return;
 
 	if (selection != -1) {
-		sco.jump_to(menu_addr[selection]);
+		sco.jump_to(menu_items[selection].addr);
 	}
-	menu_index = 0;
+	menu_items.clear();
 }
 
 void NACT::cmd_set_verbobj()
@@ -359,12 +354,10 @@ void NACT::cmd_set_verbobj()
 	int obj = sco.getd();
 	int addr = sco.getw();
 
-	menu_addr[menu_index] = addr;
-	menu_verb[menu_index] = verb;
-	menu_obj[menu_index++] = obj;
+	menu_items.emplace_back(addr, verb, obj);
 	verb_obj = true;
 
-	output_console("\n[%x,%s,%s:", addr, caption_verb[verb], caption_obj[obj]);
+	output_console("\n[%x,%s,%s:", addr, caption_verb[verb].c_str(), caption_obj[obj].c_str());
 }
 
 void NACT::cmd_set_verbobj2()
@@ -374,14 +367,12 @@ void NACT::cmd_set_verbobj2()
 	int obj = sco.getd();
 	int addr = sco.getw();
 
-	if(condition) {
-		menu_addr[menu_index] = addr;
-		menu_verb[menu_index] = verb;
-		menu_obj[menu_index++] = obj;
+	if (condition) {
+		menu_items.emplace_back(addr, verb, obj);
 	}
 	verb_obj = true;
 
-	output_console("\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb], caption_obj[obj]);
+	output_console("\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb].c_str(), caption_obj[obj].c_str());
 }
 
 void NACT::cmd_a()

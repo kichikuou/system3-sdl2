@@ -49,7 +49,7 @@ public:
 		putc(w & 0xff);
 		putc((w >> 8) & 0xff);
 	}
-	void ag00_gets(char* dest, int length);
+	std::string gets();
 };
 
 #endif

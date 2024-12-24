@@ -77,20 +77,15 @@ std::unique_ptr<FILEIO> FILEIO::open(const char *file_name, int mode)
 	return fp ? std::unique_ptr<FILEIO>(new FILEIO(fp, mode)) : nullptr;
 }
 
-void FILEIO::ag00_gets(char *dest, int length)
+std::string FILEIO::gets()
 {
-	int p = 0;
-	
-	for(;;) {
+	std::string s;
+	for (;;) {
 		int c = getc();
-		if(c == 0x0d || c == EOF) {
+		if (c == '\r' || c == EOF)
 			break;
-		}
-		if(c != 0x0a) {
-			if(p < length + 1) {
-				dest[p++] = c;
-			}
-		}
+		if(c != '\n')
+			s.push_back(c);
 	}
-	dest[p] = '\0';
+	return s;
 }

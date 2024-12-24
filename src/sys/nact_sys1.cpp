@@ -12,6 +12,7 @@
 */
 
 #include "nact.h"
+#include <algorithm>
 #include "ags.h"
 #include "mako.h"
 #include "msgskip.h"
@@ -222,21 +223,17 @@ void NACT_Sys1::cmd_open_verb()
 	verb_obj = false;
 
 	// 表示する動詞のチェック
-	int chk[MAX_VERB], page = 0, cnt = 0;
-	
+	bool chk[MAX_VERB] = {};
+	int page = 0;
+
 	if (game_id.is_gakuen())
 		menu_window = 1;
 	int menu_max = ags->calculate_menu_max(menu_window);
 
-	memset(chk, 0, sizeof(chk));
-	for(int i = 0; i < menu_index; i++) {
-		chk[menu_verb[i]] = 1;
+	for (const MenuItem& item : menu_items) {
+		chk[item.verb] = true;
 	}
-	for(int i = 0; i < MAX_VERB; i++) {
-		if(chk[i]) {
-			cnt++;
-		}
-	}
+	int cnt = std::count(chk, chk + MAX_VERB, true);
 
 top:
 	// メニュー項目の準備
@@ -252,7 +249,7 @@ top:
 			if(chk[i]) {
 				ags->menu_dest_x = 2;
 				ags->menu_dest_y += 2;
-				ags->draw_text(caption_verb[i]);
+				ags->draw_text(caption_verb[i].c_str());
 				id[index++] = i;
 				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
@@ -263,7 +260,7 @@ top2:
 			if(chk[i]) {
 				ags->menu_dest_x = 2;
 				ags->menu_dest_y += 2;
-				ags->draw_text(caption_verb[i]);
+				ags->draw_text(caption_verb[i].c_str());
 				id[index++] = i;
 				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
@@ -297,7 +294,7 @@ top2:
 	} else {
 		cmd_open_obj(id[selection]);
 	}
-	menu_index = 0;
+	menu_items.clear();
 }
 
 void NACT_Sys1::cmd_open_obj(int verb)
@@ -308,27 +305,23 @@ void NACT_Sys1::cmd_open_obj(int verb)
 	verb_obj = false;
 
 	// 表示する目的語のチェック
-	int chk[MAX_OBJ], addr[MAX_OBJ], page = 0, cnt = 0;
-	
-	memset(chk, 0, sizeof(chk));
-	for(int i = 0; i < menu_index; i++) {
-		if(menu_verb[i] == verb) {
-			chk[menu_obj[i]] = 1;
-			addr[menu_obj[i]] = menu_addr[i];
+	bool chk[MAX_OBJ] = {};
+	int addr[MAX_OBJ], page = 0;
+
+	for (const MenuItem& item : menu_items) {
+		if (item.verb == verb) {
+			chk[item.obj] = true;
+			addr[item.obj] = item.addr;
 		}
 	}
-	for(int i = 0; i < MAX_OBJ; i++) {
-		if(chk[i]) {
-			cnt++;
-		}
-	}
+	int cnt = std::count(chk, chk + MAX_OBJ, true);
 	// 目的語がない場合
 	if(chk[0] && cnt == 1) {
 		sco.jump_to(addr[0]);
 		return;
 	}
 	// 以後、obj=0は戻るとして扱う
-	chk[0] = 0;
+	chk[0] = false;
 	addr[0] = sco.default_addr();
 
 top:
@@ -345,7 +338,7 @@ top:
 			if(chk[i]) {
 				ags->menu_dest_x = 2;
 				ags->menu_dest_y += 2;
-				ags->draw_text(caption_obj[i]);
+				ags->draw_text(caption_obj[i].c_str());
 				id[index++] = i;
 				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
@@ -362,7 +355,7 @@ top2:
 			if(chk[i]) {
 				ags->menu_dest_x = 2;
 				ags->menu_dest_y += 2;
-				ags->draw_text(caption_obj[i]);
+				ags->draw_text(caption_obj[i].c_str());
 				id[index++] = i;
 				ags->menu_dest_y += ags->menu_font_size + 2;
 			}

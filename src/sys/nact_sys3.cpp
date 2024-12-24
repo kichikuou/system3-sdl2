@@ -35,11 +35,11 @@ void NACT_Sys3::cmd_open_verb()
 	verb_obj = false;
 
 	// 表示する動詞のチェック
-	int chk[MAX_VERB], page = 0;
-	
-	memset(chk, 0, sizeof(chk));
-	for(int i = 0; i < menu_index; i++) {
-		chk[menu_verb[i]] = 1;
+	bool chk[MAX_VERB] = {};
+	int page = 0;
+
+	for (const MenuItem& item : menu_items) {
+		chk[item.verb] = true;
 	}
 
 	// メニュー項目の準備
@@ -53,7 +53,7 @@ void NACT_Sys3::cmd_open_verb()
 		if(chk[i]) {
 			ags->menu_dest_x = 2;
 			ags->menu_dest_y += 2;
-			ags->draw_text(caption_verb[i]);
+			ags->draw_text(caption_verb[i].c_str());
 			id[index++] = i;
 			ags->menu_dest_y += ags->menu_font_size + 2;
 		}
@@ -69,7 +69,7 @@ void NACT_Sys3::cmd_open_verb()
 	} else {
 		cmd_open_obj(id[selection]);
 	}
-	menu_index = 0;
+	menu_items.clear();
 }
 
 void NACT_Sys3::cmd_open_obj(int verb)
@@ -78,13 +78,13 @@ void NACT_Sys3::cmd_open_obj(int verb)
 	verb_obj = false;
 
 	// 表示する目的語のチェック
-	int chk[MAX_OBJ], addr[MAX_OBJ], page = 0;
-	
-	memset(chk, 0, sizeof(chk));
-	for(int i = 0; i < menu_index; i++) {
-		if(menu_verb[i] == verb) {
-			chk[menu_obj[i]] = 1;
-			addr[menu_obj[i]] = menu_addr[i];
+	bool chk[MAX_OBJ] = {};
+	int addr[MAX_OBJ], page = 0;
+
+	for (const MenuItem& item : menu_items) {
+		if (item.verb == verb) {
+			chk[item.obj] = true;
+			addr[item.obj] = item.addr;
 		}
 	}
 	// 目的語がない場合
@@ -93,7 +93,7 @@ void NACT_Sys3::cmd_open_obj(int verb)
 		return;
 	}
 	// 以後、obj=0は戻るとして扱う
-	chk[0] = 0;
+	chk[0] = false;
 	addr[0] = sco.default_addr();
 
 	// メニュー項目の準備
@@ -107,7 +107,7 @@ void NACT_Sys3::cmd_open_obj(int verb)
 		if(chk[i]) {
 			ags->menu_dest_x = 2;
 			ags->menu_dest_y += 2;
-			ags->draw_text(caption_obj[i]);
+			ags->draw_text(caption_obj[i].c_str());
 			id[index++] = i;
 			ags->menu_dest_y += ags->menu_font_size + 2;
 		}

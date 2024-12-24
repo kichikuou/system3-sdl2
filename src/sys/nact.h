@@ -77,10 +77,8 @@
 #define M_X var[57]
 #define M_Y var[58]
 
-#define MAX_MENU 64
 #define MAX_VERB 128
 #define MAX_OBJ 256
-#define MAX_CAPTION 32
 #define MAX_PCM 256
 
 class AGS;
@@ -134,7 +132,6 @@ protected:
 	void cmd_set_verbobj();
 	void cmd_set_verbobj2();
 	virtual void cmd_open_verb() = 0;
-	virtual void cmd_open_obj(int verb) = 0;
 
 	void cmd_a();
 	virtual void cmd_b() = 0;
@@ -179,13 +176,16 @@ protected:
 	bool show_push = true;		// Push表示
 	bool clear_text = true;	// メニュー後のメッセージウィンドウ消去
 
-	int menu_index = 0;			// メニュー登録のインデックス
-	int menu_addr[64];		// ジャンプ先のアドレス
-	int menu_verb[64];		// 登録された動詞
-	int menu_obj[64];		// 登録された目的語
+	struct MenuItem {
+		uint16_t addr;
+		uint8_t verb;
+		uint8_t obj;
+		explicit MenuItem(uint16_t addr, uint8_t verb = 0, uint8_t obj = 0) : addr(addr), verb(verb), obj(obj) {}
+	};
+	std::vector<MenuItem> menu_items;
 
-	char caption_verb[MAX_VERB][MAX_CAPTION];
-	char caption_obj[MAX_OBJ][MAX_CAPTION];
+	std::string caption_verb[MAX_VERB];
+	std::string caption_obj[MAX_OBJ];
 
 	bool verb_obj = false;	// 動詞-形容詞型メニューの定義中
 	bool set_palette = false;
@@ -259,7 +259,6 @@ public:
 protected:
 	void cmd_branch() override;
 	void cmd_open_verb() override;
-	void cmd_open_obj(int verb) override;
 	void cmd_b() override;
 	void cmd_d() override;
 	void cmd_e() override;
@@ -284,6 +283,8 @@ protected:
 	uint16 cali() override;
 
 private:
+	void cmd_open_obj(int verb);
+
 	// Intruder Zコマンド
 	int paint_x;
 	int paint_y;
@@ -299,37 +300,6 @@ public:
 protected:
 	void cmd_branch() override;
 	void cmd_open_verb() override;
-	void cmd_open_obj(int verb) override;
-	void cmd_b() override;
-	void cmd_d() override;
-	void cmd_e() override;
-	void cmd_g() override;
-	void cmd_h() override;
-	void cmd_i() override;
-	void cmd_j() override;
-	void cmd_k() override;
-	void cmd_l() override;
-	void cmd_m() override;
-	void cmd_n() override;
-	void cmd_o() override;
-	void cmd_p() override;
-	void cmd_q() override;
-	void cmd_t() override;
-	void cmd_u() override;
-	void cmd_v() override;
-	void cmd_w() override;
-	void cmd_y() override;
-	void cmd_z() override;
-	uint16 cali() override;
-};
-
-class NACT_Sys3 final : public NACT {
-public:
-	NACT_Sys3(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
-protected:
-	void cmd_branch() override;
-	void cmd_open_verb() override;
-	void cmd_open_obj(int verb) override;
 	void cmd_b() override;
 	void cmd_d() override;
 	void cmd_e() override;
@@ -353,6 +323,39 @@ protected:
 	uint16 cali() override;
 
 private:
+	void cmd_open_obj(int verb);
+};
+
+class NACT_Sys3 final : public NACT {
+public:
+	NACT_Sys3(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
+protected:
+	void cmd_branch() override;
+	void cmd_open_verb() override;
+	void cmd_b() override;
+	void cmd_d() override;
+	void cmd_e() override;
+	void cmd_g() override;
+	void cmd_h() override;
+	void cmd_i() override;
+	void cmd_j() override;
+	void cmd_k() override;
+	void cmd_l() override;
+	void cmd_m() override;
+	void cmd_n() override;
+	void cmd_o() override;
+	void cmd_p() override;
+	void cmd_q() override;
+	void cmd_t() override;
+	void cmd_u() override;
+	void cmd_v() override;
+	void cmd_w() override;
+	void cmd_y() override;
+	void cmd_z() override;
+	uint16 cali() override;
+
+private:
+	void cmd_open_obj(int verb);
 	uint16 cali2();
 
 	struct K3HackInfo;
