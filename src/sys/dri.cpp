@@ -57,12 +57,12 @@ std::vector<uint8> Dri::load(int page)
 }
 
 // static
-std::vector<uint8> Dri::load_mda(uint32_t crc32_a, uint32_t crc32_b, int page)
+std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 {
 	// データ取得
 	const char* name = NULL;
 
-	switch(crc32_a) {
+	switch (game_id.crc32_a) {
 		case CRC32_BUNKASAI:		// あぶない文化祭前夜
 			name = "AMUS_AB.MDA";
 			break;
@@ -206,7 +206,7 @@ std::vector<uint8> Dri::load_mda(uint32_t crc32_a, uint32_t crc32_b, int page)
 	// AMUS.MDA以外にリンクされている場合はリソースを開き直す
 	if(disk_index == 2) {
 		SDL_RWclose(rw);
-		switch(crc32_b) {
+		switch (game_id.crc32_b) {
 			case CRC32_DPS_SG_FAHREN:	// D.P.S. SG - Fahren Fliegen
 				name = "BMUS_FAH";
 				break;
@@ -255,7 +255,7 @@ std::vector<uint8> Dri::load_mda(uint32_t crc32_a, uint32_t crc32_b, int page)
 		}
 	} else if(disk_index == 3) {
 		SDL_RWclose(rw);
-		switch(crc32_a) {
+		switch (game_id.crc32_a) {
 			case CRC32_TOUSHIN_HINT:	// 闘神都市 ヒントディスク
 				name = "CMUS_T1";
 				break;

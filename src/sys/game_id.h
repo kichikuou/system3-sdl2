@@ -91,6 +91,16 @@ struct GameId {
 	const char* encoding;
 
 	explicit GameId(const Config& config);
+	bool is_gakuen() const {
+		return crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG;
+	}
+	bool is_system1_dps() const {
+		return crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3;
+	}
+	bool is_rance4x() const {
+		return crc32_a == CRC32_RANCE41 || crc32_a == CRC32_RANCE42 ||
+			crc32_a == CRC32_RANCE41_ENG || crc32_a == CRC32_RANCE42_ENG;
+	}
 };
 
 #endif  // _GAMEID_H_

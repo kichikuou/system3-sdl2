@@ -168,9 +168,6 @@ protected:
 	// DPS
 	bool text_refresh;
 
-	// GAKUEN
-	bool enable_graphics = true;
-
 	bool column = true;		// 座標モード
 	bool wait_keydown = true;	// ウェイト時のキー受付
 	int text_wait_time = 100;	// テキスト表示のウェイト
@@ -291,6 +288,9 @@ private:
 	int paint_x;
 	int paint_y;
 	int map_page;
+
+	// GAKUEN
+	bool enable_graphics = true;
 };
 
 class NACT_Sys2 final : public NACT {

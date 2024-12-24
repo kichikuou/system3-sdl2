@@ -143,7 +143,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 
 				uint32* dest;
 				// Gakuen Senki uses exact sx values rather than 8x.
-				if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG)
+				if (game_id.is_gakuen())
 					dest = &vram[dest_screen][y + sy][(x * 8) + sx];
 				else
 					dest = &vram[dest_screen][y + sy][(x + sx) * 8];
@@ -165,7 +165,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 
 	// 画面更新
 	if(dest_screen == 0 && extract_cg) {
-		if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG) {
+		if (game_id.is_gakuen()) {
 			// Gakuen Senki's images were converted to VSP for the modern port, but don't always adhere to VSP's width restrictions, which demand
 			// every image width be a factor of 8. Thankfully, the exceptions are designed to fit into specific parts of the GUI, and so have
 			// consistent widths for each output position.

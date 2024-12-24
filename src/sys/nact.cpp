@@ -321,7 +321,7 @@ void NACT::cmd_set_menu()
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
-		if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG)
+		if (game_id.is_gakuen())
 			menu_window = 2;
 
 		output_console("\n$%x,", menu_addr[menu_index - 1]);
@@ -337,7 +337,7 @@ void NACT::cmd_open_menu()
 		return;
 	}
 
-	if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
+	if (game_id.is_system1_dps()) {
 		if (!text_refresh) {
 			cmd_a();
 		}
@@ -421,7 +421,7 @@ void NACT::cmd_a()
 	// ウィンドウ更新
 	ags->clear_text_window(text_window, true);
 
-	if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
+	if (game_id.is_system1_dps()) {
 		text_refresh = true;
 	}
 }
@@ -490,7 +490,7 @@ void NACT::message(uint8_t first_byte)
 
 	ags->draw_text(buf, text_wait_enb);
 
-	if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
+	if (game_id.is_system1_dps()) {
 		if(!ags->draw_menu) {
 			text_refresh = false;
 		}

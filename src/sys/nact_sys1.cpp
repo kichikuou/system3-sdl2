@@ -224,7 +224,7 @@ void NACT_Sys1::cmd_open_verb()
 	// 表示する動詞のチェック
 	int chk[MAX_VERB], page = 0, cnt = 0;
 	
-	if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG)
+	if (game_id.is_gakuen())
 		menu_window = 1;
 	int menu_max = ags->calculate_menu_max(menu_window);
 
@@ -431,7 +431,7 @@ void NACT_Sys1::cmd_g()
 
 	if (game_id.crc32_a == CRC32_INTRUDER) {
 		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
-	} else if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG) {
+	} else if (game_id.is_gakuen()) {
 		page = (page == 3) ? 94 : page;
 	}
 
@@ -620,7 +620,7 @@ void NACT_Sys1::cmd_y()
 				quit(NACT_HALT);
 				break;
 		}
-	} else if (game_id.crc32_a == CRC32_GAKUEN || game_id.crc32_a == CRC32_GAKUEN_ENG) {
+	} else if (game_id.is_gakuen()) {
 		switch (cmd) {
 			case 1:
 				RND = (param == 0 || param == 1) ? 0 : random(param);
@@ -688,7 +688,7 @@ void NACT_Sys1::cmd_y()
 					for(int i = 39; i <= 48; i++) {
 						var[i] = 0;
 					}
-				} else if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
+				} else if (game_id.is_system1_dps()) {
 					for(int i = 0; i <= 20; i++) {
 						var[i] = 0;
 					}
@@ -705,7 +705,7 @@ void NACT_Sys1::cmd_y()
 				RND = (param == 0 || param == 1) ? 0 : random(param);
 				break;
 			case 7:
-				if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
+				if (game_id.is_system1_dps()) {
 					if(param == 1) {
 						ags->box_fill(0, 40, 8, 598, 270, 0);
 					}
@@ -749,7 +749,7 @@ void NACT_Sys1::cmd_y()
 				RND = 0;
 				break;
 			case 255:
-				if (game_id.crc32_a == CRC32_DPS || game_id.crc32_a == CRC32_DPS_SG || game_id.crc32_a == CRC32_DPS_SG2 || game_id.crc32_a == CRC32_DPS_SG3) {
+				if (game_id.is_system1_dps()) {
 					quit(0);
 				} else {
 					quit(NACT_HALT);

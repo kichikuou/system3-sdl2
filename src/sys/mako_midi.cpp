@@ -94,7 +94,7 @@ void stop_midi()
 class Playback {
 public:
 	static std::unique_ptr<Playback> create(const GameId& game_id, Dri& amus, Dri& mda, int page, int loop, int seq);
-	Playback(uint32_t crc32_a, int loop, int seq) : crc32_a(crc32_a), loop_(loop), seq_(seq) {}
+	Playback(const GameId& game_id, int loop, int seq) : game_id(game_id), loop_(loop), seq_(seq) {}
 	bool load_mml(const std::vector<uint8_t>& data);
 	void load_mda(const std::vector<uint8_t>& data);
 	void start_midi();
@@ -102,7 +102,7 @@ public:
 	int seq() const { return seq_; }
 
 private:
-	uint32_t crc32_a;
+	const GameId& game_id;
 	int loop_;
 	int seq_;
 
@@ -320,7 +320,7 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 					send_3bytes(0xb0 + play[i].channel, 0x0a, play[i].pan);
 				}
 				else if(d0 == 0xec) {
-					if(!(crc32_a == CRC32_DPS || crc32_a == CRC32_DPS_SG || crc32_a == CRC32_DPS_SG2 || crc32_a == CRC32_DPS_SG3))
+					if (!game_id.is_system1_dps())
 						mute_flag = true;
 				}
 				else if(d0 == 0xf5) {
@@ -381,7 +381,7 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 //static
 std::unique_ptr<Playback> Playback::create(const GameId& game_id, Dri& amus, Dri& mda, int page, int loop, int seq)
 {
-	auto playback = std::make_unique<Playback>(game_id.crc32_a, loop, seq);
+	auto playback = std::make_unique<Playback>(game_id, loop, seq);
 
 	std::vector<uint8_t> data = amus.load(page);
 	if (data.empty())
@@ -392,7 +392,7 @@ std::unique_ptr<Playback> Playback::create(const GameId& game_id, Dri& amus, Dri
 	// Load MDA
 	data = mda.load(page);
 	if (data.empty())
-		data = Dri::load_mda(game_id.crc32_a, game_id.crc32_b, page);
+		data = Dri::load_mda(game_id, page);
 	playback->load_mda(data);
 
 	return playback;

@@ -11,12 +11,14 @@
 #include <stdint.h>
 #include <vector>
 
+struct GameId;
+
 class Dri {
 public:
 	void open(const char* file_name);
 	std::vector<uint8_t> load(int page);
 
-	static std::vector<uint8_t> load_mda(uint32_t crc32_a, uint32_t crc32_b, int page);
+	static std::vector<uint8_t> load_mda(const GameId& game_id, int page);
 
 private:
 	std::string fname;
