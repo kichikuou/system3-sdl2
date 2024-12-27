@@ -132,24 +132,12 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 
 	auto fio = FILEIO::open("GAIJI.DAT", FILEIO_READ_BINARY);
 	if (fio) {
-		int d1, d2;
-		while((d1 = fio->getc()) != EOF) {
-			d2 = fio->getc();
-			// jis to sjis
-			d1 += (d2 & 1) ? 0x1f : 0x7d;
-			d1 += (d1 > 0x7f) ? 1 : 0;
-			d2 = ((d2 - 0x21) >> 1) + 0x81;
-			d2 += (d2 > 0x9f) ? 0x40 : 0;
-			uint16 code = (d1 & 0xff) | ((d2 & 0xff) << 8);
-
-			if(0xeb9f <= code && code <= 0xebfc) {
-				for(int i = 0; i < 32; i++) {
-					gaiji[code - 0xeb9f][i] = fio->getc();
-				}
-			} else if(0xec40 <= code && code <= 0xec9e) {
-				for(int i = 0; i < 32; i++) {
-					gaiji[code - 0xec40 + 94][i] = fio->getc();
-				}
+		int row, cell;
+		while ((cell = fio->getc()) != EOF) {
+			row = fio->getc();
+			if (0x76 <= row && row <= 0x77 && 0x21 <= cell && cell <= 0x7e) {
+				int idx = (row - 0x76) * 94 + (cell - 0x21);
+				fio->read(gaiji[idx], 32);
 			} else {
 				fio->seek(32, SEEK_CUR);
 			}
