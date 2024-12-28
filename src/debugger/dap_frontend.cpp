@@ -10,6 +10,10 @@
 #include "nact.h"
 #include "ags.h"
 #include "debugger/debugger.h"
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
 using Json = nlohmann::json;
 
 namespace debugger {
@@ -58,6 +62,10 @@ int read_command_thread(void*) {
 class DapFrontend : public Frontend {
 public:
 	DapFrontend(Debugger* backend, const DebugInfo& symbols) : Frontend(backend, symbols) {
+#ifdef _WIN32
+		_setmode(_fileno(stdin), _O_BINARY);
+		_setmode(_fileno(stdout), _O_BINARY);
+#endif
 		SDL_CreateThread(read_command_thread, "Debugger", NULL);
 	}
 

@@ -41,13 +41,13 @@ void init_menu(bool mouse_move_enabled, const Config& config)
 
 void init_console(int sys_ver)
 {
-#if defined(_DEBUG_CONSOLE)
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
-	char title[] = "SYSTEM1 NACT Tracer";
+	freopen("CONOUT$", "w", stderr);
+	freopen("CONIN$", "r", stdin);
+	char title[] = "SYSTEM1 Debug Console";
 	title[6] = '0' + sys_ver;
 	SetConsoleTitle(title);
-#endif
 }
 
 void save_screenshot(AGS* ags)
@@ -138,7 +138,10 @@ void NACT::text_dialog()
 void NACT::platform_initialize()
 {
 	init_menu(mouse_move_enabled, config);
-	init_console(game_id.sys_ver);
+#ifndef _DEBUG_CONSOLE
+	if (config.debugger_mode == DebuggerMode::CLI)
+#endif
+		init_console(game_id.sys_ver);
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 }
 
