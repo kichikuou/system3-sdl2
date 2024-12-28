@@ -4,81 +4,13 @@ This is an SDL2 port of
 [System3 for Win32](http://takeda-toshiya.my.coocan.jp/alice/) by Takeda
 Toshiya. It supports multiple platforms, including Android and Emscripten.
 
-## Building
+## Installing
 
-### Linux (Debian, Ubuntu)
+For Windows and Android, you can download pre-built binaries from the
+[Releases](https://github.com/kichikuou/system3-sdl2/releases) page.
 
-```bash
-$ git submodule update --init
-$ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev librtmidi-dev
-$ mkdir -p out/debug
-$ cd out/debug
-$ cmake -DCMAKE_BUILD_TYPE=Debug ../../
-$ make
-$ sudo make install
-```
-
-### MacOS
-
-```bash
-$ git submodule update --init
-$ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer rtmidi
-$ mkdir -p out/debug
-$ cd out/debug
-$ cmake -DCMAKE_BUILD_TYPE=Debug ../../
-$ make
-$ sudo make install
-```
-
-### Windows (MSYS2)
-
-```bash
-$ git submodule update --init
-$ pacman -S make mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_ttf mingw-w64-ucrt-x86_64-rtmidi
-$ mkdir -p out/debug
-$ cd out/debug
-$ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../
-$ make
-```
-
-### Windows (Microsoft Visual Studio)
-
-- Visual Studio 2019 can be used to clone this repository and will
-  automatically clone submodules as well.
-  - If you're using an older version of Visual Studio, install Git and clone
-    this repository using the `--recurse-submodules` option.
-- Install [CMake](https://cmake.org/download/). (The CMake integration in
-  Visual Studio does not work.)
-- In the CMake GUI, press the "Browse Source..." button and select the root
-  folder of this repository.
-- Press the "Browse Build..." button. Create a new folder (e.g., `out`) under
-  the top-level directory of the repository and select it.
-- Press the "Configure" button. Specify the generator for your version of
-  Visual Studio and click "Finish."
-- Press the "Generate" button.
-- A `System3.sln` file should be generated in the build folder. Open it with
-  Visual Studio.
-
-### Emscripten
-
-```bash
-$ git submodule update --init
-$ mkdir -p out/wasm
-$ cd out/wasm
-$ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../../
-$ make
-```
-
-To use the Emscripten build, check out https://github.com/kichikuou/web and
-copy the `out/wasm/system3.*` files into its `docs` directory.
-
-### Android
-
-See [android/README.md](android/README.md).
-
-### Nintendo Switch
-
-See [switch/README.md](switch/README.md).
+For other platforms, you need to build the program from source. See the
+[Building](#building) section for instructions.
 
 ## Running
 
@@ -199,11 +131,97 @@ through the `system3.ini` file located in the game folder. Refer to
 options. Options specified on the command line will override those in
 `system3.ini`.
 
+## Debugging
+
+system3-sdl2 has a built-in debugger that allows you to step through the game
+and examine or modify game variables. There are two ways to use the debugger:
+
+- Through [Visual Studio Code](https://code.visualstudio.com/) (recommended):
+  The [vscode-system3x](https://github.com/kichikuou/vscode-system3x) extension
+  provides a graphical debugging interface for System 1-3.
+- Using the CLI Debugger: Running system3 with the `-debugger cli` option will
+  launch the debugger with a console interface. Type `help` to see a list of
+  available commands.
+
 ## Localizing a Game
 
-System3-sdl2 supports localization, whereas the original System1-3 only
-supported Japanese. If you're interested in translating games, check out
-[Sys0Decompiler](https://alicesoft.miraheze.org/wiki/User_blog:RottenBlock/System_Programming_Resources).
+While the original System 1-3 only supported Shift_JIS (a Japanese character
+encoding), system3-sdl2 supports Unicode and can run games translated into
+languages other than Japanese and English.
+
+For instructions on how to build a game with Unicode support, see the
+[sys3c](https://github.com/kichikuou/sys3c) documentation.
 
 When running a modified (translated) game, system3 cannot automatically detect
 the game ID. You need to specify the `game` option in `system3.ini`.
+
+## Building
+
+### Linux (Debian, Ubuntu)
+
+```bash
+$ git submodule update --init
+$ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev librtmidi-dev nlohmann-json3-dev
+$ mkdir -p out/debug
+$ cd out/debug
+$ cmake -DCMAKE_BUILD_TYPE=Debug ../../
+$ make
+$ sudo make install
+```
+
+### MacOS
+
+```bash
+$ git submodule update --init
+$ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer rtmidi nlohmann-json
+$ mkdir -p out/debug
+$ cd out/debug
+$ cmake -DCMAKE_BUILD_TYPE=Debug ../../
+$ make
+$ sudo make install
+```
+
+### Windows (MSYS2)
+
+```bash
+$ git submodule update --init
+$ pacman -S make mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_ttf mingw-w64-ucrt-x86_64-rtmidi mingw-w64-x86_64-nlohmann-json
+$ mkdir -p out/debug
+$ cd out/debug
+$ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../
+$ make
+```
+
+### Windows (Microsoft Visual Studio)
+
+- Visual Studio 2022 can be used to clone this repository and will
+  automatically clone submodules as well.
+- Install [CMake](https://cmake.org/download/). (The CMake integration in
+  Visual Studio does not work.)
+- In the CMake GUI, press the "Browse Source..." button and select the root
+  folder of this repository.
+- Press the "Browse Build..." button. Create a new folder (e.g., `out`) under
+  the top-level directory of the repository and select it.
+- Press the "Configure" button. Specify the generator for your version of
+  Visual Studio and click "Finish."
+- Press the "Generate" button.
+- A `System3.sln` file should be generated in the build folder. Open it with
+  Visual Studio.
+
+### Emscripten
+
+```bash
+$ git submodule update --init
+$ mkdir -p out/wasm
+$ cd out/wasm
+$ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../../
+$ make
+```
+
+### Android
+
+See [android/README.md](android/README.md).
+
+### Nintendo Switch
+
+See [switch/README.md](switch/README.md).
