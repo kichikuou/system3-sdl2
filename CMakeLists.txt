@@ -98,6 +98,13 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     target_link_libraries(system3 PRIVATE rtmidi)
     target_sources(system3 PRIVATE src/sys/mako_midi.cpp)
 
+    FetchContent_Declare(nlohmann_json
+      URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+      URL_HASH SHA1=886dd96952c7c8ad78fdac1a26c409f9e886377b)
+    FetchContent_MakeAvailable(nlohmann_json)
+    set(ENABLE_DEBUGGER ON)
+    target_link_libraries(system3 PRIVATE nlohmann_json::nlohmann_json)
+
     target_compile_definitions(system3 PRIVATE _CRT_NONSTDC_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
     target_compile_options(system3 PRIVATE /utf-8 /wd4244)
     target_link_libraries(system3 PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2_ttf::SDL2_ttf)
