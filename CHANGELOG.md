@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 - 2024-12-28
+- Added debugger support that can be used from Visual Studio Code. See
+  [vscode-system3x](https://github.com/kichikuou/vscode-system3x) for details.
+- Fixed crash at startup of D.P.S. All.
+
 ## 1.2.1 - 2024-12-21
 - Fixed an issue where post-load messages were not displayed in some games
 - Fixed a graphic issue in the underground passage in Intruder (#31)
