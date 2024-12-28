@@ -24,6 +24,7 @@ jobs:
           SDL2:p
           SDL2_ttf:p
           rtmidi:p
+          nlohmann-json:p
 
     - name: Checkout
       uses: actions/checkout@v4
