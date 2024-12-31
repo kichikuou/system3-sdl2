@@ -82,6 +82,9 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 	GameId game_id(config);
+	if (!game_id.is_valid()) {
+		sys_error("No game files in the current directory.");
+	}
 
 	g_window = create_window(game_id);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);

@@ -91,6 +91,9 @@ struct GameId {
 	const char* encoding;
 
 	explicit GameId(const Config& config);
+	bool is_valid() const {
+		return crc32_a != 0;
+	}
 	bool is_gakuen() const {
 		return crc32_a == CRC32_GAKUEN || crc32_a == CRC32_GAKUEN_ENG;
 	}
