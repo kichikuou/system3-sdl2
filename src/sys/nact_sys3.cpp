@@ -145,7 +145,7 @@ void NACT_Sys3::cmd_b()
 
 	if(cmd == 1) {
 		// あゆみちゃん物語
-		if (game_id.crc32_a == CRC32_AYUMI_CD || game_id.crc32_a == CRC32_AYUMI_JISSHA_256 || game_id.crc32_a == CRC32_AYUMI_JISSHA_FULL) {
+		if (game_id.is(GameId::AYUMI_CD) || game_id.is(GameId::AYUMI_LIVE_256) || game_id.is(GameId::AYUMI_LIVE_FULL)) {
 			p5 = 1;
 		}
 		ags->menu_w[index - 1].sx = column ? p1 * 8 : p1 & 0xfff8;
@@ -182,7 +182,7 @@ void NACT_Sys3::cmd_b()
 	} else if(cmd == 4) {
 		if(p5 == 0) {
 			// ウィンドウ退避
-			if (game_id.crc32_a == CRC32_PROSTUDENTG_CD && p4) {
+			if (game_id.is(GameId::PROG_CD) && p4) {
 				// prostudent G オープニング画面化け対策
 				if(ags->text_w[index - 1].window) {
 					free(ags->text_w[index - 1].window);
@@ -292,7 +292,7 @@ void NACT_Sys3::cmd_i()
 
 	// X方向はカラム単位で切り捨て
 	sx = column ? sx * 8 : sx & 0xfff8;
-	ex = column ? ex * 8 - 1 : (game_id.crc32_a == CRC32_NINGYO) ? (ex & 0xfff8) + 7 : (ex & 0xfff8) - 1;
+	ex = column ? ex * 8 - 1 : game_id.is(GameId::NINGYO) ? (ex & 0xfff8) + 7 : (ex & 0xfff8) - 1;
 	dx = column ? dx * 8 : dx & 0xfff8;
 	ags->copy(sx, sy, ex, ey, dx, dy);
 }
@@ -323,16 +323,16 @@ void NACT_Sys3::cmd_k()
 	}
 
 	if (cmd == 3) {
-		switch (game_id.crc32_a) {
-		case CRC32_YAKATA3_CD:
+		switch (game_id.game) {
+		case GameId::YAKATA3_CD:
 			if (k3_hack(yakata3cd_k3_hack_table))
 				return;
 			break;
-		case CRC32_YAKATA3_FD:
+		case GameId::YAKATA3_FD:
 			if (k3_hack(yakata3fd_k3_hack_table))
 				return;
 			break;
-		case CRC32_ONLYYOU:
+		case GameId::ONLYYOU:
 			if (k3_hack(onlyyou_k3_hack_table))
 				return;
 			break;
@@ -909,7 +909,7 @@ void NACT_Sys3::cmd_y()
 		case 231:
 			D01 = 640;
 			D02 = (param == 1) ? ags->screen_height : 480;
-			D03 = (game_id.crc32_a == CRC32_YAKATA3_FD) ? 16 : 256;
+			D03 = game_id.is(GameId::YAKATA3_FD) ? 16 : 256;
 			break;
 		case 232:
 			if(ags->screen_height != (param ? 480 : 400)) {
@@ -996,13 +996,13 @@ void NACT_Sys3::cmd_y()
 			column = param ? false : true;
 			break;
 		case 252:
-			RND = (game_id.crc32_a == CRC32_YAKATA3_FD) ? 4 : 8;
+			RND = game_id.is(GameId::YAKATA3_FD) ? 4 : 8;
 			break;
 		case 253:
 			show_push = (param == 0) ? true : false;
 			break;
 		case 254:
-			RND = (game_id.crc32_a == CRC32_YAKATA3_CD || game_id.crc32_a == CRC32_YAKATA3_FD || game_id.crc32_a == CRC32_NINGYO) ? 1 : 0;
+			RND = (game_id.is(GameId::YAKATA3_CD) || game_id.is(GameId::YAKATA3_FD) || game_id.is(GameId::NINGYO)) ? 1 : 0;
 			break;
 		case 255:
 			quit(param == 1 ? NACT_HALT : RND);

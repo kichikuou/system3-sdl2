@@ -29,7 +29,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	}
 
 	// Zコマンドの処理
-	if (game_id.crc32_a == CRC32_AMBIVALENZ_FD || game_id.crc32_a == CRC32_AMBIVALENZ_CD) {
+	if (game_id.is(GameId::AMBIVALENZ_FD) || game_id.is(GameId::AMBIVALENZ_CD)) {
 		// Z 0,numを無視する
 	} else {
 		if(palette_bank != -1) {
@@ -49,7 +49,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	}
 
 	// パレット展開
-	if (game_id.crc32_a == CRC32_FUNNYBEE_FD || game_id.crc32_a == CRC32_FUNNYBEE_CD || game_id.crc32_a == CRC32_FUNNYBEE_PATCH) {
+	if (game_id.is(GameId::FUNNYBEE_FD) || game_id.is(GameId::FUNNYBEE_CD)) {
 		if(extract_palette_cg[page]) {
 			for(int i = 0; i < 16; i++) {
 				screen_palette[base + i] = program_palette[base + i];

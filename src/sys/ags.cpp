@@ -217,65 +217,71 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	// Bコマンド
 	for(int i = 0; i < 10; i++) {
 		// ウィンドウの初期位置はシステムによって異なる
-		switch (game_id.crc32_a) {
-		case CRC32_BUNKASAI:
+		switch (game_id.game) {
+		case GameId::BUNKASAI:
 			SET_TEXT(i, 24, 304, 616, 384, false);
 			SET_MENU(i, 440, 18, 620, 178, true);
 			break;
-		case CRC32_CRESCENT:
+		case GameId::CRESCENT:
 			SET_TEXT(i, 24, 288, 616, 378, false);
 			// 本来は横メニュー
 			SET_MENU(i, 464, 50, 623, 240, true);
 			break;
-		case CRC32_DPS:
-		case CRC32_DPS_SG:
-		//case CRC32_DPS_SG2:
-		case CRC32_DPS_SG3:
+		case GameId::DPS:
+		case GameId::DPS_SG_FAHREN:
+		case GameId::DPS_SG_KATEI:
+		case GameId::DPS_SG_NOBUNAGA:
+		case GameId::DPS_SG2_ANTIQUE:
+		case GameId::DPS_SG2_IKENAI:
+		case GameId::DPS_SG2_AKAI:
+		case GameId::DPS_SG3_RABBIT:
+		case GameId::DPS_SG3_SHINKON:
+		case GameId::DPS_SG3_SOTSUGYOU:
 			SET_TEXT(i, 48, 288, 594, 393, false);
 			//SET_MENU(i, 48, 288, 584, 393, false);
 			SET_MENU(i, 48, 288, 594, 393, false);
 			break;
-		case CRC32_FUKEI:
+		case GameId::FUKEI:
 			SET_TEXT(i, 44, 282, 593, 396, false);
 			SET_MENU(i, 460, 14, 635, 214, false);
 			break;
-		case CRC32_INTRUDER:
+		case GameId::INTRUDER:
 			SET_TEXT(i, 8, 280, 629, 393, false);
 			SET_MENU(i, 448, 136, 623, 340, true);
 			break;
-		case CRC32_TENGU:
+		case GameId::TENGU:
 			SET_TEXT(i, 44, 282, 593, 396, false);
 			SET_MENU(i, 452, 14, 627, 214, false);
 			break;
-		case CRC32_TOUSHIN_HINT:
+		case GameId::TOUSHIN_HINT:
 			SET_TEXT(i, 8, 311, 623, 391, false);
 			SET_MENU(i, 452, 14, 627, 214, true);
 			break;
-		case CRC32_VAMPIRE:
+		case GameId::LITTLE_VAMPIRE:
 			SET_TEXT(i, 8, 255, 615, 383, false);
 			SET_MENU(i, 448, 11, 615, 224, false);
-		case CRC32_VAMPIRE_ENG:
+		case GameId::LITTLE_VAMPIRE_ENG:
 			SET_TEXT(i, 8, 255, 615, 383, false);
 			SET_MENU(i, 448, 11, 615, 234, false);
 			break;
-		case CRC32_YAKATA:
+		case GameId::YAKATA:
 			SET_TEXT(i, 48, 288, 594, 393, false);
 			SET_MENU(i, 452, 14, 627, 214, false);
 			break;
-		case CRC32_DALK_HINT:
+		case GameId::DALK_HINT:
 			SET_TEXT(i, 24, 308, 376, 386, false);
 			SET_MENU(i, 404, 28, 604, 244, true);
 			break;
-		case CRC32_RANCE3_HINT:
+		case GameId::RANCE3_HINT:
 			SET_TEXT(i, 104, 304, 615, 383, false);
 			SET_MENU(i, 464, 24, 623, 200, true);
 			break;
-		case CRC32_YAKATA2:
+		case GameId::YAKATA2:
 			SET_TEXT(i, 104, 304, 620, 382, false);
 			SET_MENU(i, 420, 28, 620, 244, true);
 			break;
-		case CRC32_GAKUEN:
-		case CRC32_GAKUEN_ENG:
+		case GameId::GAKUEN:
+		case GameId::GAKUEN_ENG:
 			SET_TEXT(i, 8, 260, 505, 384, false);
 			if (i == 1) {
 				SET_MENU(i, 128, 32, 337, 178, true);
@@ -302,9 +308,9 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 		SET_BOX(i, 0, 0, 0, 639, 399);
 	}
 	if (game_id.sys_ver == 2) {
-		if (game_id.crc32_a == CRC32_SDPS && (game_id.crc32_b == CRC32_SDPS_TONO || game_id.crc32_b == CRC32_SDPS_KAIZOKU)) {
+		if (game_id.is(GameId::SDPS_TONO) || game_id.is(GameId::SDPS_KAIZOKU)) {
 			SET_BOX(0, 0, 40, 8, 598, 271);
-		} else if (game_id.crc32_a == CRC32_PROSTUDENTG_FD) {
+		} else if (game_id.is(GameId::PROG_FD)) {
 			SET_BOX(0, 0, 64, 13, 407, 289);
 			SET_BOX(1, 0, 24, 298, 111, 390);
 			SET_BOX(2, 0, 0, 0, 639, 307);
@@ -605,7 +611,7 @@ void AGS::save_screenshot(const char* path)
 }
 
 int AGS::calculate_menu_max(int window) {
-	if (game_id.crc32_a == CRC32_INTRUDER)
+	if (game_id.is(GameId::INTRUDER))
 		return 6;
 	if (game_id.is_gakuen())
 		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (menu_font_size + 4);

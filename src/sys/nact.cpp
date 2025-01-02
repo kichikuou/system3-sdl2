@@ -49,7 +49,7 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	}
 
 	// ADISK.DAT
-	if (game_id.crc32_a == CRC32_PROG_OMAKE)
+	if (game_id.is(GameId::PROG_OMAKE))
 		sco.open("AGAME.DAT");
 	else
 		sco.open("ADISK.DAT");

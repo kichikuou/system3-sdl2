@@ -27,18 +27,18 @@ void AGS::load_cg(int page, int transparent)
 		return;
 	switch (game_id.sys_ver) {
 	case 1:
-		switch (game_id.crc32_a) {
-		case CRC32_BUNKASAI:
-		case CRC32_GAKUEN:
-		case CRC32_GAKUEN_ENG:
+		switch (game_id.game) {
+		case GameId::BUNKASAI:
+		case GameId::GAKUEN:
+		case GameId::GAKUEN_ENG:
 			load_vsp(data.data(), page, transparent);
 			break;
-		case CRC32_INTRUDER:
+		case GameId::INTRUDER:
 			// load_gm3(data.data(), page, transparent);
 			load_vsp(data.data(), page, transparent);	// 暫定
 			break;
-		case CRC32_VAMPIRE:
-		case CRC32_VAMPIRE_ENG:
+		case GameId::LITTLE_VAMPIRE:
+		case GameId::LITTLE_VAMPIRE_ENG:
 			load_vsp2l(data.data(), page, transparent);
 			break;
 		default:
@@ -47,13 +47,13 @@ void AGS::load_cg(int page, int transparent)
 		}
 		break;
 	case 2:
-		if (game_id.crc32_a == CRC32_AYUMI_PROTO) {
+		if (game_id.is(GameId::AYUMI_PROTO)) {
 			// あゆみちゃん物語 PROTO
 			load_gl3(data.data(), page, transparent);
-		} else if (game_id.crc32_a == CRC32_AYUMI_FD || game_id.crc32_a == CRC32_AYUMI_HINT) {
+		} else if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT)) {
 			// あゆみちゃん物語
 			load_vsp(data.data(), page, transparent);
-		} else if (game_id.crc32_a == CRC32_SDPS) {
+		} else if (game_id.is_sdps()) {
 			// Super D.P.S
 			load_pms(data.data(), page, transparent);
 		} else {

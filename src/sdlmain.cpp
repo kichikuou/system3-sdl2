@@ -32,7 +32,6 @@ SDL_Window* create_window(const GameId& game_id)
 		title += ": ";
 		title += game_id.title;
 	} else {
-		WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", game_id.crc32_a, game_id.crc32_b);
 		SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_WARNING, "system3",
 			"Unable to determine game ID.\n"

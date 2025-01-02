@@ -360,23 +360,23 @@ void MAKO::select_sound(BGMDevice dev)
 	case BGM_CD:
 		const int8* tracks;
 
-		switch (game_id.crc32_a) {
-		case CRC32_RANCE41:
-		case CRC32_RANCE41_ENG:
+		switch (game_id.game) {
+		case GameId::RANCE41:
+		case GameId::RANCE41_ENG:
 			tracks = RANCE41_tracks;
 			break;
-		case CRC32_RANCE42:
-		case CRC32_RANCE42_ENG:
+		case GameId::RANCE42:
+		case GameId::RANCE42_ENG:
 			tracks = RANCE42_tracks;
 			break;
-		case CRC32_DPSALL:
+		case GameId::DPS_ALL:
 			tracks = DPSALL_tracks;
 			break;
 
 		// For the following games, the default mapping (cd_track[i] = i) works.
-		case CRC32_AYUMI_CD:
-		case CRC32_FUNNYBEE_CD:
-		case CRC32_ONLYYOU:
+		case GameId::AYUMI_CD:
+		case GameId::FUNNYBEE_CD:
+		case GameId::ONLYYOU:
 		default:
 			tracks = nullptr;
 		}

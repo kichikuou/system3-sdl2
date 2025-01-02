@@ -67,11 +67,7 @@
 NACT_Sys1::NACT_Sys1(const Config& config, const GameId& game_id)
 	: NACT(config, game_id)
 {
-	switch (game_id.crc32_a) {
-	case CRC32_DPS:
-	case CRC32_DPS_SG:
-	//case CRC32_DPS_SG2:
-	case CRC32_DPS_SG3:
+	if (game_id.is_system1_dps()) {
 		text_refresh = false;
 		strcpy(tvar[0], strings.dps_custom.c_str());
 		strcpy(tvar[1], strings.dps_linus.c_str());
@@ -80,29 +76,27 @@ NACT_Sys1::NACT_Sys1(const Config& config, const GameId& game_id)
 		strcpy(tvar[4], strings.dps_itsumi.c_str());
 		strcpy(tvar[5], strings.dps_hitomi.c_str());
 		strcpy(tvar[6], strings.dps_mariko.c_str());
-		break;
-	case CRC32_INTRUDER:
+	} else if (game_id.is(GameId::INTRUDER)) {
 		paint_x = paint_y = map_page = 0;
-		break;
 	}
 }
 
 void NACT_Sys1::opening()
 {
-	switch (game_id.crc32_a) {
-	case CRC32_CRESCENT:
+	switch (game_id.game) {
+	case GameId::CRESCENT:
 		mako->play_music(2);
 		ags->load_cg(1, -1);
 		WAIT(3000);
 		ags->load_cg(81, -1);
 		break;
-	case CRC32_INTRUDER:
+	case GameId::INTRUDER:
 		ags->load_cg(77, -1);
 		WAIT(1667);
 		ags->load_cg(74, -1);
 		break;
-	case CRC32_VAMPIRE:
-	case CRC32_VAMPIRE_ENG:
+	case GameId::LITTLE_VAMPIRE:
+	case GameId::LITTLE_VAMPIRE_ENG:
 		mako->play_music(4);
 		ags->load_cg(3, -1);
 		WAIT(2000);
@@ -110,8 +104,8 @@ void NACT_Sys1::opening()
 		cmd_a();
 		ags->draw_box(0);
 		break;
-	case CRC32_GAKUEN:
-	case CRC32_GAKUEN_ENG:
+	case GameId::GAKUEN:
+	case GameId::GAKUEN_ENG:
 		mako->set_cd_track(1, 1);
 		ags->load_cg(302, -1);
 		WAIT(3000);
@@ -422,7 +416,7 @@ void NACT_Sys1::cmd_g()
 
 	TRACE("G %d:", page);
 
-	if (game_id.crc32_a == CRC32_INTRUDER) {
+	if (game_id.is(GameId::INTRUDER)) {
 		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
 	} else if (game_id.is_gakuen()) {
 		page = (page == 3) ? 94 : page;
@@ -431,7 +425,7 @@ void NACT_Sys1::cmd_g()
 	if (enable_graphics)
 		ags->load_cg(page, -1);
 
-	if (game_id.crc32_a == CRC32_INTRUDER) {
+	if (game_id.is(GameId::INTRUDER)) {
 		if(page == 94) {
 			WAIT(400);
 		}
@@ -539,7 +533,7 @@ void NACT_Sys1::cmd_u()
 
 	TRACE("U %d,%d:", page, transparent);
 
-	if (game_id.crc32_a == CRC32_INTRUDER) {
+	if (game_id.is(GameId::INTRUDER)) {
 		ags->load_cg(page, 11);
 
 		if(page == 5) {
@@ -569,7 +563,7 @@ void NACT_Sys1::cmd_y()
 
 	TRACE("Y %d,%d:", cmd, param);
 
-	if (game_id.crc32_a == CRC32_INTRUDER) {
+	if (game_id.is(GameId::INTRUDER)) {
 		switch(cmd) {
 			case 0:
 				ags->clear_text_window(text_window, true);
@@ -683,7 +677,7 @@ void NACT_Sys1::cmd_y()
 				}
 				break;
 			case 2:
-				if (game_id.crc32_a == CRC32_CRESCENT) {
+				if (game_id.is(GameId::CRESCENT)) {
 					for(int i = 39; i <= 48; i++) {
 						var[i] = 0;
 					}
@@ -711,7 +705,7 @@ void NACT_Sys1::cmd_y()
 				}
 				break;
 			case 130:
-				if (game_id.crc32_a == CRC32_TENGU) {
+				if (game_id.is(GameId::TENGU)) {
 					WAIT(2000)
 					ags->load_cg(180, -1);
 
@@ -763,7 +757,7 @@ void NACT_Sys1::cmd_y()
 
 void NACT_Sys1::cmd_z()
 {
-	if (game_id.crc32_a == CRC32_CRESCENT) {
+	if (game_id.is(GameId::CRESCENT)) {
 		cmd_y();
 		return;
 	}
@@ -772,8 +766,8 @@ void NACT_Sys1::cmd_z()
 
 	TRACE("Z %d,%d:", cmd, param);
 
-	switch (game_id.crc32_a) {
-	case CRC32_INTRUDER:
+	switch (game_id.game) {
+	case GameId::INTRUDER:
 		if(cmd == 1 && 1 <= param && param <= 4) {
 			const char* buf[4] = {
 				"\x81\x83", // "＜" in SJIS
@@ -829,7 +823,7 @@ void NACT_Sys1::cmd_z()
 		}
 		break;
 
-	case CRC32_TENGU:
+	case GameId::TENGU:
 		if(cmd == 10) {
 			// nop
 		} else if(cmd == 20) {
@@ -841,8 +835,8 @@ void NACT_Sys1::cmd_z()
 		}
 		break;
 
-	case CRC32_GAKUEN:
-	case CRC32_GAKUEN_ENG:
+	case GameId::GAKUEN:
+	case GameId::GAKUEN_ENG:
 		if (param != 30 && (param < 34 || param > 46)) {
 			if (enable_graphics) {
 				ags->load_cg(param + 250, -1);
