@@ -30,8 +30,7 @@ typedef int8_t int8;
 typedef int16_t int16;
 typedef int32_t int32;
 
-#define ERROR(fmt, ...) \
-	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s:%d: " fmt, __func__, __LINE__, ##__VA_ARGS__)
+#define ERROR sys_error
 #define WARNING(fmt, ...) \
 	SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s:%d: " fmt, __func__, __LINE__, ##__VA_ARGS__)
 #define NOTICE SDL_Log
