@@ -228,6 +228,8 @@ protected:
 	void platform_initialize();
 	void platform_finalize();
 
+	int last_paint_x = -1, last_paint_y = -1;
+
 public:
 	int mainloop();
 	void sys_sleep(int ms);

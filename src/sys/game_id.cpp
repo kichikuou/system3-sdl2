@@ -73,6 +73,9 @@
 #define CRC32_NINGYO		0xd491e7ab	// 人魚 -蘿子-
 #define CRC32_MUGENHOUYOU	0xbb27d1ba	// 夢幻泡影
 
+#define CRC32_RANCE2      0x12345678
+#define CRC32_RANCE2_HINT 0x34567890
+
 namespace {
 
 const struct CRCTable {
@@ -142,6 +145,9 @@ const struct CRCTable {
 	{GameId::OTOME, "otome", 3, "乙女戦記", JAPANESE, CRC32_OTOMESENKI},
 	{GameId::NINGYO, "ningyo", 3, "人魚 -蘿子-", JAPANESE, CRC32_NINGYO},
 	{GameId::MUGEN, "mugen", 3, "夢幻泡影", JAPANESE, CRC32_MUGENHOUYOU},
+
+	{GameId::RANCE2, "rance2", 1, "Rance 2", ENGLISH, CRC32_RANCE2},
+	{GameId::RANCE2_HINT, "rance2_hint", 1, "Rance 2 Hint Disk", ENGLISH, CRC32_RANCE2_HINT},
 
 	{GameId::UNKNOWN, NULL, 0, NULL, JAPANESE, 0},
 };
