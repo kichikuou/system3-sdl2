@@ -155,6 +155,19 @@ int main(int argc, char *argv[])
 	exit(1);
 }
 
+void sys_warning(const char* format, ...)
+{
+	va_list args;
+	va_start(args, format);
+#ifdef ENABLE_DEBUGGER
+	if (g_debugger && g_debugger->console_vprintf(format, args))
+		return;
+#endif
+	char buf[1024];
+	vsnprintf(buf, sizeof buf, format, args);
+	SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", buf);
+}
+
 #ifdef __EMSCRIPTEN__
 
 extern "C"

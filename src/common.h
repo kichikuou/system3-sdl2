@@ -31,11 +31,11 @@ typedef int16_t int16;
 typedef int32_t int32;
 
 #define ERROR sys_error
-#define WARNING(fmt, ...) \
-	SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s:%d: " fmt, __func__, __LINE__, ##__VA_ARGS__)
+#define WARNING(fmt, ...) sys_warning("%s:%d: " fmt "\n", __func__, __LINE__, ##__VA_ARGS__)
 #define NOTICE SDL_Log
 
 [[noreturn]] void sys_error(const char* format, ...);
+void sys_warning(const char* format, ...);
 
 #ifndef WIN32
 
