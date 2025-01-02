@@ -127,6 +127,25 @@ public:
 	}
 
 	bool console_output(const char* format, va_list ap) override {
+		char buf[1024];
+		vsnprintf(buf, sizeof(buf), format, ap);
+
+		Json json = {
+			{"type", "event"},
+			{"event", "output"},
+			{"body", {
+				{"output", buf},
+			}}
+		};
+		const char *src = symbols.page2src(g_nact->sco.page());
+		if (src)
+			json["body"]["source"] = create_source(src);
+		int line = symbols.addr2line(g_nact->sco.page(), g_nact->sco.cmd_addr());
+		if (line >= 0)
+			json["body"]["line"] = line;
+
+		send_json(json);
+
 		return true;
 	}
 

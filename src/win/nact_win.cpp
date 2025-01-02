@@ -45,6 +45,8 @@ void init_console(int sys_ver)
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
 	freopen("CONIN$", "r", stdin);
+	SetConsoleCP(CP_UTF8);
+	SetConsoleOutputCP(CP_UTF8);
 	char title[] = "SYSTEM1 Debug Console";
 	title[6] = '0' + sys_ver;
 	SetConsoleTitle(title);
@@ -135,39 +137,28 @@ void NACT::text_dialog()
 void NACT::platform_initialize()
 {
 	init_menu(mouse_move_enabled, config);
-#ifndef _DEBUG_CONSOLE
-	if (config.debugger_mode == DebuggerMode::CLI)
-#endif
+	if (config.trace && config.debugger_mode != DebuggerMode::DAP)
 		init_console(game_id.sys_ver);
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 }
 
 void NACT::platform_finalize()
 {
-#if defined(_DEBUG_CONSOLE)
 	FreeConsole();
-#endif
 }
 
-void NACT::output_console(const char *format, ...)
+void NACT::trace(const char *format, ...)
 {
+	va_list ap;
+	va_start(ap, format);
 #ifdef ENABLE_DEBUGGER
-	if (g_debugger) {
-		va_list ap;
-		va_start(ap, format);
-		bool handled = g_debugger->console_vprintf(format, ap);
+	if (g_debugger && g_debugger->console_vprintf(format, ap)) {
 		va_end(ap);
-		if (handled)
-			return;
+		return;
 	}
 #endif
-#if defined(_DEBUG_CONSOLE)
-	va_list ap;
-
-	va_start(ap, format);
 	vfprintf(stdout, format, ap);
 	va_end(ap);
-#endif
 }
 
 void NACT::set_skip_menu_state(bool enabled, bool checked)

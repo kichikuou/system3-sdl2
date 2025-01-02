@@ -25,13 +25,13 @@ void NACT_Sys3::cmd_branch()
 	// sigmarion3 最適化誤爆の対策
 	sco.jump_to(condition ? t_addr : f_addr);
 
-	output_console("\n{%d: T:%4x, F:%4x", condition, t_addr, f_addr);
+	TRACE("{%d: T:%4x, F:%4x", condition, t_addr, f_addr);
 }
 
 void NACT_Sys3::cmd_open_verb()
 {
 	// 動詞メニューの表示
-	output_console("\nopen verb-obj menu");
+	TRACE("open verb-obj menu");
 	verb_obj = false;
 
 	// 表示する動詞のチェック
@@ -141,7 +141,7 @@ void NACT_Sys3::cmd_b()
 	int p4 = cali();
 	int p5 = cali();
 
-	output_console("\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
+	TRACE("B %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
 
 	if(cmd == 1) {
 		// あゆみちゃん物語
@@ -214,7 +214,7 @@ void NACT_Sys3::cmd_e()
 	int ex = cali();
 	int ey = cali();
 
-	output_console("\nE %d,%d,%d,%d,%d,%d:", index, color, sx, sy, ex, ey);
+	TRACE("E %d,%d,%d,%d,%d,%d:", index, color, sx, sy, ex, ey);
 
 	ags->box[index - 1].color = color;
 	ags->box[index - 1].sx = column ? sx * 8 : sx;
@@ -227,7 +227,7 @@ void NACT_Sys3::cmd_g()
 {
 	int page = cali();
 
-	output_console("\nG %d:", page);
+	TRACE("G %d:", page);
 
 	ags->load_cg(page, -1);
 }
@@ -237,7 +237,7 @@ void NACT_Sys3::cmd_h()
 	int length = sco.getd();
 	int val = cali();
 
-	output_console("\nH %d,%d:", length, val);
+	TRACE("H %d,%d:", length, val);
 
 	// 隠しコマンド？
 	if(length >= 9) {
@@ -288,7 +288,7 @@ void NACT_Sys3::cmd_i()
 	int dx = cali();
 	int dy = cali();
 
-	output_console("\nI %d,%d,%d,%d,%d,%d:", sx, sy, ex, ey, dx, dy);
+	TRACE("I %d,%d,%d,%d,%d,%d:", sx, sy, ex, ey, dx, dy);
 
 	// X方向はカラム単位で切り捨て
 	sx = column ? sx * 8 : sx & 0xfff8;
@@ -302,7 +302,7 @@ void NACT_Sys3::cmd_j()
 	int x = cali();
 	int y = cali();
 
-	output_console("\nJ %d,%d:", x, y);
+	TRACE("J %d,%d:", x, y);
 
 	// x方向はカラム単位で切り捨て
 	ags->cg_dest_x = column ? x * 8 : x & 0xfff8;
@@ -314,7 +314,7 @@ void NACT_Sys3::cmd_k()
 {
 	int cmd = sco.getd(), val;
 
-	output_console("\nK %d:", cmd);
+	TRACE("K %d:", cmd);
 
 	// K6の場合は、すぐに返る
 	if(cmd == 6) {
@@ -404,7 +404,7 @@ void NACT_Sys3::cmd_l()
 {
 	int index = cali();
 
-	output_console("\nL %d:", index);
+	TRACE("L %d:", index);
 
 	if (index == 0) {
 		// 特殊セーブ
@@ -454,7 +454,7 @@ void NACT_Sys3::cmd_m()
 		string[p] = '\0';
 	}
 
-	output_console("\nM %s:", string);
+	TRACE("M %s:", encoding->toUtf8(string).c_str());
 
 	if(1 <= tvar_index && tvar_index <= 10) {
 		memcpy(tvar[tvar_index - 1], string, 22);
@@ -477,7 +477,7 @@ void NACT_Sys3::cmd_n()
 	int src = cali();
 	int dest = cali();
 
-	output_console("\nN %d,%d,%d:", cmd, src, dest);
+	TRACE("N %d,%d,%d:", cmd, src, dest);
 }
 
 void NACT_Sys3::cmd_o()
@@ -502,7 +502,7 @@ void NACT_Sys3::cmd_o()
 		B15 = (val & 0x4000) ? 1 : 0;
 		B16 = (val & 0x8000) ? 1 : 0;
 
-		output_console("\nO %d,%d:", cmd, val);
+		TRACE("O %d,%d:", cmd, val);
 	} else {
 		uint16 val = 0;
 		val |= B01 ? 0x0001 : 0;
@@ -524,7 +524,7 @@ void NACT_Sys3::cmd_o()
 		int index = cali2();
 		var[index] = val;
 
-		output_console("\nO %d,var[%d]:", cmd, index);
+		TRACE("O %d,var[%d]:", cmd, index);
 	}
 }
 
@@ -535,7 +535,7 @@ void NACT_Sys3::cmd_p()
 	int g = cali();
 	int b = cali();
 
-	output_console("\nP %d,%d,%d,%d:", index, r, g, b);
+	TRACE("P %d,%d,%d,%d:", index, r, g, b);
 
 	ags->set_palette(index, r, g, b);
 	set_palette = true;
@@ -567,7 +567,7 @@ void NACT_Sys3::cmd_q()
 
 	int index = cali();
 
-	output_console("\nQ %d:", index);
+	TRACE("Q %d:", index);
 
 	if (index == 0) {
 		// 特殊セーブ
@@ -594,7 +594,7 @@ void NACT_Sys3::cmd_t()
 	int x = cali();
 	int y = cali();
 
-	output_console("\nT %d,%d:", x, y);
+	TRACE("T %d,%d:", x, y);
 
 	// x方向はカラム単位で切り捨て
 	ags->text_dest_x = column ? x * 8 : x & 0xfff8;
@@ -606,7 +606,7 @@ void NACT_Sys3::cmd_u()
 	int page = cali();
 	int transparent = cali();
 
-	output_console("\nU %d,%d:", page, transparent);
+	TRACE("U %d,%d:", page, transparent);
 
 	if (game_id.is_rance4x()) {
 		transparent = (transparent == 28) ? 12 : transparent;
@@ -619,7 +619,7 @@ void NACT_Sys3::cmd_v()
 	int cmd = cali();
 	int index = cali();
 
-	output_console("\nV %d,%d:", cmd, index);
+	TRACE("V %d,%d:", cmd, index);
 
 	if(cmd == 0) {
 		for(int i = 0; i < 20; i++) {
@@ -644,7 +644,7 @@ void NACT_Sys3::cmd_w()
 	int y = cali();
 	uint8 color = (uint8)cali();
 
-	output_console("\nW %d,%d,%d", x, y, color);
+	TRACE("W %d,%d,%d", x, y, color);
 
 	ags->paint(x, y, color);
 }
@@ -654,7 +654,7 @@ void NACT_Sys3::cmd_y()
 	int cmd = cali();
 	int param = cali();
 
-	output_console("\nY %d,%d:", cmd, param);
+	TRACE("Y %d,%d:", cmd, param);
 
 	switch(cmd) {
 		case 1:
@@ -1018,7 +1018,7 @@ void NACT_Sys3::cmd_z()
 	int cmd = cali();
 	int param = cali();
 
-	output_console("\nZ %d,%d:", cmd, param);
+	TRACE("Z %d,%d:", cmd, param);
 
 	if(cmd == 0) {
 		ags->palette_bank = (uint8)(param & 0xff);

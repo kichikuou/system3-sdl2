@@ -283,7 +283,7 @@ void NACT::cmd_calc()
 	}
 	var[index] = cali();
 
-	output_console("\n!var[%d]:%d!", index, var[index]);
+	TRACE("!var[%d]:%d!", index, var[index]);
 }
 
 void NACT::cmd_label_jump()
@@ -291,7 +291,7 @@ void NACT::cmd_label_jump()
 	int next_addr = sco.getw();
 	sco.jump_to(next_addr);
 
-	output_console("\n@%x:", next_addr);
+	TRACE("@%x:", next_addr);
 }
 
 void NACT::cmd_label_call()
@@ -299,7 +299,7 @@ void NACT::cmd_label_call()
 	int next_addr = sco.getw();
 	sco.label_call(next_addr);
 
-	output_console("\n\\%x:", next_addr);
+	TRACE("\\%x:", next_addr);
 }
 
 void NACT::cmd_page_jump()
@@ -307,7 +307,7 @@ void NACT::cmd_page_jump()
 	int next_page = cali();
 	sco.page_jump(next_page, 2);
 
-	output_console("\n&%d:", next_page);
+	TRACE("&%d:", next_page);
 }
 
 void NACT::cmd_page_call()
@@ -315,7 +315,7 @@ void NACT::cmd_page_call()
 	int next_page = cali();
 	sco.page_call(next_page);
 
-	output_console("\n%%%d:", next_page);
+	TRACE("%%%d:", next_page);
 }
 
 void NACT::cmd_set_menu()
@@ -325,7 +325,7 @@ void NACT::cmd_set_menu()
 		ags->menu_dest_y += ags->menu_font_size + 2;
 		ags->draw_menu = false;
 
-		output_console("$");
+		TRACE("$");
 	} else {
 		if (menu_items.empty()) {
 			ags->clear_menu_window();
@@ -339,13 +339,13 @@ void NACT::cmd_set_menu()
 		if (game_id.is_gakuen())
 			menu_window = 2;
 
-		output_console("\n$%x,", menu_items.back().addr);
+		TRACE("$%x,", menu_items.back().addr);
 	}
 }
 
 void NACT::cmd_open_menu()
 {
-	output_console("\n]");
+	TRACE("]");
 
 	if (menu_items.empty()) {
 		sco.jump_to(sco.default_addr());
@@ -377,7 +377,9 @@ void NACT::cmd_set_verbobj()
 	menu_items.emplace_back(addr, verb, obj);
 	verb_obj = true;
 
-	output_console("\n[%x,%s,%s:", addr, caption_verb[verb].c_str(), caption_obj[obj].c_str());
+	TRACE("[%x,%s,%s:", addr,
+		encoding->toUtf8(caption_verb[verb].c_str()).c_str(),
+		encoding->toUtf8(caption_obj[obj].c_str()).c_str());
 }
 
 void NACT::cmd_set_verbobj2()
@@ -392,14 +394,16 @@ void NACT::cmd_set_verbobj2()
 	}
 	verb_obj = true;
 
-	output_console("\n:%d,%x,%s,%s:", condition, addr, caption_verb[verb].c_str(), caption_obj[obj].c_str());
+	TRACE(":%d,%x,%s,%s:", condition, addr,
+		encoding->toUtf8(caption_verb[verb].c_str()).c_str(),
+		encoding->toUtf8(caption_obj[obj].c_str()).c_str());
 }
 
 void NACT::cmd_a()
 {
 	texthook_nextpage();
 
-	output_console("A\n");
+	TRACE("A");
 
 	if (msgskip->skipping()) {
 		if (msgskip->get_flags() & MSGSKIP_STOP_ON_CLICK && get_key())
@@ -439,7 +443,7 @@ void NACT::cmd_a()
 
 void NACT::cmd_f()
 {
-	output_console("\nF");
+	TRACE("F");
 
 	sco.jump_to(2);
 }
@@ -448,7 +452,7 @@ void NACT::cmd_r()
 {
 	texthook_newline();
 
-	output_console("R\n");
+	TRACE("R");
 
 	// ウィンドウの表示範囲外の場合は改ページ
 	if(ags->return_text_line(text_window)) {
@@ -460,7 +464,7 @@ void NACT::cmd_s()
 {
 	int page = sco.getd();
 
-	output_console("\nS %d:", page);
+	TRACE("S %d:", page);
 
 	if(page) {
 		mako->play_music(page);
@@ -473,7 +477,7 @@ void NACT::cmd_x()
 {
 	int index = sco.getd();
 
-	output_console("\nX %d:", index);
+	TRACE("X %d:", index);
 
 	if(1 <= index && index <= 10) {
 		ags->draw_text(tvar[index - 1]);
@@ -510,7 +514,7 @@ void NACT::message(uint8_t first_byte)
 		msgskip->on_message(sco.page(), sco.current_addr());
 
 	// TODO: Convert hankaku to zenkaku
-	output_console(buf);
+	TRACE("%s", encoding->toUtf8(buf).c_str());
 }
 
 void NACT::text_wait()

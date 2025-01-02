@@ -245,13 +245,13 @@ void NACT_Sys2::cmd_branch()
 		}
 	}
 
-	output_console("\n{%d:", condition);
+	TRACE("{%d:", condition);
 }
 
 void NACT_Sys2::cmd_open_verb()
 {
 	// 動詞メニューの表示
-	output_console("\nopen verb-obj menu");
+	TRACE("open verb-obj menu");
 	verb_obj = false;
 
 	// 表示する動詞のチェック
@@ -361,7 +361,7 @@ void NACT_Sys2::cmd_b()
 	int p4 = cali();
 	int p5 = cali();
 
-	output_console("\nB %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
+	TRACE("B %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
 
 	if(cmd == 1) {
 		if (game_id.crc32_a == CRC32_AYUMI_FD || game_id.crc32_a == CRC32_AYUMI_HINT || game_id.crc32_a == CRC32_DRSTOP) {
@@ -438,7 +438,7 @@ void NACT_Sys2::cmd_d()
 	int p7 = cali();
 	int p8 = cali();
 
-	output_console("\nD %d,%d,%d,%d,%d,%d,%d,%d:", p1, p2, p3, p4, p5, p6, p7, p8);
+	TRACE("D %d,%d,%d,%d,%d,%d,%d,%d:", p1, p2, p3, p4, p5, p6, p7, p8);
 }
 
 void NACT_Sys2::cmd_e()
@@ -447,14 +447,14 @@ void NACT_Sys2::cmd_e()
 	int p2 = cali();
 	int p3 = cali();
 
-	output_console("\nE %d,%d,%d:", p1, p2, p3);
+	TRACE("E %d,%d,%d:", p1, p2, p3);
 }
 
 void NACT_Sys2::cmd_g()
 {
 	int page = cali();
 
-	output_console("\nG %d:", page);
+	TRACE("G %d:", page);
 
 	if (game_id.crc32_a == CRC32_SDPS && (game_id.crc32_b == CRC32_SDPS_TONO || game_id.crc32_b == CRC32_SDPS_KAIZOKU)) {
 		if(20 <= page && page <= 100) {
@@ -479,7 +479,7 @@ void NACT_Sys2::cmd_h()
 	int length = sco.getd();
 	int val = cali();
 
-	output_console("\nH %d,%d:", length, val);
+	TRACE("H %d,%d:", length, val);
 
 	// 8桁の文字列を生成
 	char tmp[8];
@@ -522,7 +522,7 @@ void NACT_Sys2::cmd_i()
 //	int p3 = sco.getd();
 	int p3 = cali();
 
-	output_console("\nI %d,%d,%d:", p1, p2, p3);
+	TRACE("I %d,%d,%d:", p1, p2, p3);
 }
 
 void NACT_Sys2::cmd_j()
@@ -530,7 +530,7 @@ void NACT_Sys2::cmd_j()
 	int p1 = cali();
 	int p2 = cali();
 
-	output_console("\nJ %d,%d:", p1, p2);
+	TRACE("J %d,%d:", p1, p2);
 }
 
 void NACT_Sys2::cmd_k()
@@ -543,7 +543,7 @@ void NACT_Sys2::cmd_l()
 {
 	int index = sco.getd();
 
-	output_console("\nL %d:", index);
+	TRACE("L %d:", index);
 
 	if (1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
@@ -568,7 +568,7 @@ void NACT_Sys2::cmd_m()
 		string[p] = '\0';
 	}
 
-	output_console("\nM %s:", string);
+	TRACE("M %s:", encoding->toUtf8(string).c_str());
 
 	if(1 <= tvar_index && tvar_index <= 10) {
 		memcpy(tvar[tvar_index - 1], string, 33);
@@ -580,7 +580,7 @@ void NACT_Sys2::cmd_n()
 	int p1 = cali();
 	int p2 = cali();
 
-	output_console("\nN %d,%d:", p1, p2);
+	TRACE("N %d,%d:", p1, p2);
 }
 
 void NACT_Sys2::cmd_o()
@@ -589,7 +589,7 @@ void NACT_Sys2::cmd_o()
 	int width = cali();
 	int height = cali();
 
-	output_console("\nO %d,%d,%d:", st, width, height);
+	TRACE("O %d,%d,%d:", st, width, height);
 
 #if 0
 	// white mesh
@@ -607,7 +607,7 @@ void NACT_Sys2::cmd_p()
 		ags->text_font_color = (uint8)((param & 0x7) + 16);
 	}
 
-	output_console("\nP %d:", param);
+	TRACE("P %d:", param);
 }
 
 void NACT_Sys2::cmd_q()
@@ -624,7 +624,7 @@ void NACT_Sys2::cmd_q()
 
 	int index = sco.getd();
 
-	output_console("\nQ %d:", index);
+	TRACE("Q %d:", index);
 
 	if (1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
@@ -639,7 +639,7 @@ void NACT_Sys2::cmd_t()
 	int p2 = cali();
 	int p3 = cali();
 
-	output_console("\nT %d,%d,%d:", p1, p2, p3);
+	TRACE("T %d,%d,%d:", p1, p2, p3);
 }
 
 void NACT_Sys2::cmd_u()
@@ -654,7 +654,7 @@ void NACT_Sys2::cmd_u()
 		transparent = sco.getd();
 	}
 
-	output_console("\nU %d,%d:", page, transparent);
+	TRACE("U %d,%d:", page, transparent);
 
 	ags->load_cg(page, transparent);
 }
@@ -692,7 +692,7 @@ void NACT_Sys2::cmd_v()
 	int p28 = cali();
 	int p29 = cali();
 
-	output_console("\nV %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d:",
+	TRACE("V %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d:",
 	cmd, p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29);
 }
 
@@ -703,7 +703,7 @@ void NACT_Sys2::cmd_w()
 	int ex = cali();
 	int ey = cali();
 
-	output_console("\nW %d,%d,%d,%d:", sx, sy, ex, ey);
+	TRACE("W %d,%d,%d,%d:", sx, sy, ex, ey);
 
 	ags->draw_mesh(sx, sy, ex - sx, ey - sy);
 }
@@ -713,7 +713,7 @@ void NACT_Sys2::cmd_y()
 	int cmd = cali();
 	int param = cali();
 
-	output_console("\nY %d,%d:", cmd, param);
+	TRACE("Y %d,%d:", cmd, param);
 
 	switch(cmd) {
 		case 1:
@@ -865,7 +865,7 @@ void NACT_Sys2::cmd_z()
 	int cmd = cali();
 	int param = cali();
 
-	output_console("\nZ %d,%d:", cmd, param);
+	TRACE("Z %d,%d:", cmd, param);
 
 // Z1
 // Z2

@@ -61,6 +61,9 @@ for translation or other purposes. The available modes are:
 Suppress text hook on specified scenario pages. _list_ is a comma-separated list
 of page numbers.
 
+#### `-trace`
+Enables trace mode, which prints debug information to the console.
+
 #### `-game` _game_id_
 As System1-3 have slight variations depending on the game, `system3` uses the
 fingerprint of the scenario file (ADISK.DAT) to identify the game being played.

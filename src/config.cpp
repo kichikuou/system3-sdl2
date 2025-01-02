@@ -156,6 +156,8 @@ Config::Config(int argc, char *argv[])
 		else if (strcmp(argv[i], "-debugger") == 0)
 			debugger_mode = parse_debugger_mode(argv[++i]);
 #endif
+		else if (strcmp(argv[i], "-trace") == 0)
+			trace = true;
 		else if (strcmp(argv[i], "-texthook") == 0)
 			texthook_mode = parse_texthook_mode(argv[++i]);
 		else if (strcmp(argv[i], "-texthook_suppress") == 0)
@@ -222,6 +224,8 @@ void Config::load_ini()
 			else if (!strcasecmp(key, "debugger"))
 				debugger_mode = parse_debugger_mode(val, lineno);
 #endif
+			else if (!strcasecmp(key, "trace"))
+				trace = to_bool(val, lineno);
 			else if (!strcasecmp(key, "texthook"))
 				texthook_mode = parse_texthook_mode(val, lineno);
 			else if (!strcasecmp(key, "texthook_suppress"))

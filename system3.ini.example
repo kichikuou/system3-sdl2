@@ -46,6 +46,9 @@ texthook = none
 ; The example below is for Rance 4.1, to filter out system messages.
 ;texthook_suppress = 2,7
 
+; Enables trace mode, which prints debug information to the console.
+;trace = true
+
 ; The [string] section allows you to override Japanese text embedded in the
 ; game engine. The values below are the original Japanese text.
 [string]

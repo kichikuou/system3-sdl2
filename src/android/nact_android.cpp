@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <android/log.h>
 #include "nact.h"
 #include "encoding.h"
 #include "jnihelper.h"
@@ -36,15 +37,12 @@ void NACT::platform_finalize()
 {
 }
 
-void NACT::output_console(const char *format, ...)
+void NACT::trace(const char *format, ...)
 {
-#if defined(_DEBUG_CONSOLE)
 	va_list ap;
-
 	va_start(ap, format);
-	vfprintf(stdout, format, ap);
+	__android_log_vprint(ANDROID_LOG_INFO, "system3", format, ap);
 	va_end(ap);
-#endif
 }
 
 void NACT::set_skip_menu_state(bool enabled, bool checked)

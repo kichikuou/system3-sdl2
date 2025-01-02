@@ -34,7 +34,8 @@ if (ANDROID)
     src/android/nact_android.cpp
     src/generic/mako.cpp
     )
-  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf SDL2_mixer ymfm)
+  find_library(ndk_log log)
+  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf SDL2_mixer ymfm ${ndk_log})
 
 elseif (EMSCRIPTEN)
   add_executable(system3)
@@ -216,7 +217,5 @@ if(NINTENDO_SWITCH)
   )
 endif()
 
-target_compile_definitions(system3 PRIVATE
-  $<$<CONFIG:Debug>:_DEBUG_CONSOLE>
-  RESOURCE_PATH="${RESOURCE_PATH}")
+target_compile_definitions(system3 PRIVATE RESOURCE_PATH="${RESOURCE_PATH}")
 target_include_directories(system3 PRIVATE src src/sys)

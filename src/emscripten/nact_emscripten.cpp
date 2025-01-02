@@ -46,15 +46,12 @@ void NACT::platform_finalize()
 {
 }
 
-void NACT::output_console(const char *format, ...)
+void NACT::trace(const char *format, ...)
 {
-#if defined(_DEBUG_CONSOLE)
 	va_list ap;
-
 	va_start(ap, format);
 	vfprintf(stdout, format, ap);
 	va_end(ap);
-#endif
 }
 
 void NACT::set_skip_menu_state(bool enabled, bool checked)

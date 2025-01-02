@@ -83,6 +83,8 @@
 #define MAX_VAR 512
 #define MAX_STRVAR 10
 
+#define TRACE(fmt, ...) if (config.trace) trace(fmt "\n", ##__VA_ARGS__)
+
 class AGS;
 class MAKO;
 class MsgSkip;
@@ -248,8 +250,7 @@ public:
 	std::unique_ptr<Encoding> encoding;
 	Strings strings;
 
-	// デバッグログ
-	void output_console(const char *format, ...);
+	void trace(const char *format, ...);
 
 	int get_scenario_page() const { return sco.page(); }
 	uint16 get_var(int index) const { return var[index]; }

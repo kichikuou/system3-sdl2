@@ -42,6 +42,7 @@ struct Config {
 	std::string title;
 	int midi_device = -1;
 	bool print_version = false;
+	bool trace = false;
 	bool use_fm = false;
 	bool no_antialias = false;
 	bool scanline = false;

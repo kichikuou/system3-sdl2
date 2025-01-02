@@ -213,13 +213,13 @@ void NACT_Sys1::cmd_branch()
 		}
 	}
 
-	output_console("\n{%d:", condition);
+	TRACE("{%d:", condition);
 }
 
 void NACT_Sys1::cmd_open_verb()
 {
 	// 動詞メニューの表示
-	output_console("\nopen verb-obj menu");
+	TRACE("open verb-obj menu");
 	verb_obj = false;
 
 	// 表示する動詞のチェック
@@ -420,7 +420,7 @@ void NACT_Sys1::cmd_g()
 {
 	int page = sco.getd();
 
-	output_console("\nG %d:", page);
+	TRACE("G %d:", page);
 
 	if (game_id.crc32_a == CRC32_INTRUDER) {
 		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
@@ -469,7 +469,7 @@ void NACT_Sys1::cmd_l()
 {
 	int index = sco.getd();
 
-	output_console("\nL %d:", index);
+	TRACE("L %d:", index);
 
 	if (1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
@@ -501,7 +501,7 @@ void NACT_Sys1::cmd_p()
 
 	ags->text_font_color = (uint8)((param & 0x7) + 16);
 
-	output_console("\nP %d:", param);
+	TRACE("P %d:", param);
 }
 
 void NACT_Sys1::cmd_q()
@@ -518,7 +518,7 @@ void NACT_Sys1::cmd_q()
 
 	int index = sco.getd();
 
-	output_console("\nQ %d:", index);
+	TRACE("Q %d:", index);
 
 	if (1 <= index && index <= 26) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
@@ -537,7 +537,7 @@ void NACT_Sys1::cmd_u()
 	int page = sco.getd();
 	int transparent = sco.getd();
 
-	output_console("\nU %d,%d:", page, transparent);
+	TRACE("U %d,%d:", page, transparent);
 
 	if (game_id.crc32_a == CRC32_INTRUDER) {
 		ags->load_cg(page, 11);
@@ -567,7 +567,7 @@ void NACT_Sys1::cmd_y()
 	int cmd = cali();
 	int param = cali();
 
-	output_console("\nY %d,%d:", cmd, param);
+	TRACE("Y %d,%d:", cmd, param);
 
 	if (game_id.crc32_a == CRC32_INTRUDER) {
 		switch(cmd) {
@@ -770,7 +770,7 @@ void NACT_Sys1::cmd_z()
 	int cmd = cali();
 	int param = cali();
 
-	output_console("\nZ %d,%d:", cmd, param);
+	TRACE("Z %d,%d:", cmd, param);
 
 	switch (game_id.crc32_a) {
 	case CRC32_INTRUDER:
