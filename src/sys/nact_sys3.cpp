@@ -1007,6 +1007,9 @@ void NACT_Sys3::cmd_y()
 		case 255:
 			quit(param == 1 ? NACT_HALT : RND);
 			break;
+		default:
+			WARNING("Unimplemented command: Y %d, %d", cmd, param);
+			break;
 	}
 }
 

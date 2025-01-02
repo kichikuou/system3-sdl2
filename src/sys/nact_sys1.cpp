@@ -612,6 +612,9 @@ void NACT_Sys1::cmd_y()
 			case 255:
 				quit(NACT_HALT);
 				break;
+			default:
+				WARNING("Unimplemented command: Y %d, %d", cmd, param);
+				break;
 		}
 	} else if (game_id.is_gakuen()) {
 		switch (cmd) {
@@ -646,6 +649,9 @@ void NACT_Sys1::cmd_y()
 				break;
 			case 7:
 				// Dummied. 0 - "Switch to interlace mode," 1 - disable.
+				break;
+			default:
+				WARNING("Unimplemented command: Y %d, %d", cmd, param);
 				break;
 		}
 	} else {
@@ -747,6 +753,9 @@ void NACT_Sys1::cmd_y()
 				} else {
 					quit(NACT_HALT);
 				}
+				break;
+			default:
+				WARNING("Unimplemented command: Y %d, %d", cmd, param);
 				break;
 		}
 	}
