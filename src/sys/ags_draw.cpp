@@ -30,7 +30,6 @@ void AGS::load_cg(int page, int transparent)
 		switch (game_id.game) {
 		case GameId::BUNKASAI:
 		case GameId::GAKUEN:
-		case GameId::GAKUEN_ENG:
 			load_vsp(data.data(), page, transparent);
 			break;
 		case GameId::INTRUDER:
@@ -38,7 +37,6 @@ void AGS::load_cg(int page, int transparent)
 			load_vsp(data.data(), page, transparent);	// 暫定
 			break;
 		case GameId::LITTLE_VAMPIRE:
-		case GameId::LITTLE_VAMPIRE_ENG:
 			load_vsp2l(data.data(), page, transparent);
 			break;
 		default:

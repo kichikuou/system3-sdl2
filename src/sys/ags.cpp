@@ -62,7 +62,7 @@ SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int heig
 AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(false)
 {
 	// 画面サイズ
-	if (game_id.is_gakuen()) {
+	if (game_id.is(GameId::GAKUEN)) {
 		window_width = 582;
 		screen_width = 512;
 		window_height = screen_height = 424;
@@ -259,10 +259,7 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 			break;
 		case GameId::LITTLE_VAMPIRE:
 			SET_TEXT(i, 8, 255, 615, 383, false);
-			SET_MENU(i, 448, 11, 615, 224, false);
-		case GameId::LITTLE_VAMPIRE_ENG:
-			SET_TEXT(i, 8, 255, 615, 383, false);
-			SET_MENU(i, 448, 11, 615, 234, false);
+			SET_MENU(i, 448, 11, 615, game_id.language == ENGLISH ? 234 : 224, false);
 			break;
 		case GameId::YAKATA:
 			SET_TEXT(i, 48, 288, 594, 393, false);
@@ -281,7 +278,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 			SET_MENU(i, 420, 28, 620, 244, true);
 			break;
 		case GameId::GAKUEN:
-		case GameId::GAKUEN_ENG:
 			SET_TEXT(i, 8, 260, 505, 384, false);
 			if (i == 1) {
 				SET_MENU(i, 128, 32, 337, 178, true);
@@ -613,7 +609,7 @@ void AGS::save_screenshot(const char* path)
 int AGS::calculate_menu_max(int window) {
 	if (game_id.is(GameId::INTRUDER))
 		return 6;
-	if (game_id.is_gakuen())
+	if (game_id.is(GameId::GAKUEN))
 		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (menu_font_size + 4);
 	return 11;
 }

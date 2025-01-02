@@ -362,11 +362,9 @@ void MAKO::select_sound(BGMDevice dev)
 
 		switch (game_id.game) {
 		case GameId::RANCE41:
-		case GameId::RANCE41_ENG:
 			tracks = RANCE41_tracks;
 			break;
 		case GameId::RANCE42:
-		case GameId::RANCE42_ENG:
 			tracks = RANCE42_tracks;
 			break;
 		case GameId::DPS_ALL:

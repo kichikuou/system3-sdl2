@@ -32,10 +32,8 @@ struct GameId {
 		TENGU,
 		TOUSHIN_HINT,
 		LITTLE_VAMPIRE,
-		LITTLE_VAMPIRE_ENG,
 		YAKATA,
 		GAKUEN,
-		GAKUEN_ENG,
 
 		// System 2
 		AYUMI_FD,
@@ -61,9 +59,7 @@ struct GameId {
 		PROG_CD,
 		PROG_OMAKE,
 		RANCE41,
-		RANCE41_ENG,
 		RANCE42,
-		RANCE42_ENG,
 		AYUMI_CD,
 		AYUMI_LIVE_256,
 		AYUMI_LIVE_FULL,
@@ -86,7 +82,6 @@ struct GameId {
 	explicit GameId(const Config& config);
 	bool is(Game g) const { return game == g; }
 	bool is_valid() const { return game != UNKNOWN; }
-	bool is_gakuen() const { return game == GAKUEN || game == GAKUEN_ENG; }
 	bool is_system1_dps() const {
 		return DPS <= game && game <= DPS_SG3_SOTSUGYOU;
 	}
@@ -94,7 +89,7 @@ struct GameId {
 		return game == SDPS_MARIA || game == SDPS_TONO || game == SDPS_KAIZOKU;
 	}
 	bool is_rance4x() const {
-		return game == RANCE41 || game == RANCE41_ENG || game == RANCE42 || game == RANCE42_ENG;
+		return game == RANCE41 || game == RANCE42;
 	}
 };
 

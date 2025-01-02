@@ -96,7 +96,6 @@ void NACT_Sys1::opening()
 		ags->load_cg(74, -1);
 		break;
 	case GameId::LITTLE_VAMPIRE:
-	case GameId::LITTLE_VAMPIRE_ENG:
 		mako->play_music(4);
 		ags->load_cg(3, -1);
 		WAIT(2000);
@@ -105,7 +104,6 @@ void NACT_Sys1::opening()
 		ags->draw_box(0);
 		break;
 	case GameId::GAKUEN:
-	case GameId::GAKUEN_ENG:
 		mako->set_cd_track(1, 1);
 		ags->load_cg(302, -1);
 		WAIT(3000);
@@ -220,7 +218,7 @@ void NACT_Sys1::cmd_open_verb()
 	bool chk[MAX_VERB] = {};
 	int page = 0;
 
-	if (game_id.is_gakuen())
+	if (game_id.is(GameId::GAKUEN))
 		menu_window = 1;
 	int menu_max = ags->calculate_menu_max(menu_window);
 
@@ -418,7 +416,7 @@ void NACT_Sys1::cmd_g()
 
 	if (game_id.is(GameId::INTRUDER)) {
 		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
-	} else if (game_id.is_gakuen()) {
+	} else if (game_id.is(GameId::GAKUEN)) {
 		page = (page == 3) ? 94 : page;
 	}
 
@@ -610,7 +608,7 @@ void NACT_Sys1::cmd_y()
 				WARNING("Unimplemented command: Y %d, %d", cmd, param);
 				break;
 		}
-	} else if (game_id.is_gakuen()) {
+	} else if (game_id.is(GameId::GAKUEN)) {
 		switch (cmd) {
 			case 1:
 				RND = (param == 0 || param == 1) ? 0 : random(param);
@@ -836,7 +834,6 @@ void NACT_Sys1::cmd_z()
 		break;
 
 	case GameId::GAKUEN:
-	case GameId::GAKUEN_ENG:
 		if (param != 30 && (param < 34 || param > 46)) {
 			if (enable_graphics) {
 				ags->load_cg(param + 250, -1);

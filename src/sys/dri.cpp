@@ -96,7 +96,6 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 			name = "AMUS_T1";
 			break;
 		case GameId::LITTLE_VAMPIRE:		// Little Vampire
-		case GameId::LITTLE_VAMPIRE_ENG:
 			name = "AMUS_LP2";
 			break;
 		case GameId::YAKATA:		// ALICEの館
@@ -148,11 +147,9 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 			name = "AMUS_PSG.MDA";
 			break;
 		case GameId::RANCE41:		// Rance 4.1
-		case GameId::RANCE41_ENG:
 			name = "AMUS_R41.MDA";
 			break;
 		case GameId::RANCE42:		// Rance 4.2
-		case GameId::RANCE42_ENG:
 			name = "AMUS_R42.MDA";
 			break;
 		case GameId::AYUMI_CD:		// あゆみちゃん物語 (CD)

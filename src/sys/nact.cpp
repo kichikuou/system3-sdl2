@@ -336,7 +336,7 @@ void NACT::cmd_set_menu()
 		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
-		if (game_id.is_gakuen())
+		if (game_id.is(GameId::GAKUEN))
 			menu_window = 2;
 
 		TRACE("$%x,", menu_items.back().addr);
