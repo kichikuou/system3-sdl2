@@ -36,7 +36,7 @@ SDL_Window* create_window(const GameId& game_id)
 		SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_WARNING, "system3",
 			"Unable to determine game ID.\n"
-			"If you are running a modified game, plsese specify 'game = <original-game-id>' in system3.ini.\n"
+			"If you are running a modified game, please specify 'game = <original-game-id>' in system3.ini.\n"
 			"See README.md for more information.",
 			NULL);
 	}
