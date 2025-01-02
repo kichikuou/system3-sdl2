@@ -348,9 +348,8 @@ CliFrontend::CommandResult CliFrontend::cmd_string() {
 		if (no < 1 || no > MAX_STRVAR) {
 			printf("Bad string index %s\n", arg);
 		} else {
-			char *utf = g_nact->encoding->toUtf8(g_nact->get_string(no - 1));
-			printf("string[%d] = \"%s\"\n", no, utf);  // TODO: escaping
-			free(utf);
+			std::string utf = g_nact->encoding->toUtf8(g_nact->get_string(no - 1));
+			printf("string[%d] = \"%s\"\n", no, utf.c_str());  // TODO: escaping
 		}
 		arg = strtok(NULL, whitespaces);
 	}

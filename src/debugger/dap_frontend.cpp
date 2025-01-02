@@ -141,12 +141,7 @@ private:
 	}
 
 	std::string format_string_value(const char* str) {
-		char *utf = g_nact->encoding->toUtf8(str);
-		std::string value = "\"";
-		value += utf;
-		value += "\"";
-		free(utf);
-		return value;
+		return "\"" + g_nact->encoding->toUtf8(str) + "\"";
 	}
 
 	void send_json(Json& json) {
@@ -403,9 +398,7 @@ private:
 				}
 				value = value.substr(1, value.size() - 2);
 
-				char* encoded = g_nact->encoding->fromUtf8(value.c_str());
-				g_nact->set_string(index, encoded);
-				free(encoded);
+				g_nact->set_string(index, g_nact->encoding->fromUtf8(value.c_str()).c_str());
 
 				resp["success"] = true;
 				resp["body"] = {

@@ -19,7 +19,7 @@ Uint32 custom_event_type = static_cast<Uint32>(-1);
 void NACT::text_dialog()
 {
 	static char buf[256];
-	char *oldstr = encoding->toUtf8(tvar[tvar_index - 1]);
+	std::string oldstr = encoding->toUtf8(tvar[tvar_index - 1]);
 	int ok = EM_ASM_({
 			var r = xsystem35.shell.inputString("文字列を入力してください", UTF8ToString($0), $1);
 			if (r) {
@@ -27,12 +27,9 @@ void NACT::text_dialog()
 				return 1;
 			}
 			return 0;
-		}, oldstr, tvar_maxlen, buf, sizeof buf);
-	free(oldstr);
+		}, oldstr.c_str(), tvar_maxlen, buf, sizeof buf);
 	if (ok) {
-		char *newstr = encoding->fromUtf8(buf);
-		strcpy_s(tvar[tvar_index - 1], 22, newstr);
-		free(newstr);
+		strcpy_s(tvar[tvar_index - 1], 22, encoding->fromUtf8(buf).c_str());
 	}
 }
 

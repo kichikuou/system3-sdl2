@@ -11,9 +11,8 @@ void NACT::text_dialog()
 	if (!jni.env())
 		return;
 
-	char *oldstr = encoding->toUtf8(tvar[tvar_index - 1]);
-	jstring joldstr = jni.env()->NewStringUTF(oldstr);
-	free(oldstr);
+	std::string oldstr = encoding->toUtf8(tvar[tvar_index - 1]);
+	jstring joldstr = jni.env()->NewStringUTF(oldstr.c_str());
 	if (!joldstr) {
 		WARNING("Failed to allocate a string");
 		return;
@@ -23,9 +22,8 @@ void NACT::text_dialog()
 	if (!jnewstr)
 		return;
 	const char* newstr_utf8 = jni.env()->GetStringUTFChars(jnewstr, NULL);
-	char* newstr = encoding->fromUtf8(newstr_utf8);
-	strcpy_s(tvar[tvar_index - 1], 22, newstr);
-	free(newstr);
+	std::string newstr = encoding->fromUtf8(newstr_utf8);
+	strcpy_s(tvar[tvar_index - 1], 22, newstr.c_str());
 	jni.env()->ReleaseStringUTFChars(jnewstr, newstr_utf8);
 }
 

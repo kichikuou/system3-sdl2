@@ -24,15 +24,14 @@ public:
 		return sjis_to_unicode(code);
 	}
 
-	char* fromUtf8(const char* str) override
+	std::string fromUtf8(const char* str) override
 	{
 		unsigned char* src = (unsigned char*)str;
-		unsigned char* dst = (unsigned char*)malloc(strlen(str) + 1);
-		unsigned char* dstp = dst;
+		std::string result;
 
 		while (*src) {
 			if (*src <= 0x7f) {
-				*dstp++ = *src++;
+				result += *src++;
 				continue;
 			}
 
@@ -44,36 +43,34 @@ public:
 				u = (src[0] & 0xf) << 12 | (src[1] & 0x3f) << 6 | (src[2] & 0x3f);
 				src += 3;
 			} else {
-				*dstp++ = '?';
+				result += '?';
 				do src++; while ((*src & 0xc0) == 0x80);
 				continue;
 			}
 
 			if (u > 0xff60 && u <= 0xff9f) {
-				*dstp++ = u - 0xff60 + 0xa0;
+				result += u - 0xff60 + 0xa0;
 			} else {
 				int c = unicode_to_sjis(u);
 				if (c) {
-					*dstp++ = c >> 8;
-					*dstp++ = c & 0xff;
+					result += c >> 8;
+					result += c & 0xff;
 				} else {
-					*dstp++ = '?';
+					result += '?';
 				}
 			}
 		}
-		*dstp = '\0';
-		return (char*)dst;
+		return result;
 	}
 
-	char* toUtf8(const char* str) override
+	std::string toUtf8(const char* str) override
 	{
 		unsigned char* src = (unsigned char*)str;
-		unsigned char* dst = (unsigned char*)malloc(strlen(str) * 3 + 1);
-		unsigned char* dstp = dst;
+		std::string result;
 
 		while (*src) {
 			if (*src <= 0x7f) {
-				*dstp++ = *src++;
+				result += *src++;
 				continue;
 			}
 
@@ -87,18 +84,17 @@ public:
 			}
 
 			if (c <= 0x7f) {
-				*dstp++ = c;
+				result += c;
 			} else if (c <= 0x7ff) {
-				*dstp++ = 0xc0 | c >> 6;
-				*dstp++ = 0x80 | (c & 0x3f);
+				result += 0xc0 | c >> 6;
+				result += 0x80 | (c & 0x3f);
 			} else {
-				*dstp++ = 0xe0 | c >> 12;
-				*dstp++ = 0x80 | (c >> 6 & 0x3f);
-				*dstp++ = 0x80 | (c & 0x3f);
+				result += 0xe0 | c >> 12;
+				result += 0x80 | (c >> 6 & 0x3f);
+				result += 0x80 | (c & 0x3f);
 			}
 		}
-		*dstp = '\0';
-		return (char*)dst;
+		return result;
 	}
 
 private:
@@ -179,14 +175,14 @@ public:
 		return code;
 	}
 
-	char* fromUtf8(const char* s) override
+	std::string fromUtf8(const char* s) override
 	{
-		return strdup(s);
+		return std::string(s);
 	}
 
-	char* toUtf8(const char* s) override
+	std::string toUtf8(const char* s) override
 	{
-		return strdup(s);
+		return std::string(s);
 	}
 };
 

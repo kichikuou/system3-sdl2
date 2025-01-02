@@ -111,9 +111,7 @@ TexthookMode parse_texthook_mode(const char *s, int lineno = -1)
 
 void init_string(std::string& s, Encoding* encoding, const char *dflt)
 {
-	char *encoded = encoding->fromUtf8(s.empty() ? dflt : s.c_str());
-	s = encoded;
-	free(encoded);
+	s = encoding->fromUtf8(s.empty() ? dflt : s.c_str());
 }
 
 }  // namespace

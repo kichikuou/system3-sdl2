@@ -2,6 +2,7 @@
 #define _ENCODING_H_
 
 #include <memory>
+#include <string>
 
 // Gaiji characters are mapped to Unicode Private Use Area U+E000-U+E0BB.
 const int GAIJI_FIRST = 0xE000;
@@ -28,8 +29,8 @@ class Encoding {
 	}
 
 	// Convert from/to utf-8 encoding. Caller must free() the returned buffer.
-	virtual char* fromUtf8(const char* s) = 0;
-	virtual char* toUtf8(const char* s) = 0;
+	virtual std::string fromUtf8(const char* s) = 0;
+	virtual std::string toUtf8(const char* s) = 0;
 };
 
 #endif // _ENCODING_H_
