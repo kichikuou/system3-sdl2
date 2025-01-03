@@ -17,6 +17,7 @@ class Dri {
 public:
 	void open(const char* file_name);
 	std::vector<uint8_t> load(int page);
+	bool loaded() const { return !link_table.empty(); }
 
 	static std::vector<uint8_t> load_mda(const GameId& game_id, int page);
 

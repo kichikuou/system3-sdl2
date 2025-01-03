@@ -31,13 +31,6 @@ SDL_Window* create_window(const GameId& game_id)
 	if (game_id.title) {
 		title += ": ";
 		title += game_id.title;
-	} else {
-		SDL_ShowSimpleMessageBox(
-			SDL_MESSAGEBOX_WARNING, "system3",
-			"Unable to determine game ID.\n"
-			"If you are running a modified game, please specify 'game = <original-game-id>' in system3.ini.\n"
-			"See README.md for more information.",
-			NULL);
 	}
 
 	SDL_Init(SDL_INIT_VIDEO);
@@ -81,9 +74,6 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 	GameId game_id(config);
-	if (!game_id.is_valid()) {
-		sys_error("No game files in the current directory.");
-	}
 
 	g_window = create_window(game_id);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);

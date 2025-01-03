@@ -53,6 +53,8 @@ NACT::NACT(const Config& config, const GameId& game_id)
 		sco.open("AGAME.DAT");
 	else
 		sco.open("ADISK.DAT");
+	if (!sco.loaded())
+		sys_error("Cannot open scenario file");
 	sco.page_jump(0, 2);
 
 	// 各種クラス生成

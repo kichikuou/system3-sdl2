@@ -11,6 +11,7 @@ class Encoding;
 class Scenario {
 public:
 	void open(const char* file_name) { adisk.open(file_name); }
+	bool loaded() const { return adisk.loaded(); }
 	void page_jump(int page, int addr);
 	int default_addr() { return data_[0] | data_[1] << 8; }
 

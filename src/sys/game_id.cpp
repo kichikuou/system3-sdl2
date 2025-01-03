@@ -197,12 +197,21 @@ GameId::GameId(const Config& config)
 				break;
 			}
 		}
+		if (!entry)
+			sys_error("Unknown game ID: %s", config.game_id.c_str());
 	} else {
 		uint32_t crc32_a = calc_crc32("ADISK.DAT");
 		uint32_t crc32_b = calc_crc32("BDISK.DAT");
 		entry = lookup(crc32_a, crc32_b);
-		if (!entry)
+		if (crc32_a && !entry) {
 			WARNING("Cannot determine game id. crc32_a: %08x, crc32_b: %08x", crc32_a, crc32_b);
+			SDL_ShowSimpleMessageBox(
+				SDL_MESSAGEBOX_WARNING, "system3",
+				"Unable to determine game ID.\n"
+				"If you are running a modified game, please specify 'game = <original-game-id>' in system3.ini.\n"
+				"See README.md for more information.",
+				NULL);
+		}
 	}
 	if (entry) {
 		game = entry->game;
