@@ -142,8 +142,6 @@ void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 
 void AGS::paint(int x, int y, uint8 color)
 {
-	if (x < 0 || y < 0) return;
-
 	int old_color = vram[0][y][x];
 	if (old_color == color)
 		return;

@@ -8,6 +8,8 @@
 
 #define CRC32_BUNKASAI		0xc80f99b8	// あぶない文化祭前夜
 #define CRC32_CRESCENT		0x42351f2c	// クレセントムーンがぁる
+#define CRC32_RANCE2		0x28f8298f	// Rance 2
+#define CRC32_RANCE2_HINT	0x2a85e5fa	// Rance 2 ヒントディスク (CRC32 of GDISK.DAT)
 #define CRC32_DPS		0x69ea4865	// D.P.S. - Dream Program System
 #define CRC32_DPS_SG		0xab4cda48	// D.P.S. SG
 #define CRC32_DPS_SG_FAHREN	0xe405d57c	//	D.P.S. SG - Fahren Fliegen
@@ -73,9 +75,6 @@
 #define CRC32_NINGYO		0xd491e7ab	// 人魚 -蘿子-
 #define CRC32_MUGENHOUYOU	0xbb27d1ba	// 夢幻泡影
 
-#define CRC32_RANCE2      0x12345678
-#define CRC32_RANCE2_HINT 0x34567890
-
 namespace {
 
 const struct CRCTable {
@@ -89,6 +88,8 @@ const struct CRCTable {
 } crc_table[] = {
 	{GameId::BUNKASAI, "bunkasai", 1, "あぶない文化祭前夜", JAPANESE, CRC32_BUNKASAI},
 	{GameId::CRESCENT, "crescent", 1, "クレセントムーンがぁる", JAPANESE, CRC32_CRESCENT},
+	{GameId::RANCE2, "rance2", 1, "Rance 2 -反逆の少女たち-", JAPANESE, CRC32_RANCE2},
+	{GameId::RANCE2_HINT, "rance2_hint", 1, "Rance 2 ヒントディスク", JAPANESE, CRC32_RANCE2_HINT},
 	{GameId::DPS, "dps", 1, "D.P.S - Dream Program System", JAPANESE, CRC32_DPS},
 	{GameId::DPS_SG_FAHREN, "dps_sg_fahren", 1, "D.P.S SG - Fahren Fliegen", JAPANESE, CRC32_DPS_SG, CRC32_DPS_SG_FAHREN},
 	{GameId::DPS_SG_KATEI, "dps_sg_katei", 1, "D.P.S SG - 家庭教師はステキなお仕事", JAPANESE, CRC32_DPS_SG, CRC32_DPS_SG_KATEI},
@@ -145,9 +146,6 @@ const struct CRCTable {
 	{GameId::OTOME, "otome", 3, "乙女戦記", JAPANESE, CRC32_OTOMESENKI},
 	{GameId::NINGYO, "ningyo", 3, "人魚 -蘿子-", JAPANESE, CRC32_NINGYO},
 	{GameId::MUGEN, "mugen", 3, "夢幻泡影", JAPANESE, CRC32_MUGENHOUYOU},
-
-	{GameId::RANCE2, "rance2", 1, "Rance 2", ENGLISH, CRC32_RANCE2},
-	{GameId::RANCE2_HINT, "rance2_hint", 1, "Rance 2 Hint Disk", ENGLISH, CRC32_RANCE2_HINT},
 
 	{GameId::UNKNOWN, NULL, 0, NULL, JAPANESE, 0},
 };
