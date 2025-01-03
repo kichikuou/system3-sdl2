@@ -227,6 +227,11 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 			// 本来は横メニュー
 			SET_MENU(i, 464, 50, 623, 240, true);
 			break;
+		case GameId::RANCE2:
+		case GameId::RANCE2_HINT:
+			SET_TEXT(i, 8, 285, 502, 396, false);
+			SET_MENU(i, 431, 19, 624, 181, false);
+			break;
 		case GameId::DPS:
 		case GameId::DPS_SG_FAHREN:
 		case GameId::DPS_SG_KATEI:
