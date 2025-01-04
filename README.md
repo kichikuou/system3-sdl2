@@ -76,6 +76,8 @@ Here is a list of available game IDs and their corresponding titles:
 ----------|-------|--------
 | `bunkasai` | あぶない文化祭前夜 | |
 | `crescent` | クレセントムーンがぁる | |
+| `rance2` | Rance 2 -反逆の少女たち- | Unsupported |
+| `rance2_hint` | Rance 2 ヒントディスク | |
 | `dps` | D.P.S - Dream Program System | |
 | `dps_sg_fahren` | D.P.S SG - Fahren Fliegen | |
 | `dps_sg_katei` | D.P.S SG - 家庭教師はステキなお仕事 | |

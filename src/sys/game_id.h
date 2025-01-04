@@ -17,6 +17,8 @@ struct GameId {
 		// System 1
 		BUNKASAI,
 		CRESCENT,
+		RANCE2,
+		RANCE2_HINT,
 		DPS,
 		DPS_SG_FAHREN,
 		DPS_SG_KATEI,
@@ -87,6 +89,9 @@ struct GameId {
 	}
 	bool is_sdps() const {
 		return game == SDPS_MARIA || game == SDPS_TONO || game == SDPS_KAIZOKU;
+	}
+	bool is_rance2() const {
+		return game == RANCE2 || game == RANCE2_HINT;
 	}
 	bool is_rance4x() const {
 		return game == RANCE41 || game == RANCE42;

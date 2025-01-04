@@ -431,6 +431,11 @@ void NACT_Sys1::cmd_g()
 			map_page = page;
 		}
 	}
+
+	if (game_id.is_rance2()) {
+		last_paint_x = -1;
+		last_paint_y = -1;
+	}
 }
 
 void NACT_Sys1::cmd_h()
@@ -700,6 +705,35 @@ void NACT_Sys1::cmd_y()
 					if(param == 1) {
 						ags->box_fill(0, 40, 8, 598, 270, 0);
 					}
+				} else if (game_id.is_rance2()) {
+					if (param == 0) {
+						// Unknown
+					}
+					else if (param == 6) {
+						ags->box_fill(0, 0, 0, 424, 276, 0);
+					}
+					else if (param == 7) {
+						ags->box_fill(0, 0, 0, 640, 276, 0);
+					}
+				}
+				break;
+			case 12:
+				if (game_id.is_rance2()) {
+					// Y 12, 0: is supposed to activate an automatic text
+					// progression feature, but it doesn't seem to work on the
+					// PC-98?
+				}
+				break;
+			case 13:
+				if (game_id.is_rance2()) {
+					// Sets the speed of the auto text progression feature (Y 12).
+					// The options in Rance 2 are 1 (the fastest), 5, and 10 (the
+					// slowest). Not available in the Hint Disk.
+				}
+				break;
+			case 20:
+				if (game_id.is_rance2()) {
+					ags->load_cg(param, -1);
 				}
 				break;
 			case 130:
@@ -889,6 +923,15 @@ void NACT_Sys1::cmd_z()
 			ags->copy(x + 2, 182, x + 38, 224, x, 210);
 			ags->src_screen = 0;
 		}
+		break;
+	case GameId::RANCE2:
+	case GameId::RANCE2_HINT:
+		if (last_paint_x != -1)
+			ags->paint(last_paint_x, last_paint_y, 0);
+		ags->paint(cmd, param, 3);
+		last_paint_x = cmd;
+		last_paint_y = param;
+		break;
 	}
 }
 

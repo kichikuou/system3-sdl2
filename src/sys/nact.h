@@ -303,6 +303,8 @@ private:
 
 	// GAKUEN
 	bool enable_graphics = true;
+	// Rance 2
+	int last_paint_x = -1, last_paint_y = -1;
 };
 
 class NACT_Sys2 final : public NACT {
