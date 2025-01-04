@@ -33,7 +33,8 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	platform_initialize();
 
 	// AG00.DAT読み込み
-	auto fio = FILEIO::open("AG00.DAT", FILEIO_READ_BINARY);
+	const char* ag00_name = game_id.is(GameId::RANCE2_HINT) ? "GG00.DAT" : "AG00.DAT";
+	auto fio = FILEIO::open(ag00_name, FILEIO_READ_BINARY);
 	if (fio) {
 		int d0, d1, d2, d3;
 		std::string line = fio->gets();
@@ -49,12 +50,13 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	}
 
 	// ADISK.DAT
-	if (game_id.is(GameId::PROG_OMAKE))
-		sco.open("AGAME.DAT");
-	else
-		sco.open("ADISK.DAT");
+	const char* adisk_name =
+		game_id.is(GameId::RANCE2_HINT) ? "GDISK.DAT" :
+		game_id.is(GameId::PROG_OMAKE) ? "AGAME.DAT" :
+		"ADISK.DAT";
+	sco.open(adisk_name);
 	if (!sco.loaded())
-		sys_error("Cannot open scenario file");
+		sys_error("Cannot open %s", adisk_name);
 	sco.page_jump(0, 2);
 
 	// 各種クラス生成

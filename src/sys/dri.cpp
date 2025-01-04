@@ -14,9 +14,8 @@ void Dri::open(const char* file_name)
 {
 	link_table.clear();
 	fname = file_name;
-	fname[0] = 'A';
 
-	auto fio = FILEIO::open(fname.c_str(), FILEIO_READ_BINARY);
+	auto fio = FILEIO::open(file_name, FILEIO_READ_BINARY);
 	if (!fio)
 		return;
 
