@@ -7,7 +7,7 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
-#define SYSTEM3_VERSION "1.3.0"
+#define SYSTEM3_VERSION "1.4.0"
 
 #include <SDL.h>
 #include <assert.h>

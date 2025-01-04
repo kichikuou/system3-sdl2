@@ -207,7 +207,7 @@ if(NINTENDO_SWITCH)
   nx_generate_nacp(system3.nacp
     NAME "system3"
     AUTHOR "kichikuou"
-    VERSION "0.8.0"
+    VERSION "1.4.0"
   )
 
   nx_create_nro(system3

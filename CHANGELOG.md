@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.0 - 2025-01-04
+- New supported game: Rance 2 Hint Disk (#33)
+- Added `trace` option that logs executed NACT commands on the console
+- Improved messages for startup errors
+
 ## 1.3.0 - 2024-12-28
 - Added debugger support that can be used from Visual Studio Code. See
   [vscode-system3x](https://github.com/kichikuou/vscode-system3x) for details.
