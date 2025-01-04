@@ -888,10 +888,10 @@ void NACT::select_cursor()
 NACT* NACT::create(const Config& config, const GameId& game_id) {
 	switch (game_id.sys_ver) {
 	case 1:
-		return new NACT_Sys1(config, game_id);
+		return create_system1(config, game_id);
 	case 2:
-		return new NACT_Sys2(config, game_id);
+		return create_system2(config, game_id);
 	default:
-		return new NACT_Sys3(config, game_id);
+		return create_system3(config, game_id);
 	}
 }

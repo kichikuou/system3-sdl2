@@ -15,6 +15,41 @@
 #include "encoding.h"
 #include "texthook.h"
 
+namespace {
+
+class NACT_Sys2 final : public NACT {
+public:
+	NACT_Sys2(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
+
+protected:
+	void cmd_branch() override;
+	void cmd_open_verb() override;
+	void cmd_b() override;
+	void cmd_d() override;
+	void cmd_e() override;
+	void cmd_g() override;
+	void cmd_h() override;
+	void cmd_i() override;
+	void cmd_j() override;
+	void cmd_k() override;
+	void cmd_l() override;
+	void cmd_m() override;
+	void cmd_n() override;
+	void cmd_o() override;
+	void cmd_p() override;
+	void cmd_q() override;
+	void cmd_t() override;
+	void cmd_u() override;
+	void cmd_v() override;
+	void cmd_w() override;
+	void cmd_y() override;
+	void cmd_z() override;
+	uint16 cali() override;
+
+private:
+	void cmd_open_obj(int verb);
+};
+
 #define WAIT(tm) \
 { \
 	Uint32 dwTime = SDL_GetTicks() + (tm); \
@@ -943,4 +978,12 @@ uint16 NACT_Sys2::cali()
 		sys_error("cali: invalid expression at %d:%04x", sco.page(), sco.cmd_addr());
 	}
 	return (uint16)(cali[1] & 0xffff);
+}
+
+}  // namespace
+
+// static
+NACT* NACT::create_system2(const Config& config, const GameId& game_id)
+{
+	return new NACT_Sys2(config, game_id);
 }
