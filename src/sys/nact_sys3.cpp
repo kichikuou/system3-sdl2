@@ -78,7 +78,7 @@
 
 namespace {
 
-class NACT_Sys3 final : public NACT {
+class NACT_Sys3 : public NACT {
 public:
 	NACT_Sys3(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
 
@@ -1368,10 +1368,60 @@ bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 	return true;
 }
 
+class NACT_Toushin2 final : public NACT_Sys3 {
+public:
+	NACT_Toushin2(const Config& config, const GameId& game_id)
+		: NACT_Sys3(config, game_id) {}
+
+	void cmd_b() override {
+		int p1 = cali();
+		int p2 = cali();
+		TRACE_UNIMPLEMENTED("B %d,%d:", p1, p2);
+	}
+
+	void cmd_i() override {
+		int p1 = cali();
+		int p2 = cali();
+		int p3 = cali();
+		TRACE_UNIMPLEMENTED("I %d,%d,%d:", p1, p2, p3);
+	}
+
+	void cmd_n() override {
+		int p1 = cali();
+		int p2 = cali();
+		TRACE_UNIMPLEMENTED("N %d,%d:", p1, p2);
+	}
+
+	void cmd_p() override {
+		int p1 = cali();
+		TRACE_UNIMPLEMENTED("P %d:", p1);
+	}
+
+	void cmd_t() override {
+		int p1 = cali();
+		int p2 = cali();
+		int p3 = cali();
+		TRACE_UNIMPLEMENTED("T %d,%d,%d:", p1, p2, p3);
+	}
+
+	void cmd_z() override {
+		int p1 = cali();
+		int p2 = cali();
+		int p3 = cali();
+		TRACE_UNIMPLEMENTED("Z %d,%d,%d:", p1, p2, p3);
+	}
+};
+
 }  // namespace
 
 // static
-NACT* NACT::create_system3(const Config& config, const GameId& game_id)
-{
-	return new NACT_Sys3(config, game_id);
+NACT* NACT::create_system3(const Config& config, const GameId& game_id) {
+	switch (game_id.game) {
+	case GameId::TOUSHIN2:
+	case GameId::NISE_NAGURI:
+	case GameId::GAKUEN_KING:
+		return new NACT_Toushin2(config, game_id);
+	default:
+		return new NACT_Sys3(config, game_id);
+	}
 }

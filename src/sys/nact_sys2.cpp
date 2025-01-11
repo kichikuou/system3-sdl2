@@ -17,7 +17,7 @@
 
 namespace {
 
-class NACT_Sys2 final : public NACT {
+class NACT_Sys2 : public NACT {
 public:
 	NACT_Sys2(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
 
@@ -167,8 +167,10 @@ void NACT_Sys2::cmd_branch()
 			} else if(cmd == 'I') {
 				cali();
 				cali();
-//				sco.getd();
-				cali();
+				if (game_id.is(GameId::RANCE3))
+					sco.getd();
+				else // DALK, DALK_HINT
+					cali();
 			} else if(cmd == 'J') {
 				cali();
 				cali();
@@ -204,48 +206,12 @@ void NACT_Sys2::cmd_branch()
 				cali();
 				cali();
 			} else if(cmd == 'U') {
-				if (game_id.is(GameId::YAKATA2)) {
-					cali();
-					cali();
-				} else {
-					sco.getd();
-					sco.getd();
-				}
+				cali();
+				cali();
 			} else if(cmd == 'V') {
-#if 1
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-				cali();
-#else
-				cali();
-				cali();
-#endif
+				sco.getd();
+				for (int i = 0; i < 29; i++)
+					cali();
 			} else if(cmd == 'W') {
 				cali();
 				cali();
@@ -551,8 +517,7 @@ void NACT_Sys2::cmd_i()
 {
 	int p1 = cali();
 	int p2 = cali();
-//	int p3 = sco.getd();
-	int p3 = cali();
+	int p3 = game_id.is(GameId::RANCE3) ? sco.getd() : cali();
 
 	TRACE_UNIMPLEMENTED("I %d,%d,%d:", p1, p2, p3);
 }
@@ -676,15 +641,8 @@ void NACT_Sys2::cmd_t()
 
 void NACT_Sys2::cmd_u()
 {
-	int page, transparent;
-
-	if (game_id.is(GameId::YAKATA2)) {
-		page = cali();
-		transparent = cali();
-	} else {
-		page = sco.getd();
-		transparent = sco.getd();
-	}
+	int page = cali();
+	int transparent = cali();
 
 	TRACE("U %d,%d:", page, transparent);
 
@@ -977,10 +935,209 @@ uint16 NACT_Sys2::cali()
 	return (uint16)(cali[1] & 0xffff);
 }
 
+class NACT_Rance4 final : public NACT_Sys2 {
+public:
+	NACT_Rance4(const Config& config, const GameId& game_id)
+		: NACT_Sys2(config, game_id) {}
+
+	void cmd_b() override {
+		int p1 = sco.getd();
+		int p2 = cali();
+		TRACE_UNIMPLEMENTED("B %d,%d:", p1, p2);
+	}
+
+	void cmd_d() override {
+		int p1 = cali();
+		int p2 = cali();
+		int p3 = cali();
+		TRACE_UNIMPLEMENTED("D %d,%d,%d:", p1, p2, p3);
+	}
+
+	void cmd_e() override {
+		int p1 = cali();
+		int p2 = cali();
+		int p3 = cali();
+		int p4 = cali();
+		int p5 = cali();
+		int p6 = cali();
+		TRACE_UNIMPLEMENTED("E %d,%d,%d,%d,%d,%d:", p1, p2, p3, p4, p5, p6);
+	}
+
+	void cmd_i() override {
+		int p1 = cali();
+		int p2 = cali();
+		TRACE_UNIMPLEMENTED("I %d,%d:", p1, p2);
+	}
+
+	void cmd_v() override {
+		int p1 = sco.getd();
+		int p2 = cali();
+		TRACE_UNIMPLEMENTED("I %d,%d:", p1, p2);
+	}
+
+	void cmd_w() override {
+		int p1 = cali();
+		int p2 = cali();
+		int p3 = cali();
+		TRACE_UNIMPLEMENTED("W %d,%d,%d:", p1, p2, p3);
+	}
+
+	void cmd_z() override {
+		int p1 = cali();
+		int p2 = cali();
+		int p3 = cali();
+		TRACE_UNIMPLEMENTED("Z %d,%d,%d:", p1, p2, p3);
+	}
+
+	void cmd_branch() override {
+		int condition = cali();
+		int nest = 0;
+		bool set_menu = false;
+
+		if (!condition) {
+			// 次の'}'命令までスキップする（ネストも考慮する）
+			for (;;) {
+				uint8 cmd = sco.fetch_command();
+
+				if (cmd == '!') {
+					int index = sco.getd();
+					if (!(0x80 <= index && index <= 0xbf)) {
+						sco.getd();
+					}
+					cali();
+				} else if (cmd == '{') {
+					cali();
+					nest++;
+				} else if (cmd == '}') {
+					if (nest) {
+						nest--;
+					} else {
+						break;
+					}
+				} else if (cmd == '@') {
+					sco.getw();
+				} else if (cmd == '\\') {
+					sco.getw();
+				} else if (cmd == '&') {
+					cali();
+				} else if (cmd == '%') {
+					cali();
+				} else if (cmd == '$') {
+					if (!set_menu) {
+						sco.getw();
+						set_menu = true;
+					} else {
+						set_menu = false;
+					}
+				} else if (cmd == '[') {
+					sco.getd();
+					sco.getd();
+					sco.getw();
+				} else if (cmd == ':') {
+					cali();
+					sco.getd();
+					sco.getd();
+					sco.getw();
+				} else if (cmd == ']') {
+				} else if (cmd == 'A') {
+				} else if (cmd == 'B') {
+					sco.getd();
+					cali();
+				} else if (cmd == 'D') {
+					cali();
+					cali();
+					cali();
+				} else if (cmd == 'E') {
+					cali();
+					cali();
+					cali();
+					cali();
+					cali();
+					cali();
+				} else if (cmd == 'F') {
+				} else if (cmd == 'G') {
+					cali();
+				} else if (cmd == 'H') {
+					sco.getd();
+					cali();
+				} else if (cmd == 'I') {
+					cali();
+					cali();
+				} else if (cmd == 'J') {
+					cali();
+					cali();
+				} else if (cmd == 'K') {
+				} else if (cmd == 'L') {
+					sco.getd();
+				} else if (cmd == 'M') {
+					uint8 val = sco.getd();
+					if (val == '\'' || val == '"') {  // SysEng
+						sco.skip_syseng_string(encoding.get(), val);
+					} else {
+						while (val != ':')
+							val = sco.getd();
+					}
+				} else if (cmd == 'N') {
+					cali();
+					cali();
+				} else if (cmd == 'O') {
+					cali();
+					cali();
+					cali();
+				} else if (cmd == 'P') {
+					sco.getd();
+				} else if (cmd == 'Q') {
+					sco.getd();
+				} else if (cmd == 'R') {
+				} else if (cmd == 'S') {
+					sco.getd();
+				} else if (cmd == 'T') {
+					cali();
+					cali();
+					cali();
+				} else if (cmd == 'U') {
+					cali();
+					cali();
+				} else if (cmd == 'V') {
+					sco.getd();
+					cali();
+				} else if (cmd == 'W') {
+					cali();
+					cali();
+					cali();
+				} else if (cmd == 'X') {
+					sco.getd();
+				} else if (cmd == 'Y') {
+					cali();
+					cali();
+				} else if (cmd == 'Z') {
+					cali();
+					cali();
+					cali();
+				} else if (cmd == '\'' || cmd == '"') {  // SysEng
+					sco.skip_syseng_string(encoding.get(), cmd);
+				} else if (is_message(cmd)) {
+					sco.skip(encoding->mblen(cmd) - 1);
+				} else {
+					sco.unknown_command(cmd);
+				}
+			}
+		}
+
+		TRACE("{%d:", condition);
+	}
+};
+
 }  // namespace
 
 // static
 NACT* NACT::create_system2(const Config& config, const GameId& game_id)
 {
-	return new NACT_Sys2(config, game_id);
+	switch (game_id.game) {
+	case GameId::RANCE4:
+	case GameId::RANCE4_OPT:
+		return new NACT_Rance4(config, game_id);
+	default:
+		return new NACT_Sys2(config, game_id);
+	}
 }
