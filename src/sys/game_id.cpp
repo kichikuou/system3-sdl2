@@ -8,8 +8,6 @@
 
 #define CRC32_BUNKASAI		0xc80f99b8	// あぶない文化祭前夜
 #define CRC32_CRESCENT		0x42351f2c	// クレセントムーンがぁる
-#define CRC32_RANCE2		0x28f8298f	// Rance 2
-#define CRC32_RANCE2_HINT	0x2a85e5fa	// Rance 2 ヒントディスク (CRC32 of GDISK.DAT)
 #define CRC32_DPS		0x69ea4865	// D.P.S. - Dream Program System
 #define CRC32_DPS_SG		0xab4cda48	// D.P.S. SG
 #define CRC32_DPS_SG_FAHREN	0xe405d57c	//	D.P.S. SG - Fahren Fliegen
@@ -25,7 +23,11 @@
 #define CRC32_DPS_SG3_SOTSUGYOU	0xbc4525d8	//	D.P.S. SG set3 - 卒業
 #define CRC32_FUKEI		0x026de326	// 婦警さんＶＸ
 #define CRC32_INTRUDER		0xa7520fb2	// Intruder -桜屋敷の探索-
+#define CRC32_RANCE		0x2fffbd60	// Rance -光をもとめて-
+#define CRC32_RANCE2		0x28f8298f	// Rance 2
+#define CRC32_RANCE2_HINT	0x2a85e5fa	// Rance 2 ヒントディスク (CRC32 of GDISK.DAT)
 #define CRC32_TENGU		0xc942ff58	// あぶないてんぐ伝説
+#define CRC32_TOUSHIN		0x62327908	// 闘神都市
 #define CRC32_TOUSHIN_HINT	0xac337537	// 闘神都市 ヒントディスク
 #define CRC32_VAMPIRE		0x957bcfbf	// Little Vampire
 #define CRC32_VAMPIRE_ENG		0x61985a7f	// Little Vampire (English) Patch 1.5
@@ -38,10 +40,14 @@
 #define CRC32_AYUMI_FD		0x4e2fed2a	// あゆみちゃん物語 (FD)
 #define CRC32_AYUMI_HINT	0xf6bd963a	// あゆみちゃん物語 ヒントディスク
 #define CRC32_AYUMI_PROTO	0x4e2f5678	// あゆみちゃん物語 PROTO
+#define CRC32_DALK		0x77227088	// DALK
 #define CRC32_DALK_HINT		0x4793b843	// DALK ヒントディスク
 #define CRC32_DRSTOP		0x73fa86c4	// Dr. STOP!
 #define CRC32_PROSTUDENTG_FD	0x5ffbfee7	// Prostudent -G- (FD)
+#define CRC32_RANCE3		0x47a399a1	// Rance 3
 #define CRC32_RANCE3_HINT	0x8d5ec610	// Rance3 ヒントディスク
+#define CRC32_RANCE4		0xebcfaff1	// Rance 4
+#define CRC32_RANCE4_OPT	0xbe91c161	// Rance 4 オプションディスク
 #define CRC32_SDPS		0xc7a20cdf	// Super D.P.S
 #define CRC32_SDPS_MARIA	0x80d4eaca	//	Super D.P.S - マリアとカンパン
 #define CRC32_SDPS_TONO		0xbb1edff1	//	Super D.P.S - 遠野の森
@@ -69,11 +75,14 @@
 #define CRC32_YAKATA3_CD	0x7f8f5e2a	// アリスの館３ (CD)
 #define CRC32_YAKATA3_FD	0x58ebcc99	// アリスの館３ (FD)
 #define CRC32_HASHIRIONNA2	0x09f47cbd	// 走り女２ (Rance 4.x ヒントディスク)
+#define CRC32_TOUSHIN2		0xe27dd441	// 闘神都市２
 #define CRC32_TOUSHIN2_GD	0xb5eba798	// 闘神都市２ グラフィックディスク
 #define CRC32_TOUSHIN2_SP	0x2172c7b2	// 闘神都市２ そして、それから…
 #define CRC32_OTOMESENKI	0x49a4db15	// 乙女戦記
 #define CRC32_NINGYO		0xd491e7ab	// 人魚 -蘿子-
 #define CRC32_MUGENHOUYOU	0xbb27d1ba	// 夢幻泡影
+#define CRC32_NISE_NAGURI	0xfabe6302	// にせなぐりまくりたわぁ (ADISK.PAT)
+#define CRC32_GAKUEN_KING	0xd1bf243b	// 学園KING -日出彦 学校をつくる-
 
 namespace {
 
@@ -88,8 +97,6 @@ const struct CRCTable {
 } crc_table[] = {
 	{GameId::BUNKASAI, "bunkasai", 1, "あぶない文化祭前夜", JAPANESE, CRC32_BUNKASAI},
 	{GameId::CRESCENT, "crescent", 1, "クレセントムーンがぁる", JAPANESE, CRC32_CRESCENT},
-	{GameId::RANCE2, "rance2", 1, "Rance 2 -反逆の少女たち-", JAPANESE, CRC32_RANCE2},
-	{GameId::RANCE2_HINT, "rance2_hint", 1, "Rance 2 ヒントディスク", JAPANESE, CRC32_RANCE2_HINT},
 	{GameId::DPS, "dps", 1, "D.P.S - Dream Program System", JAPANESE, CRC32_DPS},
 	{GameId::DPS_SG_FAHREN, "dps_sg_fahren", 1, "D.P.S SG - Fahren Fliegen", JAPANESE, CRC32_DPS_SG, CRC32_DPS_SG_FAHREN},
 	{GameId::DPS_SG_KATEI, "dps_sg_katei", 1, "D.P.S SG - 家庭教師はステキなお仕事", JAPANESE, CRC32_DPS_SG, CRC32_DPS_SG_KATEI},
@@ -102,7 +109,11 @@ const struct CRCTable {
 	{GameId::DPS_SG3_SOTSUGYOU, "dps_sg3_sotsugyou", 1, "D.P.S SG set3 - 卒業", JAPANESE, CRC32_DPS_SG3, CRC32_DPS_SG3_SOTSUGYOU},
 	{GameId::FUKEI, "fukei", 1, "婦警さんＶＸ", JAPANESE, CRC32_FUKEI},
 	{GameId::INTRUDER, "intruder", 1, "Intruder -桜屋敷の探索-", JAPANESE, CRC32_INTRUDER},
+	{GameId::RANCE, "rance", 1, "Rance -光をもとめて-", JAPANESE, CRC32_RANCE},
+	{GameId::RANCE2, "rance2", 1, "Rance 2 -反逆の少女たち-", JAPANESE, CRC32_RANCE2},
+	{GameId::RANCE2_HINT, "rance2_hint", 1, "Rance 2 ヒントディスク", JAPANESE, CRC32_RANCE2_HINT},
 	{GameId::TENGU, "tengu", 1, "あぶないてんぐ伝説", JAPANESE, CRC32_TENGU},
+	{GameId::TOUSHIN, "toushin", 1, "闘神都市", JAPANESE, CRC32_TOUSHIN},
 	{GameId::TOUSHIN_HINT, "toushin_hint", 1, "闘神都市 ヒントディスク", JAPANESE, CRC32_TOUSHIN_HINT},
 	{GameId::LITTLE_VAMPIRE, "little_vampire", 1, "Little Vampire", JAPANESE, CRC32_VAMPIRE},
 	{GameId::LITTLE_VAMPIRE, "little_vampire_eng", 1, "Little Vampire", ENGLISH, CRC32_VAMPIRE_ENG},
@@ -113,10 +124,14 @@ const struct CRCTable {
 	{GameId::AYUMI_FD, "ayumi_fd", 2, "あゆみちゃん物語", JAPANESE, CRC32_AYUMI_FD},
 	{GameId::AYUMI_HINT, "ayumi_hint", 2, "あゆみちゃん物語 ヒントディスク", JAPANESE, CRC32_AYUMI_HINT},
 	{GameId::AYUMI_PROTO, "ayumi_proto", 2, "あゆみちゃん物語 PROTO", JAPANESE, CRC32_AYUMI_PROTO},
+	{GameId::DALK, "dalk", 2, "DALK", JAPANESE, CRC32_DALK},
 	{GameId::DALK_HINT, "dalk_hint", 2, "DALK ヒントディスク", JAPANESE, CRC32_DALK_HINT},
 	{GameId::DRSTOP, "drstop", 2, "Dr. STOP!", JAPANESE, CRC32_DRSTOP},
 	{GameId::PROG_FD, "prog_fd", 2, "Prostudent G", JAPANESE, CRC32_PROSTUDENTG_FD},
+	{GameId::RANCE3, "rance3", 2, "Rance 3 -リーザス陥落-", JAPANESE, CRC32_RANCE3},
 	{GameId::RANCE3_HINT, "rance3_hint", 2, "Rance3 ヒントディスク", JAPANESE, CRC32_RANCE3_HINT},
+	{GameId::RANCE4, "rance4", 2, "Rance 4 教団の遺産", JAPANESE, CRC32_RANCE4},
+	{GameId::RANCE4_OPT, "rance4_opt", 2, "Rance 4 オプションディスク", JAPANESE, CRC32_RANCE4_OPT},
 	{GameId::SDPS_MARIA, "sdps_maria", 2, "Super D.P.S - マリアとカンパン", JAPANESE, CRC32_SDPS, CRC32_SDPS_MARIA},
 	{GameId::SDPS_TONO, "sdps_tono", 2, "Super D.P.S - 遠野の森", JAPANESE, CRC32_SDPS, CRC32_SDPS_TONO},
 	{GameId::SDPS_KAIZOKU, "sdps_kaizoku", 2, "Super D.P.S - うれしたのし海賊稼業", JAPANESE, CRC32_SDPS, CRC32_SDPS_KAIZOKU},
@@ -141,11 +156,14 @@ const struct CRCTable {
 	{GameId::YAKATA3_CD, "yakata3_cd", 3, "アリスの館3", JAPANESE, CRC32_YAKATA3_CD},
 	{GameId::YAKATA3_FD, "yakata3_fd", 3, "アリスの館3", JAPANESE, CRC32_YAKATA3_FD},
 	{GameId::HASHIRIONNA2, "hashirionna2", 3, "走り女2", JAPANESE, CRC32_HASHIRIONNA2},
-	{GameId::TOUSHIN2_GD, "toushin2_gd", 3,"闘神都市2 グラフィックディスク", JAPANESE, CRC32_TOUSHIN2_GD},
+	{GameId::TOUSHIN2, "toushin2", 3, "闘神都市II", JAPANESE, CRC32_TOUSHIN2},
+	{GameId::TOUSHIN2_GD, "toushin2_gd", 3, "闘神都市2 グラフィックディスク", JAPANESE, CRC32_TOUSHIN2_GD},
 	{GameId::TOUSHIN2_SP, "toushin2_sp", 3, "闘神都市2 そして、それから…", JAPANESE, CRC32_TOUSHIN2_SP},
 	{GameId::OTOME, "otome", 3, "乙女戦記", JAPANESE, CRC32_OTOMESENKI},
 	{GameId::NINGYO, "ningyo", 3, "人魚 -蘿子-", JAPANESE, CRC32_NINGYO},
 	{GameId::MUGEN, "mugen", 3, "夢幻泡影", JAPANESE, CRC32_MUGENHOUYOU},
+	{GameId::NISE_NAGURI, "nise_naguri", 3, "にせなぐりまくりたわあ", JAPANESE, CRC32_NISE_NAGURI},
+	{GameId::GAKUEN_KING, "gakuen_king", 3, "学園KING -日出彦 学校をつくる-", JAPANESE, CRC32_GAKUEN_KING},
 
 	{GameId::UNKNOWN, NULL, 0, NULL, JAPANESE, 0},
 };

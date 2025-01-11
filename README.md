@@ -76,8 +76,6 @@ Here is a list of available game IDs and their corresponding titles:
 ----------|-------|--------
 | `bunkasai` | あぶない文化祭前夜 | |
 | `crescent` | クレセントムーンがぁる | |
-| `rance2` | Rance 2 -反逆の少女たち- | Unsupported |
-| `rance2_hint` | Rance 2 ヒントディスク | |
 | `dps` | D.P.S - Dream Program System | |
 | `dps_sg_fahren` | D.P.S SG - Fahren Fliegen | |
 | `dps_sg_katei` | D.P.S SG - 家庭教師はステキなお仕事 | |
@@ -90,17 +88,25 @@ Here is a list of available game IDs and their corresponding titles:
 | `dps_sg3_sotsugyou` | D.P.S SG set3 - 卒業 | |
 | `fukei` | 婦警さんＶＸ | |
 | `intruder` | Intruder -桜屋敷の探索- | |
+| `rance` | Rance -光をもとめて- | Unsupported |
+| `rance2` | Rance 2 -反逆の少女たち- | Unsupported |
+| `rance2_hint` | Rance 2 ヒントディスク | |
 | `tengu` | あぶないてんぐ伝説 | |
+| `toushin` | 闘神都市 | Unsupported |
 | `toushin_hint` | 闘神都市 ヒントディスク | "ランス外伝 －闘神都市－" does not work |
 | `little_vampire` | Little Vampire | |
 | `yakata` | ALICEの館 | |
 | `ayumi_fd` | あゆみちゃん物語 | |
 | `ayumi_hint` | あゆみちゃん物語 ヒントディスク | |
 | `ayumi_proto` | あゆみちゃん物語 PROTO | |
+| `dalk` | DALK | Unsupported |
 | `dalk_hint` | DALK ヒントディスク | 零式 does not work |
 | `drstop` | Dr. STOP! | |
 | `prog_fd` | Prostudent G (FD) | |
+| `rance3` | Rance 3 -リーザス陥落- | Unsupported |
 | `rance3_hint` | Rance3 ヒントディスク | 走り女 does not work |
+| `rance4` | Rance 4 教団の遺産 | Unsupported |
+| `rance4_opt` | Rance 4 オプションディスク | Unsupported |
 | `sdps_maria` | Super D.P.S - マリアとカンパン | |
 | `sdps_tono` | Super D.P.S - 遠野の森 | |
 | `sdps_kaizoku` | Super D.P.S - うれしたのし海賊稼業 | |
@@ -122,11 +128,14 @@ Here is a list of available game IDs and their corresponding titles:
 | `yakata3_cd` | アリスの館3 (CD) | |
 | `yakata3_fd` | アリスの館3 (FD) | |
 | `hashirionna2` | 走り女2 | |
-| `toushin2_gd` |闘神都市2 グラフィックディスク | |
+| `toushin2` | 闘神都市II | Unsupported |
+| `toushin2_gd` | 闘神都市2 グラフィックディスク | |
 | `toushin2_sp` | 闘神都市2 そして、それから… | |
 | `otome` | 乙女戦記 | |
 | `ningyo` | 人魚 -蘿子- | |
 | `mugen` | 夢幻泡影 | |
+| `nise_naguri` | にせなぐりまくりたわあ | Unsupported |
+| `gakuen_king` | 学園KING -日出彦 学校をつくる- | Unsupported |
 
 ### Configuration File `system3.ini`
 
