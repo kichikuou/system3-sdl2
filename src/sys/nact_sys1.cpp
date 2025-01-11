@@ -30,24 +30,11 @@ public:
 protected:
 	void cmd_branch() override;
 	void cmd_open_verb() override;
-	void cmd_b() override;
-	void cmd_d() override;
-	void cmd_e() override;
 	void cmd_g() override;
-	void cmd_h() override;
-	void cmd_i() override;
-	void cmd_j() override;
-	void cmd_k() override;
 	void cmd_l() override;
-	void cmd_m() override;
-	void cmd_n() override;
-	void cmd_o() override;
 	void cmd_p() override;
 	void cmd_q() override;
-	void cmd_t() override;
 	void cmd_u() override;
-	void cmd_v() override;
-	void cmd_w() override;
 	void cmd_y() override;
 	void cmd_z() override;
 	uint16 cali() override;
@@ -364,24 +351,6 @@ top2:
 	}
 }
 
-void NACT_Sys1::cmd_b()
-{
-	// Unused
-	sco.unknown_command('B');
-}
-
-void NACT_Sys1::cmd_d()
-{
-	// Unused
-	sco.unknown_command('D');
-}
-
-void NACT_Sys1::cmd_e()
-{
-	// Unused
-	sco.unknown_command('E');
-}
-
 void NACT_Sys1::cmd_g()
 {
 	int page = sco.getd();
@@ -389,30 +358,6 @@ void NACT_Sys1::cmd_g()
 	TRACE("G %d:", page);
 
 	ags->load_cg(page, -1);
-}
-
-void NACT_Sys1::cmd_h()
-{
-	// Unused
-	sco.unknown_command('H');
-}
-
-void NACT_Sys1::cmd_i()
-{
-	// Unused
-	sco.unknown_command('I');
-}
-
-void NACT_Sys1::cmd_j()
-{
-	// Unused
-	sco.unknown_command('J');
-}
-
-void NACT_Sys1::cmd_k()
-{
-	// Unused
-	sco.unknown_command('K');
 }
 
 void NACT_Sys1::cmd_l()
@@ -425,24 +370,6 @@ void NACT_Sys1::cmd_l()
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
 		load(index);
 	}
-}
-
-void NACT_Sys1::cmd_m()
-{
-	// Unused
-	sco.unknown_command('M');
-}
-
-void NACT_Sys1::cmd_n()
-{
-	// Unused
-	sco.unknown_command('N');
-}
-
-void NACT_Sys1::cmd_o()
-{
-	// Unused
-	sco.unknown_command('O');
 }
 
 void NACT_Sys1::cmd_p()
@@ -476,12 +403,6 @@ void NACT_Sys1::cmd_q()
 	}
 }
 
-void NACT_Sys1::cmd_t()
-{
-	// Unused
-	sco.unknown_command('T');
-}
-
 void NACT_Sys1::cmd_u()
 {
 	int page = sco.getd();
@@ -490,18 +411,6 @@ void NACT_Sys1::cmd_u()
 	TRACE("U %d,%d:", page, transparent);
 
 	ags->load_cg(page, transparent);
-}
-
-void NACT_Sys1::cmd_v()
-{
-	// Unused
-	sco.unknown_command('V');
-}
-
-void NACT_Sys1::cmd_w()
-{
-	// Unused
-	sco.unknown_command('W');
 }
 
 void NACT_Sys1::cmd_y()

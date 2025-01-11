@@ -79,30 +79,30 @@ protected:
 	virtual void cmd_open_verb() = 0;
 
 	void cmd_a();
-	virtual void cmd_b() = 0;
-	virtual void cmd_d() = 0;
-	virtual void cmd_e() = 0;
+	virtual void cmd_b() { sco.unknown_command('B'); }
+	virtual void cmd_d() { sco.unknown_command('D'); }
+	virtual void cmd_e() { sco.unknown_command('E'); }
 	void cmd_f();
-	virtual void cmd_g() = 0;
-	virtual void cmd_h() = 0;
-	virtual void cmd_i() = 0;
-	virtual void cmd_j() = 0;
-	virtual void cmd_k() = 0;
-	virtual void cmd_l() = 0;
-	virtual void cmd_m() = 0;
-	virtual void cmd_n() = 0;
-	virtual void cmd_o() = 0;
-	virtual void cmd_p() = 0;
-	virtual void cmd_q() = 0;
+	virtual void cmd_g() { sco.unknown_command('G'); }
+	virtual void cmd_h() { sco.unknown_command('H'); }
+	virtual void cmd_i() { sco.unknown_command('I'); }
+	virtual void cmd_j() { sco.unknown_command('J'); }
+	virtual void cmd_k() { sco.unknown_command('K'); }
+	virtual void cmd_l() { sco.unknown_command('L'); }
+	virtual void cmd_m() { sco.unknown_command('M'); }
+	virtual void cmd_n() { sco.unknown_command('N'); }
+	virtual void cmd_o() { sco.unknown_command('O'); }
+	virtual void cmd_p() { sco.unknown_command('P'); }
+	virtual void cmd_q() { sco.unknown_command('Q'); }
 	void cmd_r();
 	void cmd_s();
-	virtual void cmd_t() = 0;
-	virtual void cmd_u() = 0;
-	virtual void cmd_v() = 0;
-	virtual void cmd_w() = 0;
+	virtual void cmd_t() { sco.unknown_command('T'); }
+	virtual void cmd_u() { sco.unknown_command('U'); }
+	virtual void cmd_v() { sco.unknown_command('V'); }
+	virtual void cmd_w() { sco.unknown_command('W'); }
 	void cmd_x();
-	virtual void cmd_y() = 0;
-	virtual void cmd_z() = 0;
+	virtual void cmd_y() { sco.unknown_command('Y'); }
+	virtual void cmd_z() { sco.unknown_command('Z'); }
 
 	// SYSTEM1
 	virtual void opening() {}

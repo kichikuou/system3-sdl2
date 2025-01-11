@@ -86,7 +86,6 @@ protected:
 	void cmd_branch() override;
 	void cmd_open_verb() override;
 	void cmd_b() override;
-	void cmd_d() override;
 	void cmd_e() override;
 	void cmd_g() override;
 	void cmd_h() override;
@@ -304,12 +303,6 @@ void NACT_Sys3::cmd_b()
 			ags->close_text_window(index, text_window == index ? true : false);
 		}
 	}
-}
-
-void NACT_Sys3::cmd_d()
-{
-	// Unused
-	sco.unknown_command('D');
 }
 
 void NACT_Sys3::cmd_e()
