@@ -25,6 +25,7 @@
 #define MAX_STRVAR 10
 
 #define TRACE(fmt, ...) if (config.trace) trace(fmt "\n", ##__VA_ARGS__)
+#define TRACE_UNIMPLEMENTED(fmt, ...) trace("Unimplemented command " fmt "\n", ##__VA_ARGS__)
 
 class AGS;
 class MAKO;

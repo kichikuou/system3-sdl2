@@ -485,7 +485,7 @@ void NACT_Sys1::cmd_z()
 	int cmd = cali();
 	int param = cali();
 
-	WARNING("Unimplemented command: Z %d,%d:", cmd, param);
+	TRACE_UNIMPLEMENTED("Z %d,%d:", cmd, param);
 }
 
 
@@ -944,14 +944,20 @@ public:
 
 		TRACE("Z %d,%d:", cmd, param);
 
-		if (cmd == 10) {
+		switch (cmd) {
+		case 10:
 			// nop
-		} else if (cmd == 20) {
+			break;
+		case 20:
 			if (param == 20) {
 				ags->gcopy(8, 8, 46, 144, 2);
 			} else if (param == 21) {
 				ags->gcopy(8, 8, 46, 144, 3);
 			}
+			break;
+		default:
+			WARNING("Unimplemented command: Z %d, %d", cmd, param);
+			break;
 		}
 	}
 };

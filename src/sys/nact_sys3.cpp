@@ -249,7 +249,8 @@ void NACT_Sys3::cmd_b()
 
 	TRACE("B %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
 
-	if(cmd == 1) {
+	switch (cmd) {
+	case 1:
 		// あゆみちゃん物語
 		if (game_id.is(GameId::AYUMI_CD) || game_id.is(GameId::AYUMI_LIVE_256) || game_id.is(GameId::AYUMI_LIVE_FULL)) {
 			p5 = 1;
@@ -265,10 +266,12 @@ void NACT_Sys3::cmd_b()
 			free(ags->menu_w[index - 1].screen);
 			ags->menu_w[index - 1].screen = NULL;
 		}
-	} else if(cmd == 2) {
+		break;
+	case 2:
 		ags->menu_w[index - 1].frame = p1 ? true : false;
 		menu_window = index;
-	} else if(cmd == 3) {
+		break;
+	case 3:
 		ags->text_w[index - 1].sx = column ? p1 * 8 : p1 & 0xfff8;
 		ags->text_w[index - 1].sy = p2;
 		ags->text_w[index - 1].ex = column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1;
@@ -285,7 +288,8 @@ void NACT_Sys3::cmd_b()
 			free(ags->text_w[index - 1].window);
 			ags->text_w[index - 1].window = NULL;
 		}
-	} else if(cmd == 4) {
+		break;
+	case 4:
 		if(p5 == 0) {
 			// ウィンドウ退避
 			if (game_id.is(GameId::PROG_CD) && p4) {
@@ -302,6 +306,10 @@ void NACT_Sys3::cmd_b()
 			// ウィンドウ復帰
 			ags->close_text_window(index, text_window == index ? true : false);
 		}
+		break;
+	default:
+		WARNING("Unimplemented command: B %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
+		break;
 	}
 }
 
@@ -577,7 +585,7 @@ void NACT_Sys3::cmd_n()
 	int src = cali();
 	int dest = cali();
 
-	TRACE("N %d,%d,%d:", cmd, src, dest);
+	TRACE_UNIMPLEMENTED("N %d,%d,%d:", cmd, src, dest);
 }
 
 void NACT_Sys3::cmd_o()

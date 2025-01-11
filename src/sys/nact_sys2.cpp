@@ -387,7 +387,8 @@ void NACT_Sys2::cmd_b()
 
 	TRACE("B %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
 
-	if(cmd == 1) {
+	switch (cmd) {
+	case 1:
 		if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT) || game_id.is(GameId::DRSTOP)) {
 			p5 = 1;
 		}
@@ -402,7 +403,8 @@ void NACT_Sys2::cmd_b()
 			free(ags->menu_w[index - 1].screen);
 			ags->menu_w[index - 1].screen = NULL;
 		}
-	} else if(cmd == 2) {
+		break;
+	case 2:
 		if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT) || game_id.is(GameId::DRSTOP)) {
 			p1 = 1;
 		}
@@ -411,7 +413,8 @@ void NACT_Sys2::cmd_b()
 //		} else
 		ags->menu_w[index - 1].frame = p1 ? true : false;
 		menu_window = index;
-	} else if(cmd == 3) {
+		break;
+	case 3:
 		ags->text_w[index - 1].sx = p1 * 8;
 		ags->text_w[index - 1].sy = p2;
 		ags->text_w[index - 1].ex = p3 * 8 - 1;
@@ -428,7 +431,8 @@ void NACT_Sys2::cmd_b()
 			free(ags->text_w[index - 1].window);
 			ags->text_w[index - 1].window = NULL;
 		}
-	} else if(cmd == 4) {
+		break;
+	case 4:
 		if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT)) {
 			p1 = 1;
 			//p5 ? 0 : 1; // 逆？
@@ -448,6 +452,10 @@ void NACT_Sys2::cmd_b()
 			// ウィンドウ復帰
 			ags->close_text_window(index, text_window == index ? true : false);
 		}
+		break;
+	default:
+		WARNING("Unimplemented command: B %d,%d,%d,%d,%d,%d,%d:", cmd, index, p1, p2, p3, p4, p5);
+		break;
 	}
 }
 
@@ -462,7 +470,7 @@ void NACT_Sys2::cmd_d()
 	int p7 = cali();
 	int p8 = cali();
 
-	TRACE("D %d,%d,%d,%d,%d,%d,%d,%d:", p1, p2, p3, p4, p5, p6, p7, p8);
+	TRACE_UNIMPLEMENTED("D %d,%d,%d,%d,%d,%d,%d,%d:", p1, p2, p3, p4, p5, p6, p7, p8);
 }
 
 void NACT_Sys2::cmd_e()
@@ -471,7 +479,7 @@ void NACT_Sys2::cmd_e()
 	int p2 = cali();
 	int p3 = cali();
 
-	TRACE("E %d,%d,%d:", p1, p2, p3);
+	TRACE_UNIMPLEMENTED("E %d,%d,%d:", p1, p2, p3);
 }
 
 void NACT_Sys2::cmd_g()
@@ -546,7 +554,7 @@ void NACT_Sys2::cmd_i()
 //	int p3 = sco.getd();
 	int p3 = cali();
 
-	TRACE("I %d,%d,%d:", p1, p2, p3);
+	TRACE_UNIMPLEMENTED("I %d,%d,%d:", p1, p2, p3);
 }
 
 void NACT_Sys2::cmd_j()
@@ -554,7 +562,7 @@ void NACT_Sys2::cmd_j()
 	int p1 = cali();
 	int p2 = cali();
 
-	TRACE("J %d,%d:", p1, p2);
+	TRACE_UNIMPLEMENTED("J %d,%d:", p1, p2);
 }
 
 void NACT_Sys2::cmd_k()
@@ -604,7 +612,7 @@ void NACT_Sys2::cmd_n()
 	int p1 = cali();
 	int p2 = cali();
 
-	TRACE("N %d,%d:", p1, p2);
+	TRACE_UNIMPLEMENTED("N %d,%d:", p1, p2);
 }
 
 void NACT_Sys2::cmd_o()
@@ -613,7 +621,7 @@ void NACT_Sys2::cmd_o()
 	int width = cali();
 	int height = cali();
 
-	TRACE("O %d,%d,%d:", st, width, height);
+	TRACE_UNIMPLEMENTED("O %d,%d,%d:", st, width, height);
 
 #if 0
 	// white mesh
@@ -663,7 +671,7 @@ void NACT_Sys2::cmd_t()
 	int p2 = cali();
 	int p3 = cali();
 
-	TRACE("T %d,%d,%d:", p1, p2, p3);
+	TRACE_UNIMPLEMENTED("T %d,%d,%d:", p1, p2, p3);
 }
 
 void NACT_Sys2::cmd_u()
@@ -716,7 +724,7 @@ void NACT_Sys2::cmd_v()
 	int p28 = cali();
 	int p29 = cali();
 
-	TRACE("V %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d:",
+	TRACE_UNIMPLEMENTED("V %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d:",
 	cmd, p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29);
 }
 
@@ -889,7 +897,7 @@ void NACT_Sys2::cmd_z()
 	int cmd = cali();
 	int param = cali();
 
-	TRACE("Z %d,%d:", cmd, param);
+	TRACE_UNIMPLEMENTED("Z %d,%d:", cmd, param);
 
 // Z1
 // Z2
