@@ -54,52 +54,41 @@ protected:
 
 	void exec_y(int cmd, int param);
 
+	void wait_impl(int tm) {
+		uint32_t dwTime = SDL_GetTicks() + tm;
+		while (!terminate && SDL_GetTicks() < dwTime) {
+			sys_sleep(16);
+		}
+	}
+
+	void wait_keyquit_impl(int tm) {
+		Uint32 dwTime = SDL_GetTicks() + tm;
+		while (!terminate) {
+			if (get_key()) {
+				while (!terminate) {
+					if (!get_key()) {
+						break;
+					}
+					if (dwTime <= SDL_GetTicks()) {
+						break;
+					}
+					sys_sleep(16);
+				}
+				break;
+			}
+			if (dwTime <= SDL_GetTicks()) {
+				break;
+			}
+			sys_sleep(16);
+		}
+	}
+
 private:
 	void cmd_open_obj(int verb);
 };
 
-#define WAIT(tm) \
-{ \
-	Uint32 dwTime = SDL_GetTicks() + (tm); \
-	for(;;) { \
-		if(terminate) { \
-			return; \
-		} \
-		if(dwTime <= SDL_GetTicks()) { \
-			break; \
-		} \
-		sys_sleep(16); \
-	} \
-}
-
-#define WAIT_KEYQUIT(tm) \
-{ \
-	Uint32 dwTime = SDL_GetTicks() + (tm); \
-	for(;;) { \
-		if(terminate) { \
-			return; \
-		} \
-		if(get_key()) { \
-			for(;;) { \
-				if(terminate) { \
-					return; \
-				} \
-				if(!get_key()) { \
-					break; \
-				} \
-				if(dwTime <= SDL_GetTicks()) { \
-					break; \
-				} \
-				sys_sleep(16); \
-			} \
-			break; \
-		} \
-		if(dwTime <= SDL_GetTicks()) { \
-			break; \
-		} \
-		sys_sleep(16); \
-	} \
-}
+#define WAIT(tm) do { wait_impl(tm); if (terminate) return; } while(0)
+#define WAIT_KEYQUIT(tm) do { wait_keyquit_impl(tm); if (terminate) return; } while(0)
 
 void NACT_Sys1::cmd_branch()
 {
@@ -559,8 +548,8 @@ void NACT_Sys1::exec_y(int cmd, int param)
 		}
 		break;
 	case 3:
-		WAIT(param * 1000 / 60)
-			break;
+		WAIT(param * 1000 / 60);
+		break;
 	case 4:
 		RND = (param == 0 || param == 1) ? 0 : random(param);
 		break;
@@ -879,12 +868,12 @@ public:
 			if (param == 0) {
 				quit(NACT_HALT);
 			} else {
-				WAIT(100)
-					}
+				WAIT(100);
+			}
 			break;
 		case 3:
-			WAIT(param * 1000)
-				break;
+			WAIT(param * 1000);
+			break;
 		case 255:
 			quit(NACT_HALT);
 			break;

@@ -46,52 +46,41 @@ protected:
 	void cmd_z() override;
 	uint16 cali() override;
 
+	void wait_impl(int tm) {
+		uint32_t dwTime = SDL_GetTicks() + tm;
+		while (!terminate && SDL_GetTicks() < dwTime) {
+			sys_sleep(16);
+		}
+	}
+
+	void wait_keyquit_impl(int tm) {
+		Uint32 dwTime = SDL_GetTicks() + tm;
+		while (!terminate) {
+			if (get_key()) {
+				while (!terminate) {
+					if (!get_key()) {
+						break;
+					}
+					if (dwTime <= SDL_GetTicks()) {
+						break;
+					}
+					sys_sleep(16);
+				}
+				break;
+			}
+			if (dwTime <= SDL_GetTicks()) {
+				break;
+			}
+			sys_sleep(16);
+		}
+	}
+
 private:
 	void cmd_open_obj(int verb);
 };
 
-#define WAIT(tm) \
-{ \
-	Uint32 dwTime = SDL_GetTicks() + (tm); \
-	for(;;) { \
-		if(terminate) { \
-			return; \
-		} \
-		if(dwTime <= SDL_GetTicks()) { \
-			break; \
-		} \
-		sys_sleep(16); \
-	} \
-}
-
-#define WAIT_KEYQUIT(tm) \
-{ \
-	Uint32 dwTime = SDL_GetTicks() + (tm); \
-	for(;;) { \
-		if(terminate) { \
-			return; \
-		} \
-		if(get_key()) { \
-			for(;;) { \
-				if(terminate) { \
-					return; \
-				} \
-				if(!get_key()) { \
-					break; \
-				} \
-				if(dwTime <= SDL_GetTicks()) { \
-					break; \
-				} \
-				sys_sleep(16); \
-			} \
-			break; \
-		} \
-		if(dwTime <= SDL_GetTicks()) { \
-			break; \
-		} \
-		sys_sleep(16); \
-	} \
-}
+#define WAIT(tm) do { wait_impl(tm); if (terminate) return; } while(0)
+#define WAIT_KEYQUIT(tm) do { wait_keyquit_impl(tm); if (terminate) return; } while(0)
 
 void NACT_Sys2::cmd_branch()
 {
@@ -500,11 +489,11 @@ void NACT_Sys2::cmd_g()
 
 	if (game_id.is(GameId::DALK_HINT)) {
 		if(page == 3) {
-			WAIT(2000)
+			WAIT(2000);
 		}
 	} else if (game_id.is(GameId::RANCE3_HINT)) {
 		if(page == 25) {
-			WAIT(2000)
+			WAIT(2000);
 		}
 	}
 }
