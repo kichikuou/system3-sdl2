@@ -51,7 +51,7 @@ SDL_Window* create_window(const GameId& game_id)
 #endif
 
 #ifdef __EMSCRIPTEN__
-	EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0)); }, title.c_str());
+	EM_ASM_ARGS({ xsystem35.shell.setWindowTitle(UTF8ToString($0), UTF8ToString($1)); }, title.c_str(), game_id.name);
 	const char *window_title = NULL;  // Don't let SDL change document.title
 #else
 	const char *window_title = title.c_str();
