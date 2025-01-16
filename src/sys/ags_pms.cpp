@@ -150,7 +150,7 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 
 		// VRAMに転送
 		if(extract_cg) {
-			uint32* dest = &vram[dest_screen][y + sy][sx];
+			uint8_t* dest = &vram[dest_screen][y + sy][sx];
 			if(transparent == -1) {
 				for(int x = 0; x < width; x++) {
 					cgdata[2][x] = cgdata[1][x];

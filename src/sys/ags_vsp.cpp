@@ -141,7 +141,7 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 				c[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4) | ((b3 << 2) & 8);
 				c[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4) | ((b3 << 3) & 8);
 
-				uint32* dest;
+				uint8_t* dest;
 				// Gakuen Senki uses exact sx values rather than 8x.
 				if (game_id.is(GameId::GAKUEN))
 					dest = &vram[dest_screen][y + sy][(x * 8) + sx];

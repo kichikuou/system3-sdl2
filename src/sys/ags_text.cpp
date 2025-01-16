@@ -442,7 +442,7 @@ void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* fon
 
 	// パターン出力
 	for (int y = std::max(0, -dest_y); y < fs->h && dest_y + y < 480; y++) {
-		uint8 *pattern = (uint8*)surface_line(fs, y);	// FIXME: do not assume 8bpp
+		uint8_t* pattern = (uint8_t*)fs->pixels + fs->pitch * y;
 		for(int x = 0; x < fs->w && dest_x + x < 640; x++) {
 			if(pattern[x] != 0) {
 				vram[dest][dest_y + y][dest_x + x] = color;
@@ -477,8 +477,8 @@ void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF
 
 	// パターン出力
 	for (int y = std::max(0, -dest_y); y < fs->h && dest_y + y < 480; y++) {
-		uint8 *pattern = (uint8*)surface_line(fs, y);
-		uint32 *dp = &vram[dest][dest_y + y][dest_x];
+		uint8_t* pattern = (uint8_t*)fs->pixels + fs->pitch * y;
+		uint8_t* dp = &vram[dest][dest_y + y][dest_x];
 		for(int x = 0; x < fs->w && dest_x + x < 640; x++, dp++) {
 			uint8 bg = *dp;
 			int alpha = pattern[x] >> 5;

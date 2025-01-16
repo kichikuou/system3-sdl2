@@ -82,7 +82,7 @@ private:
 	uint8 palB(uint8 col) { return screen_palette[col] & 0xff; }
 	int nearest_color(int r, int g, int b);
 
-	uint32* vram[3][480];	// 仮想VRAMへのポインタ
+	uint8_t* vram[3][480];	// 仮想VRAMへのポインタ
 
 	Palette program_palette;
 	Palette screen_palette;
@@ -181,13 +181,13 @@ public:
 		int ey;
 		bool frame;
 		bool push;
-		uint32* screen;
+		uint8_t* screen;
 		int screen_x;
 		int screen_y;
 		int screen_width;
 		int screen_height;
 		Palette screen_palette;
-		uint32* window;
+		uint8_t* window;
 		int window_x;
 		int window_y;
 		int window_width;

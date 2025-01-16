@@ -79,14 +79,19 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
 	for(int i = 0; i < 3; i++) {
-		hBmpScreen[i] = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
+		hBmpScreen[i] = SDL_CreateRGBSurfaceWithFormat(0, 640, 480, 8, SDL_PIXELFORMAT_INDEX8);
+
+		// all surfaces share the same palette
+		if (i > 0) {
+			SDL_SetSurfacePalette(hBmpScreen[i], hBmpScreen[0]->format->palette);
+		}
 
 		// TODO: clear surface
 		// memset(lpBmpScreen[i], 0, 640 * 480 * sizeof(DWORD));
 
 		// 仮想VRAMへのポインタ取得
 		for(int j = 0; j < 480; j++) {
-			vram[i][j] = surface_line(hBmpScreen[i], j);
+			vram[i][j] = (uint8_t*)hBmpScreen[i]->pixels + hBmpScreen[i]->pitch * j;
 		}
 	}
 
@@ -448,11 +453,7 @@ void AGS::set_palette(int index, int r, int g, int b)
 
 uint8 AGS::get_pixel(int dest, int x, int y)
 {
-	if(vram[dest][y][x] & 0x80000000) {
-		return 0;
-	} else {
-		return (uint8)vram[dest][y][x];
-	}
+	return vram[dest][y][x];
 }
 
 void AGS::set_pixel(int dest, int x, int y, uint8 color)
@@ -496,15 +497,10 @@ void AGS::flush_screen(bool update)
 {
 	if(update) {
 		for(int y = 0; y < screen_height; y++) {
-			uint32* src = vram[0][y];
+			uint8_t* src = vram[0][y];
 			uint32* dest = surface_line(hBmpDest, y);
 			for(int x = 0; x < screen_width; x++) {
-				if (game_id.sys_ver == 3 && src[x] & 0x80000000) {
-					// あゆみちゃん物語 フルカラー実写版
-					dest[x] = src[x] & 0xffffff;
-				} else {
-					dest[x] = screen_palette[src[x] & 0xff];
-				}
+				dest[x] = screen_palette[src[x]];
 			}
 		}
 	}
@@ -519,16 +515,10 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 	SDL_IntersectRect(&rect, &screen, &clip);
 
 	for (int y = clip.y; y < clip.y + clip.h; y++) {
-		uint32* src = vram[0][y];
+		uint8_t* src = vram[0][y];
 		uint32* dest = surface_line(hBmpDest, y);
 		for(int x = clip.x; x < clip.x + clip.w; x++) {
-			uint32 a=src[x];
-			if (game_id.sys_ver == 3 && src[x] & 0x80000000) {
-				// あゆみちゃん物語 フルカラー実写版
-				dest[x] = src[x] & 0xffffff;
-			} else {
-				dest[x] = screen_palette[src[x] & 0xff];
-			}
+			dest[x] = screen_palette[src[x]];
 		}
 	}
 	invalidate_screen(clip.x, clip.y, clip.w, clip.h);

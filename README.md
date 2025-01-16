@@ -80,7 +80,7 @@ Here is a list of available game IDs and their corresponding titles:
 | `ayumi_fd` | あゆみちゃん物語 | |
 | `ayumi_hint` | あゆみちゃん物語 ヒントディスク | |
 | `ayumi_live_256` | あゆみちゃん物語 実写版 | |
-| `ayumi_live_full` | あゆみちゃん物語 フルカラー実写版 | |
+| `ayumi_live_full` | あゆみちゃん物語 フルカラー実写版 | Unsupported |
 | `ayumi_proto` | あゆみちゃん物語 PROTO | |
 | `bunkasai` | あぶない文化祭前夜 | |
 | `crescent` | クレセントムーンがぁる | |

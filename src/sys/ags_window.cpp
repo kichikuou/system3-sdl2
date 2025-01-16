@@ -88,19 +88,17 @@ void AGS::open_text_window(int index, bool erase)
 			free(text_w[index - 1].screen);
 		}
 
-		text_w[index - 1].screen = (uint32*)malloc(width * height * sizeof(uint32));
+		text_w[index - 1].screen = (uint8_t*)malloc(width * height);
 		text_w[index - 1].screen_x = sx;
 		text_w[index - 1].screen_y = sy;
 		text_w[index - 1].screen_width = width;
 		text_w[index - 1].screen_height = height;
 
 		for(int y = 0; y < height && y + sy < 480; y++) {
-			uint32* scr = surface_line(hBmpDest, y + sy) + sx;
+			uint32_t* scr = surface_line(hBmpDest, y + sy) + sx;
 			for(int x = 0; x < width && x + sx < 640; x++) {
-				uint32 col = vram[0][y + sy][x + sx];
-				if(!(col & 0x80000000)) {
-					text_w[index - 1].screen_palette[col & 0xff] = scr[x];
-				}
+				uint8_t col = vram[0][y + sy][x + sx];
+				text_w[index - 1].screen_palette[col] = scr[x];
 				text_w[index - 1].screen[x + width * y] = col;
 			}
 		}
@@ -149,7 +147,7 @@ void AGS::close_text_window(int index, bool update)
 			free(text_w[index - 1].window);
 		}
 
-		text_w[index - 1].window = (uint32*)malloc(width * height * sizeof(uint32));
+		text_w[index - 1].window = (uint8_t*)malloc(width * height);
 		text_w[index - 1].window_x = sx;
 		text_w[index - 1].window_y = sy;
 		text_w[index - 1].window_width = width;
@@ -158,10 +156,8 @@ void AGS::close_text_window(int index, bool update)
 		for(int y = 0; y < height && y + sy < 480; y++) {
 			uint32* scr = surface_line(hBmpDest, y + sy) + sx;
 			for(int x = 0; x < width && x + sx < 640; x++) {
-				uint32 col = vram[0][y + sy][x + sx];
-				if(!(col & 0x80000000)) {
-					text_w[index - 1].window_palette[col & 0xff] = scr[x];
-				}
+				uint8_t col = vram[0][y + sy][x + sx];
+				text_w[index - 1].window_palette[col] = scr[x];
 				text_w[index - 1].window[x + width * y] = col;
 			}
 		}
@@ -197,7 +193,7 @@ void AGS::close_text_window(int index, bool update)
 void AGS::clear_menu_window()
 {
 	// TODO: use draw function
-	memset(hBmpScreen[2]->pixels, menu_back_color, 640 * 480 * sizeof(Uint32));
+	memset(hBmpScreen[2]->pixels, menu_back_color, 640 * 480);
 }
 
 void AGS::open_menu_window(int index)
@@ -221,7 +217,7 @@ void AGS::open_menu_window(int index)
 			free(menu_w[index - 1].screen);
 		}
 
-		menu_w[index - 1].screen = (uint32*)malloc(wwidth * wheight * sizeof(uint32));
+		menu_w[index - 1].screen = (uint8_t*)malloc(wwidth * wheight);
 		menu_w[index - 1].screen_x = wsx;
 		menu_w[index - 1].screen_y = wsy;
 		menu_w[index - 1].screen_width = wwidth;
@@ -230,10 +226,8 @@ void AGS::open_menu_window(int index)
 		for(int y = 0; y < wheight && y + wsy < 480; y++) {
 			uint32* scr = surface_line(hBmpDest, y + wsy) + wsx;
 			for(int x = 0; x < wwidth && x + wsx < 640; x++) {
-				uint32 col = vram[0][y + wsy][x + wsx];
-				if(!(col & 0x80000000)) {
-					menu_w[index - 1].screen_palette[col & 0xff] = scr[x];
-				}
+				uint8_t col = vram[0][y + wsy][x + wsx];
+				menu_w[index - 1].screen_palette[col] = scr[x];
 				menu_w[index - 1].screen[x + wwidth * y] = col;
 			}
 		}
@@ -294,7 +288,7 @@ void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_co
 {
 	// 領域の塗り潰し
 	for(int y = sy; y <= ey && y < 480; y++) {
-		uint32* dest = vram[0][y];
+		uint8_t* dest = vram[0][y];
 		for(int x = sx; x <= ex && x < 640; x++) {
 			dest[x] = back_color;
 		}

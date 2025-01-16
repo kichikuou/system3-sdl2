@@ -78,24 +78,6 @@ void AGS::load_cg(int page, int transparent)
 
 void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)
 {
-#if 0
-	int width = ex - sx + 1;
-	int height = ey - sy + 1;
-
-	uint32 tmp[640 * 480];
-	memcpy(tmp, lpBmpScreen[src_screen], sizeof(tmp));
-
-	for(int y = 0; y < height && y + sy < 480 && y + dy < 480; y++) {
-		uint32* src = &tmp[640 * (479 - (y + sy))];
-		uint32* dest = vram[dest_screen][y + dy];
-		for(int x = 0; x < width && x + sx < 640 && x + dx < 640; x++) {
-			dest[x + dx] = src[x + sx];
-		}
-	}
-	if(dest_screen == 0) {
-		draw_screen(dx, dy, width, height);
-	}
-#else
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 	SDL_Rect srcrect = {sx, sy, width, height};
@@ -106,7 +88,6 @@ void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)
 	if(dest_screen == 0) {
 		draw_screen(dx, dy, ex - sx + 1, ey - sy + 1);
 	}
-#endif
 }
 
 void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
@@ -130,7 +111,7 @@ void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 
 void AGS::paint(int x, int y, uint8 color)
 {
-	int old_color = vram[0][y][x];
+	uint8_t old_color = vram[0][y][x];
 	if (old_color == color)
 		return;
 
