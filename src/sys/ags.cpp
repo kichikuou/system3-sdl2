@@ -80,7 +80,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
 	for(int i = 0; i < 3; i++) {
 		hBmpScreen[i] = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
-		SDL_LockSurface(hBmpScreen[i]);
 
 		// TODO: clear surface
 		// memset(lpBmpScreen[i], 0, 640 * 480 * sizeof(DWORD));
@@ -93,7 +92,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 
 	// DIBSection 24bpp * 1 (最終出力先)
 	display_surface = hBmpDest = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
-	SDL_LockSurface(hBmpDest);
 	// TODO: clear surface
 
 	// フォント
@@ -590,9 +588,7 @@ void AGS::save_screenshot(const char* path)
 {
 	SDL_Surface* sf = SDL_CreateRGBSurface(0, screen_width, screen_height, 32, 0, 0, 0, 0);
 	SDL_Rect r = {0, 0, screen_width, screen_height};
-	SDL_UnlockSurface(hBmpDest);
 	SDL_BlitSurface(hBmpDest, &r, sf, NULL);
-	SDL_LockSurface(hBmpDest);
 
 	if (scanline_texture) {
 		SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(sf);
