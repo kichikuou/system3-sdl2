@@ -80,14 +80,7 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
 	for(int i = 0; i < 3; i++) {
 		hBmpScreen[i] = SDL_CreateRGBSurfaceWithFormat(0, 640, 480, 8, SDL_PIXELFORMAT_INDEX8);
-
-		// TODO: clear surface
-		// memset(lpBmpScreen[i], 0, 640 * 480 * sizeof(DWORD));
-
-		// 仮想VRAMへのポインタ取得
-		for(int j = 0; j < 480; j++) {
-			vram[i][j] = (uint8_t*)hBmpScreen[i]->pixels + hBmpScreen[i]->pitch * j;
-		}
+		vram[i] = reinterpret_cast<uint8_t(*)[640]>(hBmpScreen[i]->pixels);
 	}
 
 	// All surfaces share the same palette.
@@ -97,7 +90,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 
 	// DIBSection 24bpp * 1 (最終出力先)
 	display_surface = hBmpDest = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
-	// TODO: clear surface
 
 	// フォント
 	TTF_Init();
@@ -462,16 +454,6 @@ std::vector<uint32_t> AGS::get_screen_palette() const
 		palette[i] = palR(i) << 16 | palG(i) << 8 | palB(i);
 	}
 	return palette;
-}
-
-uint8 AGS::get_pixel(int dest, int x, int y)
-{
-	return vram[dest][y][x];
-}
-
-void AGS::set_pixel(int dest, int x, int y, uint8 color)
-{
-	vram[dest][y][x] = color;
 }
 
 void AGS::fade_out(int duration_ms, bool white)

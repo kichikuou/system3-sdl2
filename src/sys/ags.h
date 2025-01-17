@@ -35,6 +35,10 @@ private:
 	// Surface
 	SDL_Surface* hBmpScreen[3]; // 8bpp * 3 (表, 裏, メニュー)
 	SDL_Surface* hBmpDest; // DIBSection 24bpp (最終出力先)
+	uint8_t (*vram[3])[640];  // convenience pointer to hBmpScreen[i]->pixels
+
+	SDL_Palette* program_palette;
+	SDL_Palette* screen_palette;
 
 	// フォント
 	SDL_RWops* rw_font;
@@ -67,10 +71,6 @@ private:
 	uint8_t palB(uint8_t col) const { return screen_palette->colors[col].b; }
 	int nearest_color(int r, int g, int b);
 
-	uint8_t* vram[3][480];	// 仮想VRAMへのポインタ
-
-	SDL_Palette* program_palette;
-	SDL_Palette* screen_palette;
 	uint8 gaiji[188][32];
 
 	int fade_level = 0;  // 0-255
@@ -89,8 +89,8 @@ public:
 
 	void set_palette(int index, uint8_t r, uint8_t g, uint8_t b);
 	std::vector<uint32_t> get_screen_palette() const;
-	uint8 get_pixel(int dest, int x, int y);
-	void set_pixel(int dest, int x, int y, uint8 color);
+	uint8 get_pixel(int dest, int x, int y) const { return vram[dest][y][x]; }
+	void set_pixel(int dest, int x, int y, uint8 color) { vram[dest][y][x] = color; }
 
 	void fade_out(int duration_ms, bool white);
 	void fade_in(int duration_ms);
