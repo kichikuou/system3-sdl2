@@ -419,6 +419,93 @@ AGS::~AGS()
 	SDL_DestroyTexture(sdlTexture);
 }
 
+void AGS::load(FILEIO* fio)
+{
+	menu_font_size = fio->getw();
+	text_font_size = fio->getw();
+	palette_bank = fio->getw();
+	if (!palette_bank) {
+		palette_bank = -1;
+	}
+	text_font_color = fio->getw();
+	menu_font_color = fio->getw();
+	menu_frame_color = fio->getw();
+	menu_back_color = fio->getw();
+	text_frame_color = fio->getw();
+	text_back_color = fio->getw();
+	for (int i = 0; i < 10; i++) {
+		menu_w[i].sx = fio->getw();
+		menu_w[i].sy = fio->getw();
+		menu_w[i].ex = fio->getw();
+		menu_w[i].ey = fio->getw();
+		menu_w[i].push = fio->getw() ? true : false;
+		menu_w[i].frame = fio->getw() ? true : false;
+		fio->getw();
+		fio->getw();
+
+		if (menu_w[i].screen) {
+			SDL_FreeSurface(menu_w[i].screen);
+		}
+		menu_w[i].screen = NULL;
+		if (menu_w[i].window) {
+			SDL_FreeSurface(menu_w[i].window);
+		}
+		menu_w[i].window = NULL;
+	}
+	for (int i = 0; i < 10; i++) {
+		text_w[i].sx = fio->getw();
+		text_w[i].sy = fio->getw();
+		text_w[i].ex = fio->getw();
+		text_w[i].ey = fio->getw();
+		text_w[i].push = fio->getw() ? true : false;
+		text_w[i].frame = fio->getw() ? true : false;
+		fio->getw();
+		fio->getw();
+
+		if (text_w[i].screen) {
+			SDL_FreeSurface(text_w[i].screen);
+		}
+		text_w[i].screen = NULL;
+		if (text_w[i].window) {
+			SDL_FreeSurface(text_w[i].window);
+		}
+		text_w[i].window = NULL;
+	}
+}
+
+void AGS::save(FILEIO* fio)
+{
+	fio->putw(menu_font_size);
+	fio->putw(text_font_size);
+	fio->putw(palette_bank == -1 ? 0 : palette_bank);
+	fio->putw(text_font_color);
+	fio->putw(menu_font_color);
+	fio->putw(menu_frame_color);
+	fio->putw(menu_back_color);
+	fio->putw(text_frame_color);
+	fio->putw(text_back_color);
+	for (int i = 0; i < 10; i++) {
+		fio->putw(menu_w[i].sx);
+		fio->putw(menu_w[i].sy);
+		fio->putw(menu_w[i].ex);
+		fio->putw(menu_w[i].ey);
+		fio->putw(menu_w[i].push ? 1 : 0);
+		fio->putw(menu_w[i].frame ? 1 : 0);
+		fio->putw(0);
+		fio->putw(0);
+	}
+	for (int i = 0; i < 10; i++) {
+		fio->putw(text_w[i].sx);
+		fio->putw(text_w[i].sy);
+		fio->putw(text_w[i].ex);
+		fio->putw(text_w[i].ey);
+		fio->putw(text_w[i].push ? 1 : 0);
+		fio->putw(text_w[i].frame ? 1 : 0);
+		fio->putw(0);
+		fio->putw(0);
+	}
+}
+
 void AGS::set_cg_file(const char *file_name)
 {
 	bmp_prefix = NULL;

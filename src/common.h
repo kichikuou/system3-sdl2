@@ -10,7 +10,6 @@
 #define SYSTEM3_VERSION "1.4.0"
 
 #include <SDL.h>
-#include <assert.h>
 #include <limits.h>
 #include <stdio.h>
 

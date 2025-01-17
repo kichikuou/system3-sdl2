@@ -1,5 +1,6 @@
 #include "mako_ymfm.h"
 #include <algorithm>
+#include <assert.h>
 
 const int OPNA_CLOCK = 3993600 * 2;
 

@@ -4,6 +4,7 @@
 	[ NACT ]
 */
 
+#include <assert.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -562,56 +563,7 @@ bool NACT::load(int index)
 	for (int i = 0; i < 512; i++) {
 		var[i] = fio->getw();
 	}
-	ags->menu_font_size = fio->getw();
-	ags->text_font_size = fio->getw();
-	ags->palette_bank = fio->getw();
-	if (!ags->palette_bank) {
-		ags->palette_bank = -1;
-	}
-	ags->text_font_color = fio->getw();
-	ags->menu_font_color = fio->getw();
-	ags->menu_frame_color = fio->getw();
-	ags->menu_back_color = fio->getw();
-	ags->text_frame_color = fio->getw();
-	ags->text_back_color = fio->getw();
-	for (int i = 0; i < 10; i++) {
-		ags->menu_w[i].sx = fio->getw();
-		ags->menu_w[i].sy = fio->getw();
-		ags->menu_w[i].ex = fio->getw();
-		ags->menu_w[i].ey = fio->getw();
-		ags->menu_w[i].push = fio->getw() ? true : false;
-		ags->menu_w[i].frame = fio->getw() ? true : false;
-		fio->getw();
-		fio->getw();
-
-		if (ags->menu_w[i].screen) {
-			SDL_FreeSurface(ags->menu_w[i].screen);
-		}
-		ags->menu_w[i].screen = NULL;
-		if (ags->menu_w[i].window) {
-			SDL_FreeSurface(ags->menu_w[i].window);
-		}
-		ags->menu_w[i].window = NULL;
-	}
-	for (int i = 0; i < 10; i++) {
-		ags->text_w[i].sx = fio->getw();
-		ags->text_w[i].sy = fio->getw();
-		ags->text_w[i].ex = fio->getw();
-		ags->text_w[i].ey = fio->getw();
-		ags->text_w[i].push = fio->getw() ? true : false;
-		ags->text_w[i].frame = fio->getw() ? true : false;
-		fio->getw();
-		fio->getw();
-
-		if (ags->text_w[i].screen) {
-			SDL_FreeSurface(ags->text_w[i].screen);
-		}
-		ags->text_w[i].screen = NULL;
-		if (ags->text_w[i].window) {
-			SDL_FreeSurface(ags->text_w[i].window);
-		}
-		ags->text_w[i].window = NULL;
-	}
+	ags->load(fio.get());
 	for (int i = 0; i < 10; i++) {
 		fio->read(tvar[i], 22);
 	}
@@ -633,16 +585,6 @@ bool NACT::load(int index)
 	return true;
 }
 
-#define FWRITE(data, size) { \
-	memcpy(&buffer[p], data, size); \
-	p += size; \
-}
-#define FPUTW(data) { \
-	uint16 tmp = (data); \
-	buffer[p++] = tmp & 0xff; \
-	buffer[p++] = (tmp >> 8) & 0xff; \
-}
-
 bool NACT::save(int index, const char header[112])
 {
 	char file_name[_MAX_PATH];
@@ -652,65 +594,34 @@ bool NACT::save(int index, const char header[112])
 	if (!fio)
 		return false;
 
-	uint8 buffer[9510];
-	int p = 0;
-
-	FWRITE(header, 112);
-	FPUTW(sco.page() + 1);
-	FPUTW(0);
-	FPUTW(0);	// cg no?
-	FPUTW(0);
-	FPUTW(mako->current_music);
-	FPUTW(0);
-	FPUTW(sco.current_addr());
-	FPUTW(0);
+	fio->write(header, 112);
+	fio->putw(sco.page() + 1);
+	fio->putw(0);
+	fio->putw(0);	// cg no?
+	fio->putw(0);
+	fio->putw(mako->current_music);
+	fio->putw(0);
+	fio->putw(sco.current_addr());
+	fio->putw(0);
 	for (int i = 0; i < 512; i++) {
-		FPUTW(var[i]);
+		fio->putw(var[i]);
 	}
-	FPUTW(ags->menu_font_size);
-	FPUTW(ags->text_font_size);
-	FPUTW(ags->palette_bank == -1 ? 0 : ags->palette_bank);
-	FPUTW(ags->text_font_color);
-	FPUTW(ags->menu_font_color);
-	FPUTW(ags->menu_frame_color);
-	FPUTW(ags->menu_back_color);
-	FPUTW(ags->text_frame_color);
-	FPUTW(ags->text_back_color);
+	ags->save(fio.get());
 	for (int i = 0; i < 10; i++) {
-		FPUTW(ags->menu_w[i].sx);
-		FPUTW(ags->menu_w[i].sy);
-		FPUTW(ags->menu_w[i].ex);
-		FPUTW(ags->menu_w[i].ey);
-		FPUTW(ags->menu_w[i].push ? 1 : 0);
-		FPUTW(ags->menu_w[i].frame ? 1 : 0);
-		FPUTW(0);
-		FPUTW(0);
-	}
-	for (int i = 0; i < 10; i++) {
-		FPUTW(ags->text_w[i].sx);
-		FPUTW(ags->text_w[i].sy);
-		FPUTW(ags->text_w[i].ex);
-		FPUTW(ags->text_w[i].ey);
-		FPUTW(ags->text_w[i].push ? 1 : 0);
-		FPUTW(ags->text_w[i].frame ? 1 : 0);
-		FPUTW(0);
-		FPUTW(0);
-	}
-	for (int i = 0; i < 10; i++) {
-		FWRITE(tvar[i], 22);
+		fio->write(tvar[i], 22);
 	}
 	for (int i = 0; i < 30; i++) {
 		for (int j = 0; j < 10; j++) {
-			FWRITE(tvar_stack[i][j], 22);
+			fio->write(tvar_stack[i][j], 22);
 		}
 	}
 	for (int i = 0; i < 30; i++) {
 		for (int j = 0; j < 20; j++) {
-			FPUTW(var_stack[i][j]);
+			fio->putw(var_stack[i][j]);
 		}
 	}
 
-	fio->write(buffer, 9510);
+	assert(fio->tell() == 9510);
 	return true;
 }
 

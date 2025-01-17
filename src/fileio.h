@@ -33,10 +33,11 @@ public:
 	static int stat_save(const char* filename, struct stat* buf);
 	static std::unique_ptr<FILEIO> open(const char *file_name, int mode);
 	int seek(long offset, int whence) { return fseek(fp, offset, whence); }
+	long tell() { return ftell(fp); }
 	bool read(void* buffer, size_t size) {
 		return fread(buffer, size, 1, fp) == 1;
 	}
-	bool write(void* buffer, size_t size) {
+	bool write(const void* buffer, size_t size) {
 		return fwrite(buffer, size, 1, fp) == 1;
 	}
 	int getc() { return fgetc(fp); }

@@ -23,6 +23,7 @@ inline uint32* surface_line(SDL_Surface* surface, int y)
 }
 
 struct Config;
+class FILEIO;
 
 class AGS
 {
@@ -79,6 +80,9 @@ private:
 public:
 	AGS(const Config& config, const GameId& game_id);
 	~AGS();
+
+	void load(FILEIO* fio);
+	void save(FILEIO* fio);
 
 	void update_screen();
 

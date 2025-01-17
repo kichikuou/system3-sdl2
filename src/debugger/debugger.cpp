@@ -1,6 +1,7 @@
 #include "debugger/debugger.h"
 #include <algorithm>
 #include <map>
+#include <assert.h>
 #include "common.h"
 #include "nact.h"
 #include "debugger/frontend.h"
