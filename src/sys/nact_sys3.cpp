@@ -263,7 +263,7 @@ void NACT_Sys3::cmd_b()
 
 		// 退避画面の破棄
 		if(ags->menu_w[index - 1].screen) {
-			free(ags->menu_w[index - 1].screen);
+			SDL_FreeSurface(ags->menu_w[index - 1].screen);
 			ags->menu_w[index - 1].screen = NULL;
 		}
 		break;
@@ -280,12 +280,12 @@ void NACT_Sys3::cmd_b()
 
 		// 退避画面の破棄
 		if(ags->text_w[index - 1].screen) {
-			free(ags->text_w[index - 1].screen);
+			SDL_FreeSurface(ags->text_w[index - 1].screen);
 			ags->text_w[index - 1].screen = NULL;
 		}
 		// 退避窓の破棄
 		if(ags->text_w[index - 1].window) {
-			free(ags->text_w[index - 1].window);
+			SDL_FreeSurface(ags->text_w[index - 1].window);
 			ags->text_w[index - 1].window = NULL;
 		}
 		break;
@@ -295,7 +295,7 @@ void NACT_Sys3::cmd_b()
 			if (game_id.is(GameId::PROG_CD) && p4) {
 				// prostudent G オープニング画面化け対策
 				if(ags->text_w[index - 1].window) {
-					free(ags->text_w[index - 1].window);
+					SDL_FreeSurface(ags->text_w[index - 1].window);
 					ags->text_w[index - 1].window = NULL;
 				}
 			}

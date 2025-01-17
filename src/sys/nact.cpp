@@ -585,11 +585,11 @@ bool NACT::load(int index)
 		fio->getw();
 
 		if (ags->menu_w[i].screen) {
-			free(ags->menu_w[i].screen);
+			SDL_FreeSurface(ags->menu_w[i].screen);
 		}
 		ags->menu_w[i].screen = NULL;
 		if (ags->menu_w[i].window) {
-			free(ags->menu_w[i].window);
+			SDL_FreeSurface(ags->menu_w[i].window);
 		}
 		ags->menu_w[i].window = NULL;
 	}
@@ -604,11 +604,11 @@ bool NACT::load(int index)
 		fio->getw();
 
 		if (ags->text_w[i].screen) {
-			free(ags->text_w[i].screen);
+			SDL_FreeSurface(ags->text_w[i].screen);
 		}
 		ags->text_w[i].screen = NULL;
 		if (ags->text_w[i].window) {
-			free(ags->text_w[i].window);
+			SDL_FreeSurface(ags->text_w[i].window);
 		}
 		ags->text_w[i].window = NULL;
 	}

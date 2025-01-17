@@ -386,16 +386,16 @@ AGS::~AGS()
 	// 退避領域の開放
 	for(int i = 0; i < 10; i++) {
 		if(menu_w[i].screen) {
-			free(menu_w[i].screen);
+			SDL_FreeSurface(menu_w[i].screen);
 		}
 		if(menu_w[i].window) {
-			free(menu_w[i].window);
+			SDL_FreeSurface(menu_w[i].window);
 		}
 		if(text_w[i].screen) {
-			free(text_w[i].screen);
+			SDL_FreeSurface(text_w[i].screen);
 		}
 		if(text_w[i].window) {
-			free(text_w[i].window);
+			SDL_FreeSurface(text_w[i].window);
 		}
 	}
 

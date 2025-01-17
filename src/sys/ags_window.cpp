@@ -85,23 +85,17 @@ void AGS::open_text_window(int index, bool erase)
 	// 画面退避
 	if(text_w[index - 1].push) {
 		if(text_w[index - 1].screen) {
-			free(text_w[index - 1].screen);
+			SDL_FreeSurface(text_w[index - 1].screen);
 		}
 
-		text_w[index - 1].screen = (uint8_t*)malloc(width * height);
+		text_w[index - 1].screen = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+		SDL_SetSurfacePalette(text_w[index - 1].screen, hBmpScreen[0]->format->palette);
 		text_w[index - 1].screen_x = sx;
 		text_w[index - 1].screen_y = sy;
-		text_w[index - 1].screen_width = width;
-		text_w[index - 1].screen_height = height;
+		text_w[index - 1].screen_palette = screen_palette;
 
-		for(int y = 0; y < height && y + sy < 480; y++) {
-			uint32_t* scr = surface_line(hBmpDest, y + sy) + sx;
-			for(int x = 0; x < width && x + sx < 640; x++) {
-				uint8_t col = vram[0][y + sy][x + sx];
-				text_w[index - 1].screen_palette[col] = scr[x];
-				text_w[index - 1].screen[x + width * y] = col;
-			}
-		}
+		SDL_Rect rect = {sx, sy, width, height};
+		SDL_BlitSurface(hBmpScreen[0], &rect, text_w[index - 1].screen, NULL);
 	}
 
 	if(erase) {
@@ -111,14 +105,11 @@ void AGS::open_text_window(int index, bool erase)
 		// 窓復帰
 		sx = text_w[index - 1].window_x;
 		sy = text_w[index - 1].window_y;
-		width = text_w[index - 1].window_width;
-		height = text_w[index - 1].window_height;
+		width = text_w[index - 1].window->w;
+		height = text_w[index - 1].window->h;
 
-		for(int y = 0; y < height && y + sy < 480; y++) {
-			for(int x = 0; x < width && x + sx < 640; x++) {
-				vram[0][y + sy][x + sx] = text_w[index - 1].window[x + width * y];
-			}
-		}
+		SDL_Rect rect = {sx, sy, width, height};
+		SDL_BlitSurface(text_w[index - 1].window, NULL, hBmpScreen[0], &rect);
 
 		Palette palette = screen_palette;
 		screen_palette = text_w[index - 1].window_palette;
@@ -144,37 +135,28 @@ void AGS::close_text_window(int index, bool update)
 	// 窓退避
 	if(text_w[index - 1].push) {
 		if(text_w[index - 1].window) {
-			free(text_w[index - 1].window);
+			SDL_FreeSurface(text_w[index - 1].window);
 		}
 
-		text_w[index - 1].window = (uint8_t*)malloc(width * height);
+		text_w[index - 1].window = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+		SDL_SetSurfacePalette(text_w[index - 1].window, hBmpScreen[0]->format->palette);
 		text_w[index - 1].window_x = sx;
 		text_w[index - 1].window_y = sy;
-		text_w[index - 1].window_width = width;
-		text_w[index - 1].window_height = height;
+		text_w[index - 1].window_palette = screen_palette;
 
-		for(int y = 0; y < height && y + sy < 480; y++) {
-			uint32* scr = surface_line(hBmpDest, y + sy) + sx;
-			for(int x = 0; x < width && x + sx < 640; x++) {
-				uint8_t col = vram[0][y + sy][x + sx];
-				text_w[index - 1].window_palette[col] = scr[x];
-				text_w[index - 1].window[x + width * y] = col;
-			}
-		}
+		SDL_Rect rect = {sx, sy, width, height};
+		SDL_BlitSurface(hBmpScreen[0], &rect, text_w[index - 1].window, NULL);
 	}
 
 	// 画面復帰
 	if(text_w[index - 1].push && text_w[index - 1].screen) {
 		sx = text_w[index - 1].screen_x;
 		sy = text_w[index - 1].screen_y;
-		width = text_w[index - 1].screen_width;
-		height = text_w[index - 1].screen_height;
+		width = text_w[index - 1].screen->w;
+		height = text_w[index - 1].screen->h;
 
-		for(int y = 0; y < height && y + sy < 480; y++) {
-			for(int x = 0; x < width && x + sx < 640; x++) {
-				vram[0][y + sy][x + sx] = text_w[index - 1].screen[x + width * y];
-			}
-		}
+		SDL_Rect rect = {sx, sy, width, height};
+		SDL_BlitSurface(text_w[index - 1].screen, NULL, hBmpScreen[0], &rect);
 
 		Palette palette = screen_palette;
 		screen_palette = text_w[index - 1].screen_palette;
@@ -214,23 +196,17 @@ void AGS::open_menu_window(int index)
 	// 画面退避
 	if(menu_w[index - 1].push) {
 		if(menu_w[index - 1].screen) {
-			free(menu_w[index - 1].screen);
+			SDL_FreeSurface(menu_w[index - 1].screen);
 		}
 
-		menu_w[index - 1].screen = (uint8_t*)malloc(wwidth * wheight);
+		menu_w[index - 1].screen = SDL_CreateRGBSurfaceWithFormat(0, wwidth, wheight, 8, SDL_PIXELFORMAT_INDEX8);
+		SDL_SetSurfacePalette(menu_w[index - 1].screen, hBmpScreen[0]->format->palette);
 		menu_w[index - 1].screen_x = wsx;
 		menu_w[index - 1].screen_y = wsy;
-		menu_w[index - 1].screen_width = wwidth;
-		menu_w[index - 1].screen_height = wheight;
+		menu_w[index - 1].screen_palette = screen_palette;
 
-		for(int y = 0; y < wheight && y + wsy < 480; y++) {
-			uint32* scr = surface_line(hBmpDest, y + wsy) + wsx;
-			for(int x = 0; x < wwidth && x + wsx < 640; x++) {
-				uint8_t col = vram[0][y + wsy][x + wsx];
-				menu_w[index - 1].screen_palette[col] = scr[x];
-				menu_w[index - 1].screen[x + wwidth * y] = col;
-			}
-		}
+		SDL_Rect rect = {wsx, wsy, wwidth, wheight};
+		SDL_BlitSurface(hBmpScreen[0], &rect, menu_w[index - 1].screen, NULL);
 	}
 
 	// メニュー表示
@@ -268,14 +244,11 @@ void AGS::close_menu_window(int index)
 	if(menu_w[index - 1].push && menu_w[index - 1].screen) {
 		int sx = menu_w[index - 1].screen_x;
 		int sy = menu_w[index - 1].screen_y;
-		int width = menu_w[index - 1].screen_width;
-		int height = menu_w[index - 1].screen_height;
+		int width = menu_w[index - 1].screen->w;
+		int height = menu_w[index - 1].screen->h;
 
-		for(int y = 0; y < height && y + sy < 480; y++) {
-			for(int x = 0; x < width && x + sx < 640; x++) {
-				vram[0][y + sy][x + sx] = menu_w[index - 1].screen[x + width * y];
-			}
-		}
+		SDL_Rect rect = {sx, sy, width, height};
+		SDL_BlitSurface(menu_w[index - 1].screen, NULL, hBmpScreen[0], &rect);
 
 		Palette palette = screen_palette;
 		screen_palette = menu_w[index - 1].screen_palette;
