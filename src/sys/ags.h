@@ -7,7 +7,7 @@
 #ifndef _AGS_H_
 #define _AGS_H_
 
-#include <array>
+#include <vector>
 #include <memory>
 #include <stdio.h>
 #include "../common.h"
@@ -16,21 +16,6 @@
 #include <SDL_ttf.h>
 
 #define MAX_CG 10000
-
-using Palette = std::array<uint32, 256>;
-
-static inline uint32 SETPALETTE256(uint32 R, uint32 G, uint32 B)
-{
-	return ((R & 0xff) << 16) | ((G & 0xff) << 8) | (B & 0xff);
-}
-
-static inline uint32 SETPALETTE16(uint32 R, uint32 G, uint32 B)
-{
-	R = (255 * (R & 0x0f)) / 15;
-	G = (255 * (G & 0x0f)) / 15;
-	B = (255 * (B & 0x0f)) / 15;
-	return SETPALETTE256(R, G, B);
-}
 
 inline uint32* surface_line(SDL_Surface* surface, int y)
 {
@@ -77,15 +62,15 @@ private:
 	void draw_screen(int sx, int sy, int width, int heignt);
 	void invalidate_screen(int sx, int sy, int width, int height);
 
-	uint8 palR(uint8 col) { return screen_palette[col] >> 16 & 0xff; }
-	uint8 palG(uint8 col) { return screen_palette[col] >> 8 & 0xff; }
-	uint8 palB(uint8 col) { return screen_palette[col] & 0xff; }
+	uint8_t palR(uint8_t col) const { return screen_palette->colors[col].r; }
+	uint8_t palG(uint8_t col) const { return screen_palette->colors[col].g; }
+	uint8_t palB(uint8_t col) const { return screen_palette->colors[col].b; }
 	int nearest_color(int r, int g, int b);
 
 	uint8_t* vram[3][480];	// 仮想VRAMへのポインタ
 
-	Palette program_palette;
-	Palette screen_palette;
+	SDL_Palette* program_palette;
+	SDL_Palette* screen_palette;
 	uint8 gaiji[188][32];
 
 	int fade_level = 0;  // 0-255
@@ -102,8 +87,8 @@ public:
 	void load_cg(int page, int transparent);
 	void set_cg_file(const char *file_name);
 
-	void set_palette(int index, int r, int g, int b);
-	const Palette& get_screen_palette() const { return screen_palette; }
+	void set_palette(int index, uint8_t r, uint8_t g, uint8_t b);
+	std::vector<uint32_t> get_screen_palette() const;
 	uint8 get_pixel(int dest, int x, int y);
 	void set_pixel(int dest, int x, int y, uint8 color);
 
@@ -184,11 +169,9 @@ public:
 		SDL_Surface* screen;
 		int screen_x;
 		int screen_y;
-		Palette screen_palette;
 		SDL_Surface* window;
 		int window_x;
 		int window_y;
-		Palette window_palette;
 	} WINDOW;
 	WINDOW menu_w[10];
 	WINDOW text_w[10];

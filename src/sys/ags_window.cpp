@@ -89,10 +89,9 @@ void AGS::open_text_window(int index, bool erase)
 		}
 
 		text_w[index - 1].screen = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
-		SDL_SetSurfacePalette(text_w[index - 1].screen, hBmpScreen[0]->format->palette);
 		text_w[index - 1].screen_x = sx;
 		text_w[index - 1].screen_y = sy;
-		text_w[index - 1].screen_palette = screen_palette;
+		SDL_SetPaletteColors(text_w[index - 1].screen->format->palette, screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(hBmpScreen[0], &rect, text_w[index - 1].screen, NULL);
@@ -108,13 +107,11 @@ void AGS::open_text_window(int index, bool erase)
 		width = text_w[index - 1].window->w;
 		height = text_w[index - 1].window->h;
 
+		SDL_SetSurfacePalette(hBmpScreen[0], text_w[index - 1].window->format->palette);
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(text_w[index - 1].window, NULL, hBmpScreen[0], &rect);
-
-		Palette palette = screen_palette;
-		screen_palette = text_w[index - 1].window_palette;
 		draw_screen(sx, sy, width, height);
-		screen_palette = palette;
+		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 
 	// テキスト描画位置更新
@@ -139,10 +136,9 @@ void AGS::close_text_window(int index, bool update)
 		}
 
 		text_w[index - 1].window = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
-		SDL_SetSurfacePalette(text_w[index - 1].window, hBmpScreen[0]->format->palette);
 		text_w[index - 1].window_x = sx;
 		text_w[index - 1].window_y = sy;
-		text_w[index - 1].window_palette = screen_palette;
+		SDL_SetPaletteColors(text_w[index - 1].window->format->palette, screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(hBmpScreen[0], &rect, text_w[index - 1].window, NULL);
@@ -155,13 +151,11 @@ void AGS::close_text_window(int index, bool update)
 		width = text_w[index - 1].screen->w;
 		height = text_w[index - 1].screen->h;
 
+		SDL_SetSurfacePalette(hBmpScreen[0], text_w[index - 1].screen->format->palette);
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(text_w[index - 1].screen, NULL, hBmpScreen[0], &rect);
-
-		Palette palette = screen_palette;
-		screen_palette = text_w[index - 1].screen_palette;
 		draw_screen(sx, sy, width, height);
-		screen_palette = palette;
+		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 
 	// テキスト描画位置更新
@@ -200,10 +194,9 @@ void AGS::open_menu_window(int index)
 		}
 
 		menu_w[index - 1].screen = SDL_CreateRGBSurfaceWithFormat(0, wwidth, wheight, 8, SDL_PIXELFORMAT_INDEX8);
-		SDL_SetSurfacePalette(menu_w[index - 1].screen, hBmpScreen[0]->format->palette);
 		menu_w[index - 1].screen_x = wsx;
 		menu_w[index - 1].screen_y = wsy;
-		menu_w[index - 1].screen_palette = screen_palette;
+		SDL_SetPaletteColors(menu_w[index - 1].screen->format->palette, screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {wsx, wsy, wwidth, wheight};
 		SDL_BlitSurface(hBmpScreen[0], &rect, menu_w[index - 1].screen, NULL);
@@ -243,13 +236,11 @@ void AGS::close_menu_window(int index)
 		int width = menu_w[index - 1].screen->w;
 		int height = menu_w[index - 1].screen->h;
 
+		SDL_SetSurfacePalette(hBmpScreen[0], menu_w[index - 1].screen->format->palette);
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(menu_w[index - 1].screen, NULL, hBmpScreen[0], &rect);
-
-		Palette palette = screen_palette;
-		screen_palette = menu_w[index - 1].screen_palette;
 		draw_screen(sx, sy, width, height);
-		screen_palette = palette;
+		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 }
 

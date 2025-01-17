@@ -81,11 +81,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	for(int i = 0; i < 3; i++) {
 		hBmpScreen[i] = SDL_CreateRGBSurfaceWithFormat(0, 640, 480, 8, SDL_PIXELFORMAT_INDEX8);
 
-		// all surfaces share the same palette
-		if (i > 0) {
-			SDL_SetSurfacePalette(hBmpScreen[i], hBmpScreen[0]->format->palette);
-		}
-
 		// TODO: clear surface
 		// memset(lpBmpScreen[i], 0, 640 * 480 * sizeof(DWORD));
 
@@ -94,6 +89,11 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 			vram[i][j] = (uint8_t*)hBmpScreen[i]->pixels + hBmpScreen[i]->pitch * j;
 		}
 	}
+
+	// All surfaces share the same palette.
+	screen_palette = hBmpScreen[0]->format->palette;
+	SDL_SetSurfacePalette(hBmpScreen[1], screen_palette);
+	SDL_SetSurfacePalette(hBmpScreen[2], screen_palette);
 
 	// DIBSection 24bpp * 1 (最終出力先)
 	display_surface = hBmpDest = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
@@ -153,54 +153,54 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	acg.open("ACG.DAT");
 
 	// パレット
-	program_palette = {0};
-	program_palette[0x00] = SETPALETTE16(0x0, 0x0, 0x0);
-	program_palette[0x01] = SETPALETTE16(0x0, 0x0, 0xa);
-	program_palette[0x02] = SETPALETTE16(0xa, 0x0, 0x0);
-	program_palette[0x03] = SETPALETTE16(0xa, 0x0, 0xa);
-	program_palette[0x04] = SETPALETTE16(0x0, 0x0, 0x0);
-	program_palette[0x05] = SETPALETTE16(0x0, 0xa, 0xa);
-	program_palette[0x06] = SETPALETTE16(0xa, 0xa, 0x0);
-	program_palette[0x07] = SETPALETTE16(0xd, 0xd, 0xd);
-	program_palette[0x08] = SETPALETTE16(0x7, 0x7, 0x7);
-	program_palette[0x09] = SETPALETTE16(0x0, 0x0, 0xf);
-	program_palette[0x0a] = SETPALETTE16(0xf, 0x0, 0x0);
-	program_palette[0x0b] = SETPALETTE16(0xf, 0x0, 0xf);
-	program_palette[0x0c] = SETPALETTE16(0x0, 0xf, 0x0);
-	program_palette[0x0d] = SETPALETTE16(0x0, 0xf, 0xf);
-	program_palette[0x0e] = SETPALETTE16(0xf, 0xf, 0x0);
-	program_palette[0x0f] = SETPALETTE16(0xf, 0xf, 0xf);
+	program_palette = SDL_AllocPalette(256);
+	program_palette->colors[0x00] = {0x00, 0x00, 0x00, 0xff};
+	program_palette->colors[0x01] = {0x00, 0x00, 0xaa, 0xff};
+	program_palette->colors[0x02] = {0xaa, 0x00, 0x00, 0xff};
+	program_palette->colors[0x03] = {0xaa, 0x00, 0xaa, 0xff};
+	program_palette->colors[0x04] = {0x00, 0x00, 0x00, 0xff};
+	program_palette->colors[0x05] = {0x00, 0xaa, 0xaa, 0xff};
+	program_palette->colors[0x06] = {0xaa, 0xaa, 0x00, 0xff};
+	program_palette->colors[0x07] = {0xdd, 0xdd, 0xdd, 0xff};
+	program_palette->colors[0x08] = {0x77, 0x77, 0x77, 0xff};
+	program_palette->colors[0x09] = {0x00, 0x00, 0xff, 0xff};
+	program_palette->colors[0x0a] = {0xff, 0x00, 0x00, 0xff};
+	program_palette->colors[0x0b] = {0xff, 0x00, 0xff, 0xff};
+	program_palette->colors[0x0c] = {0x00, 0xff, 0x00, 0xff};
+	program_palette->colors[0x0d] = {0x00, 0xff, 0xff, 0xff};
+	program_palette->colors[0x0e] = {0xff, 0xff, 0x00, 0xff};
+	program_palette->colors[0x0f] = {0xff, 0xff, 0xff, 0xff};
 	if (game_id.sys_ver == 1) {
-		program_palette[0x10] = SETPALETTE16(0x0, 0x0, 0x0);
-		program_palette[0x11] = SETPALETTE16(0x0, 0x0, 0xf);
-		program_palette[0x12] = SETPALETTE16(0xf, 0x0, 0x0);
-		program_palette[0x13] = SETPALETTE16(0xf, 0x0, 0xf);
-		program_palette[0x14] = SETPALETTE16(0x0, 0xf, 0x0);
-		program_palette[0x15] = SETPALETTE16(0x0, 0xf, 0xf);
-		program_palette[0x16] = SETPALETTE16(0xf, 0xf, 0x0);
-		program_palette[0x17] = SETPALETTE16(0xf, 0xf, 0xf);
-		program_palette[0x18] = SETPALETTE16(0x0, 0x0, 0x0);
-		program_palette[0x19] = SETPALETTE16(0x0, 0x0, 0xf);
-		program_palette[0x1a] = SETPALETTE16(0xf, 0x0, 0x0);
-		program_palette[0x1b] = SETPALETTE16(0xf, 0x0, 0xf);
-		program_palette[0x1c] = SETPALETTE16(0x0, 0xf, 0x0);
-		program_palette[0x1d] = SETPALETTE16(0x0, 0xf, 0xf);
-		program_palette[0x1e] = SETPALETTE16(0xf, 0xf, 0x0);
+		program_palette->colors[0x10] = {0x00, 0x00, 0x00, 0xff};
+		program_palette->colors[0x11] = {0x00, 0x00, 0xff, 0xff};
+		program_palette->colors[0x12] = {0xff, 0x00, 0x00, 0xff};
+		program_palette->colors[0x13] = {0xff, 0x00, 0xff, 0xff};
+		program_palette->colors[0x14] = {0x00, 0xff, 0x00, 0xff};
+		program_palette->colors[0x15] = {0x00, 0xff, 0xff, 0xff};
+		program_palette->colors[0x16] = {0xff, 0xff, 0x00, 0xff};
+		program_palette->colors[0x17] = {0xff, 0xff, 0xff, 0xff};
+		program_palette->colors[0x18] = {0x00, 0x00, 0x00, 0xff};
+		program_palette->colors[0x19] = {0x00, 0x00, 0xff, 0xff};
+		program_palette->colors[0x1a] = {0xff, 0x00, 0x00, 0xff};
+		program_palette->colors[0x1b] = {0xff, 0x00, 0xff, 0xff};
+		program_palette->colors[0x1c] = {0x00, 0xff, 0x00, 0xff};
+		program_palette->colors[0x1d] = {0x00, 0xff, 0xff, 0xff};
+		program_palette->colors[0x1e] = {0xff, 0xff, 0x00, 0xff};
 	}
-	program_palette[0x1f] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0x2f] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0x3f] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0x4f] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0x5f] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0x6f] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0x7f] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0x8f] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0x9f] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0xaf] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0xbf] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0xcf] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0xdf] = SETPALETTE16(0xf, 0xf, 0xf);
-	program_palette[0xef] = SETPALETTE16(0xf, 0xf, 0xf);
+	program_palette->colors[0x1f] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0x2f] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0x3f] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0x4f] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0x5f] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0x6f] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0x7f] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0x8f] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0x9f] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0xaf] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0xbf] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0xcf] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0xdf] = {0xff, 0xff, 0xff, 0xff};
+	program_palette->colors[0xef] = {0xff, 0xff, 0xff, 0xff};
 
 	// To improve the quality of text antialiasing, preset the antialiasing
 	// colors for text drawn in the primary colors (red, green, blue, yellow,
@@ -208,14 +208,14 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	for (int i = 1; i <= 7; i++) {
 		for (int j = 0; j <= 7; j++) {
 			int n = 255 * j / 7;
-			int r = (i & 4) ? n : 0;
-			int g = (i & 2) ? n : 0;
-			int b = (i & 1) ? n : 0;
-			program_palette[0xc0 + i * 8 + j] = SETPALETTE16(r, g, b);
+			uint8_t r = (i & 4) ? n : 0;
+			uint8_t g = (i & 2) ? n : 0;
+			uint8_t b = (i & 1) ? n : 0;
+			program_palette->colors[0xc0 + i * 8 + j] = {r, g, b, 255};
 		}
 	}
 
-	screen_palette = program_palette;
+	SDL_SetPaletteColors(screen_palette, program_palette->colors, 0, 256);
 
 	// Bコマンド
 	for(int i = 0; i < 10; i++) {
@@ -416,7 +416,8 @@ AGS::~AGS()
 		SDL_RWclose(rw_font);
 	}
 
-	// surface開放
+	SDL_FreePalette(program_palette);
+
 	for(int i = 0; i < 3; i++) {
 		SDL_FreeSurface(hBmpScreen[i]);
 	}
@@ -442,13 +443,25 @@ void AGS::set_cg_file(const char *file_name)
 	acg.open(file_name);
 }
 
-void AGS::set_palette(int index, int r, int g, int b)
+void AGS::set_palette(int index, uint8_t r, uint8_t g, uint8_t b)
 {
-	if(index < 16) {
-		screen_palette[index] = program_palette[index] = SETPALETTE16(r, g, b);
-	} else {
-		screen_palette[index] = program_palette[index] = SETPALETTE256(r, g, b);
+	SDL_Color color = {r, g, b, 255};
+	if (index < 16) {
+		color.r = (color.r & 0xf) * 0x11;
+		color.g = (color.g & 0xf) * 0x11;
+		color.b = (color.b & 0xf) * 0x11;
 	}
+	SDL_SetPaletteColors(screen_palette, &color, index, 1);
+	SDL_SetPaletteColors(program_palette, &color, index, 1);
+}
+
+std::vector<uint32_t> AGS::get_screen_palette() const
+{
+	std::vector<uint32_t> palette(256);
+	for (int i = 0; i < 256; i++) {
+		palette[i] = palR(i) << 16 | palG(i) << 8 | palB(i);
+	}
+	return palette;
 }
 
 uint8 AGS::get_pixel(int dest, int x, int y)
@@ -496,13 +509,8 @@ void AGS::fade_in(int duration_ms)
 void AGS::flush_screen(bool update)
 {
 	if(update) {
-		for(int y = 0; y < screen_height; y++) {
-			uint8_t* src = vram[0][y];
-			uint32* dest = surface_line(hBmpDest, y);
-			for(int x = 0; x < screen_width; x++) {
-				dest[x] = screen_palette[src[x]];
-			}
-		}
+		SDL_Rect rect = {0, 0, screen_width, screen_height};
+		SDL_BlitSurface(hBmpScreen[0], &rect, hBmpDest, &rect);
 	}
 	invalidate_screen(0, 0, screen_width, screen_height);
 }
@@ -510,18 +518,8 @@ void AGS::flush_screen(bool update)
 void AGS::draw_screen(int sx, int sy, int width, int height)
 {
 	SDL_Rect rect = {sx, sy, width, height};
-	SDL_Rect screen = {0, 0, screen_width, screen_height};
-	SDL_Rect clip;
-	SDL_IntersectRect(&rect, &screen, &clip);
-
-	for (int y = clip.y; y < clip.y + clip.h; y++) {
-		uint8_t* src = vram[0][y];
-		uint32* dest = surface_line(hBmpDest, y);
-		for(int x = clip.x; x < clip.x + clip.w; x++) {
-			dest[x] = screen_palette[src[x]];
-		}
-	}
-	invalidate_screen(clip.x, clip.y, clip.w, clip.h);
+	SDL_BlitSurface(hBmpScreen[0], &rect, hBmpDest, &rect);
+	invalidate_screen(sx, sy, width, height);
 }
 
 void AGS::invalidate_screen(int sx, int sy, int width, int height)

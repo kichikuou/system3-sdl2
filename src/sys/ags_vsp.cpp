@@ -40,26 +40,24 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	// パレット取得
 	if(get_palette && transparent != 101) {
 		int p = 0x0a;
+		SDL_Color colors[16];
 		for(int i = 0; i < 16; i++) {
-			uint32 b = data[p++] & 0xf;
-			uint32 r = data[p++] & 0xf;
-			uint32 g = data[p++] & 0xf;
-			program_palette[base + i] = SETPALETTE16(r, g, b);
+			uint8_t b = (data[p++] & 0xf) * 0x11;
+			uint8_t r = (data[p++] & 0xf) * 0x11;
+			uint8_t g = (data[p++] & 0xf) * 0x11;
+			colors[i] = {r, g, b, 255};
 		}
+		SDL_SetPaletteColors(program_palette, colors, base, 16);
 	}
 
 	// パレット展開
 	if (game_id.is(GameId::FUNNYBEE_FD) || game_id.is(GameId::FUNNYBEE_CD)) {
 		if(extract_palette_cg[page]) {
-			for(int i = 0; i < 16; i++) {
-				screen_palette[base + i] = program_palette[base + i];
-			}
+			SDL_SetPaletteColors(screen_palette, program_palette->colors + base, base, 16);
 		}
 	} else {
 		if(extract_palette && extract_palette_cg[page]) {
-			for(int i = 0; i < 16; i++) {
-				screen_palette[base + i] = program_palette[base + i];
-			}
+			SDL_SetPaletteColors(screen_palette, program_palette->colors + base, base, 16);
 		}
 	}
 

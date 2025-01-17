@@ -31,19 +31,19 @@ void AGS::load_gl3(uint8* data, int page, int transparent)
 
 	// パレット取得
 	if(get_palette) {
+		SDL_Color colors[16];
 		for(int i = 0; i < 16; i++) {
-			uint32 b = data[i * 3 + 0];
-			uint32 r = data[i * 3 + 1];
-			uint32 g = data[i * 3 + 2];
-			program_palette[base + i] = SETPALETTE16(r, g, b);
+			uint8_t b = (data[i * 3 + 0] & 0xf) * 0x11;
+			uint8_t r = (data[i * 3 + 1] & 0xf) * 0x11;
+			uint8_t g = (data[i * 3 + 2] & 0xf) * 0x11;
+			colors[i] = {r, g, b, 255};
 		}
+		SDL_SetPaletteColors(program_palette, colors, base, 16);
 	}
 
 	// パレット展開
 	if(extract_palette && extract_palette_cg[page]) {
-		for(int i = 0; i < 16; i++) {
-			screen_palette[base + i] = program_palette[base + i];
-		}
+		SDL_SetPaletteColors(screen_palette, program_palette->colors + base, base, 16);
 	}
 
 	// GL3展開
