@@ -174,8 +174,8 @@ void AGS::close_text_window(int index, bool update)
 
 void AGS::clear_menu_window()
 {
-	// TODO: use draw function
-	memset(hBmpScreen[2]->pixels, menu_back_color, 640 * 480);
+	SDL_Rect rect = {0, 0, 640, 480};
+	SDL_FillRect(hBmpScreen[2], &rect, menu_back_color);
 }
 
 void AGS::open_menu_window(int index)
@@ -211,11 +211,9 @@ void AGS::open_menu_window(int index)
 
 	// メニュー表示
 	draw_window(wsx, wsy, wex, wey, menu_w[index - 1].frame, menu_frame_color, menu_back_color);
-	for(int y = 0; y < height && y + sy < 480; y++) {
-		for(int x = 0; x < width && x + sx < 640; x++) {
-			vram[0][y + sy][x + sx] = vram[2][y][x];
-		}
-	}
+	SDL_Rect src_rect = {0, 0, width, height};
+	SDL_Rect dst_rect = {sx, sy, width, height};
+	SDL_BlitSurface(hBmpScreen[2], &src_rect, hBmpScreen[0], &dst_rect);
 	box_line(0, sx, sy, ex, sy + menu_font_size + 3, menu_frame_color);
 	draw_screen(wsx, wsy, wwidth, wheight);
 }
@@ -229,11 +227,9 @@ void AGS::redraw_menu_window(int index, int selected)
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 
-	for(int y = 0; y < height && y + sy < 480; y++) {
-		for(int x = 0; x < width && x + sx < 640; x++) {
-			vram[0][y + sy][x + sx] = vram[2][y][x];
-		}
-	}
+	SDL_Rect src_rect = {0, 0, width, height};
+	SDL_Rect dst_rect = {sx, sy, width, height};
+	SDL_BlitSurface(hBmpScreen[2], &src_rect, hBmpScreen[0], &dst_rect);
 	box_line(0, sx, sy + (menu_font_size + 4) * selected, ex, sy + (menu_font_size + 4) * (selected + 1) - 1, menu_frame_color);
 	draw_screen(sx, sy, width, height);
 }
@@ -259,36 +255,19 @@ void AGS::close_menu_window(int index)
 
 void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color)
 {
-	// 領域の塗り潰し
-	for(int y = sy; y <= ey && y < 480; y++) {
-		uint8_t* dest = vram[0][y];
-		for(int x = sx; x <= ex && x < 640; x++) {
-			dest[x] = back_color;
-		}
-	}
+	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
+	SDL_FillRect(hBmpScreen[0], &rect, back_color);
 
-	// 枠表示
 	if(frame) {
-		for(int x = sx + 1; x <= ex - 1; x++) {
-			vram[0][sy + 1][x] = frame_color;
-			vram[0][sy + 2][x] = frame_color;
-			vram[0][ey - 2][x] = frame_color;
-			vram[0][ey - 1][x] = frame_color;
-		}
-		for(int y = sy + 1; y <= ey - 1; y++) {
-			vram[0][y][sx + 1] = frame_color;
-			vram[0][y][sx + 2] = frame_color;
-			vram[0][y][ex - 2] = frame_color;
-			vram[0][y][ex - 1] = frame_color;
-		}
-		for(int x = sx + 4; x <= ex - 4; x++) {
-			vram[0][sy + 4][x] = frame_color;
-			vram[0][ey - 4][x] = frame_color;
-		}
-		for(int y = sy + 4; y <= ey - 4; y++) {
-			vram[0][y][sx + 4] = frame_color;
-			vram[0][y][ex - 4] = frame_color;
-		}
+		SDL_Rect top    = {sx + 1, sy + 1, ex - sx - 1, 2};
+		SDL_Rect bottom = {sx + 1, ey - 2, ex - sx - 1, 2};
+		SDL_Rect left   = {sx + 1, sy + 1, 2, ey - sy - 1};
+		SDL_Rect right  = {ex - 2, sy + 1, 2, ey - sy - 1};
+		SDL_FillRect(hBmpScreen[0], &top, frame_color);
+		SDL_FillRect(hBmpScreen[0], &bottom, frame_color);
+		SDL_FillRect(hBmpScreen[0], &left, frame_color);
+		SDL_FillRect(hBmpScreen[0], &right, frame_color);
+		box_line(0, sx + 4, sy + 4, ex - 4, ey - 4, frame_color);
 	}
 	draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 }

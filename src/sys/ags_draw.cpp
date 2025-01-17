@@ -189,11 +189,8 @@ void AGS::draw_mesh(int sx, int sy, int width, int height)
 
 void AGS::box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color)
 {
-	for(int y = sy; y <= ey && y < 480; y++) {
-		for(int x = sx; x <= ex && x < 640; x++) {
-			vram[dest][y][x] = color;
-		}
-	}
+	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
+	SDL_FillRect(hBmpScreen[dest], &rect, color);
 	if(dest == 0) {
 		draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}
@@ -201,14 +198,15 @@ void AGS::box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color)
 
 void AGS::box_line(int dest, int sx, int sy, int ex, int ey, uint8 color)
 {
-	for(int x = sx; x <= ex && x < 640; x++) {
-		vram[dest][sy][x] = color;
-		vram[dest][ey][x] = color;
-	}
-	for(int y = sy; y <= ey && y < 480; y++) {
-		vram[dest][y][sx] = color;
-		vram[dest][y][ex] = color;
-	}
+	SDL_Rect top    = {sx, sy, ex - sx + 1, 1};
+	SDL_Rect bottom = {sx, ey, ex - sx + 1, 1};
+	SDL_Rect left   = {sx, sy, 1, ey - sy + 1};
+	SDL_Rect right  = {ex, sy, 1, ey - sy + 1};
+
+	SDL_FillRect(hBmpScreen[dest], &top, color);
+	SDL_FillRect(hBmpScreen[dest], &bottom, color);
+	SDL_FillRect(hBmpScreen[dest], &left, color);
+	SDL_FillRect(hBmpScreen[dest], &right, color);
 	if(dest == 0) {
 		draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}
