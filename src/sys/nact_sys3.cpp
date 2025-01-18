@@ -255,51 +255,19 @@ void NACT_Sys3::cmd_b()
 		if (game_id.is(GameId::AYUMI_CD) || game_id.is(GameId::AYUMI_LIVE_256) || game_id.is(GameId::AYUMI_LIVE_FULL)) {
 			p5 = 1;
 		}
-		ags->menu_w[index - 1].sx = column ? p1 * 8 : p1 & 0xfff8;
-		ags->menu_w[index - 1].sy = p2;
-		ags->menu_w[index - 1].ex = column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1;
-		ags->menu_w[index - 1].ey = p4;
-		ags->menu_w[index - 1].push = p5 ? true : false;
-
-		// 退避画面の破棄
-		if(ags->menu_w[index - 1].screen) {
-			SDL_FreeSurface(ags->menu_w[index - 1].screen);
-			ags->menu_w[index - 1].screen = NULL;
-		}
+		ags->set_menu_window(index, column ? p1 * 8 : p1 & 0xfff8, p2, column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1, p4, p5);
 		break;
 	case 2:
-		ags->menu_w[index - 1].frame = p1 ? true : false;
+		ags->set_menu_window_frame(index, p1);
 		menu_window = index;
 		break;
 	case 3:
-		ags->text_w[index - 1].sx = column ? p1 * 8 : p1 & 0xfff8;
-		ags->text_w[index - 1].sy = p2;
-		ags->text_w[index - 1].ex = column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1;
-		ags->text_w[index - 1].ey = p4;
-		ags->text_w[index - 1].push = p5 ? true : false;
-
-		// 退避画面の破棄
-		if(ags->text_w[index - 1].screen) {
-			SDL_FreeSurface(ags->text_w[index - 1].screen);
-			ags->text_w[index - 1].screen = NULL;
-		}
-		// 退避窓の破棄
-		if(ags->text_w[index - 1].window) {
-			SDL_FreeSurface(ags->text_w[index - 1].window);
-			ags->text_w[index - 1].window = NULL;
-		}
+		ags->set_text_window(index, column ? p1 * 8 : p1 & 0xfff8, p2, column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1, p4, p5);
 		break;
 	case 4:
 		if(p5 == 0) {
 			// ウィンドウ退避
-			if (game_id.is(GameId::PROG_CD) && p4) {
-				// prostudent G オープニング画面化け対策
-				if(ags->text_w[index - 1].window) {
-					SDL_FreeSurface(ags->text_w[index - 1].window);
-					ags->text_w[index - 1].window = NULL;
-				}
-			}
-			ags->text_w[index - 1].frame = p1 ? true : false;
+			ags->set_text_window_frame(index, p1);
 			ags->open_text_window(index, p4 ? false : true);
 			text_window = index;
 		} else {

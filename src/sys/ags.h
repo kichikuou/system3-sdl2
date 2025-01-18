@@ -115,11 +115,20 @@ public:
 	void draw_push(int index);
 	void open_text_window(int index, bool erase);
 	void close_text_window(int index, bool update);
+	void set_text_window(int index, int sx, int sy, int ex, int ey, bool save);
+	void set_text_window_frame(int index, bool frame) {
+		text_w[index - 1].frame = frame;
+	}
 
 	void clear_menu_window();
 	void open_menu_window(int index);
 	void redraw_menu_window(int index, int selected);
 	void close_menu_window(int index);
+	void get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey);
+	void set_menu_window(int index, int sx, int sy, int ex, int ey, bool save);
+	void set_menu_window_frame(int index, bool frame) {
+		menu_w[index - 1].frame = frame;
+	}
 
 	void load_cursor(int page);
 	void select_cursor();
@@ -162,24 +171,6 @@ public:
 	bool draw_hankaku;
 	bool draw_menu;
 
-	// ウィンドウ (Bコマンド)
-	typedef struct {
-		int sx;
-		int sy;
-		int ex;
-		int ey;
-		bool frame;
-		bool push;
-		SDL_Surface* screen;
-		int screen_x;
-		int screen_y;
-		SDL_Surface* window;
-		int window_x;
-		int window_y;
-	} WINDOW;
-	WINDOW menu_w[10];
-	WINDOW text_w[10];
-
 	// ボックス (E, Y7コマンド)
 	typedef struct {
 		uint8 color;
@@ -205,6 +196,28 @@ public:
 	int cursor_index;
 
 private:
+	// Window (B command)
+	struct Window {
+		int sx;
+		int sy;
+		int ex;
+		int ey;
+		bool frame;
+		bool save;
+		SDL_Surface* screen;
+		int screen_x;
+		int screen_y;
+		SDL_Surface* window;
+		int window_x;
+		int window_y;
+
+		~Window() { clear_saved(); }
+		void clear_saved();
+	};
+	Window menu_w[10];
+	Window text_w[10];
+	void init_windows();
+
 	Dri acg;
 	const char* bmp_prefix = NULL;
 };

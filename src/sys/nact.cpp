@@ -634,9 +634,8 @@ int NACT::menu_select(int num_items)
 	ags->open_menu_window(menu_window);
 
 	// マウス移動
-	int sx = ags->menu_w[menu_window - 1].sx;
-	int sy = ags->menu_w[menu_window - 1].sy;
-	int ex = ags->menu_w[menu_window - 1].ex;
+	int sx, sy, ex;
+	ags->get_menu_window_rect(menu_window, &sx, &sy, &ex, nullptr);
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu_font_size + 4;

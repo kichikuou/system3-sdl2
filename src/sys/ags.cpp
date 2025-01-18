@@ -15,20 +15,6 @@ extern SDL_Window* g_window;
 extern SDL_Renderer* g_renderer;
 static SDL_Surface* display_surface;
 
-#define SET_TEXT(n, x1, y1, x2, y2, f) { \
-	text_w[n].sx = x1; \
-	text_w[n].sy = y1; \
-	text_w[n].ex = x2; \
-	text_w[n].ey = y2; \
-	text_w[n].frame = f; \
-}
-#define SET_MENU(n, x1, y1, x2, y2, f) { \
-	menu_w[n].sx = x1; \
-	menu_w[n].sy = y1; \
-	menu_w[n].ex = x2; \
-	menu_w[n].ey = y2; \
-	menu_w[n].frame = f; \
-}
 #define SET_BOX(n, c, x1, y1, x2, y2) { \
 	box[n].color = c; \
 	box[n].sx = x1; \
@@ -209,94 +195,7 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 
 	SDL_SetPaletteColors(screen_palette, program_palette->colors, 0, 256);
 
-	// Bコマンド
-	for(int i = 0; i < 10; i++) {
-		// ウィンドウの初期位置はシステムによって異なる
-		switch (game_id.game) {
-		case GameId::BUNKASAI:
-			SET_TEXT(i, 24, 304, 616, 384, false);
-			SET_MENU(i, 440, 18, 620, 178, true);
-			break;
-		case GameId::CRESCENT:
-			SET_TEXT(i, 24, 288, 616, 378, false);
-			// 本来は横メニュー
-			SET_MENU(i, 464, 50, 623, 240, true);
-			break;
-		case GameId::RANCE2:
-		case GameId::RANCE2_HINT:
-			SET_TEXT(i, 8, 285, 502, 396, false);
-			SET_MENU(i, 431, 19, 624, 181, false);
-			break;
-		case GameId::DPS:
-		case GameId::DPS_SG_FAHREN:
-		case GameId::DPS_SG_KATEI:
-		case GameId::DPS_SG_NOBUNAGA:
-		case GameId::DPS_SG2_ANTIQUE:
-		case GameId::DPS_SG2_IKENAI:
-		case GameId::DPS_SG2_AKAI:
-		case GameId::DPS_SG3_RABBIT:
-		case GameId::DPS_SG3_SHINKON:
-		case GameId::DPS_SG3_SOTSUGYOU:
-			SET_TEXT(i, 48, 288, 594, 393, false);
-			//SET_MENU(i, 48, 288, 584, 393, false);
-			SET_MENU(i, 48, 288, 594, 393, false);
-			break;
-		case GameId::FUKEI:
-			SET_TEXT(i, 44, 282, 593, 396, false);
-			SET_MENU(i, 460, 14, 635, 214, false);
-			break;
-		case GameId::INTRUDER:
-			SET_TEXT(i, 8, 280, 629, 393, false);
-			SET_MENU(i, 448, 136, 623, 340, true);
-			break;
-		case GameId::TENGU:
-			SET_TEXT(i, 44, 282, 593, 396, false);
-			SET_MENU(i, 452, 14, 627, 214, false);
-			break;
-		case GameId::TOUSHIN_HINT:
-			SET_TEXT(i, 8, 311, 623, 391, false);
-			SET_MENU(i, 452, 14, 627, 214, true);
-			break;
-		case GameId::LITTLE_VAMPIRE:
-			SET_TEXT(i, 8, 255, 615, 383, false);
-			SET_MENU(i, 448, 11, 615, game_id.language == ENGLISH ? 234 : 224, false);
-			break;
-		case GameId::YAKATA:
-			SET_TEXT(i, 48, 288, 594, 393, false);
-			SET_MENU(i, 452, 14, 627, 214, false);
-			break;
-		case GameId::DALK_HINT:
-			SET_TEXT(i, 24, 308, 376, 386, false);
-			SET_MENU(i, 404, 28, 604, 244, true);
-			break;
-		case GameId::RANCE3_HINT:
-			SET_TEXT(i, 104, 304, 615, 383, false);
-			SET_MENU(i, 464, 24, 623, 200, true);
-			break;
-		case GameId::YAKATA2:
-			SET_TEXT(i, 104, 304, 620, 382, false);
-			SET_MENU(i, 420, 28, 620, 244, true);
-			break;
-		case GameId::GAKUEN:
-			SET_TEXT(i, 8, 260, 505, 384, false);
-			if (i == 1) {
-				SET_MENU(i, 128, 32, 337, 178, true);
-			} else {
-				SET_MENU(i, 288, 30, 433, 210, true);
-			}
-			break;
-		default:
-			SET_TEXT(i, 8, 311, 623, 391, true);
-			SET_MENU(i, 464, 80, 623, 240, true);
-			break;
-		}
-		text_w[i].push = false;
-		text_w[i].screen = NULL;
-		text_w[i].window = NULL;
-		menu_w[i].push = true;
-		menu_w[i].screen = NULL;
-		menu_w[i].window = NULL;
-	}
+	init_windows();
 
 	// Eコマンド
 	for(int i = 0; i < 20; i++) {
@@ -375,22 +274,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 
 AGS::~AGS()
 {
-	// 退避領域の開放
-	for(int i = 0; i < 10; i++) {
-		if(menu_w[i].screen) {
-			SDL_FreeSurface(menu_w[i].screen);
-		}
-		if(menu_w[i].window) {
-			SDL_FreeSurface(menu_w[i].window);
-		}
-		if(text_w[i].screen) {
-			SDL_FreeSurface(text_w[i].screen);
-		}
-		if(text_w[i].window) {
-			SDL_FreeSurface(text_w[i].window);
-		}
-	}
-
 	// カーソル開放
 	for(int i = 0; i < 10; i++) {
 		if(hCursor[i]) {
@@ -434,42 +317,26 @@ void AGS::load(FILEIO* fio)
 	text_frame_color = fio->getw();
 	text_back_color = fio->getw();
 	for (int i = 0; i < 10; i++) {
+		menu_w[i].clear_saved();
 		menu_w[i].sx = fio->getw();
 		menu_w[i].sy = fio->getw();
 		menu_w[i].ex = fio->getw();
 		menu_w[i].ey = fio->getw();
-		menu_w[i].push = fio->getw() ? true : false;
+		menu_w[i].save = fio->getw() ? true : false;
 		menu_w[i].frame = fio->getw() ? true : false;
 		fio->getw();
 		fio->getw();
-
-		if (menu_w[i].screen) {
-			SDL_FreeSurface(menu_w[i].screen);
-		}
-		menu_w[i].screen = NULL;
-		if (menu_w[i].window) {
-			SDL_FreeSurface(menu_w[i].window);
-		}
-		menu_w[i].window = NULL;
 	}
 	for (int i = 0; i < 10; i++) {
+		text_w[i].clear_saved();
 		text_w[i].sx = fio->getw();
 		text_w[i].sy = fio->getw();
 		text_w[i].ex = fio->getw();
 		text_w[i].ey = fio->getw();
-		text_w[i].push = fio->getw() ? true : false;
+		text_w[i].save = fio->getw() ? true : false;
 		text_w[i].frame = fio->getw() ? true : false;
 		fio->getw();
 		fio->getw();
-
-		if (text_w[i].screen) {
-			SDL_FreeSurface(text_w[i].screen);
-		}
-		text_w[i].screen = NULL;
-		if (text_w[i].window) {
-			SDL_FreeSurface(text_w[i].window);
-		}
-		text_w[i].window = NULL;
 	}
 }
 
@@ -489,7 +356,7 @@ void AGS::save(FILEIO* fio)
 		fio->putw(menu_w[i].sy);
 		fio->putw(menu_w[i].ex);
 		fio->putw(menu_w[i].ey);
-		fio->putw(menu_w[i].push ? 1 : 0);
+		fio->putw(menu_w[i].save ? 1 : 0);
 		fio->putw(menu_w[i].frame ? 1 : 0);
 		fio->putw(0);
 		fio->putw(0);
@@ -499,7 +366,7 @@ void AGS::save(FILEIO* fio)
 		fio->putw(text_w[i].sy);
 		fio->putw(text_w[i].ex);
 		fio->putw(text_w[i].ey);
-		fio->putw(text_w[i].push ? 1 : 0);
+		fio->putw(text_w[i].save ? 1 : 0);
 		fio->putw(text_w[i].frame ? 1 : 0);
 		fio->putw(0);
 		fio->putw(0);
