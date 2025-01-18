@@ -130,6 +130,10 @@ public:
 		menu_w[index - 1].frame = frame;
 	}
 
+	void set_box(int index, uint8 color, int sx, int sy, int ex, int ey) {
+		box[index - 1] = {color, sx, sy, ex, ey};
+	}
+
 	void load_cursor(int page);
 	void select_cursor();
 	void translate_mouse_coords(int* x, int* y);
@@ -171,16 +175,6 @@ public:
 	bool draw_hankaku;
 	bool draw_menu;
 
-	// ボックス (E, Y7コマンド)
-	typedef struct {
-		uint8 color;
-		int sx;
-		int sy;
-		int ex;
-		int ey;
-	} BOX;
-	BOX box[20];
-
 	// CG表示
 	bool set_cg_dest;
 	int cg_dest_x;
@@ -217,6 +211,16 @@ private:
 	Window menu_w[10];
 	Window text_w[10];
 	void init_windows();
+
+	// Box (E and Y7 commands)
+	struct Box {
+		uint8 color = 0;
+		int sx = 0;
+		int sy = 0;
+		int ex = 639;
+		int ey = 399;
+	};
+	Box box[20];
 
 	Dri acg;
 	const char* bmp_prefix = NULL;

@@ -15,14 +15,6 @@ extern SDL_Window* g_window;
 extern SDL_Renderer* g_renderer;
 static SDL_Surface* display_surface;
 
-#define SET_BOX(n, c, x1, y1, x2, y2) { \
-	box[n].color = c; \
-	box[n].sx = x1; \
-	box[n].sy = y1; \
-	box[n].ex = x2; \
-	box[n].ey = y2; \
-}
-
 namespace {
 
 const uint32 SCANLINE_ALPHA = 0x38;  // 0-255
@@ -196,28 +188,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	SDL_SetPaletteColors(screen_palette, program_palette->colors, 0, 256);
 
 	init_windows();
-
-	// Eコマンド
-	for(int i = 0; i < 20; i++) {
-//		SET_BOX(i, 0, 0, 0, 631, 399);
-		SET_BOX(i, 0, 0, 0, 639, 399);
-	}
-	if (game_id.sys_ver == 2) {
-		if (game_id.is(GameId::SDPS_TONO) || game_id.is(GameId::SDPS_KAIZOKU)) {
-			SET_BOX(0, 0, 40, 8, 598, 271);
-		} else if (game_id.is(GameId::PROG_FD)) {
-			SET_BOX(0, 0, 64, 13, 407, 289);
-			SET_BOX(1, 0, 24, 298, 111, 390);
-			SET_BOX(2, 0, 0, 0, 639, 307);
-			SET_BOX(3, 0, 0, 0, 319, 399);
-			SET_BOX(4, 0, (16*8), 310, ((77*8)-1), 390);
-			SET_BOX(5, 0, (4*8), 310, ((76*8)-1), 390);
-			SET_BOX(6, 0, (2*8), 317, ((56*8)-1), 389);
-			SET_BOX(7, 15, 64, 13, 407, 289);
-			SET_BOX(8, 0, 0, 0, 319, 399);
-			SET_BOX(9, 0, 320, 0, 639, 40);
-		}
-	}
 
 	// 画面選択
 	src_screen = dest_screen = 0;

@@ -160,16 +160,11 @@ void AGS::draw_box(int index)
 		return;
 	}
 
-	int sx = box[index - 1].sx;
-	int sy = box[index - 1].sy;
-	int ex = box[index - 1].ex;
-	int ey = box[index - 1].ey;
-	uint8 color = box[index - 1].color;
-
-	if(1 <= index && index <= 10) {
-		box_fill(dest_screen, sx, sy, ex, ey, color);
-	} else if(11 <= index && index <= 20) {
-		box_line(dest_screen, sx, sy, ex, ey, color);
+	Box& b = box[index - 1];
+	if (1 <= index && index <= 10) {
+		box_fill(dest_screen, b.sx, b.sy, b.ex, b.ey, b.color);
+	} else if (11 <= index && index <= 20) {
+		box_line(dest_screen, b.sx, b.sy, b.ex, b.ey, b.color);
 	}
 }
 

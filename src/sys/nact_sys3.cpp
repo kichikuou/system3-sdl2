@@ -292,11 +292,11 @@ void NACT_Sys3::cmd_e()
 
 	TRACE("E %d,%d,%d,%d,%d,%d:", index, color, sx, sy, ex, ey);
 
-	ags->box[index - 1].color = color;
-	ags->box[index - 1].sx = column ? sx * 8 : sx;
-	ags->box[index - 1].sy = sy;
-	ags->box[index - 1].ex = column ? ex * 8 - 1 : ex; // ?
-	ags->box[index - 1].ey = ey;
+	if (column) {
+		sx = sx * 8;
+		ex = ex * 8 - 1;
+	}
+	ags->set_box(index, color, sx, sy, ex, ey);
 }
 
 void NACT_Sys3::cmd_g()
