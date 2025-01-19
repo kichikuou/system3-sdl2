@@ -63,7 +63,7 @@ private:
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);
-	void draw_gaiji(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color);
+	void draw_gaiji(int dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color);
 
 	void draw_screen(int sx, int sy, int width, int heignt);
 	void invalidate_screen(int sx, int sy, int width, int height);

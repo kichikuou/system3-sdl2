@@ -386,7 +386,7 @@ void AGS::draw_text(const char* string, bool text_wait)
 		// 文字出力
 		if (GAIJI_FIRST <= code && code <= GAIJI_LAST) {
 			// Use unadjusted dest_y here.
-			draw_gaiji(screen, dest_x, ctx.pos.y, code, ctx.font_size, ctx.font_color);
+			draw_gaiji(screen, dest_x, ctx.pos.y, gaiji[code - GAIJI_FIRST], ctx.font_size, ctx.font_color);
 			dest_x += ctx.font_size;
 		} else {
 			if (!draw_menu)
@@ -490,15 +490,14 @@ void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF
 	SDL_FreeSurface(fs);
 }
 
-void AGS::draw_gaiji(int dest, int dest_x, int dest_y, uint16 code, int size, uint8 color)
+void AGS::draw_gaiji(int dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color)
 {
-	int index = code - GAIJI_FIRST;
 	bool pattern[16][16];
 
 	// パターン取得
 	for(int y = 0; y < 16; y++) {
-		uint8 l = gaiji[index][y * 2 + 0];
-		uint8 r = gaiji[index][y * 2 + 1];
+		uint8 l = bitmap[y * 2 + 0];
+		uint8 r = bitmap[y * 2 + 1];
 
 		pattern[y][ 0] = ((l & 0x80) != 0);
 		pattern[y][ 1] = ((l & 0x40) != 0);

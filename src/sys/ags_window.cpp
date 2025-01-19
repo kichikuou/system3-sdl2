@@ -130,34 +130,17 @@ bool AGS::return_text_line(int index)
 
 void AGS::draw_push(int index)
 {
-	// Pushのパターンデータ
-	static uint16 pattern[16] = {
-		0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xe000,
-		0x9000, 0x9974, 0xe944, 0x8977, 0x8915, 0x8775, 0x0000, 0xffff
+	const uint8_t push_bitmap[32] = {
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe0, 0x00,
+		0x90, 0x00, 0x99, 0x74, 0xe9, 0x44, 0x89, 0x77,
+		0x89, 0x15, 0x87, 0x75, 0x00, 0x00, 0xff, 0xff
 	};
 
 	Window& w = text_w[index - 1];
 	int x = w.ex - 16;
 	int y = w.ey - 16;
-
-	for(int i = 0; i < 16; i++) {
-		if(pattern[i] & 0x8000) vram[0][y + i][x +  0] = text.font_color;
-		if(pattern[i] & 0x4000) vram[0][y + i][x +  1] = text.font_color;
-		if(pattern[i] & 0x2000) vram[0][y + i][x +  2] = text.font_color;
-		if(pattern[i] & 0x1000) vram[0][y + i][x +  3] = text.font_color;
-		if(pattern[i] & 0x0800) vram[0][y + i][x +  4] = text.font_color;
-		if(pattern[i] & 0x0400) vram[0][y + i][x +  5] = text.font_color;
-		if(pattern[i] & 0x0200) vram[0][y + i][x +  6] = text.font_color;
-		if(pattern[i] & 0x0100) vram[0][y + i][x +  7] = text.font_color;
-		if(pattern[i] & 0x0080) vram[0][y + i][x +  8] = text.font_color;
-		if(pattern[i] & 0x0040) vram[0][y + i][x +  9] = text.font_color;
-		if(pattern[i] & 0x0020) vram[0][y + i][x + 10] = text.font_color;
-		if(pattern[i] & 0x0010) vram[0][y + i][x + 11] = text.font_color;
-		if(pattern[i] & 0x0008) vram[0][y + i][x + 12] = text.font_color;
-		if(pattern[i] & 0x0004) vram[0][y + i][x + 13] = text.font_color;
-		if(pattern[i] & 0x0002) vram[0][y + i][x + 14] = text.font_color;
-		if(pattern[i] & 0x0001) vram[0][y + i][x + 15] = text.font_color;
-	}
+	draw_gaiji(0, x, y, push_bitmap, 16, text.font_color);
 	draw_screen(x, y, 16, 16);
 }
 
