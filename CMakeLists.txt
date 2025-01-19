@@ -8,11 +8,16 @@ endif ()
 project(System3 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 
-# In msys, `pkg-config --libs` returns `-lmingw32` but find_library() cannot
-# find it in default search paths.
-if (MSYS)
-  list(APPEND CMAKE_LIBRARY_PATH $ENV{MINGW_PREFIX}/$ENV{MINGW_CHOST}/lib)
-endif ()
+# Generates a static library from pkg_check_modules() result
+function(add_static_library name pkg)
+  add_library(${name} INTERFACE)
+  set_target_properties(${name}
+      PROPERTIES
+          INTERFACE_INCLUDE_DIRECTORIES "${${pkg}_STATIC_INCLUDE_DIRS}"
+          INTERFACE_COMPILE_OPTIONS "${${pkg}_STATIC_CFLAGS_OTHER}"
+          INTERFACE_LINK_LIBRARIES "${${pkg}_STATIC_LIBRARIES}"
+          INTERFACE_LINK_OPTIONS "${${pkg}_STATIC_LDFLAGS_OTHER}")
+endfunction()
 
 if (MSVC)
   # Use statically-linked runtime library.
@@ -120,7 +125,17 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
     include(FindPkgConfig)
     pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
     pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
-    target_link_libraries(system3 PRIVATE PkgConfig::SDL2 PkgConfig::SDL2TTF)
+    if (MINGW)
+      add_static_library(sdl2 SDL2)
+      add_static_library(sdl2_ttf SDL2TTF)
+      # Workaround for linking error
+      set_property(TARGET sdl2_ttf PROPERTY INTERFACE_LINK_LIBRARIES
+          $<LINK_GROUP:RESCAN,${SDL2TTF_STATIC_LIBRARIES}>)
+    else()
+      add_library(sdl2 ALIAS PkgConfig::SDL2)
+      add_library(sdl2_ttf ALIAS PkgConfig::SDL2TTF)
+    endif()
+    target_link_libraries(system3 PRIVATE sdl2 sdl2_ttf)
 
     find_package(nlohmann_json 3.2.0)
     if (nlohmann_json_FOUND)
@@ -130,8 +145,13 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
     pkg_check_modules(RTMIDI IMPORTED_TARGET rtmidi)
     if (RTMIDI_FOUND)
+      if (MINGW)
+        add_static_library(RTMIDI RTMIDI)
+      else()
+        add_library(RTMIDI ALIAS PkgConfig::RTMIDI)
+      endif()
       target_compile_definitions(system3 PRIVATE USE_MIDI)
-      target_link_libraries(system3 PRIVATE PkgConfig::RTMIDI)
+      target_link_libraries(system3 PRIVATE RTMIDI)
       target_sources(system3 PRIVATE src/sys/mako_midi.cpp)
     endif()
   endif()
@@ -143,8 +163,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
       src/win/resource.rc
       )
     target_link_libraries(system3 PRIVATE winmm)
-    if (MSYS)
-      set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+    if (MINGW)
+      target_link_options(system3 PRIVATE -static)
     endif()
   else()
     pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
