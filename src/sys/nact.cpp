@@ -326,19 +326,15 @@ void NACT::cmd_page_call()
 void NACT::cmd_set_menu()
 {
 	if(ags->draw_menu) {
-		ags->menu_dest_x = 2;
-		ags->menu_dest_y += ags->menu_font_size + 2;
+		ags->menu.newline();
 		ags->draw_menu = false;
 
 		TRACE("$");
 	} else {
 		if (menu_items.empty()) {
 			ags->clear_menu_window();
-			ags->menu_dest_y = 0;
 		}
 		menu_items.emplace_back(sco.getw());
-		ags->menu_dest_x = 2;
-		ags->menu_dest_y += 2;
 		ags->draw_menu = true;
 
 		if (game_id.is(GameId::GAKUEN))
@@ -638,7 +634,7 @@ int NACT::menu_select(int num_items)
 	ags->get_menu_window_rect(menu_window, &sx, &sy, &ex, nullptr);
 	int mx = ex - 16;
 	int my = sy + 10;
-	int height = ags->menu_font_size + 4;
+	int height = ags->menu.font_size + 4;
 	int current_index = 0;
 
 	set_cursor(mx, my);

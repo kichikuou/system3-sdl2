@@ -112,27 +112,20 @@ void AGS::clear_text_window(int index, bool erase)
 
 	if(erase) {
 		if (w.frame && fade_level) {
-			draw_window(w.sx - 8, w.sy - 8, w.ex + 8, w.ey + 8, true, text_frame_color, text_back_color);
+			draw_window(w.sx - 8, w.sy - 8, w.ex + 8, w.ey + 8, true, text.frame_color, text.back_color);
 		} else {
-			box_fill(0, w.sx, w.sy, w.ex, w.ey, text_back_color);
+			box_fill(0, w.sx, w.sy, w.ex, w.ey, text.back_color);
 		}
 	}
 
-	text_dest_x = w.sx;
-	text_dest_y = w.sy + 2;//text_space;
-	text_font_maxsize = 0;
+	text.reset_pos(w.sx, w.sy + 2);
 }
 
 bool AGS::return_text_line(int index)
 {
-	Window& w = text_w[index - 1];
-	text_dest_x = w.sx;
-	text_dest_y += (text_font_maxsize > text_font_size) ? text_font_maxsize : text_font_size;
-	text_dest_y += text_space;
-	text_font_maxsize = 0;
-
-	// 次の行が表示しきれるか？
-	return (text_dest_y + text_font_size) > w.ey ? true : false;
+	text.newline();
+	// Return true if the next line exceeds the bottom of the window
+	return text.pos.y + text.font_size > text_w[index - 1].ey;
 }
 
 void AGS::draw_push(int index)
@@ -148,22 +141,22 @@ void AGS::draw_push(int index)
 	int y = w.ey - 16;
 
 	for(int i = 0; i < 16; i++) {
-		if(pattern[i] & 0x8000) vram[0][y + i][x +  0] = text_font_color;
-		if(pattern[i] & 0x4000) vram[0][y + i][x +  1] = text_font_color;
-		if(pattern[i] & 0x2000) vram[0][y + i][x +  2] = text_font_color;
-		if(pattern[i] & 0x1000) vram[0][y + i][x +  3] = text_font_color;
-		if(pattern[i] & 0x0800) vram[0][y + i][x +  4] = text_font_color;
-		if(pattern[i] & 0x0400) vram[0][y + i][x +  5] = text_font_color;
-		if(pattern[i] & 0x0200) vram[0][y + i][x +  6] = text_font_color;
-		if(pattern[i] & 0x0100) vram[0][y + i][x +  7] = text_font_color;
-		if(pattern[i] & 0x0080) vram[0][y + i][x +  8] = text_font_color;
-		if(pattern[i] & 0x0040) vram[0][y + i][x +  9] = text_font_color;
-		if(pattern[i] & 0x0020) vram[0][y + i][x + 10] = text_font_color;
-		if(pattern[i] & 0x0010) vram[0][y + i][x + 11] = text_font_color;
-		if(pattern[i] & 0x0008) vram[0][y + i][x + 12] = text_font_color;
-		if(pattern[i] & 0x0004) vram[0][y + i][x + 13] = text_font_color;
-		if(pattern[i] & 0x0002) vram[0][y + i][x + 14] = text_font_color;
-		if(pattern[i] & 0x0001) vram[0][y + i][x + 15] = text_font_color;
+		if(pattern[i] & 0x8000) vram[0][y + i][x +  0] = text.font_color;
+		if(pattern[i] & 0x4000) vram[0][y + i][x +  1] = text.font_color;
+		if(pattern[i] & 0x2000) vram[0][y + i][x +  2] = text.font_color;
+		if(pattern[i] & 0x1000) vram[0][y + i][x +  3] = text.font_color;
+		if(pattern[i] & 0x0800) vram[0][y + i][x +  4] = text.font_color;
+		if(pattern[i] & 0x0400) vram[0][y + i][x +  5] = text.font_color;
+		if(pattern[i] & 0x0200) vram[0][y + i][x +  6] = text.font_color;
+		if(pattern[i] & 0x0100) vram[0][y + i][x +  7] = text.font_color;
+		if(pattern[i] & 0x0080) vram[0][y + i][x +  8] = text.font_color;
+		if(pattern[i] & 0x0040) vram[0][y + i][x +  9] = text.font_color;
+		if(pattern[i] & 0x0020) vram[0][y + i][x + 10] = text.font_color;
+		if(pattern[i] & 0x0010) vram[0][y + i][x + 11] = text.font_color;
+		if(pattern[i] & 0x0008) vram[0][y + i][x + 12] = text.font_color;
+		if(pattern[i] & 0x0004) vram[0][y + i][x + 13] = text.font_color;
+		if(pattern[i] & 0x0002) vram[0][y + i][x + 14] = text.font_color;
+		if(pattern[i] & 0x0001) vram[0][y + i][x + 15] = text.font_color;
 	}
 	draw_screen(x, y, 16, 16);
 }
@@ -200,7 +193,7 @@ void AGS::open_text_window(int index, bool erase)
 
 	if(erase) {
 		// 窓初期化
-		draw_window(sx, sy, ex, ey, w.frame, text_frame_color, text_back_color);
+		draw_window(sx, sy, ex, ey, w.frame, text.frame_color, text.back_color);
 	} else if (w.save && w.window) {
 		// 窓復帰
 		sx = w.window_x;
@@ -215,10 +208,7 @@ void AGS::open_text_window(int index, bool erase)
 		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 
-	// テキスト描画位置更新
-	text_dest_x = w.sx;
-	text_dest_y = w.sy + text_space;;
-	text_font_maxsize = 0;
+	text.reset_pos(w.sx, w.sy + text.line_space);
 }
 
 void AGS::close_text_window(int index, bool update)
@@ -260,11 +250,8 @@ void AGS::close_text_window(int index, bool update)
 		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 
-	// テキスト描画位置更新
 	if(update) {
-		text_dest_x = w.sx;
-		text_dest_y = w.sy + text_space;;
-		text_font_maxsize = 0;
+		text.reset_pos(w.sx, w.sy + text.line_space);
 	}
 }
 
@@ -282,7 +269,8 @@ void AGS::set_text_window(int index, int sx, int sy, int ex, int ey, bool save)
 void AGS::clear_menu_window()
 {
 	SDL_Rect rect = {0, 0, 640, 480};
-	SDL_FillRect(hBmpScreen[2], &rect, menu_back_color);
+	SDL_FillRect(hBmpScreen[2], &rect, menu.back_color);
+	menu.reset_pos(2, 2);
 }
 
 void AGS::open_menu_window(int index)
@@ -291,7 +279,7 @@ void AGS::open_menu_window(int index)
 	int sx = w.sx;
 	int sy = w.sy;
 	int ex = w.ex;
-	int ey = menu_fix ? w.ey : sy + menu_dest_y - 1;
+	int ey = menu_fix ? w.ey : sy + menu.pos.y - 3;
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 	int wsx = sx - (w.frame ? 8 : 0);
@@ -317,11 +305,11 @@ void AGS::open_menu_window(int index)
 	}
 
 	// メニュー表示
-	draw_window(wsx, wsy, wex, wey, w.frame, menu_frame_color, menu_back_color);
+	draw_window(wsx, wsy, wex, wey, w.frame, menu.frame_color, menu.back_color);
 	SDL_Rect src_rect = {0, 0, width, height};
 	SDL_Rect dst_rect = {sx, sy, width, height};
 	SDL_BlitSurface(hBmpScreen[2], &src_rect, hBmpScreen[0], &dst_rect);
-	box_line(0, sx, sy, ex, sy + menu_font_size + 3, menu_frame_color);
+	box_line(0, sx, sy, ex, sy + menu.font_size + 3, menu.frame_color);
 	draw_screen(wsx, wsy, wwidth, wheight);
 }
 
@@ -331,14 +319,14 @@ void AGS::redraw_menu_window(int index, int selected)
 	int sx = w.sx;
 	int sy = w.sy;
 	int ex = w.ex;
-	int ey = menu_fix ? w.ey : sy + menu_dest_y - 1;
+	int ey = menu_fix ? w.ey : sy + menu.pos.y - 3;
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 
 	SDL_Rect src_rect = {0, 0, width, height};
 	SDL_Rect dst_rect = {sx, sy, width, height};
 	SDL_BlitSurface(hBmpScreen[2], &src_rect, hBmpScreen[0], &dst_rect);
-	box_line(0, sx, sy + (menu_font_size + 4) * selected, ex, sy + (menu_font_size + 4) * (selected + 1) - 1, menu_frame_color);
+	box_line(0, sx, sy + (menu.font_size + 4) * selected, ex, sy + (menu.font_size + 4) * (selected + 1) - 1, menu.frame_color);
 	draw_screen(sx, sy, width, height);
 }
 

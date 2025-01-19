@@ -193,33 +193,31 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	src_screen = dest_screen = 0;
 
 	// メッセージ表示
-	text_dest_x = text_w[0].sx;
-	text_dest_y = text_w[0].sy + 2;
-	text_font_maxsize = 0;
-	text_space = 2;
-	text_font_size = 16;
+	text.reset_pos(text_w[0].sx, text_w[0].sy + 2);
+	text.line_space = 2;
+	text.font_size = 16;
 	if (game_id.sys_ver == 1) {
-		text_font_color = 15 + 16;
-		text_frame_color = 15 + 16;
-		text_back_color = 0 + 16;
+		text.font_color = 15 + 16;
+		text.frame_color = 15 + 16;
+		text.back_color = 0 + 16;
 	} else {
-		text_font_color = 15;
-		text_frame_color = 15;
-		text_back_color = 0;
+		text.font_color = 15;
+		text.frame_color = 15;
+		text.back_color = 0;
 	}
 
 	// メニュー表示
-	menu_dest_x = 2;
-	menu_dest_y = 0;
-	menu_font_size = 16;
+	menu.reset_pos(2, 2);
+	menu.line_space = 4;
+	menu.font_size = 16;
 	if (game_id.sys_ver == 1) {
-		menu_font_color = 15 + 16;
-		menu_frame_color = 15 + 16;
-		menu_back_color = 0 + 16;
+		menu.font_color = 15 + 16;
+		menu.frame_color = 15 + 16;
+		menu.back_color = 0 + 16;
 	} else {
-		menu_font_color = 15;
-		menu_frame_color = 15;
-		menu_back_color = 0;
+		menu.font_color = 15;
+		menu.frame_color = 15;
+		menu.back_color = 0;
 	}
 	menu_fix = false;
 
@@ -274,18 +272,18 @@ AGS::~AGS()
 
 void AGS::load(FILEIO* fio)
 {
-	menu_font_size = fio->getw();
-	text_font_size = fio->getw();
+	menu.font_size = fio->getw();
+	text.font_size = fio->getw();
 	palette_bank = fio->getw();
 	if (!palette_bank) {
 		palette_bank = -1;
 	}
-	text_font_color = fio->getw();
-	menu_font_color = fio->getw();
-	menu_frame_color = fio->getw();
-	menu_back_color = fio->getw();
-	text_frame_color = fio->getw();
-	text_back_color = fio->getw();
+	text.font_color = fio->getw();
+	menu.font_color = fio->getw();
+	menu.frame_color = fio->getw();
+	menu.back_color = fio->getw();
+	text.frame_color = fio->getw();
+	text.back_color = fio->getw();
 	for (int i = 0; i < 10; i++) {
 		menu_w[i].clear_saved();
 		menu_w[i].sx = fio->getw();
@@ -312,15 +310,15 @@ void AGS::load(FILEIO* fio)
 
 void AGS::save(FILEIO* fio)
 {
-	fio->putw(menu_font_size);
-	fio->putw(text_font_size);
+	fio->putw(menu.font_size);
+	fio->putw(text.font_size);
 	fio->putw(palette_bank == -1 ? 0 : palette_bank);
-	fio->putw(text_font_color);
-	fio->putw(menu_font_color);
-	fio->putw(menu_frame_color);
-	fio->putw(menu_back_color);
-	fio->putw(text_frame_color);
-	fio->putw(text_back_color);
+	fio->putw(text.font_color);
+	fio->putw(menu.font_color);
+	fio->putw(menu.frame_color);
+	fio->putw(menu.back_color);
+	fio->putw(text.frame_color);
+	fio->putw(text.back_color);
 	for (int i = 0; i < 10; i++) {
 		fio->putw(menu_w[i].sx);
 		fio->putw(menu_w[i].sy);
@@ -505,7 +503,7 @@ int AGS::calculate_menu_max(int window) {
 	if (game_id.is(GameId::INTRUDER))
 		return 6;
 	if (game_id.is(GameId::GAKUEN))
-		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (menu_font_size + 4);
+		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (menu.font_size + 4);
 	return 11;
 }
 

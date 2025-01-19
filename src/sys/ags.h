@@ -7,6 +7,7 @@
 #ifndef _AGS_H_
 #define _AGS_H_
 
+#include <algorithm>
 #include <vector>
 #include <memory>
 #include <stdio.h>
@@ -153,23 +154,32 @@ public:
 	int window_width, window_height;
 	int screen_width, screen_height;
 
+	struct TextContext {
+		SDL_Point pos;
+		int origin_x;
+		int line_space;
+		int font_size;
+		uint8_t font_color;
+		uint8_t frame_color;
+		uint8_t back_color;
+		int current_line_height;
+
+		void reset_pos(int x, int y) {
+			pos.x = origin_x = x;
+			pos.y = y;
+			current_line_height = 0;
+		}
+		void newline() {
+			pos.x = origin_x;
+			pos.y += std::max(font_size, current_line_height) + line_space;
+			current_line_height = 0;
+		}
+	};
 	// メッセージ表示
-	int text_dest_x;
-	int text_dest_y;
-	int text_space;
-	int text_font_size;
-	uint8 text_font_color;
-	uint8 text_frame_color;
-	uint8 text_back_color;
-	int text_font_maxsize;	// その行での最大フォントサイズ
+	TextContext text;
 
 	// メニュー表示
-	int menu_dest_x;
-	int menu_dest_y;
-	int menu_font_size;
-	uint8 menu_font_color;
-	uint8 menu_frame_color;
-	uint8 menu_back_color;
+	TextContext menu;
 	bool menu_fix;
 
 	bool draw_hankaku;

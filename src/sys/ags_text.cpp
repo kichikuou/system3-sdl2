@@ -349,31 +349,21 @@ int convert_to_hankaku(int code)
 
 void AGS::draw_text(const char* string, bool text_wait)
 {
-	int screen, dest_x, dest_y, font_size;
-	uint8 font_color;
-
+	if (!*string)
+		return;
 	uint8 antialias_cache[256*7];
 	if (antialias)
 		memset(antialias_cache, 0, 256);
 
-	if (draw_menu) {
-		screen = 2;
-		dest_x = menu_dest_x;
-		dest_y = menu_dest_y;
-		font_size = menu_font_size;
-		font_color = menu_font_color;
-	} else {
-		screen = dest_screen;
-		dest_x = text_dest_x;
-		dest_y = text_dest_y;
-		font_size = text_font_size;
-		font_color = text_font_color;
-		if (*string && text_font_maxsize < text_font_size)
-			text_font_maxsize = text_font_size;
-	}
+	TextContext& ctx = draw_menu ? menu : text;
+	int screen = draw_menu ? 2 : dest_screen;
+	int dest_x = ctx.pos.x;
+	int dest_y = ctx.pos.y;
+	if (ctx.current_line_height < ctx.font_size)
+		ctx.current_line_height = ctx.font_size;
 
 	TTF_Font* font = NULL;
-	switch (font_size) {
+	switch (ctx.font_size) {
 	case 16: font = hFont16; break;
 	case 24: font = hFont24; break;
 	case 32: font = hFont32; break;
@@ -383,7 +373,7 @@ void AGS::draw_text(const char* string, bool text_wait)
 	int ascent = TTF_FontAscent(font);
 	int descent = TTF_FontDescent(font);
 	// Adjust dest_y if the font height is larger than the specified size.
-	dest_y -= (ascent - descent - font_size) / 2;
+	dest_y -= (ascent - descent - ctx.font_size) / 2;
 
 	while (*string) {
 		int code = g_nact->encoding->next_codepoint(&string);
@@ -396,16 +386,16 @@ void AGS::draw_text(const char* string, bool text_wait)
 		// 文字出力
 		if (GAIJI_FIRST <= code && code <= GAIJI_LAST) {
 			// Use unadjusted dest_y here.
-			draw_gaiji(screen, dest_x, draw_menu ? menu_dest_y : text_dest_y, code, font_size, font_color);
-			dest_x += font_size;
+			draw_gaiji(screen, dest_x, ctx.pos.y, code, ctx.font_size, ctx.font_color);
+			dest_x += ctx.font_size;
 		} else {
 			if (!draw_menu)
 				texthook_character(g_nact->get_scenario_page(), code);
 
 			if (antialias)
-				draw_char_antialias(screen, dest_x, dest_y, code, font, font_color, antialias_cache);
+				draw_char_antialias(screen, dest_x, dest_y, code, font, ctx.font_color, antialias_cache);
 			else
-				draw_char(screen, dest_x, dest_y, code, font, font_color);
+				draw_char(screen, dest_x, dest_y, code, font, ctx.font_color);
 
 			int miny, maxy, advance;
 			TTF_GlyphMetrics(font, code, NULL, NULL, &miny, &maxy, &advance);
@@ -418,20 +408,18 @@ void AGS::draw_text(const char* string, bool text_wait)
 		if (!draw_menu && text_wait && code != ' ') {
 			// 画面更新
 			if(screen == 0)
-				draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, ascent - descent);
-			text_dest_x = dest_x;
+				draw_screen(ctx.pos.x, dest_y, dest_x - ctx.pos.x, ascent - descent);
+			ctx.pos.x = dest_x;
 			// Wait
 			g_nact->text_wait();
 		}
 	}
-	if (draw_menu)
-		menu_dest_x = dest_x;
-	else if (!text_wait) {
+	if (!draw_menu && !text_wait) {
 		// 画面更新
 		if(screen == 0)
-			draw_screen(text_dest_x, dest_y, dest_x - text_dest_x, ascent - descent);
-		text_dest_x = dest_x;
+			draw_screen(ctx.pos.x, dest_y, dest_x - ctx.pos.x, ascent - descent);
 	}
+	ctx.pos.x = dest_x;
 }
 
 void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color)

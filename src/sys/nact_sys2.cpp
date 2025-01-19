@@ -275,16 +275,13 @@ void NACT_Sys2::cmd_open_verb()
 	int id[32], index = 0;
 
 	ags->clear_menu_window();
-	ags->menu_dest_y = 0;
 	ags->draw_menu = true;
 
 	for(int i = 0; i < MAX_VERB; i++) {
 		if(chk[i]) {
-			ags->menu_dest_x = 2;
-			ags->menu_dest_y += 2;
 			ags->draw_text(caption_verb[i].c_str());
+			ags->menu.newline();
 			id[index++] = i;
-			ags->menu_dest_y += ags->menu_font_size + 2;
 		}
 	}
 	ags->draw_menu = false;
@@ -329,24 +326,19 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	int id[32], index = 0;
 
 	ags->clear_menu_window();
-	ags->menu_dest_y = 0;
 	ags->draw_menu = true;
 
 	for(int i = 0; i < MAX_OBJ; i++) {
 		if(chk[i]) {
-			ags->menu_dest_x = 2;
-			ags->menu_dest_y += 2;
 			ags->draw_text(caption_obj[i].c_str());
+			ags->menu.newline();
 			id[index++] = i;
-			ags->menu_dest_y += ags->menu_font_size + 2;
 		}
 	}
 	// 戻るを追加
-	ags->menu_dest_x = 2;
-	ags->menu_dest_y += 2;
 	ags->draw_text(strings.back.c_str());
+	ags->menu.newline();
 	id[index++] = 0;
-	ags->menu_dest_y += ags->menu_font_size + 2;
 	ags->draw_menu = false;
 
 	int selection = menu_select(index);
@@ -595,7 +587,7 @@ void NACT_Sys2::cmd_p()
 	int param = sco.getd();
 
 	if (!game_id.is(GameId::YAKATA2) && !game_id.is(GameId::DALK_HINT) && !game_id.is(GameId::RANCE3_HINT)) {
-		ags->text_font_color = (uint8)((param & 0x7) + 16);
+		ags->text.font_color = (uint8)((param & 0x7) + 16);
 	}
 
 	TRACE("P %d:", param);
@@ -751,10 +743,10 @@ void NACT_Sys2::cmd_y()
 			RND = 1;
 			break;
 		case 25:
-			ags->menu_font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
+			ags->menu.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
 		case 26:
-			ags->text_font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
+			ags->text.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
 		case 27:
 			{

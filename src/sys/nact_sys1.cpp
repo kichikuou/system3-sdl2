@@ -193,29 +193,24 @@ top:
 	int id[32], index = 0;
 
 	ags->clear_menu_window();
-	ags->menu_dest_y = 0;
 	ags->draw_menu = true;
 
 	if(cnt <= menu_max) {
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_VERB; i++) {
 			if(chk[i]) {
-				ags->menu_dest_x = 2;
-				ags->menu_dest_y += 2;
 				ags->draw_text(caption_verb[i].c_str());
+				ags->menu.newline();
 				id[index++] = i;
-				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
 		}
 	} else {
 top2:
 		for(int i = page; i < MAX_VERB; i++) {
 			if(chk[i]) {
-				ags->menu_dest_x = 2;
-				ags->menu_dest_y += 2;
 				ags->draw_text(caption_verb[i].c_str());
+				ags->menu.newline();
 				id[index++] = i;
-				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
 			page = i + 1;
 			if(index == menu_max - 1) {
@@ -228,11 +223,9 @@ top2:
 			goto top2;
 		}
 		// 次のページを追加
-		ags->menu_dest_x = 2;
-		ags->menu_dest_y += 2;
 		ags->draw_text(strings.next_page.c_str());
+		ags->menu.newline();
 		id[index++] = -1;
-		ags->menu_dest_y += ags->menu_font_size + 2;
 	}
 	ags->draw_menu = false;
 
@@ -282,35 +275,28 @@ top:
 	int id[32], index = 0;
 
 	ags->clear_menu_window();
-	ags->menu_dest_y = 0;
 	ags->draw_menu = true;
 
 	if(cnt <= menu_max - 1) {
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_OBJ; i++) {
 			if(chk[i]) {
-				ags->menu_dest_x = 2;
-				ags->menu_dest_y += 2;
 				ags->draw_text(caption_obj[i].c_str());
+				ags->menu.newline();
 				id[index++] = i;
-				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
 		}
 		// 戻るを追加
-		ags->menu_dest_x = 2;
-		ags->menu_dest_y += 2;
 		ags->draw_text(strings.back.c_str());
+		ags->menu.newline();
 		id[index++] = 0;
-		ags->menu_dest_y += ags->menu_font_size + 2;
 	} else {
 top2:
 		for(int i = page; i < MAX_OBJ; i++) {
 			if(chk[i]) {
-				ags->menu_dest_x = 2;
-				ags->menu_dest_y += 2;
 				ags->draw_text(caption_obj[i].c_str());
+				ags->menu.newline();
 				id[index++] = i;
-				ags->menu_dest_y += ags->menu_font_size + 2;
 			}
 			page = i + 1;
 			if(index == menu_max - 2) {
@@ -323,18 +309,14 @@ top2:
 			goto top2;
 		}
 		// 戻るを追加
-		ags->menu_dest_x = 2;
-		ags->menu_dest_y += 2;
 		ags->draw_text(strings.back.c_str());
+		ags->menu.newline();
 		id[index++] = 0;
-		ags->menu_dest_y += ags->menu_font_size + 2;
 
 		// 次のページを追加
-		ags->menu_dest_x = 2;
-		ags->menu_dest_y += 2;
 		ags->draw_text(strings.next_page.c_str());
+		ags->menu.newline();
 		id[index++] = -1;
-		ags->menu_dest_y += ags->menu_font_size + 2;
 	}
 	ags->draw_menu = false;
 
@@ -376,7 +358,7 @@ void NACT_Sys1::cmd_p()
 {
 	int param = sco.getd();
 
-	ags->text_font_color = (uint8)((param & 0x7) + 16);
+	ags->text.font_color = (uint8)((param & 0x7) + 16);
 
 	TRACE("P %d:", param);
 }
@@ -814,20 +796,18 @@ public:
 			}
 
 			// 矢印を表示する
-			int x = ags->text_dest_x;
-			int y = ags->text_dest_y;
-			int color = ags->text_font_color;
-			ags->text_font_size = 24;
-			ags->text_font_color = 16;
+			SDL_Point orig_pos = ags->text.pos;
+			int orig_color = ags->text.font_color;
+			ags->text.font_size = 24;
+			ags->text.font_color = 16;
 
-			ags->text_dest_x = 456;
-			ags->text_dest_y = 103;
+			ags->text.pos.x = 456;
+			ags->text.pos.y = 103;
 			ags->draw_text(buf[param - 1]);
 
-			ags->text_dest_x = x;
-			ags->text_dest_y = y;
-			ags->text_font_size = 16;
-			ags->text_font_color = color;
+			ags->text.pos = orig_pos;
+			ags->text.font_size = 16;
+			ags->text.font_color = orig_color;
 		} else if (cmd == 2) {
 			if (param == 0) {
 				// Clear the screen
