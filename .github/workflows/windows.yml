@@ -5,8 +5,13 @@ jobs:
   build:
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
-        sys: ["MINGW32", "UCRT64"]
+        include:
+          - sys: mingw32
+            package: "system3-sdl2-32bit"
+          - sys: ucrt64
+            package: "system3-sdl2-64bit"
     defaults:
       run:
         shell: msys2 {0}
@@ -18,9 +23,6 @@ jobs:
       with:
         msystem: ${{ matrix.sys }}
         pacboy: >-
-          gcc:p
-          cmake:p
-          ninja:p
           SDL2:p
           SDL2_ttf:p
           rtmidi:p
@@ -31,9 +33,29 @@ jobs:
       with:
         submodules: true
 
+    - name: Copy licenses
+      run: |
+        ls /${{ matrix.sys }}/share/licenses
+        mkdir dist
+        cp -r /${{ matrix.sys }}/share/licenses dist/
+        cp resources/fonts/*.license dist/licenses/
+        cp deps/ymfm/LICENSE dist/licenses/ymfm.license
+
+    - name: Install dev dependencies
+      run: pacboy --noconfirm -S --needed gcc:p cmake:p ninja:p
+
     - name: Build
       run: |
-        mkdir -p out/debug
-        cd out/debug
-        cmake -G"Ninja" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_COMPILE_WARNING_AS_ERROR=YES ../../
-        ninja
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_COMPILE_WARNING_AS_ERROR=YES
+        cmake --build build
+
+    - name: Package
+      run: |
+        cp build/system3.exe COPYING.txt dist/
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.package }}
+        path: dist
+        compression-level: 9  # because we use it for releases

@@ -9,9 +9,9 @@ jobs:
         arch: ["Win32", "x64"]
         include:
           - arch: "Win32"
-            package: "system3-sdl2-32bit"
+            package: "system3-sdl2-msvc-32bit"
           - arch: "x64"
-            package: "system3-sdl2-64bit"
+            package: "system3-sdl2-msvc-64bit"
     name: MSVS ${{ matrix.arch }}
     steps:
 
@@ -34,4 +34,3 @@ jobs:
       with:
         name: ${{ matrix.package }}
         path: out/artifacts
-        compression-level: 9  # because we use it for releases
