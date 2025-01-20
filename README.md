@@ -12,15 +12,19 @@ For Windows and Android, you can download pre-built binaries from the
 For other platforms, you need to build the program from source. See the
 [Building](#building) section for instructions.
 
+Note for Windows:
+- The 64-bit version supports Windows 10 or later. For older versions of
+  Windows, please use the 32-bit version.
+
 ## Running
 
-Usage:
-
-```bash
-system3 [options]
-```
+- Windows: Copy `system3.exe` to the game folder and double-click it.
+- Android: Install the APK file and follow the on-screen instructions.
+- Other platforms: Run `system3` from within the game directory.
 
 ### Options
+
+`system3` supports the following command line options:
 
 #### `-noantialias`
 Disables text anti-aliasing.
@@ -169,7 +173,7 @@ For instructions on how to build a game with Unicode support, see the
 When running a modified (translated) game, system3 cannot automatically detect
 the game ID. You need to specify the `game` option in `system3.ini`.
 
-## Building
+## Building from Source
 
 ### Linux (Debian, Ubuntu)
 
