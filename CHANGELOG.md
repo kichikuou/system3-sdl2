@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.0 - 2025-01-20
+- Windows: Now system3.exe is a standalone executable. You can just copy it to
+  the game folder and run it.
+- Windows: Changed the app icon.
+
 ## 1.4.0 - 2025-01-04
 - New supported game: Rance 2 Hint Disk (#33)
 - Added `trace` option that logs executed NACT commands on the console
