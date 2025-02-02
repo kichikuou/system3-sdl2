@@ -14,7 +14,7 @@ namespace {
 MAKO *g_mako;
 std::unique_ptr<MakoYmfm> fm;
 
-EM_ASYNC_JS(int, muspcm_load_data, (uint8_t *buf, uint32_t len), {
+EM_ASYNC_JS(bool, muspcm_load_data, (uint8_t *buf, uint32_t len), {
 	return await xsystem35.audio.pcm_load_data(0, buf, len);
 });
 
@@ -136,7 +136,7 @@ void MAKO::play_pcm(int page, bool loop)
 			}
 		}
 	}
-	if (muspcm_load_data(wav_buffer.data(), wav_buffer.size()) == 0)
+	if (muspcm_load_data(wav_buffer.data(), wav_buffer.size()))
 		EM_ASM({ xsystem35.audio.pcm_start(0, $0); }, loop ? 0 : 1);
 }
 
