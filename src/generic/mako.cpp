@@ -5,7 +5,7 @@
 */
 
 #include <memory>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <SDL_mixer.h>
 
 #include "mako.h"
@@ -20,7 +20,7 @@ const int SAMPLE_RATE = 44100;
 
 Mix_Music *mix_music;
 Mix_Chunk *mix_chunk;
-SDL_mutex* fm_mutex;
+SDL_Mutex* fm_mutex;
 std::unique_ptr<MakoYmfm> fm;
 std::unique_ptr<MAKOMidi> midi;
 
@@ -198,7 +198,7 @@ void MAKO::play_pcm(int page, bool loop)
 	std::vector<uint8_t> buffer = awav.load(page);
 	if (!buffer.empty()) {
 		// WAV形式 (Only You)
-		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(buffer.data(), buffer.size()), 1 /* freesrc */);
+		mix_chunk = Mix_LoadWAV_RW(SDL_IOFromConstMem(buffer.data(), buffer.size()), 1 /* freesrc */);
 		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
 		return;
 	}
@@ -223,7 +223,7 @@ void MAKO::play_pcm(int page, bool loop)
 			wav[p++] = (buffer[i] & 0x0f) << 4;
 		}
 
-		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(wav, total + 8), 1 /* freesrc */);
+		mix_chunk = Mix_LoadWAV_RW(SDL_IOFromConstMem(wav, total + 8), 1 /* freesrc */);
 		free(wav);
 		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
 	}

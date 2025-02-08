@@ -51,7 +51,7 @@ void NACT::set_skip_menu_state(bool enabled, bool checked)
 
 bool NACT::handle_platform_event(const SDL_Event& e)
 {
-	if (e.type == SDL_FINGERDOWN && SDL_GetNumTouchFingers(e.tfinger.touchId) == 3) {
+	if (e.type == SDL_EVENT_FINGER_DOWN && SDL_GetNumTouchFingers(e.tfinger.touchId) == 3) {
 		JNILocalFrame jni(16);
 		if (jni.env()) {
 			jmethodID mid = jni.GetMethodID("popupMenu", "()V");

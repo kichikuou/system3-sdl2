@@ -149,7 +149,7 @@ protected:
 	void get_cursor(int* x, int* y);
 	void set_cursor(int x, int y);
 
-	SDL_GameController *sdl_gamecontroller = NULL;
+	SDL_Gamepad *sdl_gamecontroller = NULL;
 
 	// Y27 ダイアログ
 	void text_dialog();
@@ -191,6 +191,10 @@ public:
 	void set_var(int index, uint16_t value) { var[index] = value; }
 	const char* get_string(int index) const { return tvar[index]; }
 	void set_string(int index, const char* value);
+
+#ifdef _WIN32
+	bool handle_windows_event(MSG* msg);
+#endif
 
 private:
 	void pump_events();

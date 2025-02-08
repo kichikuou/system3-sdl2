@@ -9,7 +9,7 @@
 
 #define SYSTEM3_VERSION "1.5.0"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <limits.h>
 #include <stdio.h>
 
@@ -59,7 +59,7 @@ enum CustomEvent {
 };
 
 // resource.cpp
-SDL_RWops* open_resource(const char* name, const char* type);
-SDL_RWops* open_file(const char* name);
+SDL_IOStream* open_resource(const char* name, const char* type);
+SDL_IOStream* open_file(const char* name);
 
 #endif

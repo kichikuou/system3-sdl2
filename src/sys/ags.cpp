@@ -20,7 +20,7 @@ const uint32 SCANLINE_ALPHA = 0x38;  // 0-255
 
 SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int height)
 {
-	SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+	SDL_Surface* sf = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_ARGB8888);
 	for (int y = 0; y < height; y++) {
 		uint32* p = surface_line(sf, y);
 		uint32 v = y % 2 ? (SCANLINE_ALPHA << 24) : 0;
@@ -30,7 +30,7 @@ SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int heig
 	}
 	SDL_Texture* tx = SDL_CreateTextureFromSurface(renderer, sf);
 	SDL_SetTextureBlendMode(tx, SDL_BLENDMODE_BLEND);
-	SDL_FreeSurface(sf);
+	SDL_DestroySurface(sf);
 	return tx;
 }
 
@@ -49,18 +49,18 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 	}
 
 	SDL_SetWindowSize(g_window, window_width, window_height);
-	SDL_RenderSetLogicalSize(g_renderer, window_width, window_height);
+	SDL_SetRenderLogicalPresentation(g_renderer, window_width, window_height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, screen_width, screen_height);
 	scanline_texture = NULL;
 
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
 	for(int i = 0; i < 3; i++) {
-		hBmpScreen[i] = SDL_CreateRGBSurfaceWithFormat(0, 640, 480, 8, SDL_PIXELFORMAT_INDEX8);
+		hBmpScreen[i] = SDL_CreateSurface(640, 480, SDL_PIXELFORMAT_INDEX8);
 		vram[i] = reinterpret_cast<uint8_t(*)[640]>(hBmpScreen[i]->pixels);
 	}
 
 	// All surfaces share the same palette.
-	screen_palette = hBmpScreen[0]->format->palette;
+	screen_palette = SDL_CreateSurfacePalette(hBmpScreen[0]);
 	SDL_SetSurfacePalette(hBmpScreen[1], screen_palette);
 	SDL_SetSurfacePalette(hBmpScreen[2], screen_palette);
 
@@ -75,17 +75,17 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 		if (!rw_font)
 			sys_error("Cannot open default font");
 	}
-	hFont16 = TTF_OpenFontRW(rw_font, 0, 16);
-	SDL_RWseek(rw_font, 0, SEEK_SET);
-	hFont24 = TTF_OpenFontRW(rw_font, 0, 24);
-	SDL_RWseek(rw_font, 0, SEEK_SET);
-	hFont32 = TTF_OpenFontRW(rw_font, 0, 32);
-	SDL_RWseek(rw_font, 0, SEEK_SET);
-	hFont48 = TTF_OpenFontRW(rw_font, 0, 48);
-	SDL_RWseek(rw_font, 0, SEEK_SET);
-	hFont64 = TTF_OpenFontRW(rw_font, 0, 64);
+	hFont16 = TTF_OpenFontIO(rw_font, 0, 16);
+	SDL_SeekIO(rw_font, 0, SDL_IO_SEEK_SET);
+	hFont24 = TTF_OpenFontIO(rw_font, 0, 24);
+	SDL_SeekIO(rw_font, 0, SDL_IO_SEEK_SET);
+	hFont32 = TTF_OpenFontIO(rw_font, 0, 32);
+	SDL_SeekIO(rw_font, 0, SDL_IO_SEEK_SET);
+	hFont48 = TTF_OpenFontIO(rw_font, 0, 48);
+	SDL_SeekIO(rw_font, 0, SDL_IO_SEEK_SET);
+	hFont64 = TTF_OpenFontIO(rw_font, 0, 64);
 	if (!hFont16 || !hFont24 || !hFont32 || !hFont48 || !hFont64) {
-		sys_error("TTF_OpenFontRW failed: %s", TTF_GetError());
+		sys_error("TTF_OpenFontIO failed: %s", SDL_GetError());
 	}
 	if (config.no_antialias)
 		ags_setAntialiasedStringMode(0);
@@ -118,7 +118,7 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 	acg.open("ACG.DAT");
 
 	// パレット
-	program_palette = SDL_AllocPalette(256);
+	program_palette = SDL_CreatePalette(256);
 	program_palette->colors[0x00] = {0x00, 0x00, 0x00, 0xff};
 	program_palette->colors[0x01] = {0x00, 0x00, 0xaa, 0xff};
 	program_palette->colors[0x02] = {0xaa, 0x00, 0x00, 0xff};
@@ -237,7 +237,7 @@ AGS::~AGS()
 	// カーソル開放
 	for(int i = 0; i < 10; i++) {
 		if(hCursor[i]) {
-			SDL_FreeCursor(hCursor[i]);
+			SDL_DestroyCursor(hCursor[i]);
 		}
 	}
 
@@ -248,13 +248,13 @@ AGS::~AGS()
 		TTF_CloseFont(hFont32);
 		TTF_CloseFont(hFont48);
 		TTF_CloseFont(hFont64);
-		SDL_RWclose(rw_font);
+		SDL_CloseIO(rw_font);
 	}
 
-	SDL_FreePalette(program_palette);
+	SDL_DestroyPalette(program_palette);
 
 	for(int i = 0; i < 3; i++) {
-		SDL_FreeSurface(hBmpScreen[i]);
+		SDL_DestroySurface(hBmpScreen[i]);
 	}
 
 	SDL_DestroyTexture(sdlTexture);
@@ -403,8 +403,8 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 {
 	SDL_Rect rect = {sx, sy, width, height};
 	SDL_Rect screen_rect = {0, 0, screen_width, screen_height};
-	SDL_IntersectRect(&rect, &screen_rect, &rect);
-	SDL_UnionRect(&dirty_rect, &rect, &dirty_rect);
+	SDL_GetRectIntersection(&rect, &screen_rect, &rect);
+	SDL_GetRectUnion(&dirty_rect, &rect, &dirty_rect);
 }
 
 void AGS::update_screen()
@@ -418,8 +418,8 @@ void AGS::update_screen()
 	}
 
 	SDL_RenderClear(g_renderer);
-	SDL_Rect src = {0, 0, screen_width, screen_height};
-	SDL_Rect dest = {0, 0, screen_width, screen_height};
+	SDL_FRect src = {0.f, 0.f, (float)screen_width, (float)screen_height};
+	SDL_FRect dest = src;
 	if (scroll > 0) {
 		src.y = scroll;
 		src.h = dest.h = screen_height - scroll;
@@ -427,7 +427,7 @@ void AGS::update_screen()
 		dest.y = -scroll;
 		src.h = dest.h = screen_height + scroll;
 	}
-	SDL_RenderCopy(g_renderer, sdlTexture, &src, &dest);
+	SDL_RenderTexture(g_renderer, sdlTexture, &src, &dest);
 
 	if (fade_level) {
 		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
@@ -437,7 +437,7 @@ void AGS::update_screen()
 		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
 	}
 	if (scanline_texture)
-		SDL_RenderCopy(g_renderer, scanline_texture, NULL, NULL);
+		SDL_RenderTexture(g_renderer, scanline_texture, NULL, NULL);
 	SDL_RenderPresent(g_renderer);
 }
 
@@ -453,25 +453,25 @@ void AGS::set_scanline_mode(bool enable)
 
 bool AGS::save_screenshot(const char* path)
 {
-	SDL_Surface* sf = SDL_CreateRGBSurface(0, screen_width, screen_height, 32, 0, 0, 0, 0);
+	SDL_Surface* sf = SDL_CreateSurface(screen_width, screen_height, SDL_GetPixelFormatForMasks(32, 0, 0, 0, 0));
 	SDL_BlitSurface(hBmpScreen[0], NULL, sf, NULL);
 
 	if (scanline_texture) {
 		SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(sf);
 		SDL_Texture *tx = create_scanline_texture(renderer, screen_width, screen_height);
-		SDL_RenderCopy(renderer, tx, NULL, NULL);
+		SDL_RenderTexture(renderer, tx, NULL, NULL);
 		SDL_DestroyTexture(tx);
 		SDL_DestroyRenderer(renderer);
 	}
 
-	bool ok = SDL_SaveBMP(sf, path) == 0;
+	bool ok = SDL_SaveBMP(sf, path);
 	if (!ok) {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3",
 								 SDL_GetError(), g_window);
 		SDL_ClearError();
 	}
 
-	SDL_FreeSurface(sf);
+	SDL_DestroySurface(sf);
 	return ok;
 }
 
