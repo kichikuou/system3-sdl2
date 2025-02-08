@@ -20,6 +20,11 @@ MakoYmfm::MakoYmfm(int rate, std::vector<uint8_t> data) :
 void MakoYmfm::Process(int16_t* stream, int len) {
 	int16_t* buf = stream;
 
+	if (samples_left > len) {
+		Generate(buf, len);
+		samples_left -= len;
+		return;
+	}
 	if (samples_left > 0) {
 		Generate(buf, samples_left);
 		buf += samples_left * 2;
