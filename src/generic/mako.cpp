@@ -11,7 +11,7 @@
 #include "mako.h"
 #include "mako_midi.h"
 #include "fm/mako_ymfm.h"
-#include "../config.h"
+#include "config.h"
 #include "dri.h"
 
 namespace {

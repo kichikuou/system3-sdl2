@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
-#include "../common.h"
+#include "common.h"
 #include "config.h"
 #include "dri.h"
 #include "game_id.h"

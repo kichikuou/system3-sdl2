@@ -4,7 +4,7 @@
 #include <memory>
 #include <queue>
 #include <SDL.h>
-#include "../common.h"
+#include "common.h"
 
 struct GameId;
 class Dri;

@@ -1,6 +1,6 @@
 #include <string.h>
 #include "game_id.h"
-#include "../fileio.h"
+#include "fileio.h"
 #include "config.h"
 
 // ADISK.DATの先頭256bytes

@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <math.h>
-#include "../common.h"
+#include "common.h"
 #include "game_id.h"
 #include "dri.h"
 

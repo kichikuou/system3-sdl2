@@ -8,7 +8,7 @@
 #include <memory>
 #include <string.h>
 #include "game_id.h"
-#include "../fileio.h"
+#include "fileio.h"
 
 void Dri::open(const char* file_name)
 {

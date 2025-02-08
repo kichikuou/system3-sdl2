@@ -8,8 +8,8 @@
 #include <string.h>
 #include "nact.h"
 #include "game_id.h"
-#include "../config.h"
-#include "../fileio.h"
+#include "config.h"
+#include "fileio.h"
 
 extern SDL_Window* g_window;
 extern SDL_Renderer* g_renderer;

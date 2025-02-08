@@ -5,7 +5,7 @@
 */
 
 #include "ags.h"
-#include "../fileio.h"
+#include "fileio.h"
 
 void AGS::load_bmp(const char* file_name)
 {

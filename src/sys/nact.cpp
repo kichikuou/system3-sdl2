@@ -15,8 +15,8 @@
 #include "msgskip.h"
 #include "texthook.h"
 #include "dri.h"
-#include "../config.h"
-#include "../fileio.h"
+#include "config.h"
+#include "fileio.h"
 #include "game_id.h"
 #include "debugger/debugger.h"
 

@@ -11,7 +11,7 @@
 #include "mako.h"
 #include "msgskip.h"
 #include "game_id.h"
-#include "../fileio.h"
+#include "fileio.h"
 #include "encoding.h"
 #include "texthook.h"
 

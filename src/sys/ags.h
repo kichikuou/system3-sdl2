@@ -11,7 +11,7 @@
 #include <vector>
 #include <memory>
 #include <stdio.h>
-#include "../common.h"
+#include "common.h"
 #include "game_id.h"
 #include "dri.h"
 #include <SDL_ttf.h>
