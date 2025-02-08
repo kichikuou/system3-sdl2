@@ -10,11 +10,11 @@
 void AGS::Window::clear_saved()
 {
 	if (screen) {
-		SDL_FreeSurface(screen);
+		SDL_DestroySurface(screen);
 		screen = nullptr;
 	}
 	if (window) {
-		SDL_FreeSurface(window);
+		SDL_DestroySurface(window);
 		window = nullptr;
 	}
 }
@@ -162,13 +162,13 @@ void AGS::open_text_window(int index, bool erase)
 	// 画面退避
 	if (w.save) {
 		if (w.screen) {
-			SDL_FreeSurface(w.screen);
+			SDL_DestroySurface(w.screen);
 		}
 
-		w.screen = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+		w.screen = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_INDEX8);
 		w.screen_x = sx;
 		w.screen_y = sy;
-		SDL_SetPaletteColors(w.screen->format->palette, screen_palette->colors, 0, 256);
+		SDL_SetPaletteColors(SDL_GetSurfacePalette(w.screen), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(hBmpScreen[0], &rect, w.screen, NULL);
@@ -184,7 +184,7 @@ void AGS::open_text_window(int index, bool erase)
 		width = w.window->w;
 		height = w.window->h;
 
-		SDL_SetSurfacePalette(hBmpScreen[0], w.window->format->palette);
+		SDL_SetSurfacePalette(hBmpScreen[0], SDL_GetSurfacePalette(w.window));
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(w.window, NULL, hBmpScreen[0], &rect);
 		draw_screen(sx, sy, width, height);
@@ -207,13 +207,13 @@ void AGS::close_text_window(int index, bool update)
 	// 窓退避
 	if (w.save) {
 		if (w.window) {
-			SDL_FreeSurface(w.window);
+			SDL_DestroySurface(w.window);
 		}
 
-		w.window = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+		w.window = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_INDEX8);
 		w.window_x = sx;
 		w.window_y = sy;
-		SDL_SetPaletteColors(w.window->format->palette, screen_palette->colors, 0, 256);
+		SDL_SetPaletteColors(SDL_GetSurfacePalette(w.window), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(hBmpScreen[0], &rect, w.window, NULL);
@@ -226,7 +226,7 @@ void AGS::close_text_window(int index, bool update)
 		width = w.screen->w;
 		height = w.screen->h;
 
-		SDL_SetSurfacePalette(hBmpScreen[0], w.screen->format->palette);
+		SDL_SetSurfacePalette(hBmpScreen[0], SDL_GetSurfacePalette(w.screen));
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(w.screen, NULL, hBmpScreen[0], &rect);
 		draw_screen(sx, sy, width, height);
@@ -252,7 +252,7 @@ void AGS::set_text_window(int index, int sx, int sy, int ex, int ey, bool save)
 void AGS::clear_menu_window()
 {
 	SDL_Rect rect = {0, 0, 640, 480};
-	SDL_FillRect(hBmpScreen[2], &rect, menu.back_color);
+	SDL_FillSurfaceRect(hBmpScreen[2], &rect, menu.back_color);
 	menu.reset_pos(2, 2);
 }
 
@@ -275,13 +275,13 @@ void AGS::open_menu_window(int index)
 	// 画面退避
 	if (w.save) {
 		if (w.screen) {
-			SDL_FreeSurface(w.screen);
+			SDL_DestroySurface(w.screen);
 		}
 
-		w.screen = SDL_CreateRGBSurfaceWithFormat(0, wwidth, wheight, 8, SDL_PIXELFORMAT_INDEX8);
+		w.screen = SDL_CreateSurface(wwidth, wheight, SDL_PIXELFORMAT_INDEX8);
 		w.screen_x = wsx;
 		w.screen_y = wsy;
-		SDL_SetPaletteColors(w.screen->format->palette, screen_palette->colors, 0, 256);
+		SDL_SetPaletteColors(SDL_GetSurfacePalette(w.screen), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {wsx, wsy, wwidth, wheight};
 		SDL_BlitSurface(hBmpScreen[0], &rect, w.screen, NULL);
@@ -318,7 +318,7 @@ void AGS::close_menu_window(int index)
 	Window &w = menu_w[index - 1];
 	// 画面復帰
 	if (w.save && w.screen) {
-		SDL_SetSurfacePalette(hBmpScreen[0], w.screen->format->palette);
+		SDL_SetSurfacePalette(hBmpScreen[0], SDL_GetSurfacePalette(w.screen));
 		SDL_Rect rect = {w.screen_x, w.screen_y, w.screen->w, w.screen->h};
 		SDL_BlitSurface(w.screen, NULL, hBmpScreen[0], &rect);
 		draw_screen(w.screen_x, w.screen_y, w.screen->w, w.screen->h);
@@ -349,7 +349,7 @@ void AGS::set_menu_window(int index, int sx, int sy, int ex, int ey, bool save)
 void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color)
 {
 	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
-	SDL_FillRect(hBmpScreen[0], &rect, back_color);
+	SDL_FillSurfaceRect(hBmpScreen[0], &rect, back_color);
 
 	if(frame) {
 		SDL_Rect rects[] = {
@@ -358,7 +358,7 @@ void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_co
 			{sx + 1, sy + 1, 2, ey - sy - 1},
 			{ex - 2, sy + 1, 2, ey - sy - 1},
 		};
-		SDL_FillRects(hBmpScreen[0], rects, 4, frame_color);
+		SDL_FillSurfaceRects(hBmpScreen[0], rects, 4, frame_color);
 		box_line(0, sx + 4, sy + 4, ex - 4, ey - 4, frame_color);
 	}
 	draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);

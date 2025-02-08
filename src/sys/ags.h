@@ -15,7 +15,7 @@
 #include "common.h"
 #include "game_id.h"
 #include "dri.h"
-#include <SDL_ttf.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 inline uint32* surface_line(SDL_Surface* surface, int y)
 {
@@ -41,7 +41,7 @@ private:
 	SDL_Palette* screen_palette;
 
 	// フォント
-	SDL_RWops* rw_font;
+	SDL_IOStream* rw_font;
 	TTF_Font* hFont16;
 	TTF_Font* hFont24;
 	TTF_Font* hFont32;
