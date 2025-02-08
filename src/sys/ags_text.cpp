@@ -371,8 +371,8 @@ void AGS::draw_text(const char* string, bool text_wait)
 	case 48: font = hFont48; break;
 	case 64: font = hFont64; break;
 	}
-	int ascent = TTF_FontAscent(font);
-	int descent = TTF_FontDescent(font);
+	int ascent = TTF_GetFontAscent(font);
+	int descent = TTF_GetFontDescent(font);
 	// Adjust dest_y if the font height is larger than the specified size.
 	dest_y -= (ascent - descent - ctx.font_size) / 2;
 
@@ -399,7 +399,7 @@ void AGS::draw_text(const char* string, bool text_wait)
 				draw_char(screen, dest_x, dest_y, code, font, ctx.font_color);
 
 			int miny, maxy, advance;
-			TTF_GlyphMetrics(font, code, NULL, NULL, &miny, &maxy, &advance);
+			TTF_GetGlyphMetrics(font, code, NULL, NULL, &miny, &maxy, &advance);
 			// Some fonts report incorrect Ascent/Descent value so we need to fix them.
 			if (miny < descent) descent = miny;
 			if (maxy > ascent) ascent = maxy;
@@ -439,7 +439,7 @@ void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* fon
 		}
 	}
 
-	SDL_FreeSurface(fs);
+	SDL_DestroySurface(fs);
 }
 
 int AGS::nearest_color(int r, int g, int b) {
@@ -488,7 +488,7 @@ void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF
 		}
 	}
 
-	SDL_FreeSurface(fs);
+	SDL_DestroySurface(fs);
 }
 
 void AGS::draw_gaiji(int dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color)

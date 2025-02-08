@@ -8,8 +8,7 @@
 #undef ERROR
 #include <memory>
 #include <string>
-#include <SDL.h>
-#include <SDL_syswm.h>
+#include <SDL3/SDL.h>
 #include "mako.h"
 #include "mako_midi.h"
 #include "fm/mako_ymfm.h"
@@ -48,7 +47,9 @@ const char* mci_geterror(DWORD err)
 
 class MCIThread {
 public:
-	MCIThread(HWND hwnd_notify) : hwnd_notify(hwnd_notify) {
+	MCIThread() {
+		hwnd_notify = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(g_window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+
 		if (!_beginthreadex(NULL, 0, &MCIThread::run, this, 0, &thread_id))
 			sys_error("Cannot create thread: %s", strerror(errno));
 	}
@@ -161,10 +162,10 @@ public:
 		return playing;
 	}
 
-	bool on_mci_notify(const SDL_SysWMmsg* msg) {
-		if (msg->msg.win.lParam != mci_thread->device_id())
+	bool on_mci_notify(const MSG* msg) {
+		if (msg->lParam != mci_thread->device_id())
 			return true;
-		switch (msg->msg.win.wParam) {
+		switch (msg->wParam) {
 		case MCI_NOTIFY_FAILURE:
 			close();
 			return false;
@@ -184,16 +185,24 @@ private:
 	bool playing;
 };
 
+SDL_AudioStream* g_stream;
 Music* music;
 uint8* wav_buffer;
-SDL_mutex* fm_mutex;
+SDL_Mutex* fm_mutex;
 std::unique_ptr<MakoYmfm> fm;
 std::unique_ptr<MAKOMidi> midi;
 
-void audio_callback(void*, Uint8* stream, int len) {
+void SDLCALL audio_callback(void *, SDL_AudioStream *stream, int additional_amount, int total_amount)
+{
+	if (additional_amount <= 0) return;
+	uint8_t *data = SDL_stack_alloc(uint8_t, additional_amount);
+
 	SDL_LockMutex(fm_mutex);
-	fm->Process(reinterpret_cast<int16_t*>(stream), len/ 4);
+	fm->Process(reinterpret_cast<int16_t*>(data), additional_amount / 4);
 	SDL_UnlockMutex(fm_mutex);
+
+	SDL_PutAudioStreamData(stream, data, additional_amount);
+	SDL_stack_free(data);
 }
 
 } // namespace
@@ -220,21 +229,16 @@ MAKO::MAKO(const Config& config, const GameId& game_id) :
 	SDL_AudioSpec fmt;
 	SDL_zero(fmt);
 	fmt.freq = SAMPLE_RATE;
-	fmt.format = AUDIO_S16;
+	fmt.format = SDL_AUDIO_S16LE;
 	fmt.channels = 2;
-	fmt.samples = 4096;
-	fmt.callback = &audio_callback;
-	if (SDL_OpenAudio(&fmt, NULL) < 0) {
-		WARNING("SDL_OpenAudio: %s", SDL_GetError());
+	g_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &fmt, audio_callback, nullptr);
+	if (!g_stream) {
+		WARNING("SDL_OpenAudioDeviceStream: %s", SDL_GetError());
 		use_fm = false;
 	}
 	fm_mutex = SDL_CreateMutex();
 
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
-	if (!SDL_GetWindowWMInfo(g_window, &info))
-		sys_error("SDL_GetWindowWMInfo failed: %s", SDL_GetError());
-	mci_thread = new MCIThread(info.info.win.window);
+	mci_thread = new MCIThread();
 
 	midi = std::make_unique<MAKOMidi>(config.midi_device);
 	if (!midi->is_available())
@@ -250,7 +254,7 @@ MAKO::~MAKO()
 	midi.reset();
 
 	SDL_LockMutex(fm_mutex);
-	SDL_CloseAudio();
+	SDL_DestroyAudioStream(g_stream);
 	SDL_UnlockMutex(fm_mutex);
 	SDL_DestroyMutex(fm_mutex);
 	fm_mutex = nullptr;
@@ -295,7 +299,7 @@ void MAKO::play_music(int page)
 		SDL_LockMutex(fm_mutex);
 		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, std::move(data));
 		SDL_UnlockMutex(fm_mutex);
-		SDL_PauseAudio(0);
+		SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(g_stream));
 	} else if (midi->is_available()) {
 		if (!midi->play(game_id, amus, mda, page, next_loop))
 			return;
@@ -310,7 +314,7 @@ void MAKO::stop_music()
 		music = nullptr;
 	}
 	if (fm) {
-		SDL_PauseAudio(1);
+		SDL_PauseAudioDevice(SDL_GetAudioStreamDevice(g_stream));
 		SDL_LockMutex(fm_mutex);
 		fm = nullptr;
 		SDL_UnlockMutex(fm_mutex);
@@ -422,7 +426,7 @@ void MAKO::play_pcm(int page, int loops)
 		std::vector<uint8_t> buffer = amse.load(page);
 		if (!buffer.empty()) {
 			// AMSE形式 (乙女戦記)
-			uint32_t amse_size = SDL_SwapLE32(*reinterpret_cast<uint32_t*>(&buffer[8]));
+			uint32_t amse_size = SDL_Swap32LE(*reinterpret_cast<uint32_t*>(&buffer[8]));
 			int samples = (static_cast<int>(amse_size) - 12) * 2;
 			int total = samples + 0x24;
 
@@ -465,7 +469,7 @@ bool MAKO::check_pcm()
 	return !PlaySound(null_wav, NULL, SND_ASYNC | SND_MEMORY | SND_NOSTOP);
 }
 
-void MAKO::on_mci_notify(const SDL_SysWMmsg* msg)
+void MAKO::on_mci_notify(const MSG* msg)
 {
 	if (!music)
 		return;

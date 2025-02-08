@@ -8,7 +8,6 @@
 #include <windows.h>
 #undef ERROR
 #endif
-#include <SDL_syswm.h>
 #include "nact.h"
 #include "ags.h"
 #include "texthook.h"
@@ -21,8 +20,23 @@ enum TouchState {
 };
 
 extern SDL_Window* g_window;
-static int mousex, mousey;
-static TouchState touch_state = TOUCH_NONE;
+
+namespace {
+
+int mousex, mousey;
+TouchState touch_state = TOUCH_NONE;
+
+int GetNumTouchFingers(SDL_TouchID touchID)
+{
+	int num = 0;
+	SDL_Finger **fingers = SDL_GetTouchFingers(touchID, &num);
+	if (!fingers)
+		return 0;
+	SDL_free(fingers);
+	return num;
+}
+
+} // namespace
 
 void NACT::handle_event(SDL_Event e)
 {
@@ -30,29 +44,29 @@ void NACT::handle_event(SDL_Event e)
 		return;
 
 	switch (e.type) {
-	case SDL_QUIT:
+	case SDL_EVENT_QUIT:
 		show_quit_dialog();
 		break;
 
 #ifdef __ANDROID__
-	case SDL_KEYUP:
+	case SDL_EVENT_KEY_UP:
 		if (e.key.keysym.scancode == SDL_SCANCODE_AC_BACK) {
 			show_quit_dialog();
 		}
 		break;
 #endif
 
-	case SDL_MOUSEMOTION:
+	case SDL_EVENT_MOUSE_MOTION :
 		mousex = e.motion.x * ags->screen_width / ags->window_width;
 		mousey = e.motion.y * ags->screen_height / ags->window_height;
 		break;
 
-	case SDL_FINGERDOWN:
-	case SDL_FINGERUP:
-	case SDL_FINGERMOTION:
+	case SDL_EVENT_FINGER_DOWN :
+	case SDL_EVENT_FINGER_UP :
+	case SDL_EVENT_FINGER_MOTION :
 		mousex = e.tfinger.x * ags->screen_width;
 		mousey = e.tfinger.y * ags->screen_height;
-		switch (SDL_GetNumTouchFingers(e.tfinger.touchId)) {
+		switch (GetNumTouchFingers(e.tfinger.touchID)) {
 		case 0:
 			touch_state = TOUCH_NONE;
 			break;
@@ -111,7 +125,7 @@ uint8 NACT::get_key()
 	pump_events();
 
 	// キーボード＆マウス
-	const Uint8* key = SDL_GetKeyboardState(NULL);
+	const bool* key = SDL_GetKeyboardState(NULL);
 	Uint32 mouse = SDL_GetMouseState(NULL, NULL);
 
 	if(key[SDL_SCANCODE_UP    ] || key[SDL_SCANCODE_KP_8 ] ) val |= 0x01;
@@ -126,14 +140,14 @@ uint8 NACT::get_key()
 	// マウス移動で方向入力はサポートしない
 
 	if(sdl_gamecontroller) {
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_UP) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTY) <= -8000) val |= 0x01;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_DOWN) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTY) >= 8000) val |= 0x02;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_LEFT) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTX) <= -8000) val |= 0x04;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTX) >= 8000) val |= 0x08;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_A)) val |= 0x10;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_B)) val |= 0x20;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_X)) val |= 0x40;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_Y)) val |= 0x80;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_DPAD_UP) || SDL_GetGamepadAxis(sdl_gamecontroller, SDL_GAMEPAD_AXIS_LEFTY) <= -8000) val |= 0x01;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_DPAD_DOWN) || SDL_GetGamepadAxis(sdl_gamecontroller, SDL_GAMEPAD_AXIS_LEFTY) >= 8000) val |= 0x02;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_DPAD_LEFT) || SDL_GetGamepadAxis(sdl_gamecontroller, SDL_GAMEPAD_AXIS_LEFTX) <= -8000) val |= 0x04;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_DPAD_RIGHT) || SDL_GetGamepadAxis(sdl_gamecontroller, SDL_GAMEPAD_AXIS_LEFTX) >= 8000) val |= 0x08;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_SOUTH)) val |= 0x10;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_EAST)) val |= 0x20;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_WEST)) val |= 0x40;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_NORTH)) val |= 0x80;
 	}
 
 	return val;
@@ -169,7 +183,7 @@ void NACT::show_quit_dialog()
 		buttons,
 	};
 	int buttonid = 0;
-	if (SDL_ShowMessageBox(&messagebox_data, &buttonid) < 0) {
+	if (!SDL_ShowMessageBox(&messagebox_data, &buttonid)) {
 		WARNING("error displaying message box");
 		return;
 	}

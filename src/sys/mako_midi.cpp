@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <vector>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <RtMidi.h>
 
 #include "mako_midi.h"
@@ -98,7 +98,7 @@ public:
 	bool load_mml(const std::vector<uint8_t>& data);
 	void load_mda(const std::vector<uint8_t>& data);
 	void start_midi();
-	bool play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark);
+	bool play_midi(SDL_AtomicInt* current_loop, SDL_AtomicInt* current_mark);
 	int seq() const { return seq_; }
 
 private:
@@ -231,7 +231,7 @@ void Playback::start_midi()
 	play_time = 0;
 }
 
-bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
+bool Playback::play_midi(SDL_AtomicInt* current_loop, SDL_AtomicInt* current_mark)
 {
 	// 経過時間の取得
 	Uint32 current_time = SDL_GetTicks();
@@ -272,7 +272,7 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 						   !play[6].loop_flag && !play[7].loop_flag && !play[8].loop_flag) {
 							// 全チャンネルが再生停止 (ループしない曲)
 							stop_midi();
-							SDL_AtomicSet(current_loop, 1);
+							SDL_SetAtomicInt(current_loop, 1);
 							return false;
 						}
 						play[i].wait_time = 1;
@@ -284,7 +284,7 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 								loop = play[j].loop_cnt;
 							}
 						}
-						SDL_AtomicSet(current_loop, loop);
+						SDL_SetAtomicInt(current_loop, loop);
 						if(loop_ && loop >= loop_) {
 							// 指定回数だけ再生完了
 							stop_midi();
@@ -311,7 +311,7 @@ bool Playback::play_midi(SDL_atomic_t* current_loop, SDL_atomic_t* current_mark)
 					}
 					play[i].note = 128;
 				} else if(d0 == 0xe0) {
-					SDL_AtomicSet(current_mark, mml[i].next());
+					SDL_SetAtomicInt(current_mark, mml[i].next());
 				} else if(d0 == 0xe1) {
 					d1 = mml[i].next();
 					play[i].velocity += (d1 > 127) ? (d1 - 256) : d1;
@@ -638,9 +638,9 @@ MAKOMidi::MAKOMidi(int device)
 		thread = SDL_CreateThread(thread_main, "MAKOMidi", this);
 		queue_mutex = SDL_CreateMutex();
 	}
-	SDL_AtomicSet(&current_seq, 0);
-	SDL_AtomicSet(&current_loop, 0);
-	SDL_AtomicSet(&current_mark, 0);
+	SDL_SetAtomicInt(&current_seq, 0);
+	SDL_SetAtomicInt(&current_loop, 0);
+	SDL_SetAtomicInt(&current_mark, 0);
 }
 
 MAKOMidi::~MAKOMidi()
@@ -666,7 +666,7 @@ bool MAKOMidi::play(const GameId& game_id, Dri& amus, Dri& mda, int page, int lo
 	auto playback = Playback::create(game_id, amus, mda, page, loop, seq);
 	if (!playback)
 		return false;
-	SDL_AtomicSet(&current_seq, seq);
+	SDL_SetAtomicInt(&current_seq, seq);
 	SDL_LockMutex(queue_mutex);
 	queue.push(std::make_unique<MAKOMidi::Command>(Command::PLAY, std::move(playback)));
 	SDL_UnlockMutex(queue_mutex);
@@ -675,7 +675,7 @@ bool MAKOMidi::play(const GameId& game_id, Dri& amus, Dri& mda, int page, int lo
 
 void MAKOMidi::stop()
 {
-	SDL_AtomicSet(&current_seq, 0);
+	SDL_SetAtomicInt(&current_seq, 0);
 	SDL_LockMutex(queue_mutex);
 	queue.push(std::make_unique<MAKOMidi::Command>(Command::STOP));
 	SDL_UnlockMutex(queue_mutex);
@@ -683,13 +683,13 @@ void MAKOMidi::stop()
 
 bool MAKOMidi::is_playing()
 {
-	return SDL_AtomicGet(&current_seq) != 0;
+	return SDL_GetAtomicInt(&current_seq) != 0;
 }
 
 void MAKOMidi::get_mark(int* mark, int* loop)
 {
-	*mark = SDL_AtomicGet(&current_mark);
-	*loop = SDL_AtomicGet(&current_loop);
+	*mark = SDL_GetAtomicInt(&current_mark);
+	*loop = SDL_GetAtomicInt(&current_loop);
 }
 
 void MAKOMidi::thread_loop()
@@ -708,8 +708,8 @@ void MAKOMidi::thread_loop()
 					stop_midi();
 				current = std::move(cmd->playback);
 				current->start_midi();
-				SDL_AtomicSet(&current_loop, 0);
-				SDL_AtomicSet(&current_mark, 0);
+				SDL_SetAtomicInt(&current_loop, 0);
+				SDL_SetAtomicInt(&current_mark, 0);
 				SDL_Delay(100);  // ?
 				break;
 			case Command::STOP:
@@ -726,7 +726,7 @@ void MAKOMidi::thread_loop()
 		SDL_UnlockMutex(queue_mutex);
 		if (current) {
 			if (!current->play_midi(&current_loop, &current_mark)) {
-				SDL_AtomicCAS(&current_seq, current->seq(), 0);
+				SDL_CompareAndSwapAtomicInt(&current_seq, current->seq(), 0);
 				current.reset();
 			}
 		}
@@ -737,7 +737,7 @@ void MAKOMidi::thread_loop()
 // static
 int MAKOMidi::thread_main(void* data)
 {
-	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
+	SDL_SetCurrentThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 
 	MAKOMidi* mm = reinterpret_cast<MAKOMidi*>(data);
 	mm->thread_loop();

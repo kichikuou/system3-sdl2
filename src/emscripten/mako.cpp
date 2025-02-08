@@ -4,7 +4,7 @@
 */
 
 #include <memory>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <emscripten.h>
 #include "mako.h"
 #include "fm/mako_ymfm.h"
@@ -118,7 +118,7 @@ void MAKO::play_pcm(int page, int loops)
 		std::vector<uint8_t> buffer = amse.load(page);
 		if (!buffer.empty()) {
 			// AMSE形式 (乙女戦記)
-			uint32_t amse_size = SDL_SwapLE32(*reinterpret_cast<uint32_t*>(&buffer[8]));
+			uint32_t amse_size = SDL_Swap32LE(*reinterpret_cast<uint32_t*>(&buffer[8]));
 			int samples = (amse_size - 12) * 2;
 			int total = samples + 0x24;
 

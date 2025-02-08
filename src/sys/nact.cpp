@@ -69,17 +69,19 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	mako = new MAKO(config, game_id);
 	msgskip = new MsgSkip();
 
-	SDL_Init(SDL_INIT_GAMECONTROLLER);
-	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
-		if (SDL_IsGameController(i)) {
-			sdl_gamecontroller = SDL_GameControllerOpen(i);
+	SDL_Init(SDL_INIT_GAMEPAD);
+	SDL_JoystickID* ids = SDL_GetJoysticks(nullptr);
+	for (int i = 0; ids[i]; ++i) {
+		if (SDL_IsGamepad(ids[i])) {
+			sdl_gamecontroller = SDL_OpenGamepad(ids[i]);
 			if (sdl_gamecontroller) {
 				break;
 			} else {
-				WARNING("Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+				WARNING("Could not open gamepad %i: %s\n", i, SDL_GetError());
 			}
 		}
 	}
+	SDL_free(ids);
 }
 
 NACT::~NACT()

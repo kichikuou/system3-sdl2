@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <queue>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "common.h"
 
 struct GameId;
@@ -24,11 +24,11 @@ public:
 private:
 	struct Command;
 	std::queue<std::unique_ptr<Command>> queue;
-	SDL_mutex* queue_mutex = nullptr;
+	SDL_Mutex* queue_mutex = nullptr;
 	SDL_Thread* thread = nullptr;
-	SDL_atomic_t current_seq;
-	SDL_atomic_t current_loop;
-	SDL_atomic_t current_mark;
+	SDL_AtomicInt current_seq;
+	SDL_AtomicInt current_loop;
+	SDL_AtomicInt current_mark;
 	int next_seq = 0;
 
 	void thread_loop();

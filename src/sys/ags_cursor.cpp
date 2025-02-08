@@ -78,7 +78,7 @@ void AGS::load_cursor(int page)
 			}
 		}
 		if(hCursor[i]) {
-			SDL_FreeCursor(hCursor[i]);
+			SDL_DestroyCursor(hCursor[i]);
 		}
 		// TODO: fix amask/xmask values
 		hCursor[i] = SDL_CreateCursor(amask, xmask, 32, 32, 2, 2);
@@ -98,13 +98,13 @@ void AGS::translate_mouse_coords(int* x, int* y)
 {
 	// scale mouse x and y
 	float scalex, scaley;
-	SDL_RenderGetScale(g_renderer, &scalex, &scaley);
+	SDL_GetRenderScale(g_renderer, &scalex, &scaley);
 	*x *= scalex;
 	*y *= scaley;
 
 	// calculate window borders
 	int logw, logh;
-	SDL_RenderGetLogicalSize(g_renderer, &logw, &logh);
+	SDL_GetRenderLogicalPresentation(g_renderer, &logw, &logh, NULL);
 
 	float scalew, scaleh;
 	scalew = logw * scalex;

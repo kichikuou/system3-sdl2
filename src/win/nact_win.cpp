@@ -3,7 +3,6 @@
 #undef ERROR
 #include <time.h>
 #include "nact.h"
-#include "SDL_syswm.h"
 #include "encoding.h"
 #include "ags.h"
 #include "mako.h"
@@ -19,10 +18,7 @@ namespace {
 bool auto_copy_enabled = false;
 
 HWND get_hwnd(SDL_Window* window) {
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
-	SDL_GetWindowWMInfo(window, &info);
-	return info.info.win.window;
+	return (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
 }
 
 void init_menu(bool mouse_move_enabled, const Config& config)
@@ -139,7 +135,9 @@ void NACT::platform_initialize()
 	init_menu(mouse_move_enabled, config);
 	if (config.debugger_mode == DebuggerMode::CLI || (config.trace && config.debugger_mode != DebuggerMode::DAP))
 		init_console(game_id.sys_ver);
-	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+	SDL_SetWindowsMessageHook([](void* data, MSG* msg) -> bool {
+        return static_cast<NACT*>(data)->handle_windows_event(msg);
+    }, this);
 }
 
 void NACT::platform_finalize()
@@ -173,13 +171,14 @@ void NACT::set_skip_menu_state(bool enabled, bool checked)
 
 bool NACT::handle_platform_event(const SDL_Event& e)
 {
-	if (e.type != SDL_SYSWMEVENT)
-		return false;
-	const SDL_SysWMmsg* msg = e.syswm.msg;
+	return false;
+}
 
-	switch (msg->msg.win.msg) {
+bool NACT::handle_windows_event(MSG* msg)
+{
+	switch (msg->message) {
 	case WM_COMMAND:
-		switch (msg->msg.win.wParam) {
+		switch (msg->wParam) {
 		case ID_SCREENSHOT:
 			save_screenshot(ags);
 			break;
@@ -190,10 +189,10 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			quit(0);
 			break;
 		case ID_SCREEN_WINDOW:
-			SDL_SetWindowFullscreen(g_window, 0);
+			SDL_SetWindowFullscreen(g_window, false);
 			break;
 		case ID_SCREEN_FULL:
-			SDL_SetWindowFullscreen(g_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			SDL_SetWindowFullscreen(g_window, true);
 			break;
 		case ID_SCANLINE:
 			ags->set_scanline_mode(!ags->get_scanline_mode());
