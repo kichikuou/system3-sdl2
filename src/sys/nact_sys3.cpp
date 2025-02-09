@@ -863,7 +863,7 @@ void NACT_Sys3::cmd_y()
 			ags->extract_cg = (param & 1) ? true : false;
 			break;
 		case 60:
-			ags->scroll = param;
+			ags->scroll = param - 400;
 			ags->flush_screen(false);
 			break;
 		case 61:

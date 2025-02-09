@@ -149,7 +149,7 @@ public:
 	int src_screen;
 	int dest_screen;
 
-	int scroll;
+	int scroll = 0;
 	int window_width, window_height;
 	int screen_width, screen_height;
 

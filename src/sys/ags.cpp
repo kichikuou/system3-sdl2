@@ -48,7 +48,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 		window_width = screen_width = 640;
 		window_height = screen_height = 400;
 	}
-	scroll = screen_height;
 
 	SDL_SetWindowSize(g_window, window_width, window_height);
 	SDL_RenderSetLogicalSize(g_renderer, window_width, window_height);
@@ -425,12 +424,7 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 
 void AGS::invalidate_screen(int sx, int sy, int width, int height)
 {
-	int top = screen_height == 400 ? sy + (scroll - 400) : sy;
-	if (top < 0) {
-		height += top;
-		top = 0;
-	}
-	uint32* pixels = surface_line(hBmpDest, top) + sx;
+	uint32* pixels = surface_line(hBmpDest, sy) + sx;
 	if (sy + height > screen_height)
 		height = screen_height - sy;
 	if (sx + width > hBmpDest->w)
@@ -445,7 +439,18 @@ void AGS::update_screen()
 	if (!dirty)
 		return;
 	SDL_RenderClear(g_renderer);
-	SDL_RenderCopy(g_renderer, sdlTexture, NULL, NULL);
+
+	SDL_Rect src = {0, 0, screen_width, screen_height};
+	SDL_Rect dest = {0, 0, screen_width, screen_height};
+	if (scroll > 0) {
+		src.y = scroll;
+		src.h = dest.h = screen_height - scroll;
+	} else if (scroll < 0) {
+		dest.y = -scroll;
+		src.h = dest.h = screen_height + scroll;
+	}
+	SDL_RenderCopy(g_renderer, sdlTexture, &src, &dest);
+
 	if (fade_level) {
 		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 		SDL_SetRenderDrawColor(g_renderer, fade_color, fade_color, fade_color, fade_level);
