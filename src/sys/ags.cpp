@@ -48,7 +48,8 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 		window_height = screen_height = 400;
 	}
 
-	SDL_SetWindowSize(g_window, window_width, window_height);
+	float display_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+	SDL_SetWindowSize(g_window, window_width * display_scale, window_height * display_scale);
 	SDL_SetRenderLogicalPresentation(g_renderer, window_width, window_height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, screen_width, screen_height);
 	scanline_texture = NULL;
