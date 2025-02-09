@@ -168,7 +168,6 @@ void AGS::open_text_window(int index, bool erase)
 		w.screen = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_INDEX8);
 		w.screen_x = sx;
 		w.screen_y = sy;
-		SDL_SetPaletteColors(SDL_GetSurfacePalette(w.screen), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(hBmpScreen[0], &rect, w.screen, NULL);
@@ -184,11 +183,9 @@ void AGS::open_text_window(int index, bool erase)
 		width = w.window->w;
 		height = w.window->h;
 
-		SDL_SetSurfacePalette(hBmpScreen[0], SDL_GetSurfacePalette(w.window));
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(w.window, NULL, hBmpScreen[0], &rect);
 		draw_screen(sx, sy, width, height);
-		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 
 	text.reset_pos(w.sx, w.sy + text.line_space);
@@ -213,7 +210,6 @@ void AGS::close_text_window(int index, bool update)
 		w.window = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_INDEX8);
 		w.window_x = sx;
 		w.window_y = sy;
-		SDL_SetPaletteColors(SDL_GetSurfacePalette(w.window), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(hBmpScreen[0], &rect, w.window, NULL);
@@ -226,11 +222,9 @@ void AGS::close_text_window(int index, bool update)
 		width = w.screen->w;
 		height = w.screen->h;
 
-		SDL_SetSurfacePalette(hBmpScreen[0], SDL_GetSurfacePalette(w.screen));
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(w.screen, NULL, hBmpScreen[0], &rect);
 		draw_screen(sx, sy, width, height);
-		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 
 	if(update) {
@@ -281,7 +275,6 @@ void AGS::open_menu_window(int index)
 		w.screen = SDL_CreateSurface(wwidth, wheight, SDL_PIXELFORMAT_INDEX8);
 		w.screen_x = wsx;
 		w.screen_y = wsy;
-		SDL_SetPaletteColors(SDL_GetSurfacePalette(w.screen), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {wsx, wsy, wwidth, wheight};
 		SDL_BlitSurface(hBmpScreen[0], &rect, w.screen, NULL);
@@ -318,11 +311,9 @@ void AGS::close_menu_window(int index)
 	Window &w = menu_w[index - 1];
 	// 画面復帰
 	if (w.save && w.screen) {
-		SDL_SetSurfacePalette(hBmpScreen[0], SDL_GetSurfacePalette(w.screen));
 		SDL_Rect rect = {w.screen_x, w.screen_y, w.screen->w, w.screen->h};
 		SDL_BlitSurface(w.screen, NULL, hBmpScreen[0], &rect);
 		draw_screen(w.screen_x, w.screen_y, w.screen->w, w.screen->h);
-		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 }
 
