@@ -57,7 +57,8 @@ SDL_Window* create_window(const GameId& game_id)
 #else
 	const char *window_title = title.c_str();
 #endif
-	return SDL_CreateWindow(window_title, 640, 400, flags);
+	float display_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+	return SDL_CreateWindow(window_title, 640 * display_scale, 400 * display_scale, flags);
 }
 
 } // namespace
