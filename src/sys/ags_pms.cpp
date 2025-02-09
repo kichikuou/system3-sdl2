@@ -8,7 +8,7 @@
 #include "game_id.h"
 #include <string.h>
 
-void AGS::load_pms(uint8* data, int page, int transparent)
+void AGS::load_pms(uint8* data, bool set_palette, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0x0] | (data[0x1] << 8);
@@ -63,34 +63,26 @@ void AGS::load_pms(uint8* data, int page, int transparent)
 	}
 
 	// パレット展開
-	if (game_id.sys_ver == 3) {
-		if ((extract_palette && extract_palette_cg[page]) || game_id.is(GameId::FUNNYBEE_CD)) {
-			if (game_id.is_rance4x() || game_id.is(GameId::HASHIRIONNA2)) {
-				// 上下16色は展開しない
-				for(int i = 1; i < 15; i++) {
-					if (!(mask & 1 << i)) {
-						SDL_SetPaletteColors(screen_palette, program_palette->colors + i * 16, i * 16, 16);
-					}
-				}
-			} else if (game_id.is(GameId::MUGEN) && transparent != -1) {
-				// Uコマンドでは上下32色は展開しない
-				for(int i = 2; i < 14; i++) {
-					if (!(mask & 1 << i)) {
-						SDL_SetPaletteColors(screen_palette, program_palette->colors + i * 16, i * 16, 16);
-					}
-				}
-			} else {
-				for(int i = 0; i < 16; i++) {
-					if (!(mask & 1 << i)) {
-						SDL_SetPaletteColors(screen_palette, program_palette->colors + i * 16, i * 16, 16);
-					}
+	if (set_palette) {
+		if (game_id.is_rance4x() || game_id.is(GameId::HASHIRIONNA2)) {
+			// 上下16色は展開しない
+			for(int i = 1; i < 15; i++) {
+				if (!(mask & 1 << i)) {
+					SDL_SetPaletteColors(screen_palette, program_palette->colors + i * 16, i * 16, 16);
 				}
 			}
-		}
-	} else if(extract_palette && extract_palette_cg[page]) {
-		for(int i = 0; i < 16; i++) {
-			if (!(mask & 1 << i)) {
-				SDL_SetPaletteColors(screen_palette, program_palette->colors + i * 16, i * 16, 16);
+		} else if (game_id.is(GameId::MUGEN) && transparent != -1) {
+			// Uコマンドでは上下32色は展開しない
+			for(int i = 2; i < 14; i++) {
+				if (!(mask & 1 << i)) {
+					SDL_SetPaletteColors(screen_palette, program_palette->colors + i * 16, i * 16, 16);
+				}
+			}
+		} else {
+			for(int i = 0; i < 16; i++) {
+				if (!(mask & 1 << i)) {
+					SDL_SetPaletteColors(screen_palette, program_palette->colors + i * 16, i * 16, 16);
+				}
 			}
 		}
 	}

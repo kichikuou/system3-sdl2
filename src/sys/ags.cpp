@@ -227,9 +227,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	// CG表示
 	set_cg_dest = false;
 	cg_dest_x = cg_dest_y = 0;
-	for(int i = 0; i < MAX_CG; i++) {
-		extract_palette_cg[i] = true;
-	}
 	get_palette = extract_palette = extract_cg = true;
 	palette_bank = -1;
 

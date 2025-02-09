@@ -25,48 +25,53 @@ void AGS::load_cg(int page, int transparent)
 	std::vector<uint8_t> data = acg.load(page);
 	if (data.empty())
 		return;
+
+	bool set_palette = extract_palette && !ignore_palette.count(page);
+
 	switch (game_id.sys_ver) {
 	case 1:
 		switch (game_id.game) {
 		case GameId::BUNKASAI:
 		case GameId::GAKUEN:
-			load_vsp(data.data(), page, transparent);
+			load_vsp(data.data(), set_palette, transparent);
 			break;
 		case GameId::INTRUDER:
-			// load_gm3(data.data(), page, transparent);
-			load_vsp(data.data(), page, transparent);	// 暫定
+			// load_gm3(data.data(), transparent);
+			load_vsp(data.data(), set_palette, transparent);	// 暫定
 			break;
 		case GameId::LITTLE_VAMPIRE:
-			load_vsp2l(data.data(), page, transparent);
+			load_vsp2l(data.data(), transparent);
 			break;
 		default:
-			load_gl3(data.data(), page, transparent);
+			load_gl3(data.data(), set_palette, transparent);
 			break;
 		}
 		break;
 	case 2:
 		if (game_id.is(GameId::AYUMI_PROTO)) {
 			// あゆみちゃん物語 PROTO
-			load_gl3(data.data(), page, transparent);
+			load_gl3(data.data(), set_palette, transparent);
 		} else if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT)) {
 			// あゆみちゃん物語
-			load_vsp(data.data(), page, transparent);
+			load_vsp(data.data(), set_palette, transparent);
 		} else if (game_id.is_sdps()) {
 			// Super D.P.S
-			load_pms(data.data(), page, transparent);
+			load_pms(data.data(), set_palette, transparent);
 		} else {
 			if(data[0x8] == 0) {
-				load_vsp(data.data(), page, transparent);
+				load_vsp(data.data(), set_palette, transparent);
 			} else {
-				load_pms(data.data(), page, transparent);
+				load_pms(data.data(), set_palette, transparent);
 			}
 		}
 		break;
 	case 3:
 		if(data[0x8] == 0) {
-			load_vsp(data.data(), page, transparent);
+			if (game_id.is(GameId::FUNNYBEE_FD) || game_id.is(GameId::FUNNYBEE_CD))
+				set_palette = !ignore_palette.count(page);
+			load_vsp(data.data(), set_palette, transparent);
 		} else {
-			load_pms(data.data(), page, transparent);
+			load_pms(data.data(), set_palette || game_id.is(GameId::FUNNYBEE_CD), transparent);
 		}
 		break;
 	}

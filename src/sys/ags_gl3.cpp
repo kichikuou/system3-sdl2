@@ -7,7 +7,7 @@
 #include "ags.h"
 #include <string.h>
 
-void AGS::load_gl3(uint8* data, int page, int transparent)
+void AGS::load_gl3(uint8* data, bool set_palette, int transparent)
 {
 	// ヘッダ取得
 	uint16 tmp = (data[0x30] | (data[0x31] << 8)) - 0x8000;
@@ -42,7 +42,7 @@ void AGS::load_gl3(uint8* data, int page, int transparent)
 	}
 
 	// パレット展開
-	if(extract_palette && extract_palette_cg[page]) {
+	if (set_palette) {
 		SDL_SetPaletteColors(screen_palette, program_palette->colors + base, base, 16);
 	}
 

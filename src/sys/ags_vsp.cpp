@@ -8,7 +8,7 @@
 #include "game_id.h"
 #include <string.h>
 
-void AGS::load_vsp(uint8* data, int page, int transparent)
+void AGS::load_vsp(uint8* data, bool set_palette, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0] | (data[1] << 8);
@@ -51,14 +51,8 @@ void AGS::load_vsp(uint8* data, int page, int transparent)
 	}
 
 	// パレット展開
-	if (game_id.is(GameId::FUNNYBEE_FD) || game_id.is(GameId::FUNNYBEE_CD)) {
-		if(extract_palette_cg[page]) {
-			SDL_SetPaletteColors(screen_palette, program_palette->colors + base, base, 16);
-		}
-	} else {
-		if(extract_palette && extract_palette_cg[page]) {
-			SDL_SetPaletteColors(screen_palette, program_palette->colors + base, base, 16);
-		}
+	if (set_palette) {
+		SDL_SetPaletteColors(screen_palette, program_palette->colors + base, base, 16);
 	}
 
 	// VSP展開

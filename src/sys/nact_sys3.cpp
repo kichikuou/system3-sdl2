@@ -779,7 +779,7 @@ void NACT_Sys3::cmd_y()
 			tvar_index = param;
 			break;
 		case 10:
-			ags->extract_palette_cg[param] = false;
+			ags->ignore_palette.insert(param);
 			break;
 		case 13:
 			if(param == 0 || param == 1) {

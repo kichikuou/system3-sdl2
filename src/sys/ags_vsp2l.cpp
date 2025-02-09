@@ -7,7 +7,7 @@
 #include "ags.h"
 #include <string.h>
 
-void AGS::load_vsp2l(uint8* data, int page, int transparent)
+void AGS::load_vsp2l(uint8* data, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0] | (data[1] << 8);

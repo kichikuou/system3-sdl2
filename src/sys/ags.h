@@ -8,6 +8,7 @@
 #define _AGS_H_
 
 #include <algorithm>
+#include <unordered_set>
 #include <vector>
 #include <memory>
 #include <stdio.h>
@@ -15,8 +16,6 @@
 #include "game_id.h"
 #include "dri.h"
 #include <SDL_ttf.h>
-
-#define MAX_CG 10000
 
 inline uint32* surface_line(SDL_Surface* surface, int y)
 {
@@ -54,12 +53,12 @@ private:
 	SDL_Cursor* hCursor[10];
 
 	// AGS
-	void load_gm3(uint8* data, int page, int transparent);		// Intruder -桜屋敷の探索-
-	void load_vsp2l(uint8* data, int page, int transparent);	// Little Vampire
-	void load_gl3(uint8* data, int page, int transparent);
-	void load_pms(uint8* data, int page, int transparent);
+	void load_gm3(uint8* data, int transparent);		// Intruder -桜屋敷の探索-
+	void load_vsp2l(uint8* data, int transparent);	// Little Vampire
+	void load_gl3(uint8* data, bool set_palette, int transparent);
+	void load_pms(uint8* data, bool set_palette, int transparent);
 	void load_bmp(const char* file_name);				// あゆみちゃん物語 フルカラー実写版
-	void load_vsp(uint8* data, int page, int transparent);
+	void load_vsp(uint8* data, bool set_palette, int transparent);
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);
@@ -192,7 +191,7 @@ public:
 	bool get_palette;
 	bool extract_palette;
 	bool extract_cg;
-	bool extract_palette_cg[MAX_CG];
+	std::unordered_set<int> ignore_palette;
 	int palette_bank;
 
 	// マウスカーソル
