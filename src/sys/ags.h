@@ -35,7 +35,6 @@ private:
 
 	// Surface
 	SDL_Surface* hBmpScreen[3]; // 8bpp * 3 (表, 裏, メニュー)
-	SDL_Surface* hBmpDest; // DIBSection 24bpp (最終出力先)
 	uint8_t (*vram[3])[640];  // convenience pointer to hBmpScreen[i]->pixels
 
 	SDL_Palette* program_palette;
@@ -65,7 +64,6 @@ private:
 	void draw_gaiji(int dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color);
 
 	void draw_screen(int sx, int sy, int width, int heignt);
-	void invalidate_screen(int sx, int sy, int width, int height);
 
 	uint8_t palR(uint8_t col) const { return screen_palette->colors[col].r; }
 	uint8_t palG(uint8_t col) const { return screen_palette->colors[col].g; }
@@ -140,7 +138,7 @@ public:
 
 	bool get_scanline_mode() const { return scanline_texture; }
 	void set_scanline_mode(bool enable);
-	void save_screenshot(const char* path);
+	bool save_screenshot(const char* path);
 	int calculate_menu_max(int window);
 
 	bool dirty;

@@ -13,7 +13,6 @@
 
 extern SDL_Window* g_window;
 extern SDL_Renderer* g_renderer;
-static SDL_Surface* display_surface;
 
 namespace {
 
@@ -51,7 +50,7 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 
 	SDL_SetWindowSize(g_window, window_width, window_height);
 	SDL_RenderSetLogicalSize(g_renderer, window_width, window_height);
-	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, screen_width, screen_height); // TOOD: pixelformat?
+	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, screen_width, screen_height);
 	scanline_texture = NULL;
 
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
@@ -64,9 +63,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(
 	screen_palette = hBmpScreen[0]->format->palette;
 	SDL_SetSurfacePalette(hBmpScreen[1], screen_palette);
 	SDL_SetSurfacePalette(hBmpScreen[2], screen_palette);
-
-	// DIBSection 24bpp * 1 (最終出力先)
-	display_surface = hBmpDest = SDL_CreateRGBSurface(0, 640, 480, 32, 0, 0, 0, 0);
 
 	// フォント
 	TTF_Init();
@@ -261,8 +257,6 @@ AGS::~AGS()
 		SDL_FreeSurface(hBmpScreen[i]);
 	}
 
-	SDL_FreeSurface(hBmpDest);
-
 	SDL_DestroyTexture(sdlTexture);
 }
 
@@ -408,29 +402,21 @@ void AGS::fade_in(int duration_ms)
 
 void AGS::flush_screen(bool update)
 {
-	if(update) {
-		SDL_Rect rect = {0, 0, screen_width, screen_height};
-		SDL_BlitSurface(hBmpScreen[0], &rect, hBmpDest, &rect);
-	}
-	invalidate_screen(0, 0, screen_width, screen_height);
+	if (update)
+		draw_screen(0, 0, screen_width, screen_height);
+	else
+		dirty = true;
 }
 
 void AGS::draw_screen(int sx, int sy, int width, int height)
 {
 	SDL_Rect rect = {sx, sy, width, height};
-	SDL_BlitSurface(hBmpScreen[0], &rect, hBmpDest, &rect);
-	invalidate_screen(sx, sy, width, height);
-}
-
-void AGS::invalidate_screen(int sx, int sy, int width, int height)
-{
-	uint32* pixels = surface_line(hBmpDest, sy) + sx;
-	if (sy + height > screen_height)
-		height = screen_height - sy;
-	if (sx + width > hBmpDest->w)
-		width = hBmpDest->w - sx;
-	SDL_Rect rect = {sx, sy, width, height};
-	SDL_UpdateTexture(sdlTexture, &rect, pixels, hBmpDest->pitch);
+	SDL_Rect screen_rect = {0, 0, screen_width, screen_height};
+	SDL_IntersectRect(&rect, &screen_rect, &rect);
+	SDL_Surface *sf;
+	SDL_LockTextureToSurface(sdlTexture, &rect, &sf);
+	SDL_BlitSurface(hBmpScreen[0], &rect, sf, NULL);
+	SDL_UnlockTexture(sdlTexture);
 	dirty = true;
 }
 
@@ -478,11 +464,10 @@ void AGS::set_scanline_mode(bool enable)
 	}
 }
 
-void AGS::save_screenshot(const char* path)
+bool AGS::save_screenshot(const char* path)
 {
 	SDL_Surface* sf = SDL_CreateRGBSurface(0, screen_width, screen_height, 32, 0, 0, 0, 0);
-	SDL_Rect r = {0, 0, screen_width, screen_height};
-	SDL_BlitSurface(hBmpDest, &r, sf, NULL);
+	SDL_BlitSurface(hBmpScreen[0], NULL, sf, NULL);
 
 	if (scanline_texture) {
 		SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(sf);
@@ -492,13 +477,15 @@ void AGS::save_screenshot(const char* path)
 		SDL_DestroyRenderer(renderer);
 	}
 
-	if (SDL_SaveBMP(sf, path) != 0) {
+	bool ok = SDL_SaveBMP(sf, path) == 0;
+	if (!ok) {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3",
 								 SDL_GetError(), g_window);
 		SDL_ClearError();
 	}
 
 	SDL_FreeSurface(sf);
+	return ok;
 }
 
 int AGS::calculate_menu_max(int window) {
@@ -512,10 +499,8 @@ int AGS::calculate_menu_max(int window) {
 #ifdef __EMSCRIPTEN__
 extern "C" {
 
-void* EMSCRIPTEN_KEEPALIVE sdl_getDisplaySurface() {
-	if (SDL_MUSTLOCK(display_surface))
-		return NULL;
-	return display_surface->pixels;
+bool EMSCRIPTEN_KEEPALIVE save_screenshot(const char* path) {
+	return g_nact->ags->save_screenshot(path);
 }
 
 }

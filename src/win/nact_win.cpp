@@ -193,11 +193,11 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			break;
 		case ID_SCREEN_WINDOW:
 			SDL_SetWindowFullscreen(g_window, 0);
-			ags->flush_screen(true);
+			ags->flush_screen(false);
 			break;
 		case ID_SCREEN_FULL:
 			SDL_SetWindowFullscreen(g_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-			ags->flush_screen(true);
+			ags->flush_screen(false);
 			break;
 		case ID_SCANLINE:
 			ags->set_scanline_mode(!ags->get_scanline_mode());
