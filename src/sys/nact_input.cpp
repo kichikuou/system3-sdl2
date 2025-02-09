@@ -20,6 +20,7 @@ enum TouchState {
 };
 
 extern SDL_Window* g_window;
+extern SDL_Renderer* g_renderer;
 
 namespace {
 
@@ -57,15 +58,17 @@ void NACT::handle_event(SDL_Event e)
 #endif
 
 	case SDL_EVENT_MOUSE_MOTION :
-		mousex = e.motion.x * ags->screen_width / ags->window_width;
-		mousey = e.motion.y * ags->screen_height / ags->window_height;
+		SDL_ConvertEventToRenderCoordinates(g_renderer, &e);
+		mousex = e.motion.x;
+		mousey = e.motion.y;
 		break;
 
 	case SDL_EVENT_FINGER_DOWN :
 	case SDL_EVENT_FINGER_UP :
 	case SDL_EVENT_FINGER_MOTION :
-		mousex = e.tfinger.x * ags->screen_width;
-		mousey = e.tfinger.y * ags->screen_height;
+		SDL_ConvertEventToRenderCoordinates(g_renderer, &e);
+		mousex = e.tfinger.x;
+		mousey = e.tfinger.y;
 		switch (GetNumTouchFingers(e.tfinger.touchID)) {
 		case 0:
 			touch_state = TOUCH_NONE;
