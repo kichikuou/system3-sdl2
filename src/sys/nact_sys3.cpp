@@ -14,6 +14,7 @@
 #include "fileio.h"
 #include "encoding.h"
 #include "texthook.h"
+#include "debugger/debugger.h"
 
 #define D01 var[ 1]
 #define D02 var[ 2]
@@ -606,7 +607,10 @@ void NACT_Sys3::cmd_p()
 	TRACE("P %d,%d,%d,%d:", index, r, g, b);
 
 	ags->set_palette(index, r, g, b);
-	set_palette = true;
+#ifdef ENABLE_DEBUGGER
+	if (g_debugger)
+		g_debugger->on_palette_change();
+#endif
 }
 
 void NACT_Sys3::cmd_q()
@@ -864,7 +868,6 @@ void NACT_Sys3::cmd_y()
 			break;
 		case 60:
 			ags->scroll = param - 400;
-			ags->flush_screen(false);
 			break;
 		case 61:
 			if(param) {

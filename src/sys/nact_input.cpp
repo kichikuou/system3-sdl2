@@ -36,15 +36,6 @@ void NACT::handle_event(SDL_Event e)
 		quit(0);
 		break;
 
-	case SDL_WINDOWEVENT:
-		switch (e.window.event) {
-		case SDL_WINDOWEVENT_EXPOSED:
-		case SDL_WINDOWEVENT_SIZE_CHANGED:
-			ags->flush_screen(false);
-			break;
-		}
-		break;
-
 	case SDL_MOUSEMOTION:
 		mousex = e.motion.x * ags->screen_width / ags->window_width;
 		mousey = e.motion.y * ags->screen_height / ags->window_height;
@@ -74,10 +65,6 @@ void NACT::handle_event(SDL_Event e)
 			touch_state = TOUCH_RBUTTON;
 			break;
 		}
-		break;
-
-	case SDL_APP_DIDENTERFOREGROUND:
-		ags->flush_screen(false);
 		break;
 
 	default:

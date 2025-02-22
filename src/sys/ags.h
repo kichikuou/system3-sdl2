@@ -84,8 +84,6 @@ public:
 
 	void update_screen();
 
-	void flush_screen(bool update);
-
 	void load_cg(int page, int transparent);
 	void set_cg_file(const char *file_name);
 
@@ -141,7 +139,7 @@ public:
 	bool save_screenshot(const char* path);
 	int calculate_menu_max(int window);
 
-	bool dirty;
+	SDL_Rect dirty_rect = {};
 
 	// 画面選択
 	int src_screen;

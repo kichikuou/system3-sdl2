@@ -132,7 +132,6 @@ protected:
 	std::string caption_obj[MAX_OBJ];
 
 	bool verb_obj = false;	// 動詞-形容詞型メニューの定義中
-	bool set_palette = false;
 
 	// 下位関数
 	bool is_message(uint8_t c) { return c == ' ' || c & 0x80; }

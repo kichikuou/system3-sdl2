@@ -36,7 +36,7 @@ SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int heig
 
 } // namespace
 
-AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id), dirty(false)
+AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 {
 	// 画面サイズ
 	if (game_id.is(GameId::GAKUEN)) {
@@ -357,6 +357,7 @@ void AGS::set_palette(int index, uint8_t r, uint8_t g, uint8_t b)
 	}
 	SDL_SetPaletteColors(screen_palette, &color, index, 1);
 	SDL_SetPaletteColors(program_palette, &color, index, 1);
+	dirty_rect = {0, 0, screen_width, screen_height};
 }
 
 std::vector<uint32_t> AGS::get_screen_palette() const
@@ -380,7 +381,6 @@ void AGS::fade_out(int duration_ms, bool white)
 		g_nact->sys_sleep(16);
 		int t = SDL_GetTicks() - dwStart;
 		fade_level = t >= duration_ms ? 255 : t * 255 / duration_ms;
-		dirty = true;
 	}
 	update_screen();
 }
@@ -395,17 +395,8 @@ void AGS::fade_in(int duration_ms)
 		g_nact->sys_sleep(16);
 		int t = SDL_GetTicks() - dwStart;
 		fade_level = t >= duration_ms ? 0 : (duration_ms - t) * 255 / duration_ms;
-		dirty = true;
 	}
 	update_screen();
-}
-
-void AGS::flush_screen(bool update)
-{
-	if (update)
-		draw_screen(0, 0, screen_width, screen_height);
-	else
-		dirty = true;
 }
 
 void AGS::draw_screen(int sx, int sy, int width, int height)
@@ -413,19 +404,20 @@ void AGS::draw_screen(int sx, int sy, int width, int height)
 	SDL_Rect rect = {sx, sy, width, height};
 	SDL_Rect screen_rect = {0, 0, screen_width, screen_height};
 	SDL_IntersectRect(&rect, &screen_rect, &rect);
-	SDL_Surface *sf;
-	SDL_LockTextureToSurface(sdlTexture, &rect, &sf);
-	SDL_BlitSurface(hBmpScreen[0], &rect, sf, NULL);
-	SDL_UnlockTexture(sdlTexture);
-	dirty = true;
+	SDL_UnionRect(&dirty_rect, &rect, &dirty_rect);
 }
 
 void AGS::update_screen()
 {
-	if (!dirty)
-		return;
-	SDL_RenderClear(g_renderer);
+	if (!SDL_RectEmpty(&dirty_rect)) {
+		SDL_Surface *sf;
+		SDL_LockTextureToSurface(sdlTexture, &dirty_rect, &sf);
+		SDL_BlitSurface(hBmpScreen[0], &dirty_rect, sf, NULL);
+		SDL_UnlockTexture(sdlTexture);
+		dirty_rect = {};
+	}
 
+	SDL_RenderClear(g_renderer);
 	SDL_Rect src = {0, 0, screen_width, screen_height};
 	SDL_Rect dest = {0, 0, screen_width, screen_height};
 	if (scroll > 0) {
@@ -447,20 +439,15 @@ void AGS::update_screen()
 	if (scanline_texture)
 		SDL_RenderCopy(g_renderer, scanline_texture, NULL, NULL);
 	SDL_RenderPresent(g_renderer);
-	dirty = false;
 }
 
 void AGS::set_scanline_mode(bool enable)
 {
 	if (enable && !scanline_texture) {
 		scanline_texture = create_scanline_texture(g_renderer, screen_width, screen_height);
-		dirty = true;
-		update_screen();
 	} else if (!enable && scanline_texture) {
 		SDL_DestroyTexture(scanline_texture);
 		scanline_texture = NULL;
-		dirty = true;
-		update_screen();
 	}
 }
 
