@@ -71,14 +71,18 @@ void AGS::load_cg(int page, int transparent)
 				set_palette = !ignore_palette.count(page);
 			load_vsp(data.data(), set_palette, transparent);
 		} else {
-			load_pms(data.data(), set_palette || game_id.is(GameId::FUNNYBEE_CD), transparent);
+			set_palette = set_palette || game_id.is(GameId::FUNNYBEE_CD);
+			load_pms(data.data(), set_palette, transparent);
 		}
 		break;
 	}
+	if (set_palette) {
+		dirty_rect = {0, 0, screen_width, screen_height};
 #ifdef ENABLE_DEBUGGER
-	if (g_debugger)
-		g_debugger->on_palette_change();
+		if (g_debugger)
+			g_debugger->on_palette_change();
 #endif
+	}
 }
 
 void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)
