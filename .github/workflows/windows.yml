@@ -23,8 +23,8 @@ jobs:
       with:
         msystem: ${{ matrix.sys }}
         pacboy: >-
-          SDL2:p
-          SDL2_ttf:p
+          sdl3:p
+          sdl3-ttf:p
           rtmidi:p
           nlohmann-json:p
 
