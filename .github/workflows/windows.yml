@@ -8,10 +8,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - sys: mingw32
-            package: "system3-sdl2-32bit"
+          - sys: mingw64
+            package: "system3-sdl2-mingw64"
           - sys: ucrt64
-            package: "system3-sdl2-64bit"
+            package: "system3-sdl2-ucrt64"
     defaults:
       run:
         shell: msys2 {0}
@@ -22,9 +22,10 @@ jobs:
       uses: msys2/setup-msys2@v2
       with:
         msystem: ${{ matrix.sys }}
+        update: true
         pacboy: >-
-          SDL2:p
-          SDL2_ttf:p
+          sdl3:p
+          sdl3-ttf:p
           rtmidi:p
           nlohmann-json:p
 
