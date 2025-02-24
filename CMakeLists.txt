@@ -78,20 +78,20 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
   if (MSVC)
     include(FetchContent)
-    FetchContent_Declare(sdl2
-      URL https://github.com/libsdl-org/SDL/releases/download/release-2.32.2/SDL2-devel-2.32.2-VC.zip
-      URL_HASH SHA1=08737e7e813443e47b663be4d91f8a4d8de6916b)
-    FetchContent_MakeAvailable(sdl2)
-    find_package(SDL2 REQUIRED CONFIG PATHS ${sdl2_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
-    get_target_property(SDL2_DLL SDL2::SDL2 IMPORTED_LOCATION)
+    FetchContent_Declare(sdl3
+      URL https://github.com/libsdl-org/SDL/releases/download/release-3.2.24/SDL3-devel-3.2.24-VC.zip
+      URL_HASH SHA1=9874438f58da720f52eb27dda5dbfed6a86cbd00)
+    FetchContent_MakeAvailable(sdl3)
+    find_package(SDL3 REQUIRED CONFIG PATHS ${sdl3_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
+    get_target_property(SDL3_DLL SDL3::SDL3 IMPORTED_LOCATION)
 
-    FetchContent_Declare(sdl2_ttf
-      URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.22.0/SDL2_ttf-devel-2.22.0-VC.zip
-      URL_HASH SHA1=2d4f131909af2985b5ebc5ed296d28628c87c243)
-    FetchContent_MakeAvailable(sdl2_ttf)
-    find_package(SDL2_ttf REQUIRED CONFIG PATHS ${sdl2_ttf_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
-    get_target_property(SDL2TTF_DLL SDL2_ttf::SDL2_ttf IMPORTED_LOCATION)
-    get_filename_component(SDL2TTF_LIBDIR ${SDL2TTF_DLL} DIRECTORY)
+    FetchContent_Declare(sdl3_ttf
+      URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.2.2/SDL3_ttf-devel-3.2.2-VC.zip
+      URL_HASH SHA1=3786bc016d89ca4cf9739e4d342ca29e3e29c137)
+    FetchContent_MakeAvailable(sdl3_ttf)
+    find_package(SDL3_ttf REQUIRED CONFIG PATHS ${sdl3_ttf_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
+    get_target_property(SDL3TTF_DLL SDL3_ttf::SDL3_ttf IMPORTED_LOCATION)
+    get_filename_component(SDL3TTF_LIBDIR ${SDL3TTF_DLL} DIRECTORY)
 
     FetchContent_Declare(rtmidi
       URL https://github.com/thestk/rtmidi/archive/refs/tags/6.0.0.zip
@@ -113,13 +113,13 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
     target_compile_definitions(system3 PRIVATE _CRT_NONSTDC_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
     target_compile_options(system3 PRIVATE /utf-8 /wd4244)
-    target_link_libraries(system3 PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2_ttf::SDL2_ttf)
+    target_link_libraries(system3 PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf)
     set_target_properties(system3 PROPERTIES
       WIN32_EXECUTABLE TRUE
-      VS_DEBUGGER_ENVIRONMENT "PATH=${SDL2_LIBDIR}$<SEMICOLON>${SDL2TTF_LIBDIR}$<SEMICOLON>$ENV{PATH}")
+      VS_DEBUGGER_ENVIRONMENT "PATH=${SDL3_LIBDIR}$<SEMICOLON>${SDL3TTF_LIBDIR}$<SEMICOLON>$ENV{PATH}")
     set_directory_properties(PROPERTIES VS_STARTUP_PROJECT system3)
 
-    install(FILES ${SDL2_DLL} ${SDL2TTF_DLL} DESTINATION .)
+    install(FILES ${SDL3_DLL} ${SDL3TTF_DLL} DESTINATION .)
     install(TARGETS system3 RUNTIME DESTINATION .)
   else()
     include(FindPkgConfig)
