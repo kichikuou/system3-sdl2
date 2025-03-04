@@ -185,7 +185,7 @@ void MAKO::get_mark(int* mark, int* loop)
 	midi->get_mark(mark, loop);
 }
 
-void MAKO::play_pcm(int page, bool loop)
+void MAKO::play_pcm(int page, int loops)
 {
 	static char header[44] = {
 		'R' , 'I' , 'F' , 'F' , 0x00, 0x00, 0x00, 0x00, 'W' , 'A' , 'V' , 'E' , 'f' , 'm' , 't' , ' ' ,
@@ -199,13 +199,14 @@ void MAKO::play_pcm(int page, bool loop)
 	if (!buffer.empty()) {
 		// WAV形式 (Only You)
 		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(buffer.data(), buffer.size()), 1 /* freesrc */);
-		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
+		Mix_PlayChannel(-1, mix_chunk, loops ? loops : -1);
 		return;
 	}
 	buffer = amse.load(page);
 	if (!buffer.empty()) {
 		// AMSE形式 (乙女戦記)
-		int samples = (buffer.size() - 12) * 2;
+		uint32_t amse_size = SDL_SwapLE32(*reinterpret_cast<uint32_t*>(&buffer[8]));
+		int samples = (amse_size - 12) * 2;
 		int total = samples + 0x24;
 
 		uint8* wav = (uint8*)malloc(total + 8);
@@ -218,14 +219,14 @@ void MAKO::play_pcm(int page, bool loop)
 		wav[41] = (samples >>  8) & 0xff;
 		wav[42] = (samples >> 16) & 0xff;
 		wav[43] = (samples >> 24) & 0xff;
-		for (size_t i = 12, p = 44; i < buffer.size(); i++) {
+		for (uint32_t i = 12, p = 44; i < amse_size; i++) {
 			wav[p++] = buffer[i] & 0xf0;
 			wav[p++] = (buffer[i] & 0x0f) << 4;
 		}
 
 		mix_chunk = Mix_LoadWAV_RW(SDL_RWFromConstMem(wav, total + 8), 1 /* freesrc */);
 		free(wav);
-		Mix_PlayChannel(-1, mix_chunk, loop ? -1 : 0);
+		Mix_PlayChannel(-1, mix_chunk, loops ? loops : -1);
 	}
 }
 

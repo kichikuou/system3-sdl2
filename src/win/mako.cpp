@@ -408,7 +408,7 @@ void MAKO::get_mark(int* mark, int* loop)
 	midi->get_mark(mark, loop);
 }
 
-void MAKO::play_pcm(int page, bool loop)
+void MAKO::play_pcm(int page, int loops)
 {
 	static char header[44] = {
 		'R' , 'I' , 'F' , 'F' , 0x00, 0x00, 0x00, 0x00, 'W' , 'A' , 'V' , 'E' , 'f' , 'm' , 't' , ' ' ,
@@ -424,7 +424,8 @@ void MAKO::play_pcm(int page, bool loop)
 		std::vector<uint8_t> buffer = amse.load(page);
 		if (!buffer.empty()) {
 			// AMSE形式 (乙女戦記)
-			int samples = (static_cast<int>(buffer.size()) - 12) * 2;
+			uint32_t amse_size = SDL_SwapLE32(*reinterpret_cast<uint32_t*>(&buffer[8]));
+			int samples = (static_cast<int>(amse_size) - 12) * 2;
 			int total = samples + 0x24;
 
 			wav_buffer.resize(total + 8);
@@ -437,13 +438,13 @@ void MAKO::play_pcm(int page, bool loop)
 			wav_buffer[41] = (samples >>  8) & 0xff;
 			wav_buffer[42] = (samples >> 16) & 0xff;
 			wav_buffer[43] = (samples >> 24) & 0xff;
-			for (size_t i = 12, p = 44; i < buffer.size(); i++) {
+			for (uint32_t i = 12, p = 44; i < amse_size; i++) {
 				wav_buffer[p++] = buffer[i] & 0xf0;
 				wav_buffer[p++] = (buffer[i] & 0x0f) << 4;
 			}
 		}
 	}
-	PlaySound((LPCTSTR)wav_buffer.data(), NULL, SND_ASYNC | SND_MEMORY | (loop ? SND_LOOP : 0));
+	PlaySound((LPCTSTR)wav_buffer.data(), NULL, SND_ASYNC | SND_MEMORY | (loops ? 0 : SND_LOOP));
 }
 
 void MAKO::stop_pcm()

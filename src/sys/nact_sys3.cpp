@@ -942,7 +942,7 @@ void NACT_Sys3::cmd_y()
 			break;
 		case 103:
 			if(pcm_index < MAX_PCM) {
-				mako->play_pcm(pcm[pcm_index], param ? false : true);
+				mako->play_pcm(pcm[pcm_index], param);
 			}
 			break;
 		case 104:

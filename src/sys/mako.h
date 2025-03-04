@@ -35,7 +35,7 @@ public:
 	bool check_music();
 	void get_mark(int* mark, int* loop);
 
-	void play_pcm(int page, bool loop);
+	void play_pcm(int page, int loops);
 	void stop_pcm();
 	bool check_pcm();
 
