@@ -20,8 +20,6 @@ extern SDL_Window* g_window;
 
 namespace {
 
-const int SAMPLE_RATE = 44100;
-
 // Per-game mapping from music numbers to CD tracks.  This is necessary to
 // forcibly change the sound device with a menu command.
 //
@@ -185,25 +183,11 @@ private:
 	bool playing;
 };
 
-SDL_AudioStream* g_stream;
+SDL_AudioDeviceID g_device;
 Music* music;
 uint8* wav_buffer;
-SDL_Mutex* fm_mutex;
 std::unique_ptr<MakoYmfm> fm;
 std::unique_ptr<MAKOMidi> midi;
-
-void SDLCALL audio_callback(void *, SDL_AudioStream *stream, int additional_amount, int total_amount)
-{
-	if (additional_amount <= 0) return;
-	uint8_t *data = SDL_stack_alloc(uint8_t, additional_amount);
-
-	SDL_LockMutex(fm_mutex);
-	fm->Process(reinterpret_cast<int16_t*>(data), additional_amount / 4);
-	SDL_UnlockMutex(fm_mutex);
-
-	SDL_PutAudioStreamData(stream, data, additional_amount);
-	SDL_stack_free(data);
-}
 
 } // namespace
 
@@ -226,17 +210,10 @@ MAKO::MAKO(const Config& config, const GameId& game_id) :
 	}
 
 	SDL_InitSubSystem(SDL_INIT_AUDIO);
-	SDL_AudioSpec fmt;
-	SDL_zero(fmt);
-	fmt.freq = SAMPLE_RATE;
-	fmt.format = SDL_AUDIO_S16LE;
-	fmt.channels = 2;
-	g_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &fmt, audio_callback, nullptr);
-	if (!g_stream) {
-		WARNING("SDL_OpenAudioDeviceStream: %s", SDL_GetError());
-		use_fm = false;
+	g_device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
+	if (!g_device) {
+		ERROR("Cannot open audio device: %s", SDL_GetError());
 	}
-	fm_mutex = SDL_CreateMutex();
 
 	mci_thread = new MCIThread();
 
@@ -253,11 +230,7 @@ MAKO::~MAKO()
 	mci_thread = nullptr;  // MCIThread self-destructs on the worker thread.
 	midi.reset();
 
-	SDL_LockMutex(fm_mutex);
-	SDL_DestroyAudioStream(g_stream);
-	SDL_UnlockMutex(fm_mutex);
-	SDL_DestroyMutex(fm_mutex);
-	fm_mutex = nullptr;
+	SDL_CloseAudioDevice(g_device);
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
@@ -295,11 +268,7 @@ void MAKO::play_music(int page)
 		std::vector<uint8_t> data = amus.load(page);
 		if (data.empty())
 			return;
-
-		SDL_LockMutex(fm_mutex);
-		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, std::move(data));
-		SDL_UnlockMutex(fm_mutex);
-		SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(g_stream));
+		fm = std::make_unique<MakoYmfm>(g_device, std::move(data));
 	} else if (midi->is_available()) {
 		if (!midi->play(game_id, amus, mda, page, next_loop))
 			return;
@@ -314,10 +283,7 @@ void MAKO::stop_music()
 		music = nullptr;
 	}
 	if (fm) {
-		SDL_PauseAudioDevice(SDL_GetAudioStreamDevice(g_stream));
-		SDL_LockMutex(fm_mutex);
 		fm = nullptr;
-		SDL_UnlockMutex(fm_mutex);
 	}
 	if (midi->is_available()) {
 		midi->stop();
@@ -329,9 +295,7 @@ bool MAKO::check_music()
 {
 	if (fm) {
 		int mark, loop;
-		SDL_LockMutex(fm_mutex);
 		fm->get_mark(&mark, &loop);
-		SDL_UnlockMutex(fm_mutex);
 		return !loop;
 	}
 	else if (music) {
@@ -400,13 +364,10 @@ void MAKO::select_sound(BGMDevice dev)
 
 void MAKO::get_mark(int* mark, int* loop)
 {
-	SDL_LockMutex(fm_mutex);
 	if (fm) {
 		fm->get_mark(mark, loop);
-		SDL_UnlockMutex(fm_mutex);
 		return;
 	}
-	SDL_UnlockMutex(fm_mutex);
 	midi->get_mark(mark, loop);
 }
 
