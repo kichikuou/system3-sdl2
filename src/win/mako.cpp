@@ -185,7 +185,7 @@ private:
 
 SDL_AudioDeviceID g_device;
 Music* music;
-uint8* wav_buffer;
+SDL_AudioStream* pcm_stream;
 std::unique_ptr<MakoYmfm> fm;
 std::unique_ptr<MAKOMidi> midi;
 
@@ -373,61 +373,65 @@ void MAKO::get_mark(int* mark, int* loop)
 
 void MAKO::play_pcm(int page, int loops)
 {
-	static char header[44] = {
-		'R' , 'I' , 'F' , 'F' , 0x00, 0x00, 0x00, 0x00, 'W' , 'A' , 'V' , 'E' , 'f' , 'm' , 't' , ' ' ,
-		0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x40, 0x1f, 0x00, 0x00, 0x40, 0x1f, 0x00, 0x00,
-		0x01, 0x00, 0x08, 0x00, 'd' , 'a' , 't' , 'a' , 0x00, 0x00, 0x00, 0x00
-	};
-
 	stop_pcm();
 
-	// WAV形式 (Only You)
-	std::vector<uint8_t> wav_buffer = awav.load(page);
-	if (wav_buffer.empty()) {
-		std::vector<uint8_t> buffer = amse.load(page);
-		if (!buffer.empty()) {
-			// AMSE形式 (乙女戦記)
-			uint32_t amse_size = SDL_Swap32LE(*reinterpret_cast<uint32_t*>(&buffer[8]));
-			int samples = (static_cast<int>(amse_size) - 12) * 2;
-			int total = samples + 0x24;
+	SDL_AudioSpec device_spec;
+	SDL_GetAudioDeviceFormat(g_device, &device_spec, nullptr);
 
-			wav_buffer.resize(total + 8);
-			memcpy(wav_buffer.data(), header, 44);
-			wav_buffer[ 4] = (total >>  0) & 0xff;
-			wav_buffer[ 5] = (total >>  8) & 0xff;
-			wav_buffer[ 6] = (total >> 16) & 0xff;
-			wav_buffer[ 7] = (total >> 24) & 0xff;
-			wav_buffer[40] = (samples >>  0) & 0xff;
-			wav_buffer[41] = (samples >>  8) & 0xff;
-			wav_buffer[42] = (samples >> 16) & 0xff;
-			wav_buffer[43] = (samples >> 24) & 0xff;
-			for (uint32_t i = 12, p = 44; i < amse_size; i++) {
-				wav_buffer[p++] = buffer[i] & 0xf0;
-				wav_buffer[p++] = (buffer[i] & 0x0f) << 4;
-			}
+	// WAV形式 (Only You)
+	std::vector<uint8_t> data = awav.load(page);
+	if (!data.empty()) {
+		SDL_IOStream* io = SDL_IOFromConstMem(data.data(), data.size());
+		SDL_AudioSpec spec;
+		uint8_t *buf;
+		uint32_t buflen;
+		if (!SDL_LoadWAV_IO(io, true, &spec, &buf, &buflen)) {
+			WARNING("SDL_LoadWAV_IO failed: %s", SDL_GetError());
+			return;
 		}
+		pcm_stream = SDL_CreateAudioStream(&spec, &device_spec);
+		for (int i = 0; i < loops; i++) {
+			SDL_PutAudioStreamData(pcm_stream, buf, buflen);
+		}
+		SDL_FlushAudioStream(pcm_stream);
+		SDL_BindAudioStream(g_device, pcm_stream);
+		SDL_free(buf);
+		return;
 	}
-	PlaySound((LPCTSTR)wav_buffer.data(), NULL, SND_ASYNC | SND_MEMORY | (loops ? 0 : SND_LOOP));
+
+	// AMSE形式 (乙女戦記)
+	data = amse.load(page);
+	if (!data.empty()) {
+		uint32_t amse_size = SDL_Swap32LE(*reinterpret_cast<uint32_t*>(&data[8]));
+		std::vector<uint8_t> buf;
+		// 4-bit PCM -> 8-bit PCM
+		for (size_t i = 12; i < amse_size; i++) {
+			buf.push_back(data[i] & 0xf0);
+			buf.push_back((data[i] & 0x0f) << 4);
+		}
+
+		SDL_AudioSpec spec = { SDL_AUDIO_U8, 1, 8000 };
+		pcm_stream = SDL_CreateAudioStream(&spec, &device_spec);
+		for (int i = 0; i < loops; i++) {
+			SDL_PutAudioStreamData(pcm_stream, buf.data(), buf.size());
+		}
+		SDL_FlushAudioStream(pcm_stream);
+		SDL_BindAudioStream(g_device, pcm_stream);
+	}
 }
 
 void MAKO::stop_pcm()
 {
-	PlaySound(NULL, NULL, SND_PURGE);
-	if (wav_buffer) {
-		free(wav_buffer);
-		wav_buffer = nullptr;
+	if (pcm_stream) {
+		SDL_DestroyAudioStream(pcm_stream);
+		pcm_stream = nullptr;
 	}
 }
 
 bool MAKO::check_pcm()
 {
 	// 再生中でtrue
-	static const char null_wav[45] =  {
-		'R' , 'I' , 'F' , 'F' , 0x25, 0x00, 0x00, 0x00, 'W' , 'A' , 'V' , 'E' , 'f' , 'm' , 't' , ' ' ,
-		0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x40, 0x1f, 0x00, 0x00, 0x40, 0x1f, 0x00, 0x00,
-		0x01, 0x00, 0x08, 0x00, 'd' , 'a' , 't' , 'a' , 0x01, 0x00, 0x00, 0x00, 0x00
-	};
-	return !PlaySound(null_wav, NULL, SND_ASYNC | SND_MEMORY | SND_NOSTOP);
+	return pcm_stream && SDL_GetAudioStreamQueued(pcm_stream) > 0;
 }
 
 void MAKO::on_mci_notify(const MSG* msg)
