@@ -17,7 +17,7 @@ void AGS::load_pms(uint8* data, bool set_palette, int transparent)
 	int ey = data[0x6] | (data[0x7] << 8);
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
-	uint8 mask = data[0xa];
+	uint16_t mask = data[0xa] | (data[0xb] << 8);
 
 	// Jコマンドの処理
 	if(set_cg_dest) {
