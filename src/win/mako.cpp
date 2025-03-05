@@ -4,19 +4,16 @@
 	[ MAKO ]
 */
 
-#include <windows.h>
-#undef ERROR
 #include <memory>
 #include <string>
 #include <SDL3/SDL.h>
 #include "mako.h"
 #include "mako_midi.h"
 #include "fm/mako_ymfm.h"
+#include "fm/mako_mp3.h"
 #include "config.h"
 #include "dri.h"
 #include "game_id.h"
-
-extern SDL_Window* g_window;
 
 namespace {
 
@@ -29,162 +26,8 @@ const int8_t RANCE41_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,1,-1};
 const int8_t RANCE42_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,1,-1};
 const int8_t DPSALL_tracks[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,5,1,2,3,-1};
 
-enum MakoThreadMessage {
-	MAKO_OPEN = WM_APP,
-	MAKO_PLAY,
-	MAKO_STOP,
-	MAKO_EXIT
-};
-
-const char* mci_geterror(DWORD err)
-{
-	static char buf[128];
-	mciGetErrorString(err, buf, sizeof(buf));
-	return buf;
-}
-
-class MCIThread {
-public:
-	MCIThread() {
-		hwnd_notify = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(g_window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
-
-		if (!_beginthreadex(NULL, 0, &MCIThread::run, this, 0, &thread_id))
-			sys_error("Cannot create thread: %s", strerror(errno));
-	}
-
-	bool post_message(UINT msg, WPARAM wparam, LPARAM lparam) {
-		return PostThreadMessage(thread_id, msg, wparam, lparam);
-	}
-
-	MCIDEVICEID device_id() { return devid; }
-
-private:
-	static unsigned __stdcall run(void* param)
-	{
-		MCIThread* t = reinterpret_cast<MCIThread*>(param);
-		t->message_loop();
-		delete t;
-		return 0;
-	}
-
-	void message_loop()
-	{
-		MSG msg;
-		while (GetMessage(&msg, NULL, 0, 0)) {
-			switch (msg.message) {
-			case MAKO_OPEN:
-				close();
-				open(reinterpret_cast<std::string*>(msg.wParam));
-				break;
-
-			case MAKO_PLAY:
-				play();
-				break;
-
-			case MAKO_STOP:
-				close();
-				break;
-
-			case MAKO_EXIT:
-				close();
-				return;
-			}
-		}
-	}
-
-	void open(std::string* file)
-	{
-		file_playing = file;
-
-		MCI_OPEN_PARMS open;
-		open.lpstrElementName = file_playing->c_str();
-		DWORD flags = MCI_OPEN_ELEMENT | MCI_WAIT;
-		MCIERROR err = mciSendCommand(0, MCI_OPEN, flags, (DWORD_PTR)&open);
-		if (err) {
-			WARNING("MCI_OPEN failed: %s: %s",
-					file_playing->c_str(), mci_geterror(err));
-			return;
-		}
-		devid = open.wDeviceID;
-	}
-
-	void play()
-	{
-		MCI_PLAY_PARMS play;
-		play.dwCallback = (DWORD_PTR)hwnd_notify;
-		play.dwFrom = 0;
-		DWORD flags = MCI_FROM | MCI_NOTIFY;
-		MCIERROR err = mciSendCommand(devid, MCI_PLAY, flags, (DWORD_PTR)&play);
-		if (err)
-			WARNING("MCI_PLAY failed: %s", mci_geterror(err));
-	}
-
-	void close() {
-		if (devid) {
-			mciSendCommand(devid, MCI_CLOSE, 0, 0);
-			devid = 0;
-		}
-		if (file_playing) {
-			delete file_playing;
-			file_playing = nullptr;
-		}
-	}
-
-	HWND hwnd_notify;
-	unsigned thread_id;
-	std::string* file_playing = nullptr;
-	MCIDEVICEID devid = 0;
-};
-
-MCIThread* mci_thread;
-
-class Music {
-public:
-	Music(const char* fname, int loop) : loops(loop) {
-		std::string* fname_str = new std::string(fname);
-		mci_thread->post_message(MAKO_OPEN, (WPARAM)fname_str, 0);
-		mci_thread->post_message(MAKO_PLAY, 0, 0);
-		playing = true;
-	}
-
-	~Music() {
-		close();
-	}
-
-	void close() {
-		mci_thread->post_message(MAKO_STOP, 0, 0);
-		playing = false;
-	}
-
-	bool is_playing() {
-		return playing;
-	}
-
-	bool on_mci_notify(const MSG* msg) {
-		if (msg->lParam != mci_thread->device_id())
-			return true;
-		switch (msg->wParam) {
-		case MCI_NOTIFY_FAILURE:
-			close();
-			return false;
-		case MCI_NOTIFY_SUCCESSFUL:
-			if (loops && --loops == 0) {
-				close();
-				return false;
-			}
-			mci_thread->post_message(MAKO_PLAY, 0, 0);
-			return true;
-		}
-		return true;
-	}
-
-private:
-	int loops;  // number of times to play, 0 for infinite loop
-	bool playing;
-};
-
 SDL_AudioDeviceID g_device;
-Music* music;
+std::unique_ptr<MakoMP3> music;
 SDL_AudioStream* pcm_stream;
 std::unique_ptr<MakoYmfm> fm;
 std::unique_ptr<MAKOMidi> midi;
@@ -215,8 +58,6 @@ MAKO::MAKO(const Config& config, const GameId& game_id) :
 		ERROR("Cannot open audio device: %s", SDL_GetError());
 	}
 
-	mci_thread = new MCIThread();
-
 	midi = std::make_unique<MAKOMidi>(config.midi_device);
 	if (!midi->is_available())
 		use_fm = true;
@@ -226,8 +67,6 @@ MAKO::~MAKO()
 {
 	stop_music();
 	stop_pcm();
-	mci_thread->post_message(MAKO_EXIT, 0, 0);
-	mci_thread = nullptr;  // MCIThread self-destructs on the worker thread.
 	midi.reset();
 
 	SDL_CloseAudioDevice(g_device);
@@ -263,7 +102,7 @@ void MAKO::play_music(int page)
 	if (track) {
 		if (track >= playlist.size() || !playlist[track])
 			return;
-		music = new Music(playlist[track], next_loop);
+		music = std::make_unique<MakoMP3>(g_device, playlist[track], next_loop);
 	} else if (use_fm) {
 		std::vector<uint8_t> data = amus.load(page);
 		if (data.empty())
@@ -279,7 +118,6 @@ void MAKO::play_music(int page)
 void MAKO::stop_music()
 {
 	if (music) {
-		delete music;
 		music = nullptr;
 	}
 	if (fm) {
@@ -432,12 +270,4 @@ bool MAKO::check_pcm()
 {
 	// 再生中でtrue
 	return pcm_stream && SDL_GetAudioStreamQueued(pcm_stream) > 0;
-}
-
-void MAKO::on_mci_notify(const MSG* msg)
-{
-	if (!music)
-		return;
-	if (!music->on_mci_notify(msg))
-		current_music = 0;
 }

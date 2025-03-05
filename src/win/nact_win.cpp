@@ -229,9 +229,6 @@ bool NACT::handle_windows_event(MSG* msg)
 			break;
 		}
 		break;
-	case MM_MCINOTIFY:
-		mako->on_mci_notify(msg);
-		break;
 	}
 	return true;
 }

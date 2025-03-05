@@ -191,6 +191,7 @@ target_sources(system3 PRIVATE
   src/texthook.cpp
   src/fm/makofm.cpp
   src/fm/mako_ymfm.cpp
+  src/fm/mako_mp3.cpp
   src/sys/ags.cpp
   src/sys/ags_bmp.cpp
   src/sys/ags_cursor.cpp
