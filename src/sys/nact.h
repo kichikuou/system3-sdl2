@@ -196,6 +196,7 @@ private:
 	void pump_events();
 	void handle_event(SDL_Event e);
 	bool handle_platform_event(const SDL_Event& e);
+	void show_quit_dialog();
 
 	static NACT* create_system1(const Config& config, const GameId& game_id);
 	static NACT* create_system2(const Config& config, const GameId& game_id);

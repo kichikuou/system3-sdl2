@@ -33,8 +33,16 @@ void NACT::handle_event(SDL_Event e)
 
 	switch (e.type) {
 	case SDL_QUIT:
-		quit(0);
+		show_quit_dialog();
 		break;
+
+#ifdef __ANDROID__
+	case SDL_KEYUP:
+		if (e.key.keysym.scancode == SDL_SCANCODE_AC_BACK) {
+			show_quit_dialog();
+		}
+		break;
+#endif
 
 	case SDL_MOUSEMOTION:
 		mousex = e.motion.x * ags->screen_width / ags->window_width;
@@ -146,6 +154,30 @@ void NACT::set_cursor(int x, int y)
 		return;
 	ags->translate_mouse_coords(&x, &y);
 	SDL_WarpMouseInWindow(g_window, x, y);
+}
+
+void NACT::show_quit_dialog()
+{
+	const SDL_MessageBoxButtonData buttons[] = {
+		{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Quit" },
+		{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Cancel" },
+	};
+	const SDL_MessageBoxData messagebox_data = {
+		SDL_MESSAGEBOX_INFORMATION,
+		nullptr,
+		"System3",
+		"Quit game?\nAny unsaved progress will be lost.",
+		SDL_arraysize(buttons),
+		buttons,
+	};
+	int buttonid = 0;
+	if (SDL_ShowMessageBox(&messagebox_data, &buttonid) < 0) {
+		WARNING("error displaying message box");
+		return;
+	}
+	if (buttonid == 1) {
+		quit(0);
+	}
 }
 
 #ifdef __EMSCRIPTEN__
