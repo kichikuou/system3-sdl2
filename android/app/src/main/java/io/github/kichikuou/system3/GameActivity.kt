@@ -20,10 +20,6 @@ package io.github.kichikuou.system3
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.InputType
-import android.view.ContextMenu
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
 import android.widget.EditText
 import org.libsdl.app.SDLActivity
 import java.io.File
@@ -42,7 +38,6 @@ class GameActivity : SDLActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameRoot = File(intent.getStringExtra(EXTRA_GAME_ROOT)!!)
-        registerForContextMenu(mLayout)
     }
 
     override fun getLibraries(): Array<String> {
@@ -86,34 +81,6 @@ class GameActivity : SDLActivity() {
                 .show()
     }
 
-    private var menuShown = false
-    private fun openMenu() {
-        if (menuShown)
-            return
-        openContextMenu(mLayout)
-        menuShown = true
-    }
-
-    override fun onCreateContextMenu(menu: ContextMenu, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-        menuInflater.inflate(R.menu.game_menu, menu)
-    }
-
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.quit_game -> {
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    override fun onContextMenuClosed(menu: Menu) {
-        super.onContextMenuClosed(menu)
-        menuShown = false
-    }
-
     // The functions below are called in the SDL thread by JNI.
     @Suppress("unused") fun inputString(oldVal: String, maxLen: Int): String? {
         val result = arrayOfNulls<String?>(1)
@@ -127,9 +94,5 @@ class GameActivity : SDLActivity() {
             }
         }
         return result[0]
-    }
-
-    @Suppress("unused") fun popupMenu() {
-        runOnUiThread { openMenu() }
     }
 }

@@ -67,7 +67,6 @@ Note: This ZIP format is also compatible with
 ### Miscellaneous
 - You can export or import save files via the game list's option menu.
 - To uninstall a game, long-tap its title in the game list.
-- A system menu will appear when you use a three-finger touch during gameplay.
 
 ## Known Issues
 - Installing from a ZIP file containing multiple games (e.g., the DPS series)
