@@ -96,6 +96,7 @@ int NACT::mainloop()
 #ifdef ENABLE_DEBUGGER
 		if (g_debugger && g_debugger->trapped()) {
 			sco.update_cmd_addr();
+			ags->update_screen();
 			g_debugger->repl(0);
 		}
 #endif
@@ -144,6 +145,7 @@ void NACT::execute()
 	if (cmd == debugger::BREAKPOINT_INSTRUCTION) {
 		if (!g_debugger)
 			sys_error("Illegal BREAKPOINT instruction");
+		ags->update_screen();
 		cmd = g_debugger->handle_breakpoint(sco.page(), sco.cmd_addr());
 	}
 #endif
