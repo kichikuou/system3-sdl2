@@ -1,21 +1,16 @@
-def buildAsLibrary = project.hasProperty('BUILD_AS_LIBRARY')
-def buildAsApplication = !buildAsLibrary
-if (buildAsApplication) {
-    apply plugin: 'com.android.application'
+plugins {
+     id 'com.android.application'
+     id 'kotlin-android'
 }
-else {
-    apply plugin: 'com.android.library'
-}
-apply plugin: 'kotlin-android'
+
+def buildWithCMake = project.hasProperty('BUILD_WITH_CMAKE');
 
 android {
-    if (buildAsApplication) {
-        namespace "io.github.kichikuou.system3"
-    }
-    compileSdkVersion 34
+    namespace "io.github.kichikuou.system3"
+    compileSdkVersion 35
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 17
         versionName "1.6.1" + gitRevision()
         externalNativeBuild {
@@ -63,22 +58,10 @@ android {
                 path 'jni/CMakeLists.txt'
             }
         }
-       
+
     }
     lint {
         abortOnError false
-    }
-
-    if (buildAsLibrary) {
-        libraryVariants.all { variant ->
-            variant.outputs.each { output ->
-                def outputFile = output.outputFile
-                if (outputFile != null && outputFile.name.endsWith(".aar")) {
-                    def fileName = "org.libsdl.app.aar"
-                    output.outputFile = new File(outputFile.parent, fileName)
-                }
-            }
-        }
     }
 }
 

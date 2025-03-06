@@ -12,7 +12,6 @@ class LicensesMenuActivity : Activity() {
         Entry("system3-sdl2", "system3", "https://github.com/kichikuou/system3-sdl2"),
         Entry("SDL", "SDL", "https://www.libsdl.org/"),
         Entry("SDL_ttf", "SDL_ttf", "https://github.com/libsdl-org/SDL_ttf"),
-        Entry("SDL_mixer", "SDL_mixer", "https://github.com/libsdl-org/SDL_mixer"),
         Entry("FreeType", "freetype", "https://freetype.org/"),
         Entry("HarfBuzz", "harfbuzz", "https://harfbuzz.github.io/"),
         Entry("ymfm", "ymfm", "https://github.com/aaronsgiles/ymfm"),

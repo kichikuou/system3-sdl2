@@ -3,6 +3,7 @@
 #include <windows.h>
 #undef ERROR
 #endif
+#include <stdlib.h>
 #include <SDL3/SDL.h>
 #include "common.h"
 
@@ -28,12 +29,12 @@ SDL_IOStream* open_resource(const char* name, const char* type) {
 
 SDL_IOStream* open_file(const char* name) {
 #ifdef __ANDROID__
-	// We cannot use SDL_RWFromFile() because it does not resolve relative
-	// paths using the current directory on Android.
-	FILE *fp = fopen(name, "rb");
-	if (!fp)
+	// SDL_IOFromFile() does not resolve relative paths on Android.
+	char path[PATH_MAX];
+	if (!realpath(name, path)) {
 		return NULL;
-	return SDL_RWFromFP(fp, true);
+	}
+	return SDL_IOFromFile(path, "rb");
 #else
 	return SDL_IOFromFile(name, "rb");
 #endif

@@ -40,7 +40,7 @@ if (ANDROID)
     src/generic/mako.cpp
     )
   find_library(ndk_log log)
-  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf SDL2_mixer ymfm ${ndk_log})
+  target_link_libraries(system3 PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf ymfm ${ndk_log})
 
 elseif (EMSCRIPTEN)
   add_executable(system3)
