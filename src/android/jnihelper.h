@@ -7,8 +7,8 @@
 class JNILocalFrame {
 public:
 	JNILocalFrame(int n) :
-		env_((JNIEnv*)SDL_AndroidGetJNIEnv()),
-		context_((jobject)SDL_AndroidGetActivity())
+		env_((JNIEnv*)SDL_GetAndroidJNIEnv()),
+		context_((jobject)SDL_GetAndroidActivity())
 	{
 		if (env_->PushLocalFrame(n) < 0) {
 			ERROR("Failed to allocate JVM local references");

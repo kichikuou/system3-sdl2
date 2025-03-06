@@ -3,7 +3,6 @@ on: [push, pull_request]
 
 jobs:
   build:
-    if: github.ref != 'refs/heads/sdl3'
     runs-on: ubuntu-latest
 
     steps:
