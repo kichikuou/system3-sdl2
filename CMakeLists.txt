@@ -79,8 +79,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   if (MSVC)
     include(FetchContent)
     FetchContent_Declare(sdl2
-      URL https://github.com/libsdl-org/SDL/releases/download/release-2.30.6/SDL2-devel-2.30.6-VC.zip
-      URL_HASH SHA1=038ffed56e04fbc4c6236187472c671596963fdb)
+      URL https://github.com/libsdl-org/SDL/releases/download/release-2.32.2/SDL2-devel-2.32.2-VC.zip
+      URL_HASH SHA1=08737e7e813443e47b663be4d91f8a4d8de6916b)
     FetchContent_MakeAvailable(sdl2)
     find_package(SDL2 REQUIRED CONFIG PATHS ${sdl2_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
     get_target_property(SDL2_DLL SDL2::SDL2 IMPORTED_LOCATION)
