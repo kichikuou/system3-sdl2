@@ -6,30 +6,34 @@
 
 #include <memory>
 #include <limits.h>
+#include <string>
 #include <SDL3/SDL.h>
-#include <SDL_mixer.h>
-
 #include "mako.h"
 #include "mako_midi.h"
 #include "fm/mako_ymfm.h"
+#include "fm/mako_mp3.h"
 #include "config.h"
 #include "dri.h"
+#include "game_id.h"
 
 namespace {
 
-const int SAMPLE_RATE = 44100;
+#ifdef _WIN32
+// Per-game mapping from music numbers to CD tracks.  This is necessary to
+// forcibly change the sound device with a menu command.
+//
+// When the game uses "Z 100+x,y" command, the xth element of the array should
+// be y.  The array must be terminated with -1.
+const int8_t RANCE41_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,1,-1};
+const int8_t RANCE42_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,1,-1};
+const int8_t DPSALL_tracks[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,5,1,2,3,-1};
+#endif
 
-Mix_Music *mix_music;
-Mix_Chunk *mix_chunk;
-SDL_Mutex* fm_mutex;
+SDL_AudioDeviceID g_device;
+std::unique_ptr<MakoMP3> music;
+SDL_AudioStream* pcm_stream;
 std::unique_ptr<MakoYmfm> fm;
 std::unique_ptr<MAKOMidi> midi;
-
-void FMHook(void*, Uint8* stream, int len) {
-	SDL_LockMutex(fm_mutex);
-	fm->Process(reinterpret_cast<int16_t*>(stream), len / 4);
-	SDL_UnlockMutex(fm_mutex);
-}
 
 } // namespace
 
@@ -39,22 +43,23 @@ MAKO::MAKO(const Config& config, const GameId& game_id) :
 	next_loop(0),
 	game_id(game_id)
 {
-	int mix_init_flags = 0;
-
-	if (!config.playlist.empty() && load_playlist(config.playlist.c_str()))
-		mix_init_flags |= MIX_INIT_MP3 | MIX_INIT_OGG;
+	if (!config.playlist.empty())
+		load_playlist(config.playlist.c_str());
 
 	amus.open("AMUS.DAT");
 	awav.open("AWAV.DAT");
 	amse.open("AMSE.DAT");
 	mda.open("AMUS.MDA");
-	for (int i = 1; i <= 99; i++)
-		cd_track[i] = 0;
 
-	if (Mix_Init(mix_init_flags) != mix_init_flags)
-		WARNING("Mix_Init(0x%x) failed", mix_init_flags);
-	if (Mix_OpenAudio(SAMPLE_RATE, AUDIO_S16LSB, 2, 4096) < 0)
-		WARNING("Mix_OpenAudio failed: %s", Mix_GetError());
+	for (int i = 1; i <= 99; i++) {
+		cd_track[i] = 0;
+	}
+
+	SDL_InitSubSystem(SDL_INIT_AUDIO);
+	g_device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
+	if (!g_device) {
+		ERROR("Cannot open audio device: %s", SDL_GetError());
+	}
 
 	midi = std::make_unique<MAKOMidi>(config.midi_device);
 	if (!midi->is_available())
@@ -63,15 +68,17 @@ MAKO::MAKO(const Config& config, const GameId& game_id) :
 
 MAKO::~MAKO()
 {
-	midi.reset();
+	stop_music();
 	stop_pcm();
-	Mix_CloseAudio();
-	Mix_Quit();
+	midi.reset();
+
+	SDL_CloseAudioDevice(g_device);
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 bool MAKO::load_playlist(const char* path)
 {
-	FILE* fp = fopen(path, "r");
+	FILE* fp = fopen(path, "rt");
 	if (!fp) {
 		WARNING("Cannot open %s", path);
 		return false;
@@ -97,62 +104,31 @@ void MAKO::play_music(int page)
 
 	stop_music();
 
-	int track = page < 100 ? cd_track[page] : 0;
+	size_t track = page < 100 ? cd_track[page] : 0;
 	if (track) {
-		if (track < playlist.size() && playlist[track]) {
-#ifdef __ANDROID__
-			// Mix_LoadMUS uses SDL_RWFromFile which requires absolute path on Android
-			char path[PATH_MAX];
-			if (!realpath(playlist[track], path))
-				return;
-			mix_music = Mix_LoadMUS(path);
-#else
-			mix_music = Mix_LoadMUS(playlist[track]);
-#endif
-			if (!mix_music) {
-				WARNING("Mix_LoadMUS failed: %s: %s", playlist[track], Mix_GetError());
-				return;
-			}
-			if (Mix_PlayMusic(mix_music, next_loop ? next_loop : -1) != 0) {
-				WARNING("Mix_PlayMusic failed: %s", Mix_GetError());
-				Mix_FreeMusic(mix_music);
-				return;
-			}
-		}
+		if (track >= playlist.size() || !playlist[track])
+			return;
+		music = std::make_unique<MakoMP3>(g_device, playlist[track], next_loop);
 	} else if (use_fm) {
 		std::vector<uint8_t> data = amus.load(page);
 		if (data.empty())
 			return;
-		if (!fm_mutex)
-			fm_mutex = SDL_CreateMutex();
-
-		SDL_LockMutex(fm_mutex);
-		fm = std::make_unique<MakoYmfm>(SAMPLE_RATE, std::move(data));
-		SDL_UnlockMutex(fm_mutex);
-		Mix_HookMusic(&FMHook, this);
+		fm = std::make_unique<MakoYmfm>(g_device, std::move(data));
 	} else if (midi->is_available()) {
 		if (!midi->play(game_id, amus, mda, page, next_loop))
 			return;
 	}
-
 	current_music = page;
 	next_loop = 0;
 }
 
 void MAKO::stop_music()
 {
-	if (!current_music)
-		return;
-
-	if (mix_music) {
-		Mix_FreeMusic(mix_music);
-		mix_music = NULL;
+	if (music) {
+		music = nullptr;
 	}
 	if (fm) {
-		Mix_HookMusic(NULL, NULL);
-		SDL_LockMutex(fm_mutex);
 		fm = nullptr;
-		SDL_UnlockMutex(fm_mutex);
 	}
 	if (midi->is_available()) {
 		midi->stop();
@@ -162,86 +138,145 @@ void MAKO::stop_music()
 
 bool MAKO::check_music()
 {
-	if (mix_music)
-		return Mix_PlayingMusic();
 	if (fm) {
 		int mark, loop;
-		SDL_LockMutex(fm_mutex);
 		fm->get_mark(&mark, &loop);
-		SDL_UnlockMutex(fm_mutex);
 		return !loop;
 	}
-	return midi->is_playing();
+	else if (music) {
+		return music->is_playing();
+	} else {
+		return midi->is_playing();
+	}
 }
+
+#ifdef _WIN32
+void MAKO::select_sound(BGMDevice dev)
+{
+	// 強制的に音源を変更する
+	int page = current_music;
+	int old_dev = (1 <= page && page <= 99 && cd_track[page]) ? BGM_CD :
+		use_fm ? BGM_FM : BGM_MIDI;
+
+	switch (dev) {
+	case BGM_FM:
+	case BGM_MIDI:
+		for (int i = 1; i <= 99; i++)
+			cd_track[i] = 0;
+		if (midi->is_available())
+			use_fm = dev == BGM_FM;
+		else
+			dev = BGM_FM;
+		break;
+
+	case BGM_CD:
+		const int8_t* tracks;
+
+		switch (game_id.game) {
+		case GameId::RANCE41:
+			tracks = RANCE41_tracks;
+			break;
+		case GameId::RANCE42:
+			tracks = RANCE42_tracks;
+			break;
+		case GameId::DPS_ALL:
+			tracks = DPSALL_tracks;
+			break;
+
+		// For the following games, the default mapping (cd_track[i] = i) works.
+		case GameId::AYUMI_CD:
+		case GameId::FUNNYBEE_CD:
+		case GameId::ONLYYOU:
+		default:
+			tracks = nullptr;
+		}
+
+		if (tracks) {
+			for (int i = 0; tracks[i] >= 0; i++)
+				cd_track[i + 1] = tracks[i];
+		} else {
+			for (int i = 1; i <= 99; i++)
+				cd_track[i] = i;
+		}
+		break;
+	}
+
+	// デバイスが変更された場合は再演奏する
+	if (dev != old_dev && page) {
+		stop_music();
+		play_music(page);
+	}
+}
+#endif
 
 void MAKO::get_mark(int* mark, int* loop)
 {
-	SDL_LockMutex(fm_mutex);
 	if (fm) {
 		fm->get_mark(mark, loop);
-		SDL_UnlockMutex(fm_mutex);
 		return;
 	}
-	SDL_UnlockMutex(fm_mutex);
 	midi->get_mark(mark, loop);
 }
 
 void MAKO::play_pcm(int page, int loops)
 {
-	static char header[44] = {
-		'R' , 'I' , 'F' , 'F' , 0x00, 0x00, 0x00, 0x00, 'W' , 'A' , 'V' , 'E' , 'f' , 'm' , 't' , ' ' ,
-		0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x40, 0x1f, 0x00, 0x00, 0x40, 0x1f, 0x00, 0x00,
-		0x01, 0x00, 0x08, 0x00, 'd' , 'a' , 't' , 'a' , 0x00, 0x00, 0x00, 0x00
-	};
-
 	stop_pcm();
 
-	std::vector<uint8_t> buffer = awav.load(page);
-	if (!buffer.empty()) {
-		// WAV形式 (Only You)
-		mix_chunk = Mix_LoadWAV_RW(SDL_IOFromConstMem(buffer.data(), buffer.size()), 1 /* freesrc */);
-		Mix_PlayChannel(-1, mix_chunk, loops ? loops : -1);
+	SDL_AudioSpec device_spec;
+	SDL_GetAudioDeviceFormat(g_device, &device_spec, nullptr);
+
+	// WAV形式 (Only You)
+	std::vector<uint8_t> data = awav.load(page);
+	if (!data.empty()) {
+		SDL_IOStream* io = SDL_IOFromConstMem(data.data(), data.size());
+		SDL_AudioSpec spec;
+		uint8_t *buf;
+		uint32_t buflen;
+		if (!SDL_LoadWAV_IO(io, true, &spec, &buf, &buflen)) {
+			WARNING("SDL_LoadWAV_IO failed: %s", SDL_GetError());
+			return;
+		}
+		pcm_stream = SDL_CreateAudioStream(&spec, &device_spec);
+		for (int i = 0; i < loops; i++) {
+			SDL_PutAudioStreamData(pcm_stream, buf, buflen);
+		}
+		SDL_FlushAudioStream(pcm_stream);
+		SDL_BindAudioStream(g_device, pcm_stream);
+		SDL_free(buf);
 		return;
 	}
-	buffer = amse.load(page);
-	if (!buffer.empty()) {
-		// AMSE形式 (乙女戦記)
-		uint32_t amse_size = SDL_Swap32LE(*reinterpret_cast<uint32_t*>(&buffer[8]));
-		int samples = (amse_size - 12) * 2;
-		int total = samples + 0x24;
 
-		uint8* wav = (uint8*)malloc(total + 8);
-		memcpy(wav, header, 44);
-		wav[ 4] = (total >>  0) & 0xff;
-		wav[ 5] = (total >>  8) & 0xff;
-		wav[ 6] = (total >> 16) & 0xff;
-		wav[ 7] = (total >> 24) & 0xff;
-		wav[40] = (samples >>  0) & 0xff;
-		wav[41] = (samples >>  8) & 0xff;
-		wav[42] = (samples >> 16) & 0xff;
-		wav[43] = (samples >> 24) & 0xff;
-		for (uint32_t i = 12, p = 44; i < amse_size; i++) {
-			wav[p++] = buffer[i] & 0xf0;
-			wav[p++] = (buffer[i] & 0x0f) << 4;
+	// AMSE形式 (乙女戦記)
+	data = amse.load(page);
+	if (!data.empty()) {
+		uint32_t amse_size = SDL_Swap32LE(*reinterpret_cast<uint32_t*>(&data[8]));
+		std::vector<uint8_t> buf;
+		// 4-bit PCM -> 8-bit PCM
+		for (size_t i = 12; i < amse_size; i++) {
+			buf.push_back(data[i] & 0xf0);
+			buf.push_back((data[i] & 0x0f) << 4);
 		}
 
-		mix_chunk = Mix_LoadWAV_RW(SDL_IOFromConstMem(wav, total + 8), 1 /* freesrc */);
-		free(wav);
-		Mix_PlayChannel(-1, mix_chunk, loops ? loops : -1);
+		SDL_AudioSpec spec = { SDL_AUDIO_U8, 1, 8000 };
+		pcm_stream = SDL_CreateAudioStream(&spec, &device_spec);
+		for (int i = 0; i < loops; i++) {
+			SDL_PutAudioStreamData(pcm_stream, buf.data(), static_cast<int>(buf.size()));
+		}
+		SDL_FlushAudioStream(pcm_stream);
+		SDL_BindAudioStream(g_device, pcm_stream);
 	}
 }
 
 void MAKO::stop_pcm()
 {
-	Mix_HaltChannel(-1);
-	if (mix_chunk) {
-		Mix_FreeChunk(mix_chunk);
-		mix_chunk = NULL;
+	if (pcm_stream) {
+		SDL_DestroyAudioStream(pcm_stream);
+		pcm_stream = nullptr;
 	}
 }
 
 bool MAKO::check_pcm()
 {
-	return Mix_Playing(-1) != 0;
+	// 再生中でtrue
+	return pcm_stream && SDL_GetAudioStreamQueued(pcm_stream) > 0;
 }
-

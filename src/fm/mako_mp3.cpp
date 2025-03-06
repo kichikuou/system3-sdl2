@@ -34,13 +34,13 @@ void MakoMP3::AudioCallback(int additional_amount, int total_amount) {
 	if (!playing)
 		return;
 	int16_t* buf = SDL_stack_alloc(int16_t, additional_amount / 2);
-	size_t frames_read = drmp3_read_pcm_frames_s16(&mp3, additional_amount / 4, buf);
+	int frames_read = static_cast<int>(drmp3_read_pcm_frames_s16(&mp3, additional_amount / 4, buf));
 	if (frames_read < additional_amount / 4) {
 		if (loops_ && --loops_ == 0) {
 			playing = false;
 		} else {
 			drmp3_seek_to_pcm_frame(&mp3, 0);
-			frames_read += drmp3_read_pcm_frames_s16(&mp3, additional_amount / 4 - frames_read, buf + frames_read * 2);
+			frames_read += static_cast<int>(drmp3_read_pcm_frames_s16(&mp3, additional_amount / 4 - frames_read, buf + frames_read * 2));
 		}
 	}
 	SDL_PutAudioStreamData(stream, buf, frames_read * 4);

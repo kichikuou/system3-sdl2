@@ -159,7 +159,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(system3 PRIVATE
       src/win/nact_win.cpp
-      src/win/mako.cpp
+      src/generic/mako.cpp
       src/win/resource.rc
       )
     target_compile_definitions(system3 PRIVATE NOMINMAX)
@@ -168,12 +168,10 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
       target_link_options(system3 PRIVATE -static)
     endif()
   else()
-    pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
     target_sources(system3 PRIVATE
       src/generic/nact_generic.cpp
       src/generic/mako.cpp
       )
-    target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
     set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
     install(TARGETS system3 RUNTIME DESTINATION bin)
     install(DIRECTORY resources/
