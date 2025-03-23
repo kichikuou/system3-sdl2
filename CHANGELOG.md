@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.1 - 2025-03-23
+- Added quit confirmation dialog
+- Android: Back button to exit the game
+- Android: Removed 3-finger touch menu
+- Bugfixes
+
 ## 1.5.0 - 2025-01-20
 - Windows: Now system3.exe is a standalone executable. You can just copy it to
   the game folder and run it.
