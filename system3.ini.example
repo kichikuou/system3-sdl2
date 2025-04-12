@@ -25,7 +25,7 @@ fm = true
 mididevice = 0
 
 ; Game ID. No need to specify if using AliceSoft's original game data.
-; Refer to README.md for a list of possible values.
+; Refer to game_compatibility.md for a list of possible values.
 game = rance41
 
 ; Character encoding for game data. Choose between shift_jis or utf-8.
