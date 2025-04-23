@@ -4,6 +4,11 @@ This is an SDL2 port of
 [System3 for Win32](http://takeda-toshiya.my.coocan.jp/alice/) by Takeda
 Toshiya. It supports multiple platforms, including Android and Emscripten.
 
+## Compatibility
+
+See the [game compatibility table](game_compatibility.md) for a list of games
+that can be played with system3-sdl2.
+
 ## Installing
 
 For Windows and Android, you can download pre-built binaries from the
