@@ -784,6 +784,9 @@ void NACT_Sys2::cmd_y()
 				}
 			}
 			break;
+		case 240:  // System3-sdl2 extension
+			ags->draw_hankaku = (param == 1) ? true : false;
+			break;
 		case 252:
 			RND = 8;
 			break;

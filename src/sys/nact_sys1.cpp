@@ -444,7 +444,7 @@ void NACT_Sys1::exec_y(int cmd, int param)
 	case 4:
 		RND = (param == 0 || param == 1) ? 0 : random(param);
 		break;
-	case 240:
+	case 240:  // System3-sdl2 extension
 		ags->draw_hankaku = (param == 1) ? true : false;
 		break;
 	case 253:
