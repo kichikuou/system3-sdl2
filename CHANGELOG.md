@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.0 - 2025-04-26
+- Enabled `Y 240` command in System2 games, to support translation of these games.
+- Android: "Install from ZIP" button is moved to the top-right option menu.
+- Android: Improved extraction logic of track numbers from audio file names.
+
 ## 1.5.1 - 2025-03-23
 - Added quit confirmation dialog
 - Android: Back button to exit the game
