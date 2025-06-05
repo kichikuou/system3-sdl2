@@ -33,35 +33,35 @@ void AGS::load_cg(int page, int transparent)
 		switch (game_id.game) {
 		case GameId::BUNKASAI:
 		case GameId::GAKUEN:
-			load_vsp(data.data(), set_palette, transparent);
+			load_vsp(data, set_palette, transparent);
 			break;
 		case GameId::INTRUDER:
-			// load_gm3(data.data(), transparent);
-			load_vsp(data.data(), set_palette, transparent);	// 暫定
+			// load_gm3(data, transparent);
+			load_vsp(data, set_palette, transparent);  // 暫定
 			break;
 		case GameId::LITTLE_VAMPIRE:
-			load_vsp2l(data.data(), transparent);
+			load_vsp2l(data, transparent);
 			break;
 		default:
-			load_gl3(data.data(), set_palette, transparent);
+			load_gl3(data, set_palette, transparent);
 			break;
 		}
 		break;
 	case 2:
 		if (game_id.is(GameId::AYUMI_PROTO)) {
 			// あゆみちゃん物語 PROTO
-			load_gl3(data.data(), set_palette, transparent);
+			load_gl3(data, set_palette, transparent);
 		} else if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT)) {
 			// あゆみちゃん物語
-			load_vsp(data.data(), set_palette, transparent);
+			load_vsp(data, set_palette, transparent);
 		} else if (game_id.is_sdps()) {
 			// Super D.P.S
-			load_pms(data.data(), set_palette, transparent);
+			load_pms(data, set_palette, transparent);
 		} else {
 			if(data[0x8] == 0) {
-				load_vsp(data.data(), set_palette, transparent);
+				load_vsp(data, set_palette, transparent);
 			} else {
-				load_pms(data.data(), set_palette, transparent);
+				load_pms(data, set_palette, transparent);
 			}
 		}
 		break;
@@ -69,10 +69,10 @@ void AGS::load_cg(int page, int transparent)
 		if(data[0x8] == 0) {
 			if (game_id.is(GameId::FUNNYBEE_FD) || game_id.is(GameId::FUNNYBEE_CD))
 				set_palette = !ignore_palette.count(page);
-			load_vsp(data.data(), set_palette, transparent);
+			load_vsp(data, set_palette, transparent);
 		} else {
 			set_palette = set_palette || game_id.is(GameId::FUNNYBEE_CD);
-			load_pms(data.data(), set_palette, transparent);
+			load_pms(data, set_palette, transparent);
 		}
 		break;
 	}

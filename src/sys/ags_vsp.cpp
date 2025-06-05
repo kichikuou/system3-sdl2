@@ -8,7 +8,7 @@
 #include "game_id.h"
 #include <string.h>
 
-void AGS::load_vsp(uint8* data, bool set_palette, int transparent)
+void AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0] | (data[1] << 8);

@@ -52,12 +52,12 @@ private:
 	SDL_Cursor* hCursor[10];
 
 	// AGS
-	void load_gm3(uint8* data, int transparent);		// Intruder -桜屋敷の探索-
-	void load_vsp2l(uint8* data, int transparent);	// Little Vampire
-	void load_gl3(uint8* data, bool set_palette, int transparent);
-	void load_pms(uint8* data, bool set_palette, int transparent);
+	void load_gm3(const std::vector<uint8_t>& data, int transparent); // Intruder -桜屋敷の探索-
+	void load_vsp2l(const std::vector<uint8_t>& data, int transparent); // Little Vampire
+	void load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent);
+	void load_pms(const std::vector<uint8_t>& data, bool set_palette, int transparent);
 	void load_bmp(const char* file_name);				// あゆみちゃん物語 フルカラー実写版
-	void load_vsp(uint8* data, bool set_palette, int transparent);
+	void load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent);
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);

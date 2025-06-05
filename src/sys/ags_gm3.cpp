@@ -7,7 +7,7 @@
 #include "ags.h"
 #include <string.h>
 
-void AGS::load_gm3(uint8* data, int transparent)
+void AGS::load_gm3(const std::vector<uint8_t>& data, int transparent)
 {
 	// ヘッダ取得
 	uint16 tmp = (data[0x30] | (data[0x31] << 8)) - 0x8000;
