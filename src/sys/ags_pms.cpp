@@ -8,7 +8,7 @@
 #include "game_id.h"
 #include <string.h>
 
-void AGS::load_pms(const std::vector<uint8_t>& data, bool set_palette, int transparent)
+void AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0x0] | (data[0x1] << 8);
@@ -87,66 +87,72 @@ void AGS::load_pms(const std::vector<uint8_t>& data, bool set_palette, int trans
 		}
 	}
 
-	// PMS展開
-	uint8 cgdata[3][640];
+	if (!extract_cg) {
+		return;
+	}
+	// Extract pixel data
+	std::vector<uint8_t> buf[3];
+	buf[0].resize(width);
+	buf[1].resize(width);
+	buf[2].resize(width);
 	int p = 0x320;
-	memset(cgdata, 0, sizeof(cgdata));
 
-	for(int y = 0; y < height; y++) {
+	for (int y = 0; y < height; y++) {
 		int x = 0;
-		while(x < width) {
-			uint8 d1 = data[p++];
-			if(d1 == 0xff) {
+		while (x < width) {
+			// Some PMS images in Rance 4.1/4.2 English translation do not have
+			// enough pixels for the image size.
+			if (p >= data.size()) {
+				WARNING("CG #%d: PMS data is incomplete or corrupted.", page);
+				goto finish;
+			}
+
+			uint8_t d1 = data[p++];
+			if (d1 == 0xff) {
 				int length = data[p++] + 3;
-				memcpy(cgdata[0] + x, cgdata[1] + x, length);
+				memcpy(buf[0].data() + x, buf[1].data() + x, length);
 				x += length;
-			} else if(d1 == 0xfe) {
+			} else if (d1 == 0xfe) {
 				int length = data[p++] + 3;
-				memcpy(cgdata[0] + x, cgdata[2] + x, length);
+				memcpy(buf[0].data() + x, buf[2].data() + x, length);
 				x += length;
-			} else if(d1 == 0xfd) {
+			} else if (d1 == 0xfd) {
 				int length = data[p++] + 4;
-				uint8 d2 = data[p++];
-				memset(cgdata[0] + x, d2, length);
+				uint8_t d2 = data[p++];
+				memset(buf[0].data() + x, d2, length);
 				x += length;
-			} else if(d1 == 0xfc) {
+			} else if (d1 == 0xfc) {
 				int length = data[p++] + 3;
-				uint8 d2 = data[p++];
-				uint8 d3 = data[p++];
+				uint8_t d2 = data[p++];
+				uint8_t d3 = data[p++];
 				for(int i = 0; i < length; i++) {
-					cgdata[0][x++] = d2;
-					cgdata[0][x++] = d3;
+					buf[0][x++] = d2;
+					buf[0][x++] = d3;
 				}
-			} else if(d1 == 0xfb || d1 == 0xfa || d1 == 0xf9 || d1 == 0xf8) {
-				cgdata[0][x++] = data[p++];
+			} else if (d1 == 0xfb || d1 == 0xfa || d1 == 0xf9 || d1 == 0xf8) {
+				buf[0][x++] = data[p++];
 			} else {
-				cgdata[0][x++] = d1;
+				buf[0][x++] = d1;
 			}
 		}
 
-		// VRAMに転送
-		if(extract_cg) {
-			uint8_t* dest = &vram[dest_screen][y + sy][sx];
-			if(transparent == -1) {
-				for(int x = 0; x < width; x++) {
-					cgdata[2][x] = cgdata[1][x];
-					cgdata[1][x] = cgdata[0][x];
-					dest[x] = cgdata[0][x];
-				}
-			} else {
-				for(int x = 0; x < width; x++) {
-					cgdata[2][x] = cgdata[1][x];
-					cgdata[1][x] = cgdata[0][x];
-					if(cgdata[0][x] != transparent) {
-						dest[x] = cgdata[0][x];
-					}
+		// Transfer the row to VRAM
+		uint8_t* dest = &vram[dest_screen][y + sy][sx];
+		if (transparent == -1) {
+			memcpy(dest, buf[0].data(), width);
+		} else {
+			for (int x = 0; x < width; x++) {
+				if (buf[0][x] != transparent) {
+					dest[x] = buf[0][x];
 				}
 			}
 		}
+		buf[2].swap(buf[1]);
+		buf[1].swap(buf[0]);
 	}
 
-	// 画面更新
-	if(dest_screen == 0 && extract_cg) {
+finish:
+	if (dest_screen == 0) {
 		draw_screen(sx, sy, width, height);
 	}
 }

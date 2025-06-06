@@ -55,7 +55,7 @@ private:
 	void load_gm3(const std::vector<uint8_t>& data, int transparent); // Intruder -桜屋敷の探索-
 	void load_vsp2l(const std::vector<uint8_t>& data, int transparent); // Little Vampire
 	void load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent);
-	void load_pms(const std::vector<uint8_t>& data, bool set_palette, int transparent);
+	void load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent);
 	void load_bmp(const char* file_name);				// あゆみちゃん物語 フルカラー実写版
 	void load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent);
 

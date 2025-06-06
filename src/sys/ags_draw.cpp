@@ -56,12 +56,12 @@ void AGS::load_cg(int page, int transparent)
 			load_vsp(data, set_palette, transparent);
 		} else if (game_id.is_sdps()) {
 			// Super D.P.S
-			load_pms(data, set_palette, transparent);
+			load_pms(page, data, set_palette, transparent);
 		} else {
 			if(data[0x8] == 0) {
 				load_vsp(data, set_palette, transparent);
 			} else {
-				load_pms(data, set_palette, transparent);
+				load_pms(page, data, set_palette, transparent);
 			}
 		}
 		break;
@@ -72,7 +72,7 @@ void AGS::load_cg(int page, int transparent)
 			load_vsp(data, set_palette, transparent);
 		} else {
 			set_palette = set_palette || game_id.is(GameId::FUNNYBEE_CD);
-			load_pms(data, set_palette, transparent);
+			load_pms(page, data, set_palette, transparent);
 		}
 		break;
 	}
