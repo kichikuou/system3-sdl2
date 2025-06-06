@@ -1,5 +1,6 @@
 #include "debugger/debug_info.h"
 #include <algorithm>
+#include <stdint.h>
 #include <string.h>
 #include "fileio.h"
 

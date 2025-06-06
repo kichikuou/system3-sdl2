@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <stdarg.h>
+#include <stdint.h>
 #include "config.h"
 #include "debugger/debug_info.h"
 
