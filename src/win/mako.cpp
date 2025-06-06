@@ -30,9 +30,9 @@ const int SAMPLE_RATE = 44100;
 //
 // When the game uses "Z 100+x,y" command, the xth element of the array should
 // be y.  The array must be terminated with -1.
-const int8 RANCE41_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,1,-1};
-const int8 RANCE42_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,1,-1};
-const int8 DPSALL_tracks[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,5,1,2,3,-1};
+const int8_t RANCE41_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,1,-1};
+const int8_t RANCE42_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,1,-1};
+const int8_t DPSALL_tracks[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,5,1,2,3,-1};
 
 enum MakoThreadMessage {
 	MAKO_OPEN = WM_APP,
@@ -358,7 +358,7 @@ void MAKO::select_sound(BGMDevice dev)
 		break;
 
 	case BGM_CD:
-		const int8* tracks;
+		const int8_t* tracks;
 
 		switch (game_id.game) {
 		case GameId::RANCE41:
