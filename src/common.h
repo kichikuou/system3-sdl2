@@ -9,9 +9,7 @@
 
 #define SYSTEM3_VERSION "1.6.1"
 
-#include <limits.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -32,13 +30,6 @@ typedef uint32_t uint32;
 
 [[noreturn]] void sys_error(const char* format, ...);
 void sys_warning(const char* format, ...);
-
-#ifndef WIN32
-
-#define _MAX_PATH PATH_MAX
-#define sscanf_s sscanf
-
-#endif // !WIN32
 
 #ifdef _MSC_VER
 #define strcasecmp _stricmp

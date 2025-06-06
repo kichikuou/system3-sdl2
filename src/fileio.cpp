@@ -20,6 +20,12 @@ std::string FILEIO::savedir = ".";
 
 namespace {
 
+std::string savefile_name(int index) {
+	std::string name = "ASLEEP_A.DAT";
+	name[7] += index - 1;
+	return name;
+}
+
 std::string FindFile(const std::string& dir, const char* filename) {
 	std::string path = dir + "/" + filename;
 
@@ -47,9 +53,9 @@ void FILEIO::set_savedir(const std::string& dir)
 		savedir.pop_back();
 }
 
-int FILEIO::stat_save(const char* filename, struct stat* buf)
+int FILEIO::stat_save(int index, struct stat* buf)
 {
-	return stat(FindFile(savedir, filename).c_str(), buf);
+	return stat(FindFile(savedir, savefile_name(index).c_str()).c_str(), buf);
 }
 
 FILEIO::~FILEIO(void)
@@ -76,6 +82,12 @@ std::unique_ptr<FILEIO> FILEIO::open(const char *file_name, int mode)
 		fp = fopen(path.c_str(), "wb");
 	}
 	return fp ? std::unique_ptr<FILEIO>(new FILEIO(fp, mode)) : nullptr;
+}
+
+//static
+std::unique_ptr<FILEIO> FILEIO::open_save(int index, int mode)
+{
+	return open(savefile_name(index).c_str(), mode | FILEIO_SAVEDATA);
 }
 
 std::string FILEIO::gets()

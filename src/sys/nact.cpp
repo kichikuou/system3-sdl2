@@ -20,6 +20,10 @@
 #include "game_id.h"
 #include "debugger/debugger.h"
 
+#ifndef WIN32
+#define sscanf_s sscanf
+#endif
+
 extern SDL_Window* g_window;
 
 // 初期化
@@ -533,10 +537,7 @@ void NACT::text_wait()
 
 bool NACT::load(int index)
 {
-	char file_name[_MAX_PATH];
-	snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
-
-	auto fio = FILEIO::open(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA);
+	auto fio = FILEIO::open_save(index, FILEIO_READ_BINARY);
 	if (!fio)
 		return false;
 	fio->seek(112, SEEK_SET);
@@ -576,10 +577,7 @@ bool NACT::load(int index)
 
 bool NACT::save(int index, const char header[112])
 {
-	char file_name[_MAX_PATH];
-	snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 1);
-
-	auto fio = FILEIO::open(file_name, FILEIO_WRITE_BINARY | FILEIO_SAVEDATA);
+	auto fio = FILEIO::open_save(index, FILEIO_WRITE_BINARY);
 	if (!fio)
 		return false;
 

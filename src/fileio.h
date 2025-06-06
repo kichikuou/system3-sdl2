@@ -30,8 +30,9 @@ public:
 	~FILEIO();
 
 	static void set_savedir(const std::string& dir);
-	static int stat_save(const char* filename, struct stat* buf);
+	static int stat_save(int index, struct stat* buf);
 	static std::unique_ptr<FILEIO> open(const char *file_name, int mode);
+	static std::unique_ptr<FILEIO> open_save(int index, int mode);
 	int seek(long offset, int whence) { return fseek(fp, offset, whence); }
 	long tell() { return ftell(fp); }
 	bool read(void* buffer, size_t size) {

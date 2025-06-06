@@ -1,3 +1,4 @@
+#include <limits.h>
 #ifdef _WIN32
 #include <windows.h>
 #undef ERROR
@@ -21,8 +22,8 @@ SDL_RWops* open_resource(const char* name, const char* type) {
 #else
 	// On Android, read from APK assets.
 	// On other platforms, read from a file under RESOURCE_PATH.
-	char path[_MAX_PATH];
-	snprintf(path, _MAX_PATH, "%s%s/%s", RESOURCE_PATH, type, name);
+	char path[PATH_MAX];
+	snprintf(path, PATH_MAX, "%s%s/%s", RESOURCE_PATH, type, name);
 	return SDL_RWFromFile(path, "rb");
 #endif
 }

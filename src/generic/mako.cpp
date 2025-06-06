@@ -5,6 +5,7 @@
 */
 
 #include <memory>
+#include <limits.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
 

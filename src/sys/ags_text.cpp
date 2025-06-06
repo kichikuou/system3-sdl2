@@ -5,6 +5,7 @@
 */
 
 #include <algorithm>
+#include <limits.h>
 #include <string.h>
 #include "ags.h"
 #include "nact.h"

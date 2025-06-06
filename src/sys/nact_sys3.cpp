@@ -494,10 +494,7 @@ void NACT_Sys3::cmd_l()
 			RND = 0;
 	} else if (101 <= index && index <= 126) {
 		// ASLEEP_A.DAT - ASLEEP_Z.DAT
-		char file_name[_MAX_PATH];
-		snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + index - 101);
-
-		auto fio = FILEIO::open(file_name, FILEIO_READ_BINARY | FILEIO_SAVEDATA);
+		auto fio = FILEIO::open_save(index - 100, FILEIO_READ_BINARY);
 		if (fio) {
 			fio->seek(112 + 16, SEEK_SET);
 			RND = fio->getw();
@@ -1017,11 +1014,8 @@ void NACT_Sys3::cmd_y()
 			break;
 		case 239:
 			if(1 <= param && param <= 26) {
-				char file_name[_MAX_PATH];
-				snprintf(file_name, _MAX_PATH, "ASLEEP_%c.DAT", 'A' + param - 1);
-
 				struct stat statbuf;
-				if (FILEIO::stat_save(file_name, &statbuf) != -1) {
+				if (FILEIO::stat_save(param, &statbuf) != -1) {
 					struct tm *t = localtime(&statbuf.st_mtime);
 					D01 = t->tm_year + 1900;
 					D02 = t->tm_mon + 1;
