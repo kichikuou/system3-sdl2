@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.1 - 2025-06-06
+- Fixed crash in Rance 4.1 / 4.2 English translations. (#34)
+
 ## 1.6.0 - 2025-04-26
 - Enabled `Y 240` command in System2 games, to support translation of these games.
 - Android: "Install from ZIP" button is moved to the top-right option menu.
