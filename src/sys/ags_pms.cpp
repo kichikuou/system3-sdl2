@@ -95,7 +95,7 @@ void AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette,
 	buf[0].resize(width);
 	buf[1].resize(width);
 	buf[2].resize(width);
-	int p = 0x320;
+	size_t p = 0x320;
 
 	for (int y = 0; y < height; y++) {
 		int x = 0;
