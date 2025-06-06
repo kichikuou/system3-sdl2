@@ -38,12 +38,6 @@ void sys_warning(const char* format, ...);
 #define _MAX_PATH PATH_MAX
 #define sscanf_s sscanf
 
-inline void strcpy_s(char* dst, size_t n, const char* src)
-{
-	strncpy(dst, src, n);
-	dst[n - 1] = '\0';
-}
-
 #endif // !WIN32
 
 #ifdef _MSC_VER

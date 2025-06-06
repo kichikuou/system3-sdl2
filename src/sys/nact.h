@@ -56,8 +56,8 @@ protected:
 	// 変数
 	uint16 var[MAX_VAR] = {};
 	uint16 var_stack[30][20] = {};
-	char tvar[MAX_STRVAR][33] = {};
-	char tvar_stack[30][MAX_STRVAR][22] = {};
+	std::string tvar[MAX_STRVAR];
+	std::string tvar_stack[30][MAX_STRVAR];
 	int tvar_index = 0;
 	int tvar_maxlen;
 
@@ -189,8 +189,8 @@ public:
 	int get_scenario_page() const { return sco.page(); }
 	uint16 get_var(int index) const { return var[index]; }
 	void set_var(int index, uint16_t value) { var[index] = value; }
-	const char* get_string(int index) const { return tvar[index]; }
-	void set_string(int index, const char* value);
+	const char* get_string(int index) const { return tvar[index].c_str(); }
+	void set_string(int index, const std::string& value) { tvar[index] = value; }
 
 private:
 	void pump_events();

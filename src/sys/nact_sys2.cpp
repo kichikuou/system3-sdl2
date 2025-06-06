@@ -554,7 +554,7 @@ void NACT_Sys2::cmd_m()
 	TRACE("M %s:", encoding->toUtf8(string).c_str());
 
 	if(1 <= tvar_index && tvar_index <= 10) {
-		memcpy(tvar[tvar_index - 1], string, 33);
+		tvar[tvar_index - 1] = string;
 	}
 }
 
@@ -775,8 +775,8 @@ void NACT_Sys2::cmd_y()
 		case 228:
 		case 229:
 			if(1 <= param && param <= 10) {
-				ags->draw_text(tvar[param - 1]);
-				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1]);
+				ags->draw_text(tvar[param - 1].c_str());
+				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1].c_str());
 				if (padlen > 0) {
 					char pad[10] = "         ";
 					pad[padlen] = '\0';

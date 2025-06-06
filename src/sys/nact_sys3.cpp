@@ -485,7 +485,7 @@ void NACT_Sys3::cmd_l()
 			}
 			// M1 - M10
 			for(int i = 0; i < 10; i++) {
-				fio->read(tvar[i], 22);
+				tvar[i] = fio->read_string(22);
 			}
 		}
 	} else if (1 <= index && index <= 26) {
@@ -526,7 +526,7 @@ void NACT_Sys3::cmd_m()
 	TRACE("M %s:", encoding->toUtf8(string).c_str());
 
 	if(1 <= tvar_index && tvar_index <= 10) {
-		memcpy(tvar[tvar_index - 1], string, 22);
+		tvar[tvar_index - 1] = string;
 	} else if(tvar_index == 31) {
 		sco.open(string);
 	} else if(tvar_index == 32) {
@@ -651,7 +651,7 @@ void NACT_Sys3::cmd_q()
 			}
 			// M1 - M10
 			for(int i = 0; i < 10; i++) {
-				fio->write(tvar[i], 22);
+				fio->write_string(tvar[i], 22);
 			}
 		}
 	} else if (1 <= index && index <= 26) {
@@ -698,14 +698,14 @@ void NACT_Sys3::cmd_v()
 			var[21 + i] = var_stack[index - 1][i];
 		}
 		for(int i = 0; i < 10; i++) {
-			memcpy(tvar[i], tvar_stack[index - 1][i], 22);
+			tvar[i] = tvar_stack[index - 1][i];
 		}
 	} else {
 		for(int i = 0; i < 20; i++) {
 			var_stack[index - 1][i] = var[21 + i];
 		}
 		for(int i = 0; i< 10; i++) {
-			memcpy(tvar_stack[index - 1][i], tvar[i], 22);
+			tvar_stack[index - 1][i] = tvar[i];
 		}
 	}
 }
@@ -965,8 +965,8 @@ void NACT_Sys3::cmd_y()
 		case 228:
 		case 229:
 			{
-				ags->draw_text(tvar[param - 1]);
-				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1]);
+				ags->draw_text(tvar[param - 1].c_str());
+				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1].c_str());
 				if (padlen > 0) {
 					char pad[10] = "         ";
 					pad[padlen] = '\0';

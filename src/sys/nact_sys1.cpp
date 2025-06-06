@@ -948,13 +948,13 @@ public:
 	NACT_DPS(const Config& config, const GameId& game_id)
 		: NACT_Sys1(config, game_id) {
 		text_refresh = false;
-		strcpy(tvar[0], strings.dps_custom.c_str());
-		strcpy(tvar[1], strings.dps_linus.c_str());
-		strcpy(tvar[2], strings.dps_katsumi.c_str());
-		strcpy(tvar[3], strings.dps_yumiko.c_str());
-		strcpy(tvar[4], strings.dps_itsumi.c_str());
-		strcpy(tvar[5], strings.dps_hitomi.c_str());
-		strcpy(tvar[6], strings.dps_mariko.c_str());
+		tvar[0] = strings.dps_custom;
+		tvar[1] = strings.dps_linus;
+		tvar[2] = strings.dps_katsumi;
+		tvar[3] = strings.dps_yumiko;
+		tvar[4] = strings.dps_itsumi;
+		tvar[5] = strings.dps_hitomi;
+		tvar[6] = strings.dps_mariko;
 	}
 
 	void cmd_y() override {

@@ -40,6 +40,8 @@ public:
 	bool write(const void* buffer, size_t size) {
 		return fwrite(buffer, size, 1, fp) == 1;
 	}
+	std::string read_string(size_t size);
+	bool write_string(const std::string& str, size_t size);
 	int getc() { return fgetc(fp); }
 	int getw() {
 		int val = getc();

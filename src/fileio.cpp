@@ -5,6 +5,7 @@
 */
 
 #include "fileio.h"
+#include <vector>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -88,4 +89,18 @@ std::string FILEIO::gets()
 			s.push_back(c);
 	}
 	return s;
+}
+
+std::string FILEIO::read_string(size_t size) {
+	std::vector<char> buf(size + 1);
+	if (fread(buf.data(), size, 1, fp) != 1) {
+		return std::string();
+	}
+	return std::string(buf.data());
+}
+
+bool FILEIO::write_string(const std::string& str, size_t size) {
+	std::vector<char> buf(size);
+	memcpy(buf.data(), str.c_str(), std::min(size, str.size()));
+	return fwrite(buf.data(), size, 1, fp) == 1;
 }

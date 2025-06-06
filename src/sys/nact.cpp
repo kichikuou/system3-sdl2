@@ -474,7 +474,7 @@ void NACT::cmd_x()
 	TRACE("X %d:", index);
 
 	if(1 <= index && index <= 10) {
-		ags->draw_text(tvar[index - 1]);
+		ags->draw_text(tvar[index - 1].c_str());
 	}
 }
 
@@ -554,11 +554,11 @@ bool NACT::load(int index)
 	}
 	ags->load(fio.get());
 	for (int i = 0; i < 10; i++) {
-		fio->read(tvar[i], 22);
+		tvar[i] = fio->read_string(22);
 	}
 	for (int i = 0; i < 30; i++) {
 		for (int j = 0; j < 10; j++) {
-			fio->read(tvar_stack[i][j], 22);
+			tvar_stack[i][j] = fio->read_string(22);
 		}
 	}
 	for (int i = 0; i < 30; i++) {
@@ -597,11 +597,11 @@ bool NACT::save(int index, const char header[112])
 	}
 	ags->save(fio.get());
 	for (int i = 0; i < 10; i++) {
-		fio->write(tvar[i], 22);
+		fio->write_string(tvar[i], 22);
 	}
 	for (int i = 0; i < 30; i++) {
 		for (int j = 0; j < 10; j++) {
-			fio->write(tvar_stack[i][j], 22);
+			fio->write_string(tvar_stack[i][j], 22);
 		}
 	}
 	for (int i = 0; i < 30; i++) {
@@ -753,23 +753,6 @@ void NACT::sys_sleep(int ms) {
 #else
 	SDL_Delay(ms);
 #endif
-}
-
-void NACT::set_string(int index, const char* value)
-{
-	const char *src = value;
-	char *dst = tvar[index];
-	int remaining = sizeof(tvar[0]) - 1;
-	while (*src) {
-		int len = encoding->mblen(*src);
-		if (len > remaining)
-			break;
-		memcpy(dst, src, len);
-		src += len;
-		dst += len;
-		remaining -= len;
-	}
-	*dst = '\0';
 }
 
 // WinMainとのインターフェース

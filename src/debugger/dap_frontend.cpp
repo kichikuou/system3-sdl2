@@ -417,7 +417,7 @@ private:
 				}
 				value = value.substr(1, value.size() - 2);
 
-				g_nact->set_string(index, g_nact->encoding->fromUtf8(value.c_str()).c_str());
+				g_nact->set_string(index, g_nact->encoding->fromUtf8(value.c_str()));
 
 				resp["success"] = true;
 				resp["body"] = {
