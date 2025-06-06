@@ -4,6 +4,7 @@
 #undef min
 #undef max
 #endif
+#include <SDL.h>
 #include "common.h"
 
 SDL_RWops* open_resource(const char* name, const char* type) {

@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
+#include <SDL.h>
 #include "common.h"
 #include "config.h"
 #include "dri.h"

@@ -7,6 +7,7 @@
 #include "dri.h"
 #include <memory>
 #include <string.h>
+#include <SDL.h>
 #include "game_id.h"
 #include "fileio.h"
 

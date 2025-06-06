@@ -4,6 +4,7 @@
 */
 
 #include <memory>
+#include <SDL.h>
 #include <emscripten.h>
 #include "mako.h"
 #include "fm/mako_ymfm.h"
