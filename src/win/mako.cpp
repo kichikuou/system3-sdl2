@@ -6,8 +6,6 @@
 
 #include <windows.h>
 #undef ERROR
-#undef min
-#undef max
 #include <memory>
 #include <string>
 #include <SDL.h>

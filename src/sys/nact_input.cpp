@@ -7,8 +7,6 @@
 #ifdef _WIN32
 #include <windows.h>
 #undef ERROR
-#undef min
-#undef max
 #endif
 #include <SDL_syswm.h>
 #include "nact.h"

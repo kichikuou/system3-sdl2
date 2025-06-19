@@ -1,8 +1,6 @@
 #include <windows.h>
 #include <windowsx.h>
 #undef ERROR
-#undef min
-#undef max
 #include <time.h>
 #include "nact.h"
 #include "SDL_syswm.h"

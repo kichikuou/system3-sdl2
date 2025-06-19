@@ -2,8 +2,6 @@
 #ifdef _WIN32
 #include <windows.h>
 #undef ERROR
-#undef min
-#undef max
 #endif
 #include <SDL.h>
 #include "common.h"

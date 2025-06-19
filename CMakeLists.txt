@@ -162,6 +162,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
       src/win/mako.cpp
       src/win/resource.rc
       )
+    target_compile_definitions(system3 PRIVATE NOMINMAX)
     target_link_libraries(system3 PRIVATE winmm)
     if (MINGW)
       target_link_options(system3 PRIVATE -static)
