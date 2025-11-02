@@ -86,18 +86,18 @@ NACT_Sys2::NACT_Sys2(const Config& config, const GameId& game_id)
 	: NACT(config, game_id)
 {
 	if (game_id.is(GameId::SDPS_TONO) || game_id.is(GameId::SDPS_KAIZOKU)) {
-		ags->set_box(0, 0, 40, 8, 598, 271);
+		ags->set_box(1, 0, 40, 8, 598, 271);
 	} else if (game_id.is(GameId::PROG_FD)) {
-		ags->set_box(0, 0, 64, 13, 407, 289);
-		ags->set_box(1, 0, 24, 298, 111, 390);
-		ags->set_box(2, 0, 0, 0, 639, 307);
-		ags->set_box(3, 0, 0, 0, 319, 399);
-		ags->set_box(4, 0, (16*8), 310, ((77*8)-1), 390);
-		ags->set_box(5, 0, (4*8), 310, ((76*8)-1), 390);
-		ags->set_box(6, 0, (2*8), 317, ((56*8)-1), 389);
-		ags->set_box(7, 15, 64, 13, 407, 289);
-		ags->set_box(8, 0, 0, 0, 319, 399);
-		ags->set_box(9, 0, 320, 0, 639, 40);
+		ags->set_box(1, 0, 64, 13, 407, 289);
+		ags->set_box(2, 0, 24, 298, 111, 390);
+		ags->set_box(3, 0, 0, 0, 639, 307);
+		ags->set_box(4, 0, 0, 0, 319, 399);
+		ags->set_box(5, 0, (16*8), 310, ((77*8)-1), 390);
+		ags->set_box(6, 0, (4*8), 310, ((76*8)-1), 390);
+		ags->set_box(7, 0, (2*8), 317, ((56*8)-1), 389);
+		ags->set_box(8, 15, 64, 13, 407, 289);
+		ags->set_box(9, 0, 0, 0, 319, 399);
+		ags->set_box(10, 0, 320, 0, 639, 40);
 	}
 }
 
