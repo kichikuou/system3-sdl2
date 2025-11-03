@@ -739,6 +739,9 @@ void NACT_Sys2::cmd_y()
 		case 8:
 			tvar_index = param;
 			break;
+		case 10:
+			ags->ignore_palette.insert(param);
+			break;
 		case 14:
 			RND = 1;
 			break;
