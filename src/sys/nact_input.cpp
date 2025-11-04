@@ -21,7 +21,7 @@ enum TouchState {
 };
 
 extern SDL_Window* g_window;
-static int mousex, mousey;
+static int mousex, mousey, wheel;
 static TouchState touch_state = TOUCH_NONE;
 
 void NACT::handle_event(SDL_Event e)
@@ -45,6 +45,10 @@ void NACT::handle_event(SDL_Event e)
 	case SDL_MOUSEMOTION:
 		mousex = e.motion.x * ags->screen_width / ags->window_width;
 		mousey = e.motion.y * ags->screen_height / ags->window_height;
+		break;
+
+	case SDL_MOUSEWHEEL:
+		wheel += e.wheel.y * (e.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1 : 1);
 		break;
 
 	case SDL_FINGERDOWN:
@@ -152,6 +156,13 @@ void NACT::set_cursor(int x, int y)
 		return;
 	ags->translate_mouse_coords(&x, &y);
 	SDL_WarpMouseInWindow(g_window, x, y);
+}
+
+int NACT::get_wheel()
+{
+	int val = wheel;
+	wheel = 0;
+	return val;
 }
 
 void NACT::show_quit_dialog()

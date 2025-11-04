@@ -149,6 +149,7 @@ protected:
 	uint8 get_key();
 	void get_cursor(int* x, int* y);
 	void set_cursor(int x, int y);
+	int get_wheel();
 
 	SDL_GameController *sdl_gamecontroller = NULL;
 

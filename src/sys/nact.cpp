@@ -410,12 +410,14 @@ void NACT::cmd_a()
 		ags->draw_push(text_window);
 	}
 
+	get_wheel();  // clear wheel input
+
 	// キーが押されて離されるまで待機
 	while (!msgskip->skipping()) {
 		if(terminate) {
 			return;
 		}
-		if(get_key()) {
+		if (get_key() || get_wheel() < 0) {
 			break;
 		}
 		sys_sleep(16);
