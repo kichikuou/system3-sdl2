@@ -10,8 +10,10 @@ jobs:
         include:
           - sys: mingw32
             package: "system3-sdl2-32bit"
+            deps: ""
           - sys: ucrt64
             package: "system3-sdl2-64bit"
+            deps: "nlohmann-json:p"
     defaults:
       run:
         shell: msys2 {0}
@@ -26,7 +28,7 @@ jobs:
           SDL2:p
           SDL2_ttf:p
           rtmidi:p
-          nlohmann-json:p
+          ${{ matrix.deps }}
 
     - name: Checkout
       uses: actions/checkout@v4
