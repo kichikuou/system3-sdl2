@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.2 - 2025-11-04
+- Added support for advancing messages by scrolling the mouse wheel down.
+- Windows: The debugger is no longer available in the 32-bit release. Please use the 64-bit version if you need it.
+- Fixed memory corruption bug in Prostudent G (FD edition) and Super D.P.S.
+
 ## 1.6.1 - 2025-06-06
 - Fixed crash in Rance 4.1 / 4.2 English translations. (#34)
 
