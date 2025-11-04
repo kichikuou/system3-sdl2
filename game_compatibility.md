@@ -63,8 +63,8 @@ Game Compatibility
 | `toushin2_sp` | 闘神都市2 そして、それから… | |
 | `yakata` | ALICEの館 | |
 | `yakata2` | ALICEの館II | 殴りまくりたわぁ and おかゆの逆襲 do not work |
-| `yakata3_cd` | アリスの館3 (CD) | |
-| `yakata3_fd` | アリスの館3 (FD) | |
+| `yakata3_cd` | アリスの館3 (CD) | にせなぐりまくりたわあ does not work |
+| `yakata3_fd` | アリスの館3 (FD) | にせなぐりまくりたわあ does not work |
 
 [^1]: This game is ported to System 3.5 and supported by
       [xsystem35](https://github.com/kichikuou/xsystem35-sdl2).
