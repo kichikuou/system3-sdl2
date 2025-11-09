@@ -423,7 +423,7 @@ void AGS::update_screen()
 
 	SDL_RenderClear(g_renderer);
 	SDL_Rect src = {0, 0, screen_width, screen_height};
-	SDL_Rect dest = {0, 0, screen_width, screen_height};
+	SDL_Rect dest = {0, 0, window_width, screen_height};
 	if (scroll > 0) {
 		src.y = scroll;
 		src.h = dest.h = screen_height - scroll;
