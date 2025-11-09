@@ -39,6 +39,7 @@ struct Config {
 	std::string encoding;
 	std::string save_dir;
 	std::string playlist;
+	std::string censor_list;
 	std::string title;
 	int midi_device = -1;
 	bool print_version = false;

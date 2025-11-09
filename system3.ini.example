@@ -46,6 +46,12 @@ texthook = none
 ; The example below is for Rance 4.1, to filter out system messages.
 ;texthook_suppress = 2,7
 
+; Censor list for Streamer Mode.
+; This mosaics images listed in the specified file, making them safe for
+; streaming or public viewing. The file should contain one image number
+; per line, with '#' treated as comments.
+;censor = censor_list.txt
+
 ; Enables trace mode, which prints debug information to the console.
 ;trace = true
 

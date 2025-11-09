@@ -103,6 +103,8 @@ public:
 	void load_cg(int page, int transparent);
 	void set_cg_file(const char *file_name);
 
+	void load_censor_list(const char* fname);
+
 	void set_palette(int index, uint8_t r, uint8_t g, uint8_t b);
 	std::vector<uint32_t> get_screen_palette() const;
 	uint8 get_pixel(int dest, int x, int y) const { return vram[dest][y][x]; }
@@ -203,6 +205,7 @@ public:
 	bool get_palette;
 	bool extract_palette;
 	bool extract_cg;
+	std::unordered_set<int> censor_list;
 	std::unordered_set<int> ignore_palette;
 	int palette_bank;
 

@@ -70,6 +70,11 @@ for translation or other purposes. The available modes are:
 Suppress text hook on specified scenario pages. _list_ is a comma-separated list
 of page numbers.
 
+#### `-censor` _file_
+Enables **Streamer Mode**, which mosaics specific images to make them safe for
+streaming. The _file_ is a text file containing a list of image numbers
+to censor, one per line. Lines starting with '#' are treated as comments.
+
 #### `-trace`
 Enables trace mode, which prints debug information to the console.
 

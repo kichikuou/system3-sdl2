@@ -5,6 +5,7 @@
 */
 
 #include "ags.h"
+#include <ctype.h>
 #include <string.h>
 #include "nact.h"
 #include "game_id.h"
@@ -63,6 +64,9 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 	screen_palette = hBmpScreen[0]->format->palette;
 	SDL_SetSurfacePalette(hBmpScreen[1], screen_palette);
 	SDL_SetSurfacePalette(hBmpScreen[2], screen_palette);
+
+	if (!config.censor_list.empty())
+		load_censor_list(config.censor_list.c_str());
 
 	// フォント
 	TTF_Init();
@@ -483,11 +487,52 @@ int AGS::calculate_menu_max(int window) {
 	return 11;
 }
 
+void AGS::load_censor_list(const char* fname)
+{
+	censor_list.clear();
+	if (!fname || !*fname)
+		return;
+
+	FILE *fp = fopen(fname, "r");
+	if (!fp) {
+		ERROR("failed to open %s", fname);
+		return;
+	}
+
+	char line[256];
+	int line_no = 0;
+	while (fgets(line, sizeof(line), fp)) {
+		line_no++;
+		char* p = line;
+		char* comment = strchr(p, '#');
+		if (comment)
+			*comment = '\0';
+		while (*p && isspace((unsigned char)*p))
+			p++;
+		if (*p == '\0')
+			continue;
+
+		char *endptr;
+		censor_list.insert(strtol(p, &endptr, 10));
+
+		while (*endptr && isspace((unsigned char)*endptr))
+			endptr++;
+		if (*endptr != '\0')
+			WARNING("%s:%d: syntax error", fname, line_no);
+	}
+
+	fclose(fp);
+}
+
 #ifdef __EMSCRIPTEN__
 extern "C" {
 
 bool EMSCRIPTEN_KEEPALIVE save_screenshot(const char* path) {
 	return g_nact->ags->save_screenshot(path);
+}
+
+void EMSCRIPTEN_KEEPALIVE load_censor_list(const char *path) {
+	return g_nact->ags->load_censor_list(path);
 }
 
 }

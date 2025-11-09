@@ -14,6 +14,23 @@
 #include "game_id.h"
 #include "debugger/debugger.h"
 
+namespace {
+
+const int MOSAIC_SIZE = 16;
+
+void mosaic(SDL_Surface* sf) {
+	SDL_Surface *tmp = SDL_CreateRGBSurfaceWithFormat(
+		0, (sf->w + MOSAIC_SIZE - 1) / MOSAIC_SIZE, (sf->h + MOSAIC_SIZE - 1) / MOSAIC_SIZE, 8, SDL_PIXELFORMAT_INDEX8);
+	if (sf->format->palette)
+		SDL_SetSurfacePalette(tmp, sf->format->palette);
+	// NOTE: SDL_BlitScaled() does not support 8-bit surfaces.
+	SDL_SoftStretch(sf, NULL, tmp, NULL);
+	SDL_SoftStretch(tmp, NULL, sf, NULL);
+	SDL_FreeSurface(tmp);
+}
+
+}  // namespace
+
 void AGS::load_cg(int page, int transparent)
 {
 	if (bmp_prefix) {
@@ -78,6 +95,9 @@ void AGS::load_cg(int page, int transparent)
 	}
 	if (extract_cg && cg.surface()) {
 		SDL_SetSurfacePalette(cg.surface(), screen_palette);
+		if (censor_list.count(page)) {
+			mosaic(cg.surface());
+		}
 		SDL_Rect dstrect = { cg.x, cg.y, cg.surface()->w, cg.surface()->h };
 		SDL_BlitSurface(cg.surface(), NULL, hBmpScreen[dest_screen], &dstrect);
 		if (dest_screen == 0) {

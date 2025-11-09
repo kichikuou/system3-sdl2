@@ -140,6 +140,8 @@ Config::Config(int argc, char *argv[])
 			font_file = argv[++i];
 		else if (strcmp(argv[i], "-playlist") == 0)
 			playlist = argv[++i];
+		else if (strcmp(argv[i], "-censor") == 0)
+			censor_list = argv[++i];
 		else if (strcmp(argv[i], "-fm") == 0)
 			use_fm = true;
 		else if (strcmp(argv[i], "-mididevice") == 0)
@@ -208,6 +210,8 @@ void Config::load_ini()
 				font_file = normalize_path(val);
 			else if (!strcasecmp(key, "playlist"))
 				playlist = normalize_path(val);
+			else if (!strcasecmp(key, "censor"))
+				censor_list = normalize_path(val);
 			else if (!strcasecmp(key, "fm"))
 				use_fm = to_bool(val, lineno);
 			else if (!strcasecmp(key, "mididevice"))
