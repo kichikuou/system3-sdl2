@@ -22,7 +22,7 @@ SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int heig
 {
 	SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
 	for (int y = 0; y < height; y++) {
-		uint32* p = surface_line(sf, y);
+		uint32* p = reinterpret_cast<uint32*>(surface_line(sf, y));
 		uint32 v = y % 2 ? (SCANLINE_ALPHA << 24) : 0;
 		for (int x = 0; x < width; x++) {
 			p[x] = v;

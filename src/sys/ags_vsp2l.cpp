@@ -7,7 +7,7 @@
 #include "ags.h"
 #include <string.h>
 
-void AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent)
+CG AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0] | (data[1] << 8);
@@ -46,6 +46,10 @@ void AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent)
 	SDL_SetPaletteColors(screen_palette, colors, base, 8);
 
 	// VSP2L展開
+	SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width * 8, height * 2, 8, SDL_PIXELFORMAT_INDEX8);
+	if (transparent >= 0) {
+		SDL_SetColorKey(surface, SDL_TRUE, transparent | base);
+	}
 	uint8 cgdata[3][2][200], mask = 0;
 	int p = 0x1a;
 	memset(cgdata, 0, sizeof(cgdata));
@@ -106,42 +110,28 @@ void AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent)
 			}
 		}
 
-		// VRAMに転送
-		if(extract_cg) {
-			for(int y = 0; y < height; y++) {
-				uint8 b0, b1, b2, c[8];
-				b0 = cgdata[0][1][y] = cgdata[0][0][y];
-				b1 = cgdata[1][1][y] = cgdata[1][0][y];
-				b2 = cgdata[2][1][y] = cgdata[2][0][y];
-				c[0] = ((b0 >> 7) & 1) | ((b1 >> 6) & 2) | ((b2 >> 5) & 4);
-				c[1] = ((b0 >> 6) & 1) | ((b1 >> 5) & 2) | ((b2 >> 4) & 4);
-				c[2] = ((b0 >> 5) & 1) | ((b1 >> 4) & 2) | ((b2 >> 3) & 4);
-				c[3] = ((b0 >> 4) & 1) | ((b1 >> 3) & 2) | ((b2 >> 2) & 4);
-				c[4] = ((b0 >> 3) & 1) | ((b1 >> 2) & 2) | ((b2 >> 1) & 4);
-				c[5] = ((b0 >> 2) & 1) | ((b1 >> 1) & 2) | ((b2     ) & 4);
-				c[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4);
-				c[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4);
+		// Transfer to the surface
+		for (int y = 0; y < height; y++) {
+			uint8 b0, b1, b2, c[8];
+			b0 = cgdata[0][1][y] = cgdata[0][0][y];
+			b1 = cgdata[1][1][y] = cgdata[1][0][y];
+			b2 = cgdata[2][1][y] = cgdata[2][0][y];
+			c[0] = ((b0 >> 7) & 1) | ((b1 >> 6) & 2) | ((b2 >> 5) & 4);
+			c[1] = ((b0 >> 6) & 1) | ((b1 >> 5) & 2) | ((b2 >> 4) & 4);
+			c[2] = ((b0 >> 5) & 1) | ((b1 >> 4) & 2) | ((b2 >> 3) & 4);
+			c[3] = ((b0 >> 4) & 1) | ((b1 >> 3) & 2) | ((b2 >> 2) & 4);
+			c[4] = ((b0 >> 3) & 1) | ((b1 >> 2) & 2) | ((b2 >> 1) & 4);
+			c[5] = ((b0 >> 2) & 1) | ((b1 >> 1) & 2) | ((b2     ) & 4);
+			c[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4);
+			c[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4);
 
-				uint8_t* dest0 = &vram[dest_screen][(y + sy) * 2 + 0][(x + sx) * 8];
-				uint8_t* dest1 = &vram[dest_screen][(y + sy) * 2 + 1][(x + sx) * 8];
-				if(transparent == -1) {
-					for(int i = 0; i < 8; i++) {
-						dest0[i] = dest1[i] = c[i] | base;
-					}
-				} else {
-					for(int i = 0; i < 8; i++) {
-						if(c[i] != transparent) {
-							dest0[i] = dest1[i] = c[i] | base;
-						}
-					}
-				}
+			uint8_t* dest0 = surface_line(surface, y * 2) + x * 8;
+			uint8_t* dest1 = dest0 + surface->pitch;
+			for (int i = 0; i < 8; i++) {
+				dest0[i] = dest1[i] = c[i] | base;
 			}
 		}
 	}
 
-	// 画面更新
-	if(dest_screen == 0 && extract_cg) {
-		draw_screen(sx * 8, sy * 2, width * 8, height * 2);
-	}
+	return CG(surface, sx * 8, sy * 2);
 }
-

@@ -7,7 +7,7 @@
 #include "ags.h"
 #include <string.h>
 
-void AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent)
+CG AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent)
 {
 	// ヘッダ取得
 	uint16 tmp = (data[0x30] | (data[0x31] << 8)) - 0x8000;
@@ -47,6 +47,10 @@ void AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int trans
 	}
 
 	// GL3展開
+	SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width * 8, height, 8, SDL_PIXELFORMAT_INDEX8);
+	if (transparent >= 0) {
+		SDL_SetColorKey(surface, SDL_TRUE, transparent | base);
+	}
 	uint8 cgdata[4][80][3];
 	int p = 0x36;
 	memset(cgdata, 0, sizeof(cgdata));
@@ -106,46 +110,29 @@ void AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int trans
 			}
 		}
 
-		// VRAMに転送
-		if(extract_cg) {
-			for(int x = 0; x < width; x++) {
-				for(int pl = 0; pl < 4; pl++) {
-					cgdata[pl][x][2] = cgdata[pl][x][1];
-					cgdata[pl][x][1] = cgdata[pl][x][0];
-				}
-				uint8 b0, b1, b2, b3, c[8];
-				b0 = cgdata[0][x][0];
-				b1 = cgdata[1][x][0];
-				b2 = cgdata[2][x][0];
-				b3 = cgdata[3][x][0];
-				c[0] = ((b0 >> 7) & 1) | ((b1 >> 6) & 2) | ((b2 >> 5) & 4) | ((b3 >> 4) & 8);
-				c[1] = ((b0 >> 6) & 1) | ((b1 >> 5) & 2) | ((b2 >> 4) & 4) | ((b3 >> 3) & 8);
-				c[2] = ((b0 >> 5) & 1) | ((b1 >> 4) & 2) | ((b2 >> 3) & 4) | ((b3 >> 2) & 8);
-				c[3] = ((b0 >> 4) & 1) | ((b1 >> 3) & 2) | ((b2 >> 2) & 4) | ((b3 >> 1) & 8);
-				c[4] = ((b0 >> 3) & 1) | ((b1 >> 2) & 2) | ((b2 >> 1) & 4) | ((b3     ) & 8);
-				c[5] = ((b0 >> 2) & 1) | ((b1 >> 1) & 2) | ((b2     ) & 4) | ((b3 << 1) & 8);
-				c[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4) | ((b3 << 2) & 8);
-				c[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4) | ((b3 << 3) & 8);
-
-				uint8_t* dest = &vram[dest_screen][y + sy][(x + sx) * 8];
-				if(transparent == -1) {
-					for(int i = 0; i < 8; i++) {
-						dest[i] = c[i] | base;
-					}
-				} else {
-					for(int i = 0; i < 8; i++) {
-						if(c[i] != transparent) {
-							dest[i] = c[i] | base;
-						}
-					}
-				}
+		// Transfer to the surface
+		for (int x = 0; x < width; x++) {
+			for (int pl = 0; pl < 4; pl++) {
+				cgdata[pl][x][2] = cgdata[pl][x][1];
+				cgdata[pl][x][1] = cgdata[pl][x][0];
 			}
+			uint8 b0, b1, b2, b3;
+			b0 = cgdata[0][x][0];
+			b1 = cgdata[1][x][0];
+			b2 = cgdata[2][x][0];
+			b3 = cgdata[3][x][0];
+			uint8_t* dest = surface_line(surface, y) + x * 8;
+			dest[0] = ((b0 >> 7) & 1) | ((b1 >> 6) & 2) | ((b2 >> 5) & 4) | ((b3 >> 4) & 8) | base;
+			dest[1] = ((b0 >> 6) & 1) | ((b1 >> 5) & 2) | ((b2 >> 4) & 4) | ((b3 >> 3) & 8) | base;
+			dest[2] = ((b0 >> 5) & 1) | ((b1 >> 4) & 2) | ((b2 >> 3) & 4) | ((b3 >> 2) & 8) | base;
+			dest[3] = ((b0 >> 4) & 1) | ((b1 >> 3) & 2) | ((b2 >> 2) & 4) | ((b3 >> 1) & 8) | base;
+			dest[4] = ((b0 >> 3) & 1) | ((b1 >> 2) & 2) | ((b2 >> 1) & 4) | ((b3     ) & 8) | base;
+			dest[5] = ((b0 >> 2) & 1) | ((b1 >> 1) & 2) | ((b2     ) & 4) | ((b3 << 1) & 8) | base;
+			dest[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4) | ((b3 << 2) & 8) | base;
+			dest[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4) | ((b3 << 3) & 8) | base;
 		}
 	}
 
-	// 画面更新
-	if(dest_screen == 0 && extract_cg) {
-		draw_screen(sx * 8, sy, width * 8, height);
-	}
+	return CG(surface, sx * 8, sy);
 }
 

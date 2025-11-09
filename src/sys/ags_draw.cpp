@@ -27,41 +27,41 @@ void AGS::load_cg(int page, int transparent)
 		return;
 
 	bool set_palette = extract_palette && !ignore_palette.count(page);
-
+	CG cg;
 	switch (game_id.sys_ver) {
 	case 1:
 		switch (game_id.game) {
 		case GameId::BUNKASAI:
 		case GameId::GAKUEN:
-			load_vsp(data, set_palette, transparent);
+			cg = load_vsp(data, set_palette, transparent);
 			break;
 		case GameId::INTRUDER:
-			// load_gm3(data, transparent);
-			load_vsp(data, set_palette, transparent);  // 暫定
+			// cg = load_gm3(data, transparent);
+			cg = load_vsp(data, set_palette, transparent);  // 暫定
 			break;
 		case GameId::LITTLE_VAMPIRE:
-			load_vsp2l(data, transparent);
+			cg = load_vsp2l(data, transparent);
 			break;
 		default:
-			load_gl3(data, set_palette, transparent);
+			cg = load_gl3(data, set_palette, transparent);
 			break;
 		}
 		break;
 	case 2:
 		if (game_id.is(GameId::AYUMI_PROTO)) {
 			// あゆみちゃん物語 PROTO
-			load_gl3(data, set_palette, transparent);
+			cg = load_gl3(data, set_palette, transparent);
 		} else if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT)) {
 			// あゆみちゃん物語
-			load_vsp(data, set_palette, transparent);
+			cg = load_vsp(data, set_palette, transparent);
 		} else if (game_id.is_sdps()) {
 			// Super D.P.S
-			load_pms(page, data, set_palette, transparent);
+			cg = load_pms(page, data, set_palette, transparent);
 		} else {
 			if(data[0x8] == 0) {
-				load_vsp(data, set_palette, transparent);
+				cg = load_vsp(data, set_palette, transparent);
 			} else {
-				load_pms(page, data, set_palette, transparent);
+				cg = load_pms(page, data, set_palette, transparent);
 			}
 		}
 		break;
@@ -69,12 +69,20 @@ void AGS::load_cg(int page, int transparent)
 		if(data[0x8] == 0) {
 			if (game_id.is(GameId::FUNNYBEE_FD) || game_id.is(GameId::FUNNYBEE_CD))
 				set_palette = !ignore_palette.count(page);
-			load_vsp(data, set_palette, transparent);
+			cg = load_vsp(data, set_palette, transparent);
 		} else {
 			set_palette = set_palette || game_id.is(GameId::FUNNYBEE_CD);
-			load_pms(page, data, set_palette, transparent);
+			cg = load_pms(page, data, set_palette, transparent);
 		}
 		break;
+	}
+	if (extract_cg && cg.surface()) {
+		SDL_SetSurfacePalette(cg.surface(), screen_palette);
+		SDL_Rect dstrect = { cg.x, cg.y, cg.surface()->w, cg.surface()->h };
+		SDL_BlitSurface(cg.surface(), NULL, hBmpScreen[dest_screen], &dstrect);
+		if (dest_screen == 0) {
+			draw_screen(dstrect.x, dstrect.y, dstrect.w, dstrect.h);
+		}
 	}
 	if (set_palette) {
 		dirty_rect = {0, 0, screen_width, screen_height};

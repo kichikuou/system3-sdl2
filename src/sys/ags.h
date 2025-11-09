@@ -17,13 +17,29 @@
 #include "dri.h"
 #include <SDL_ttf.h>
 
-inline uint32* surface_line(SDL_Surface* surface, int y)
+inline uint8_t* surface_line(SDL_Surface* surface, int y)
 {
-	return (uint32*)((uint8*)surface->pixels + surface->pitch * y);
+	return static_cast<uint8*>(surface->pixels) + surface->pitch * y;
 }
 
 struct Config;
 class FILEIO;
+
+struct SurfaceDeleter {
+	void operator()(SDL_Surface* s) const noexcept {
+		if (s) SDL_FreeSurface(s);
+	}
+};
+
+struct CG {
+	std::unique_ptr<SDL_Surface, SurfaceDeleter> surface_;
+	int x;
+	int y;
+
+	explicit CG(SDL_Surface* surface = nullptr, int x = 0, int y = 0)
+		: surface_(surface), x(x), y(y) {}
+	SDL_Surface* surface() const { return surface_.get(); }
+};
 
 class AGS
 {
@@ -52,12 +68,12 @@ private:
 	SDL_Cursor* hCursor[10];
 
 	// AGS
-	void load_gm3(const std::vector<uint8_t>& data, int transparent); // Intruder -桜屋敷の探索-
-	void load_vsp2l(const std::vector<uint8_t>& data, int transparent); // Little Vampire
-	void load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent);
-	void load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent);
+	CG load_gm3(const std::vector<uint8_t>& data, int transparent); // Intruder -桜屋敷の探索-
+	CG load_vsp2l(const std::vector<uint8_t>& data, int transparent); // Little Vampire
+	CG load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent);
+	CG load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent);
 	void load_bmp(const char* file_name);				// あゆみちゃん物語 フルカラー実写版
-	void load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent);
+	CG load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent);
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);

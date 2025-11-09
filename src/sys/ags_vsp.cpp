@@ -8,7 +8,25 @@
 #include "game_id.h"
 #include <string.h>
 
-void AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent)
+namespace {
+
+void trim(CG& cg, int w, int h)
+{
+	SDL_Surface *sf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 8, SDL_PIXELFORMAT_INDEX8);
+	SDL_SetSurfacePalette(sf, cg.surface()->format->palette);
+	if (SDL_HasColorKey(cg.surface())) {
+		Uint32 key;
+		SDL_GetColorKey(cg.surface(), &key);
+		SDL_SetColorKey(sf, SDL_TRUE, key);
+	}
+	SDL_Rect srcrect = { 0, 0, w, h };
+	SDL_BlitSurface(cg.surface(), &srcrect, sf, NULL);
+	cg.surface_.reset(sf);
+}
+
+}  // namespace
+
+CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0] | (data[1] << 8);
@@ -56,6 +74,10 @@ void AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int trans
 	}
 
 	// VSP展開
+	SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width * 8, height, 8, SDL_PIXELFORMAT_INDEX8);
+	if (transparent >= 0) {
+		SDL_SetColorKey(surface, SDL_TRUE, transparent | base);
+	}
 	uint8 cgdata[4][2][480], mask = 0;
 	int p = 0x3a;
 	memset(cgdata, 0, sizeof(cgdata));
@@ -116,61 +138,36 @@ void AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int trans
 			}
 		}
 
-		// VRAMに転送
-		if(extract_cg) {
-			for(int y = 0; y < height; y++) {
-				uint8 b0, b1, b2, b3, c[8];
-				b0 = cgdata[0][1][y] = cgdata[0][0][y];
-				b1 = cgdata[1][1][y] = cgdata[1][0][y];
-				b2 = cgdata[2][1][y] = cgdata[2][0][y];
-				b3 = cgdata[3][1][y] = cgdata[3][0][y];
-				c[0] = ((b0 >> 7) & 1) | ((b1 >> 6) & 2) | ((b2 >> 5) & 4) | ((b3 >> 4) & 8);
-				c[1] = ((b0 >> 6) & 1) | ((b1 >> 5) & 2) | ((b2 >> 4) & 4) | ((b3 >> 3) & 8);
-				c[2] = ((b0 >> 5) & 1) | ((b1 >> 4) & 2) | ((b2 >> 3) & 4) | ((b3 >> 2) & 8);
-				c[3] = ((b0 >> 4) & 1) | ((b1 >> 3) & 2) | ((b2 >> 2) & 4) | ((b3 >> 1) & 8);
-				c[4] = ((b0 >> 3) & 1) | ((b1 >> 2) & 2) | ((b2 >> 1) & 4) | ((b3     ) & 8);
-				c[5] = ((b0 >> 2) & 1) | ((b1 >> 1) & 2) | ((b2     ) & 4) | ((b3 << 1) & 8);
-				c[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4) | ((b3 << 2) & 8);
-				c[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4) | ((b3 << 3) & 8);
-
-				uint8_t* dest;
-				// Gakuen Senki uses exact sx values rather than 8x.
-				if (game_id.is(GameId::GAKUEN))
-					dest = &vram[dest_screen][y + sy][(x * 8) + sx];
-				else
-					dest = &vram[dest_screen][y + sy][(x + sx) * 8];
-
-				if(transparent == -1) {
-					for(int i = 0; i < 8; i++) {
-						dest[i] = c[i] | base;
-					}
-				} else {
-					for(int i = 0; i < 8; i++) {
-						if(c[i] != transparent) {
-							dest[i] = c[i] | base;
-						}
-					}
-				}
-			}
+		// Transfer to the surface
+		for (int y = 0; y < height; y++) {
+			uint8 b0, b1, b2, b3;
+			b0 = cgdata[0][1][y] = cgdata[0][0][y];
+			b1 = cgdata[1][1][y] = cgdata[1][0][y];
+			b2 = cgdata[2][1][y] = cgdata[2][0][y];
+			b3 = cgdata[3][1][y] = cgdata[3][0][y];
+			uint8_t* dest = surface_line(surface, y) + x * 8;
+			dest[0] = ((b0 >> 7) & 1) | ((b1 >> 6) & 2) | ((b2 >> 5) & 4) | ((b3 >> 4) & 8) | base;
+			dest[1] = ((b0 >> 6) & 1) | ((b1 >> 5) & 2) | ((b2 >> 4) & 4) | ((b3 >> 3) & 8) | base;
+			dest[2] = ((b0 >> 5) & 1) | ((b1 >> 4) & 2) | ((b2 >> 3) & 4) | ((b3 >> 2) & 8) | base;
+			dest[3] = ((b0 >> 4) & 1) | ((b1 >> 3) & 2) | ((b2 >> 2) & 4) | ((b3 >> 1) & 8) | base;
+			dest[4] = ((b0 >> 3) & 1) | ((b1 >> 2) & 2) | ((b2 >> 1) & 4) | ((b3     ) & 8) | base;
+			dest[5] = ((b0 >> 2) & 1) | ((b1 >> 1) & 2) | ((b2     ) & 4) | ((b3 << 1) & 8) | base;
+			dest[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4) | ((b3 << 2) & 8) | base;
+			dest[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4) | ((b3 << 3) & 8) | base;
 		}
 	}
 
-	// 画面更新
-	if(dest_screen == 0 && extract_cg) {
-		if (game_id.is(GameId::GAKUEN)) {
-			// Gakuen Senki's images were converted to VSP for the modern port, but don't always adhere to VSP's width restrictions, which demand
-			// every image width be a factor of 8. Thankfully, the exceptions are designed to fit into specific parts of the GUI, and so have
-			// consistent widths for each output position.
-			//
-			// As above, GS also uses exact sx values rather than values that are meant to be multiplied by 8.
-			if (sx == 289 && sy == 26) draw_screen(sx, sy, 188, height);
-			else if (sx == 289 && sy == 92) draw_screen(sx, sy, 190, height);
-			else if (sx == 278 && sy == 208) draw_screen(sx, sy, 212, height);
-			else draw_screen(sx, sy, width * 8, height);
-		}
-		else {
-			draw_screen(sx * 8, sy, width * 8, height);
-		}
+	if (game_id.is(GameId::GAKUEN)) {
+		// Gakuen Senki uses exact sx values rather than 8x.
+		CG cg(surface, sx, sy);
+		// Gakuen Senki's images were converted to VSP for the modern port, but don't always adhere to VSP's width restrictions, which demand
+		// every image width be a factor of 8. Thankfully, the exceptions are designed to fit into specific parts of the GUI, and so have
+		// consistent widths for each output position.
+		if (sx == 289 && sy == 26) trim(cg, 188, surface->h);
+		else if (sx == 289 && sy == 92) trim(cg, 190, surface->h);
+		else if (sx == 278 && sy == 208) trim(cg, 212, surface->h);
+		return cg;
 	}
+	return CG(surface, sx * 8, sy);
 }
 

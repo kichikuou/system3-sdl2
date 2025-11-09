@@ -8,7 +8,7 @@
 #include "game_id.h"
 #include <string.h>
 
-void AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent)
+CG AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent)
 {
 	// ヘッダ取得
 	int sx = data[0x0] | (data[0x1] << 8);
@@ -87,10 +87,11 @@ void AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette,
 		}
 	}
 
-	if (!extract_cg) {
-		return;
-	}
 	// Extract pixel data
+	SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+	if (transparent >= 0) {
+		SDL_SetColorKey(surface, SDL_TRUE, transparent);
+	}
 	std::vector<uint8_t> buf[3];
 	buf[0].resize(width);
 	buf[1].resize(width);
@@ -104,7 +105,7 @@ void AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette,
 			// enough pixels for the image size.
 			if (p >= data.size()) {
 				WARNING("CG #%d: PMS data is incomplete or corrupted.", page);
-				goto finish;
+				return CG(surface, sx, sy);
 			}
 
 			uint8_t d1 = data[p++];
@@ -136,23 +137,11 @@ void AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette,
 			}
 		}
 
-		// Transfer the row to VRAM
-		uint8_t* dest = &vram[dest_screen][y + sy][sx];
-		if (transparent == -1) {
-			memcpy(dest, buf[0].data(), width);
-		} else {
-			for (int x = 0; x < width; x++) {
-				if (buf[0][x] != transparent) {
-					dest[x] = buf[0][x];
-				}
-			}
-		}
+		// Transfer the row to the surface
+		memcpy(surface_line(surface, y), buf[0].data(), width);
 		buf[2].swap(buf[1]);
 		buf[1].swap(buf[0]);
 	}
 
-finish:
-	if (dest_screen == 0) {
-		draw_screen(sx, sy, width, height);
-	}
+	return CG(surface, sx, sy);
 }
