@@ -11,6 +11,7 @@
 #include <unordered_set>
 #include <vector>
 #include <memory>
+#include <optional>
 #include <stdio.h>
 #include "common.h"
 #include "game_id.h"
@@ -72,7 +73,6 @@ private:
 	CG load_vsp2l(const std::vector<uint8_t>& data, int transparent); // Little Vampire
 	CG load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent);
 	CG load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent);
-	void load_bmp(const char* file_name);				// あゆみちゃん物語 フルカラー実写版
 	CG load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent);
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
@@ -199,9 +199,7 @@ public:
 	bool draw_menu;
 
 	// CG表示
-	bool set_cg_dest;
-	int cg_dest_x;
-	int cg_dest_y;
+	std::optional<SDL_Point> cg_dest;
 	bool get_palette;
 	bool extract_palette;
 	bool extract_cg;

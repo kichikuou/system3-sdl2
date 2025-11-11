@@ -6,7 +6,7 @@ if (POLICY CMP0091)
 endif ()
 
 project(System3 LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Generates a static library from pkg_check_modules() result
 function(add_static_library name pkg)
@@ -192,7 +192,6 @@ target_sources(system3 PRIVATE
   src/fm/makofm.cpp
   src/fm/mako_ymfm.cpp
   src/sys/ags.cpp
-  src/sys/ags_bmp.cpp
   src/sys/ags_cursor.cpp
   src/sys/ags_draw.cpp
   src/sys/ags_gl3.cpp

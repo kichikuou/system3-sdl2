@@ -37,15 +37,6 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	int height = ey - sy;
 	uint8 base = (data[9] & 0x0f) << 4;
 
-	// Jコマンドの処理
-	if(set_cg_dest) {
-		sx = cg_dest_x >> 3;
-		sy = cg_dest_y;
-		ex = sx + width;
-		ey = sy + height;
-		set_cg_dest = false;
-	}
-
 	// Zコマンドの処理
 	if (game_id.is(GameId::AMBIVALENZ_FD) || game_id.is(GameId::AMBIVALENZ_CD)) {
 		// Z 0,numを無視する

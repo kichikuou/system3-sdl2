@@ -374,9 +374,7 @@ void NACT_Sys3::cmd_j()
 	TRACE("J %d,%d:", x, y);
 
 	// x方向はカラム単位で切り捨て
-	ags->cg_dest_x = column ? x * 8 : x & 0xfff8;
-	ags->cg_dest_y = y;
-	ags->set_cg_dest = true;
+	ags->cg_dest = {column ? x * 8 : x & 0xfff8, y};
 }
 
 void NACT_Sys3::cmd_k()

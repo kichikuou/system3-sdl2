@@ -224,8 +224,7 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 	draw_menu = false;
 
 	// CG表示
-	set_cg_dest = false;
-	cg_dest_x = cg_dest_y = 0;
+	cg_dest = std::nullopt;
 	get_palette = extract_palette = extract_cg = true;
 	palette_bank = -1;
 

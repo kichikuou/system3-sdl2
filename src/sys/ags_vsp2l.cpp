@@ -18,15 +18,6 @@ CG AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent)
 	int height = ey - sy;
 	uint8 base = 0;//(data[9] & 0x0f) << 4;
 
-	// Jコマンドの処理
-	if(set_cg_dest) {
-		sx = cg_dest_x >> 3;
-		sy = cg_dest_y;
-		ex = sx + width;
-		ey = sy + height;
-		set_cg_dest = false;
-	}
-
 	// Zコマンドの処理
 	if(palette_bank != -1) {
 		base = (palette_bank & 0x0f) << 4;

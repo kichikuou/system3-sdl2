@@ -13,21 +13,15 @@ extern SDL_Renderer* g_renderer;
 void AGS::load_cursor(int page)
 {
 	// カーソルCGをロードする
-	bool j_set = set_cg_dest;
-	int j_x = cg_dest_x;
-	int j_y = cg_dest_y;
+	auto j_backup = cg_dest;
 	int dest = dest_screen;
 
-	set_cg_dest = true;
-	cg_dest_x = 0;
-	cg_dest_y = 0;
+	cg_dest = {0, 0};
 	dest_screen = 1;
 
 	load_cg(page, -1);
 
-	set_cg_dest = j_set;
-	cg_dest_x = j_x;
-	cg_dest_y = j_y;
+	cg_dest = j_backup;
 	dest_screen = dest;
 
 	// フォントの生成

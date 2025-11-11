@@ -19,15 +19,6 @@ CG AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, i
 	int height = ey - sy + 1;
 	uint16_t mask = data[0xa] | (data[0xb] << 8);
 
-	// Jコマンドの処理
-	if(set_cg_dest) {
-		sx = cg_dest_x;
-		sy = cg_dest_y;
-		ex = sx + width - 1;
-		ey = sy + height - 1;
-		set_cg_dest = false;
-	}
-
 	if(get_palette) {
 		SDL_Color colors[256];
 		int p = 0x20;

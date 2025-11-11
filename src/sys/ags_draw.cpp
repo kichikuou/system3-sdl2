@@ -34,9 +34,7 @@ void mosaic(SDL_Surface* sf) {
 void AGS::load_cg(int page, int transparent)
 {
 	if (bmp_prefix) {
-		char file_name[16];
-		snprintf(file_name, sizeof(file_name), "%s%03d.BMP", bmp_prefix, page);
-		load_bmp(file_name);
+		WARNING("not implemented");
 		return;
 	}
 	std::vector<uint8_t> data = acg.load(page);
@@ -93,6 +91,14 @@ void AGS::load_cg(int page, int transparent)
 		}
 		break;
 	}
+
+	// J command
+	if (cg_dest.has_value()) {
+		cg.x = cg_dest->x;
+		cg.y = cg_dest->y;
+		cg_dest = std::nullopt;
+	}
+
 	if (extract_cg && cg.surface()) {
 		SDL_SetSurfacePalette(cg.surface(), screen_palette);
 		if (censor_list.count(page)) {

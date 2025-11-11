@@ -17,13 +17,6 @@ CG AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	int height = data[0x34] | (data[0x35] << 8);
 	uint8 base = 0;
 
-	// Jコマンドの処理
-	if(set_cg_dest) {
-		sx = cg_dest_x >> 3;
-		sy = cg_dest_y;
-		set_cg_dest = false;
-	}
-
 	// Zコマンドの処理
 	if(palette_bank != -1) {
 		base = (palette_bank & 0x0f) << 4;
