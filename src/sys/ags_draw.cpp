@@ -104,7 +104,7 @@ void AGS::load_cg(int page, int transparent)
 		if (censor_list.count(page)) {
 			mosaic(cg.surface());
 		}
-		SDL_Rect dstrect = { cg.x, cg.y, cg.surface()->w, cg.surface()->h };
+		SDL_Rect dstrect = { cg.x, cg.y, cg.width(), cg.height() };
 		SDL_BlitSurface(cg.surface(), NULL, hBmpScreen[dest_screen], &dstrect);
 		if (dest_screen == 0) {
 			draw_screen(dstrect.x, dstrect.y, dstrect.w, dstrect.h);

@@ -278,24 +278,24 @@ void AGS::load(FILEIO* fio)
 	text.frame_color = fio->getw();
 	text.back_color = fio->getw();
 	for (int i = 0; i < 10; i++) {
-		menu_w[i].clear_saved();
-		menu_w[i].sx = fio->getw();
-		menu_w[i].sy = fio->getw();
-		menu_w[i].ex = fio->getw();
-		menu_w[i].ey = fio->getw();
-		menu_w[i].save = fio->getw() ? true : false;
-		menu_w[i].frame = fio->getw() ? true : false;
+		int sx = fio->getw();
+		int sy = fio->getw();
+		int ex = fio->getw();
+		int ey = fio->getw();
+		bool save = fio->getw() ? true : false;
+		bool frame = fio->getw() ? true : false;
+		menu_w[i].reset(sx, sy, ex, ey, frame, save);
 		fio->getw();
 		fio->getw();
 	}
 	for (int i = 0; i < 10; i++) {
-		text_w[i].clear_saved();
-		text_w[i].sx = fio->getw();
-		text_w[i].sy = fio->getw();
-		text_w[i].ex = fio->getw();
-		text_w[i].ey = fio->getw();
-		text_w[i].save = fio->getw() ? true : false;
-		text_w[i].frame = fio->getw() ? true : false;
+		int sx = fio->getw();
+		int sy = fio->getw();
+		int ex = fio->getw();
+		int ey = fio->getw();
+		bool save = fio->getw() ? true : false;
+		bool frame = fio->getw() ? true : false;
+		text_w[i].reset(sx, sy, ex, ey, frame, save);
 		fio->getw();
 		fio->getw();
 	}

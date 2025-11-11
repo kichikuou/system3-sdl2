@@ -39,7 +39,12 @@ struct CG {
 
 	explicit CG(SDL_Surface* surface = nullptr, int x = 0, int y = 0)
 		: surface_(surface), x(x), y(y) {}
+	explicit operator bool() const noexcept { return static_cast<bool>(surface_); }
+
 	SDL_Surface* surface() const { return surface_.get(); }
+	int width() const { return surface_->w; }
+	int height() const { return surface_->h; }
+	SDL_Palette* palette() const { return surface_->format->palette; }
 };
 
 class AGS
@@ -129,7 +134,9 @@ public:
 	void draw_push(int index);
 	void open_text_window(int index, bool erase);
 	void close_text_window(int index, bool update);
-	void set_text_window(int index, int sx, int sy, int ex, int ey, bool save);
+	void set_text_window(int index, int sx, int sy, int ex, int ey, bool save) {
+		text_w[index - 1].reset(sx, sy, ex, ey, text_w[index - 1].frame, save);
+	}
 	void set_text_window_frame(int index, bool frame) {
 		text_w[index - 1].frame = frame;
 	}
@@ -139,7 +146,9 @@ public:
 	void redraw_menu_window(int index, int selected);
 	void close_menu_window(int index);
 	void get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey);
-	void set_menu_window(int index, int sx, int sy, int ex, int ey, bool save);
+	void set_menu_window(int index, int sx, int sy, int ex, int ey, bool save) {
+		menu_w[index - 1].reset(sx, sy, ex, ey, menu_w[index - 1].frame, save);
+	}
 	void set_menu_window_frame(int index, bool frame) {
 		menu_w[index - 1].frame = frame;
 	}
@@ -220,15 +229,10 @@ private:
 		int ey;
 		bool frame;
 		bool save;
-		SDL_Surface* screen;
-		int screen_x;
-		int screen_y;
-		SDL_Surface* window;
-		int window_x;
-		int window_y;
+		CG screen;
+		CG window;
 
-		~Window() { clear_saved(); }
-		void clear_saved();
+		void reset(int sx, int sy, int ex, int ey, bool frame, bool save);
 	};
 	Window menu_w[10];
 	Window text_w[10];

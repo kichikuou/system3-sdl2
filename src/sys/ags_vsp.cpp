@@ -13,7 +13,7 @@ namespace {
 void trim(CG& cg, int w, int h)
 {
 	SDL_Surface *sf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 8, SDL_PIXELFORMAT_INDEX8);
-	SDL_SetSurfacePalette(sf, cg.surface()->format->palette);
+	SDL_SetSurfacePalette(sf, cg.palette());
 	if (SDL_HasColorKey(cg.surface())) {
 		Uint32 key;
 		SDL_GetColorKey(cg.surface(), &key);

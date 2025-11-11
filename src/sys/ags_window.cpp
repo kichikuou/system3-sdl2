@@ -7,16 +7,15 @@
 #include "ags.h"
 #include <string.h>
 
-void AGS::Window::clear_saved()
-{
-	if (screen) {
-		SDL_FreeSurface(screen);
-		screen = nullptr;
-	}
-	if (window) {
-		SDL_FreeSurface(window);
-		window = nullptr;
-	}
+void AGS::Window::reset(int sx, int sy, int ex, int ey, bool frame, bool save) {
+	this->sx = sx;
+	this->sy = sy;
+	this->ex = ex;
+	this->ey = ey;
+	this->frame = frame;
+	this->save = save;
+	screen.surface_.reset();
+	window.surface_.reset();
 }
 
 void AGS::init_windows()
@@ -25,18 +24,18 @@ void AGS::init_windows()
 		// ウィンドウの初期位置はシステムによって異なる
 		switch (game_id.game) {
 		case GameId::BUNKASAI:
-			text_w[i] = {24, 304, 616, 384, false};
-			menu_w[i] = {440, 18, 620, 178, true};
+			text_w[i].reset(24, 304, 616, 384, false, false);
+			menu_w[i].reset(440, 18, 620, 178, true, true);
 			break;
 		case GameId::CRESCENT:
-			text_w[i] = {24, 288, 616, 378, false};
+			text_w[i].reset(24, 288, 616, 378, false, false);
 			// 本来は横メニュー
-			menu_w[i] = {464, 50, 623, 240, true};
+			menu_w[i].reset(464, 50, 623, 240, true, true);
 			break;
 		case GameId::RANCE2:
 		case GameId::RANCE2_HINT:
-			text_w[i] = {8, 285, 502, 396, false};
-			menu_w[i] = {431, 19, 624, 181, false};
+			text_w[i].reset(8, 285, 502, 396, false, false);
+			menu_w[i].reset(431, 19, 624, 181, false, true);
 			break;
 		case GameId::DPS:
 		case GameId::DPS_SG_FAHREN:
@@ -48,61 +47,59 @@ void AGS::init_windows()
 		case GameId::DPS_SG3_RABBIT:
 		case GameId::DPS_SG3_SHINKON:
 		case GameId::DPS_SG3_SOTSUGYOU:
-			text_w[i] = {48, 288, 594, 393, false};
-			//menu_w[i] = {48, 288, 584, 393, false};
-			menu_w[i] = {48, 288, 594, 393, false};
+			text_w[i].reset(48, 288, 594, 393, false, false);
+			//menu_w[i].reset(48, 288, 584, 393, false, true);
+			menu_w[i].reset(48, 288, 594, 393, false, true);
 			break;
 		case GameId::FUKEI:
-			text_w[i] = {44, 282, 593, 396, false};
-			menu_w[i] = {460, 14, 635, 214, false};
+			text_w[i].reset(44, 282, 593, 396, false, false);
+			menu_w[i].reset(460, 14, 635, 214, false, true);
 			break;
 		case GameId::INTRUDER:
-			text_w[i] = {8, 280, 629, 393, false};
-			menu_w[i] = {448, 136, 623, 340, true};
+			text_w[i].reset(8, 280, 629, 393, false, false);
+			menu_w[i].reset(448, 136, 623, 340, true, true);
 			break;
 		case GameId::TENGU:
-			text_w[i] = {44, 282, 593, 396, false};
-			menu_w[i] = {452, 14, 627, 214, false};
+			text_w[i].reset(44, 282, 593, 396, false, false);
+			menu_w[i].reset(452, 14, 627, 214, false, true);
 			break;
 		case GameId::TOUSHIN_HINT:
-			text_w[i] = {8, 311, 623, 391, false};
-			menu_w[i] = {452, 14, 627, 214, true};
+			text_w[i].reset(8, 311, 623, 391, false, false);
+			menu_w[i].reset(452, 14, 627, 214, true, true);
 			break;
 		case GameId::LITTLE_VAMPIRE:
-			text_w[i] = {8, 255, 615, 383, false};
-			menu_w[i] = {448, 11, 615, game_id.language == ENGLISH ? 234 : 224, false};
+			text_w[i].reset(8, 255, 615, 383, false, false);
+			menu_w[i].reset(448, 11, 615, game_id.language == ENGLISH ? 234 : 224, false, true);
 			break;
 		case GameId::YAKATA:
-			text_w[i] = {48, 288, 594, 393, false};
-			menu_w[i] = {452, 14, 627, 214, false};
+			text_w[i].reset(48, 288, 594, 393, false, false);
+			menu_w[i].reset(452, 14, 627, 214, false, true);
 			break;
 		case GameId::DALK_HINT:
-			text_w[i] = {24, 308, 376, 386, false};
-			menu_w[i] = {404, 28, 604, 244, true};
+			text_w[i].reset(24, 308, 376, 386, false, false);
+			menu_w[i].reset(404, 28, 604, 244, true, true);
 			break;
 		case GameId::RANCE3_HINT:
-			text_w[i] = {104, 304, 615, 383, false};
-			menu_w[i] = {464, 24, 623, 200, true};
+			text_w[i].reset(104, 304, 615, 383, false, false);
+			menu_w[i].reset(464, 24, 623, 200, true, true);
 			break;
 		case GameId::YAKATA2:
-			text_w[i] = {104, 304, 620, 382, false};
-			menu_w[i] = {420, 28, 620, 244, true};
+			text_w[i].reset(104, 304, 620, 382, false, false);
+			menu_w[i].reset(420, 28, 620, 244, true, true);
 			break;
 		case GameId::GAKUEN:
-			text_w[i] = {8, 260, 505, 384, false};
+			text_w[i].reset(8, 260, 505, 384, false, false);
 			if (i == 1) {
-				menu_w[i] = {128, 32, 337, 178, true};
+				menu_w[i].reset(128, 32, 337, 178, true, true);
 			} else {
-				menu_w[i] = {288, 30, 433, 210, true};
+				menu_w[i].reset(288, 30, 433, 210, true, true);
 			}
 			break;
 		default:
-			text_w[i] = {8, 311, 623, 391, true};
-			menu_w[i] = {464, 80, 623, 240, true};
+			text_w[i].reset(8, 311, 623, 391, true, false);
+			menu_w[i].reset(464, 80, 623, 240, true, true);
 			break;
 		}
-		text_w[i].save = false;
-		menu_w[i].save = true;
 	}
 }
 
@@ -156,22 +153,18 @@ void AGS::open_text_window(int index, bool erase)
 
 	if (game_id.is(GameId::PROG_CD) && !erase) {
 		// prostudent G オープニング画面化け対策
-		w.clear_saved();
+		w.screen.surface_.reset();
+		w.window.surface_.reset();
 	}
 
 	// 画面退避
 	if (w.save) {
-		if (w.screen) {
-			SDL_FreeSurface(w.screen);
-		}
-
-		w.screen = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
-		w.screen_x = sx;
-		w.screen_y = sy;
-		SDL_SetPaletteColors(w.screen->format->palette, screen_palette->colors, 0, 256);
+		SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+		w.screen = CG(sf, sx, sy);
+		SDL_SetPaletteColors(w.screen.palette(), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
-		SDL_BlitSurface(hBmpScreen[0], &rect, w.screen, NULL);
+		SDL_BlitSurface(hBmpScreen[0], &rect, w.screen.surface(), NULL);
 	}
 
 	if(erase) {
@@ -179,14 +172,14 @@ void AGS::open_text_window(int index, bool erase)
 		draw_window(sx, sy, ex, ey, w.frame, text.frame_color, text.back_color);
 	} else if (w.save && w.window) {
 		// 窓復帰
-		sx = w.window_x;
-		sy = w.window_y;
-		width = w.window->w;
-		height = w.window->h;
+		sx = w.window.x;
+		sy = w.window.y;
+		width = w.window.width();
+		height = w.window.height();
 
-		SDL_SetSurfacePalette(hBmpScreen[0], w.window->format->palette);
+		SDL_SetSurfacePalette(hBmpScreen[0], w.window.palette());
 		SDL_Rect rect = {sx, sy, width, height};
-		SDL_BlitSurface(w.window, NULL, hBmpScreen[0], &rect);
+		SDL_BlitSurface(w.window.surface(), NULL, hBmpScreen[0], &rect);
 		draw_screen(sx, sy, width, height);
 		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
@@ -206,29 +199,24 @@ void AGS::close_text_window(int index, bool update)
 
 	// 窓退避
 	if (w.save) {
-		if (w.window) {
-			SDL_FreeSurface(w.window);
-		}
-
-		w.window = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
-		w.window_x = sx;
-		w.window_y = sy;
-		SDL_SetPaletteColors(w.window->format->palette, screen_palette->colors, 0, 256);
+		SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+		w.window = CG(sf, sx, sy);
+		SDL_SetPaletteColors(w.window.palette(), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
-		SDL_BlitSurface(hBmpScreen[0], &rect, w.window, NULL);
+		SDL_BlitSurface(hBmpScreen[0], &rect, w.window.surface(), NULL);
 	}
 
 	// 画面復帰
 	if (w.save && w.screen) {
-		sx = w.screen_x;
-		sy = w.screen_y;
-		width = w.screen->w;
-		height = w.screen->h;
+		sx = w.screen.x;
+		sy = w.screen.y;
+		width = w.screen.width();
+		height = w.screen.height();
 
-		SDL_SetSurfacePalette(hBmpScreen[0], w.screen->format->palette);
+		SDL_SetSurfacePalette(hBmpScreen[0], w.screen.palette());
 		SDL_Rect rect = {sx, sy, width, height};
-		SDL_BlitSurface(w.screen, NULL, hBmpScreen[0], &rect);
+		SDL_BlitSurface(w.screen.surface(), NULL, hBmpScreen[0], &rect);
 		draw_screen(sx, sy, width, height);
 		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
@@ -236,17 +224,6 @@ void AGS::close_text_window(int index, bool update)
 	if(update) {
 		text.reset_pos(w.sx, w.sy + text.line_space);
 	}
-}
-
-void AGS::set_text_window(int index, int sx, int sy, int ex, int ey, bool save)
-{
-	Window& w = text_w[index - 1];
-	w.clear_saved();
-	w.sx = sx;
-	w.sy = sy;
-	w.ex = ex;
-	w.ey = ey;
-	w.save = save;
 }
 
 void AGS::clear_menu_window()
@@ -274,17 +251,12 @@ void AGS::open_menu_window(int index)
 
 	// 画面退避
 	if (w.save) {
-		if (w.screen) {
-			SDL_FreeSurface(w.screen);
-		}
-
-		w.screen = SDL_CreateRGBSurfaceWithFormat(0, wwidth, wheight, 8, SDL_PIXELFORMAT_INDEX8);
-		w.screen_x = wsx;
-		w.screen_y = wsy;
-		SDL_SetPaletteColors(w.screen->format->palette, screen_palette->colors, 0, 256);
+		SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, wwidth, wheight, 8, SDL_PIXELFORMAT_INDEX8);
+		w.screen = CG(sf, wsx, wsy);
+		SDL_SetPaletteColors(w.screen.palette(), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {wsx, wsy, wwidth, wheight};
-		SDL_BlitSurface(hBmpScreen[0], &rect, w.screen, NULL);
+		SDL_BlitSurface(hBmpScreen[0], &rect, w.screen.surface(), NULL);
 	}
 
 	// メニュー表示
@@ -318,10 +290,10 @@ void AGS::close_menu_window(int index)
 	Window &w = menu_w[index - 1];
 	// 画面復帰
 	if (w.save && w.screen) {
-		SDL_SetSurfacePalette(hBmpScreen[0], w.screen->format->palette);
-		SDL_Rect rect = {w.screen_x, w.screen_y, w.screen->w, w.screen->h};
-		SDL_BlitSurface(w.screen, NULL, hBmpScreen[0], &rect);
-		draw_screen(w.screen_x, w.screen_y, w.screen->w, w.screen->h);
+		SDL_SetSurfacePalette(hBmpScreen[0], w.screen.palette());
+		SDL_Rect rect = {w.screen.x, w.screen.y, w.screen.width(), w.screen.height()};
+		SDL_BlitSurface(w.screen.surface(), NULL, hBmpScreen[0], &rect);
+		draw_screen(w.screen.x, w.screen.y, w.screen.width(), w.screen.height());
 		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 }
@@ -333,17 +305,6 @@ void AGS::get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey)
 	if (sy) *sy = w.sy;
 	if (ex) *ex = w.ex;
 	if (ey) *ey = w.ey;
-}
-
-void AGS::set_menu_window(int index, int sx, int sy, int ex, int ey, bool save)
-{
-	Window &w = menu_w[index - 1];
-	w.clear_saved();
-	w.sx = sx;
-	w.sy = sy;
-	w.ex = ex;
-	w.ey = ey;
-	w.save = save;
 }
 
 void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color)
