@@ -65,9 +65,10 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	}
 
 	// VSP展開
-	SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width * 8, height, 8, SDL_PIXELFORMAT_INDEX8);
+	// Gakuen Senki uses exact sx values rather than 8x.
+	CG cg(game_id.is(GameId::GAKUEN) ? sx : sx * 8, sy, width * 8, height);
 	if (transparent >= 0) {
-		SDL_SetColorKey(surface, SDL_TRUE, transparent | base);
+		SDL_SetColorKey(cg.surface(), SDL_TRUE, transparent | base);
 	}
 	uint8 cgdata[4][2][480], mask = 0;
 	int p = 0x3a;
@@ -136,7 +137,7 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 			b1 = cgdata[1][1][y] = cgdata[1][0][y];
 			b2 = cgdata[2][1][y] = cgdata[2][0][y];
 			b3 = cgdata[3][1][y] = cgdata[3][0][y];
-			uint8_t* dest = surface_line(surface, y) + x * 8;
+			uint8_t* dest = surface_line(cg.surface(), y) + x * 8;
 			dest[0] = ((b0 >> 7) & 1) | ((b1 >> 6) & 2) | ((b2 >> 5) & 4) | ((b3 >> 4) & 8) | base;
 			dest[1] = ((b0 >> 6) & 1) | ((b1 >> 5) & 2) | ((b2 >> 4) & 4) | ((b3 >> 3) & 8) | base;
 			dest[2] = ((b0 >> 5) & 1) | ((b1 >> 4) & 2) | ((b2 >> 3) & 4) | ((b3 >> 2) & 8) | base;
@@ -149,16 +150,14 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	}
 
 	if (game_id.is(GameId::GAKUEN)) {
-		// Gakuen Senki uses exact sx values rather than 8x.
-		CG cg(surface, sx, sy);
 		// Gakuen Senki's images were converted to VSP for the modern port, but don't always adhere to VSP's width restrictions, which demand
 		// every image width be a factor of 8. Thankfully, the exceptions are designed to fit into specific parts of the GUI, and so have
 		// consistent widths for each output position.
-		if (sx == 289 && sy == 26) trim(cg, 188, surface->h);
-		else if (sx == 289 && sy == 92) trim(cg, 190, surface->h);
-		else if (sx == 278 && sy == 208) trim(cg, 212, surface->h);
+		if (sx == 289 && sy == 26) trim(cg, 188, cg.height());
+		else if (sx == 289 && sy == 92) trim(cg, 190, cg.height());
+		else if (sx == 278 && sy == 208) trim(cg, 212, cg.height());
 		return cg;
 	}
-	return CG(surface, sx * 8, sy);
+	return cg;
 }
 

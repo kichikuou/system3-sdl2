@@ -37,9 +37,9 @@ CG AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent)
 	SDL_SetPaletteColors(screen_palette, colors, base, 8);
 
 	// VSP2L展開
-	SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width * 8, height * 2, 8, SDL_PIXELFORMAT_INDEX8);
+	CG cg(sx * 8, sy * 2, width * 8, height * 2);
 	if (transparent >= 0) {
-		SDL_SetColorKey(surface, SDL_TRUE, transparent | base);
+		SDL_SetColorKey(cg.surface(), SDL_TRUE, transparent | base);
 	}
 	uint8 cgdata[3][2][200], mask = 0;
 	int p = 0x1a;
@@ -116,13 +116,13 @@ CG AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent)
 			c[6] = ((b0 >> 1) & 1) | ((b1     ) & 2) | ((b2 << 1) & 4);
 			c[7] = ((b0     ) & 1) | ((b1 << 1) & 2) | ((b2 << 2) & 4);
 
-			uint8_t* dest0 = surface_line(surface, y * 2) + x * 8;
-			uint8_t* dest1 = dest0 + surface->pitch;
+			uint8_t* dest0 = surface_line(cg.surface(), y * 2) + x * 8;
+			uint8_t* dest1 = dest0 + cg.surface()->pitch;
 			for (int i = 0; i < 8; i++) {
 				dest0[i] = dest1[i] = c[i] | base;
 			}
 		}
 	}
 
-	return CG(surface, sx * 8, sy * 2);
+	return cg;
 }

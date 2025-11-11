@@ -153,14 +153,13 @@ void AGS::open_text_window(int index, bool erase)
 
 	if (game_id.is(GameId::PROG_CD) && !erase) {
 		// prostudent G オープニング画面化け対策
-		w.screen.surface_.reset();
-		w.window.surface_.reset();
+		w.screen = CG();
+		w.window = CG();
 	}
 
 	// 画面退避
 	if (w.save) {
-		SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
-		w.screen = CG(sf, sx, sy);
+		w.screen = CG(sx, sy, width, height);
 		SDL_SetPaletteColors(w.screen.palette(), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
@@ -199,8 +198,7 @@ void AGS::close_text_window(int index, bool update)
 
 	// 窓退避
 	if (w.save) {
-		SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
-		w.window = CG(sf, sx, sy);
+		w.window = CG(sx, sy, width, height);
 		SDL_SetPaletteColors(w.window.palette(), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {sx, sy, width, height};
@@ -251,8 +249,7 @@ void AGS::open_menu_window(int index)
 
 	// 画面退避
 	if (w.save) {
-		SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, wwidth, wheight, 8, SDL_PIXELFORMAT_INDEX8);
-		w.screen = CG(sf, wsx, wsy);
+		w.screen = CG(wsx, wsy, wwidth, wheight);
 		SDL_SetPaletteColors(w.screen.palette(), screen_palette->colors, 0, 256);
 
 		SDL_Rect rect = {wsx, wsy, wwidth, wheight};

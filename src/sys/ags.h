@@ -37,8 +37,10 @@ struct CG {
 	int x;
 	int y;
 
-	explicit CG(SDL_Surface* surface = nullptr, int x = 0, int y = 0)
-		: surface_(surface), x(x), y(y) {}
+	CG() = default;
+	CG(int x, int y, int width, int height)
+		: surface_(SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8)),
+		  x(x), y(y) {}
 	explicit operator bool() const noexcept { return static_cast<bool>(surface_); }
 
 	SDL_Surface* surface() const { return surface_.get(); }

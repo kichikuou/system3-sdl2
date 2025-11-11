@@ -40,9 +40,9 @@ CG AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	}
 
 	// GL3展開
-	SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, width * 8, height, 8, SDL_PIXELFORMAT_INDEX8);
+	CG cg(sx * 8, sy, width * 8, height);
 	if (transparent >= 0) {
-		SDL_SetColorKey(surface, SDL_TRUE, transparent | base);
+		SDL_SetColorKey(cg.surface(), SDL_TRUE, transparent | base);
 	}
 	uint8 cgdata[4][80][3];
 	int p = 0x36;
@@ -114,7 +114,7 @@ CG AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transpa
 			b1 = cgdata[1][x][0];
 			b2 = cgdata[2][x][0];
 			b3 = cgdata[3][x][0];
-			uint8_t* dest = surface_line(surface, y) + x * 8;
+			uint8_t* dest = surface_line(cg.surface(), y) + x * 8;
 			dest[0] = ((b0 >> 7) & 1) | ((b1 >> 6) & 2) | ((b2 >> 5) & 4) | ((b3 >> 4) & 8) | base;
 			dest[1] = ((b0 >> 6) & 1) | ((b1 >> 5) & 2) | ((b2 >> 4) & 4) | ((b3 >> 3) & 8) | base;
 			dest[2] = ((b0 >> 5) & 1) | ((b1 >> 4) & 2) | ((b2 >> 3) & 4) | ((b3 >> 2) & 8) | base;
@@ -126,6 +126,6 @@ CG AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transpa
 		}
 	}
 
-	return CG(surface, sx * 8, sy);
+	return cg;
 }
 

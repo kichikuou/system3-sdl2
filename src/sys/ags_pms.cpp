@@ -79,9 +79,9 @@ CG AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, i
 	}
 
 	// Extract pixel data
-	SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+	CG cg(sx, sy, width, height);
 	if (transparent >= 0) {
-		SDL_SetColorKey(surface, SDL_TRUE, transparent);
+		SDL_SetColorKey(cg.surface(), SDL_TRUE, transparent);
 	}
 	std::vector<uint8_t> buf[3];
 	buf[0].resize(width);
@@ -96,7 +96,7 @@ CG AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, i
 			// enough pixels for the image size.
 			if (p >= data.size()) {
 				WARNING("CG #%d: PMS data is incomplete or corrupted.", page);
-				return CG(surface, sx, sy);
+				return cg;
 			}
 
 			uint8_t d1 = data[p++];
@@ -129,10 +129,10 @@ CG AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, i
 		}
 
 		// Transfer the row to the surface
-		memcpy(surface_line(surface, y), buf[0].data(), width);
+		memcpy(surface_line(cg.surface(), y), buf[0].data(), width);
 		buf[2].swap(buf[1]);
 		buf[1].swap(buf[0]);
 	}
 
-	return CG(surface, sx, sy);
+	return cg;
 }
