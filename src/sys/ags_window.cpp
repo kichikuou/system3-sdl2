@@ -95,6 +95,10 @@ void AGS::init_windows()
 				menu_w[i].reset(288, 30, 433, 210, true, true);
 			}
 			break;
+		case GameId::GAKUEN_KING:
+			text_w[i].reset(112, 310, 623, 391, false, false);
+			menu_w[i].reset(416, 24, 591, 248, true, true);
+			break;
 		default:
 			text_w[i].reset(8, 311, 623, 391, true, false);
 			menu_w[i].reset(464, 80, 623, 240, true, true);
