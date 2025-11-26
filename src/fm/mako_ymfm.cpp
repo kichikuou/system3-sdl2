@@ -48,9 +48,8 @@ void MakoYmfm::Process(int16_t* stream, int len) {
 }
 
 void MakoYmfm::SetReg(RegType type, uint8_t addr, uint8_t val) {
-	uint32_t offset = type == OPNA_SLAVE ? 2 : 0;
-	opna.write(offset, addr);
-	opna.write(offset + 1, val);
+	uint8_t port = type == OPNA_SLAVE ? 2 : 0;
+	queue.push({port, addr, val});
 }
 
 void MakoYmfm::Generate(int16_t* buf, int samples) {
@@ -62,6 +61,12 @@ void MakoYmfm::Generate(int16_t* buf, int samples) {
 		// generate at the appropriate sample rate
 		assert(opna_pos <= output_pos);
 		while (opna_pos <= output_pos) {
+			if (!queue.empty()) {
+				auto w = queue.front();
+				opna.write(w.port, w.addr);
+				opna.write(w.port + 1, w.val);
+				queue.pop();
+			}
 			opna.generate(&opna_output);
 			opna_pos += opna_step;
 		}

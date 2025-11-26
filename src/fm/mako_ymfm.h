@@ -1,6 +1,7 @@
 #ifndef MAKOYMFM_H_
 #define MAKOYMFM_H_
 
+#include <queue>
 #include <vector>
 #include "ymfm_opn.h"
 #include "makofm.h"
@@ -15,6 +16,12 @@ private:
 	// we use an int64_t as emulated time, as a 32.32 fixed point value
 	using emulated_time = int64_t;
 
+	struct RegWrite {
+		uint8_t port;
+		uint8_t addr;
+		uint8_t val;
+	};
+
 	void SetReg(RegType type, uint8_t addr, uint8_t val) override;
 	void Generate(int16_t* buf, int samples);
 
@@ -24,6 +31,7 @@ private:
 	emulated_time output_pos = 0;
 	int last_sync = 0;
 	int samples_left = 0;
+	std::queue<RegWrite> queue;
 };
 
 #endif // MAKOYMFM_H_
