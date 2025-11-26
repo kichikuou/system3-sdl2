@@ -423,14 +423,8 @@ void NACT::cmd_a()
 		sys_sleep(16);
 	}
 	sys_sleep(30);
-	while (!msgskip->skipping()) {
-		if(terminate) {
-			return;
-		}
-		if(!(get_key() & 0x18)) {
-			break;
-		}
-		sys_sleep(16);
+	if (!msgskip->skipping()) {
+		wait_key_release(0x18);
 	}
 
 	// ウィンドウ更新
@@ -653,15 +647,7 @@ int NACT::menu_select(int num_items)
 			sys_sleep(16);
 		}
 		if(val) {
-			for(;;) {
-				if(terminate) {
-					return -1;
-				}
-				if(!get_key()) {
-					break;
-				}
-				sys_sleep(16);
-			}
+			wait_key_release();
 		}
 
 		if(val == 0) {
@@ -729,16 +715,7 @@ void NACT::wait_after_open_menu()
 		}
 	}
 
-	// クリック中の間は待機
-	for(;;) {
-		if(terminate) {
-			return;
-		}
-		if(!get_key()) {
-			break;
-		}
-		sys_sleep(10);
-	}
+	wait_key_release();
 }
 
 void NACT::sys_sleep(int ms) {

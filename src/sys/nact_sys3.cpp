@@ -452,15 +452,7 @@ void NACT_Sys3::cmd_k()
 	// キーが離されるまで待機
 	if(cmd != 1) {
 		sys_sleep(100);
-		for(;;) {
-			if(terminate) {
-				return;
-			}
-			if(!(val = get_key())) {
-				break;
-			}
-			sys_sleep(16);
-		}
+		wait_key_release();
 	}
 
 	// K0の場合は改行
@@ -884,16 +876,7 @@ void NACT_Sys3::exec_y(int cmd, int param)
 				M_X = (x < 0) ? x : (x > 639) ? 639 : x;
 				M_Y = (y < 0) ? 0 : (y > 479) ? 479 : y;
 				if((RND = get_key())) {
-					// キー入力があった場合は、離すまで待機
-					for(;;) {
-						if(terminate) {
-							return;
-						}
-						if(!get_key()) {
-							break;
-						}
-						sys_sleep(16);
-					}
+					wait_key_release();
 				}
 			} else if(param == 3) {
 				set_cursor(M_X, M_Y);
@@ -1310,9 +1293,7 @@ bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 		}
 		int key = get_key();
 		if (key) {
-			// Wait for key release
-			while (!terminate && get_key())
-				sys_sleep(16);
+			wait_key_release();
 			RND = key;
 			break;
 		}
@@ -1441,11 +1422,6 @@ private:
 	const uint16_t GRID_SELECT_CANCELED = 80;
 	uint16_t grid_select_data[63] = {};
 	uint16_t grid_prev_selection = 0;
-
-	void wait_key_release() {
-		while (!terminate && get_key())
-			sys_sleep(16);
-	}
 
 	// I command
 	uint16_t grid_select(int left_x, int top_y, int xsize, int ysize, int nr_cols, int nr_rows, int initial_index) {

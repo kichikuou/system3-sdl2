@@ -143,6 +143,11 @@ uint8 NACT::get_key()
 	return val;
 }
 
+void NACT::wait_key_release(uint8_t mask) {
+	while (!terminate && (get_key() & mask))
+		sys_sleep(16);
+}
+
 void NACT::get_cursor(int* x, int* y)
 {
 	pump_events();

@@ -147,6 +147,8 @@ protected:
 	void wait_after_open_menu();
 
 	uint8 get_key();
+	void wait_key_release(uint8_t mask = 0xff);
+
 	void get_cursor(int* x, int* y);
 	void set_cursor(int x, int y);
 	int get_wheel();
