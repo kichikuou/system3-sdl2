@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0 - 2025-11-27
+- Added "Streamer Mode" to mosaic specified (NSFW) images. This is enabled via the `-censor <file>` command-line option.
+- Gakuen King remains unsupported, but its Music Mode now works.
+- Fixed a bug in FM sound emulation.
+- Fixed a screen scaling issue in Gakuen Senki.
+
 ## 1.6.2 - 2025-11-04
 - Added support for advancing messages by scrolling the mouse wheel down.
 - Windows: The debugger is no longer available in the 32-bit release. Please use the 64-bit version if you need it.
