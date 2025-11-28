@@ -465,6 +465,11 @@ bool MAKO::check_pcm()
 	return !PlaySound(null_wav, NULL, SND_ASYNC | SND_MEMORY | SND_NOSTOP);
 }
 
+bool MAKO::is_cd_available() const
+{
+	return !playlist.empty();
+}
+
 void MAKO::on_mci_notify(const SDL_SysWMmsg* msg)
 {
 	if (!music)

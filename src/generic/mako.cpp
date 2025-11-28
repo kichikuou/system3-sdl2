@@ -245,3 +245,7 @@ bool MAKO::check_pcm()
 	return Mix_Playing(-1) != 0;
 }
 
+bool MAKO::is_cd_available() const
+{
+	return !playlist.empty();
+}

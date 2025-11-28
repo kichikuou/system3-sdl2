@@ -40,6 +40,7 @@ public:
 	bool check_pcm();
 
 	void set_cd_track(int num, int track) { cd_track[num] = track; }
+	bool is_cd_available() const;
 
 #ifdef _WIN32
 	void select_sound(BGMDevice dev);

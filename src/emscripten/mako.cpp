@@ -151,6 +151,11 @@ bool MAKO::check_pcm()
 	return EM_ASM_INT({ return xsystem35.audio.pcm_isplaying(0); });
 }
 
+bool MAKO::is_cd_available() const
+{
+	return EM_ASM_INT({ return xsystem35.cdPlayer.hasAudioTrack(); });
+}
+
 extern "C" {
 
 EMSCRIPTEN_KEEPALIVE

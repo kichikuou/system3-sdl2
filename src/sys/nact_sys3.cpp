@@ -785,8 +785,12 @@ void NACT_Sys3::exec_y(int cmd, int param)
 				text_wait_time = (param - 1) * 1000 / 60;
 			}
 			break;
-		case 14:
-			RND = 1;
+		case 14:  // audio device check
+			if (param == 2) {
+				RND = mako->is_cd_available() ? 1 : 0;
+			} else {
+				RND = 1;
+			}
 			break;
 		case 15:
 			break;
@@ -1402,6 +1406,9 @@ public:
 		TRACE("Y %d,%d:", cmd, param);
 
 		switch (cmd) {
+		case 20:  // audio device check
+			exec_y(14, param);
+			break;
 		case 25:
 			ags->menu.back_color = ags->text.back_color = (param == 1 || param == 2) ? 0 : 1;
 			// text_window = param;
