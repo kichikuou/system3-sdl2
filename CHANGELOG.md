@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.7.1 - 2026-01-16
+- Android: Fixed a bug where music would not play correctly when installed from a ZIP containing `playlist.txt`. (#36)
+
 ## 1.7.0 - 2025-11-27
 - Added "Streamer Mode" to mosaic specified (NSFW) images. This is enabled via the `-censor <file>` command-line option.
 - Gakuen King remains unsupported, but its Music Mode now works.
