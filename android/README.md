@@ -6,6 +6,16 @@ Minimum supported Android version: 5.0
 You can download prebuilt APKs
 [here](https://github.com/kichikuou/system3-sdl2/releases).
 
+### Installing with Obtainium
+Alternatively, you can install `system3-sdl2` using
+[Obtainium](https://github.com/ImranR98/Obtainium). Obtainium will detect new
+releases and allow you to update the app directly.
+
+1. Install Obtainium on your Android device.
+2. Click the badge below to add the app to Obtainium:
+
+   [<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="60">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22io.github.kichikuou.system3%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fkichikuou%2Fsystem3-sdl2%22%2C%22author%22%3A%22kichikuou%22%2C%22name%22%3A%22system3%22%2C%22categories%22%3A%5B%22games%22%5D%7D)
+
 ## Usage
 ### Basic Usage
 1. Create a ZIP file containing all the game files and BGM files (see
