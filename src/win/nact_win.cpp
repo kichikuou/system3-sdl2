@@ -173,6 +173,20 @@ void NACT::set_skip_menu_state(bool enabled, bool checked)
 
 bool NACT::handle_platform_event(const SDL_Event& e)
 {
+	if (e.type == sdl_custom_event_type) {
+		switch (e.user.code) {
+		case DISABLE_CD_MENU:
+			{
+				HWND hwnd = get_hwnd(g_window);
+				HMENU hmenu = GetMenu(hwnd);
+				EnableMenuItem(hmenu, ID_OPTION_CD, MF_GRAYED);
+				DrawMenuBar(hwnd);
+			}
+			return true;
+		}
+		return false;
+	}
+
 	if (e.type != SDL_SYSWMEVENT)
 		return false;
 	const SDL_SysWMmsg* msg = e.syswm.msg;

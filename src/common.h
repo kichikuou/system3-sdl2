@@ -38,6 +38,7 @@ void sys_warning(const char* format, ...);
 extern uint32_t sdl_custom_event_type;
 enum CustomEvent {
 	DEBUGGER_COMMAND,
+	DISABLE_CD_MENU,
 };
 
 // resource.cpp

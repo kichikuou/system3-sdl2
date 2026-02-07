@@ -206,6 +206,12 @@ MAKO::MAKO(const Config& config, const GameId& game_id) :
 {
 	if (!config.playlist.empty())
 		load_playlist(config.playlist.c_str());
+	if (!is_cd_available()) {
+		SDL_Event event = {};
+		event.user.type = sdl_custom_event_type;
+		event.user.code = DISABLE_CD_MENU;
+		SDL_PushEvent(&event);
+	}
 
 	amus.open("AMUS.DAT");
 	awav.open("AWAV.DAT");
@@ -283,7 +289,7 @@ void MAKO::play_music(int page)
 	stop_music();
 
 	size_t track = page < 100 ? cd_track[page] : 0;
-	if (track) {
+	if (track && is_cd_available()) {
 		if (track >= playlist.size() || !playlist[track])
 			return;
 		music = new Music(playlist[track], next_loop);
