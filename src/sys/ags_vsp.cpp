@@ -55,8 +55,14 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 			uint8_t r = (data[p++] & 0xf) * 0x11;
 			uint8_t g = (data[p++] & 0xf) * 0x11;
 			colors[i] = {r, g, b, 255};
+			// In Gakuen Senki, zero entries should not be set to the palette.
+			if (game_id.is(GameId::GAKUEN) && (b | r | g) != 0) {
+				SDL_SetPaletteColors(program_palette, colors + i, base + i, 1);
+			}
 		}
-		SDL_SetPaletteColors(program_palette, colors, base, 16);
+		if (!game_id.is(GameId::GAKUEN)) {
+			SDL_SetPaletteColors(program_palette, colors, base, 16);
+		}
 	}
 
 	// パレット展開
