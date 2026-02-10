@@ -7,7 +7,7 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
-#define SYSTEM3_VERSION "1.7.1"
+#define SYSTEM3_VERSION "1.7.2"
 
 #include <stdint.h>
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.2 - 2026-02-10
+- Fall back to FM/MIDI sound if no playlist is specified.
+- Fixed color palette issue in Gakuen Senki.
+
 ## 1.7.1 - 2026-01-16
 - Android: Fixed a bug where music would not play correctly when installed from a ZIP containing `playlist.txt`. (#36)
 
