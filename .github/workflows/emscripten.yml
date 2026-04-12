@@ -27,6 +27,9 @@ jobs:
         version: ${{ env.EM_VERSION }}
         actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
 
+    - name: Work around emscripten-core/emscripten#26534
+      run: npm install -g typescript@5
+
     - name: Build
       run: |
         mkdir -p out/wasm
