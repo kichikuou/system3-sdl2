@@ -30,6 +30,10 @@ add_library(ymfm
   deps/ymfm/src/ymfm_adpcm.cpp
   deps/ymfm/src/ymfm_ssg.cpp)
 target_include_directories(ymfm PUBLIC deps/ymfm/src)
+# Suppress false-positive -Warray-bounds in ymfm_fm.ipp.
+if (NOT MSVC)
+  target_compile_options(ymfm PRIVATE -Wno-array-bounds)
+endif()
 
 
 if (ANDROID)
