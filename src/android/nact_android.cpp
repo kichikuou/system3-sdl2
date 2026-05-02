@@ -12,7 +12,7 @@ void NACT::text_dialog()
 	if (!jni.env())
 		return;
 
-	std::string oldstr = encoding->toUtf8(tvar[tvar_index - 1].c_str());
+	std::string oldstr = encoding->toUtf8(tvar[tvar_index - 1]);
 	jstring joldstr = jni.env()->NewStringUTF(oldstr.c_str());
 	if (!joldstr) {
 		WARNING("Failed to allocate a string");

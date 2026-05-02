@@ -8,6 +8,7 @@
 #define _AGS_H_
 
 #include <algorithm>
+#include <string_view>
 #include <unordered_set>
 #include <vector>
 #include <memory>
@@ -129,7 +130,7 @@ public:
 	void box_line(int dest, int sx, int sy, int ex, int ey, uint8 color);
 	void draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color);
 
-	void draw_text(const char* string, bool text_wait = false);
+	void draw_text(std::string_view string, bool text_wait = false);
 
 	void clear_text_window(int index, bool erase);
 	bool return_text_line(int index);

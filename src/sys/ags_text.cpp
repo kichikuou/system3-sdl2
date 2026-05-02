@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include <limits.h>
-#include <string.h>
+#include <string_view>
 #include "ags.h"
 #include "nact.h"
 #include "encoding.h"
@@ -348,9 +348,9 @@ int convert_to_hankaku(int code)
 
 } // namespace
 
-void AGS::draw_text(const char* string, bool text_wait)
+void AGS::draw_text(std::string_view string, bool text_wait)
 {
-	if (!*string)
+	if (string.empty())
 		return;
 	uint8 antialias_cache[256*7];
 	if (antialias)
@@ -376,8 +376,8 @@ void AGS::draw_text(const char* string, bool text_wait)
 	// Adjust dest_y if the font height is larger than the specified size.
 	dest_y -= (ascent - descent - ctx.font_size) / 2;
 
-	while (*string) {
-		int code = g_nact->encoding->next_codepoint(&string);
+	while (!string.empty()) {
+		int code = g_nact->encoding->next_codepoint(string);
 		if(draw_hankaku) {
 			code = convert_to_hankaku(code);
 		} else {

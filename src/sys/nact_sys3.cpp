@@ -159,7 +159,7 @@ void NACT_Sys3::cmd_open_verb()
 
 	for(int i = 0; i < MAX_VERB; i++) {
 		if(chk[i]) {
-			ags->draw_text(caption_verb[i].c_str());
+			ags->draw_text(caption_verb[i]);
 			ags->menu.newline();
 			id[index++] = i;
 		}
@@ -210,13 +210,13 @@ void NACT_Sys3::cmd_open_obj(int verb)
 
 	for(int i = 0; i < MAX_OBJ; i++) {
 		if(chk[i]) {
-			ags->draw_text(caption_obj[i].c_str());
+			ags->draw_text(caption_obj[i]);
 			ags->menu.newline();
 			id[index++] = i;
 		}
 	}
 	// 戻るを追加
-	ags->draw_text(strings.back.c_str());
+	ags->draw_text(strings.back);
 	ags->menu.newline();
 	id[index++] = 0;
 	ags->draw_menu = false;
@@ -953,8 +953,8 @@ void NACT_Sys3::exec_y(int cmd, int param)
 		case 228:
 		case 229:
 			{
-				ags->draw_text(tvar[param - 1].c_str());
-				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1].c_str());
+				ags->draw_text(tvar[param - 1]);
+				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1]);
 				if (padlen > 0) {
 					char pad[10] = "         ";
 					pad[padlen] = '\0';

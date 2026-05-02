@@ -376,8 +376,8 @@ void NACT::cmd_set_verbobj()
 	verb_obj = true;
 
 	TRACE("[%x,%s,%s:", addr,
-		encoding->toUtf8(caption_verb[verb].c_str()).c_str(),
-		encoding->toUtf8(caption_obj[obj].c_str()).c_str());
+		encoding->toUtf8(caption_verb[verb]).c_str(),
+		encoding->toUtf8(caption_obj[obj]).c_str());
 }
 
 void NACT::cmd_set_verbobj2()
@@ -393,8 +393,8 @@ void NACT::cmd_set_verbobj2()
 	verb_obj = true;
 
 	TRACE(":%d,%x,%s,%s:", condition, addr,
-		encoding->toUtf8(caption_verb[verb].c_str()).c_str(),
-		encoding->toUtf8(caption_obj[obj].c_str()).c_str());
+		encoding->toUtf8(caption_verb[verb]).c_str(),
+		encoding->toUtf8(caption_obj[obj]).c_str());
 }
 
 void NACT::cmd_a()
@@ -474,7 +474,7 @@ void NACT::cmd_x()
 	TRACE("X %d:", index);
 
 	if(1 <= index && index <= 10) {
-		ags->draw_text(tvar[index - 1].c_str());
+		ags->draw_text(tvar[index - 1]);
 	}
 }
 

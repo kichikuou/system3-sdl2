@@ -16,20 +16,25 @@ public:
 		return is_2byte(first_byte) ? 2 : 1;
 	}
 
-	int next_codepoint(const unsigned char** s) override
+	int next_codepoint(std::string_view& s) override
 	{
-		int code = *(*s)++;
-		if (is_2byte(code))
-			code = (code << 8) | (uint8)*(*s)++;
+		int code = (unsigned char)s[0];
+		if (is_2byte(code)) {
+			code = (code << 8) | (unsigned char)s[1];
+			s.remove_prefix(2);
+		} else {
+			s.remove_prefix(1);
+		}
 		return sjis_to_unicode(code);
 	}
 
-	std::string fromUtf8(const char* str) override
+	std::string fromUtf8(std::string_view sv) override
 	{
-		unsigned char* src = (unsigned char*)str;
+		auto src = reinterpret_cast<const unsigned char*>(sv.data());
+		auto end = src + sv.size();
 		std::string result;
 
-		while (*src) {
+		while (src < end) {
 			if (*src <= 0x7f) {
 				result += *src++;
 				continue;
@@ -44,7 +49,7 @@ public:
 				src += 3;
 			} else {
 				result += '?';
-				do src++; while ((*src & 0xc0) == 0x80);
+				do src++; while (src < end && (*src & 0xc0) == 0x80);
 				continue;
 			}
 
@@ -63,12 +68,13 @@ public:
 		return result;
 	}
 
-	std::string toUtf8(const char* str) override
+	std::string toUtf8(std::string_view sv) override
 	{
-		unsigned char* src = (unsigned char*)str;
+		auto src = reinterpret_cast<const unsigned char*>(sv.data());
+		auto end = src + sv.size();
 		std::string result;
 
-		while (*src) {
+		while (src < end) {
 			if (*src <= 0x7f) {
 				result += *src++;
 				continue;
@@ -145,52 +151,53 @@ public:
 		return 4;
 	}
 
-	int next_codepoint(const unsigned char** str) override
+	int next_codepoint(std::string_view& s) override
 	{
 		int code;
-		const unsigned char *s = *str;
+		unsigned char c = s[0];
 
-		if (*s <= 0x7f) {
-			code = *s++;
-		} else if (*s <= 0xbf) {
+		if (c <= 0x7f) {
+			code = c;
+			s.remove_prefix(1);
+		} else if (c <= 0xbf) {
 			// Invalid UTF-8 sequence
 			code = '?';
-			s++;
-		} else if (*s <= 0xdf) {
+			s.remove_prefix(1);
+		} else if (c <= 0xdf) {
 			code = (s[0] & 0x1f) << 6 | (s[1] & 0x3f);
-			s += 2;
-		} else if (*s <= 0xef) {
+			s.remove_prefix(2);
+		} else if (c <= 0xef) {
 			code = (s[0] & 0xf) << 12 | (s[1] & 0x3f) << 6 | (s[2] & 0x3f);
-			s += 3;
-		} else if (*s <= 0xf7) {
+			s.remove_prefix(3);
+		} else if (c <= 0xf7) {
 			code = (s[0] & 0x7) << 18 | (s[1] & 0x3f) << 12 | (s[2] & 0x3f) << 6 | (s[3] & 0x3f);
-			s += 4;
+			s.remove_prefix(4);
 		} else {
 			code = 0xfffd;  // REPLACEMENT CHARACTER
-			s++;
-			while (0x80 <= *s && *s <= 0xbf)
-				s++;
+			s.remove_prefix(1);
+			while (!s.empty() && 0x80 <= (unsigned char)s[0] && (unsigned char)s[0] <= 0xbf)
+				s.remove_prefix(1);
 		}
-		*str = s;
 		return code;
 	}
 
-	std::string fromUtf8(const char* s) override
+	std::string fromUtf8(std::string_view s) override
 	{
 		return std::string(s);
 	}
 
-	std::string toUtf8(const char* s) override
+	std::string toUtf8(std::string_view s) override
 	{
 		return std::string(s);
 	}
 };
 
-int Encoding::mbslen(const unsigned char* s)
+int Encoding::mbslen(std::string_view s)
 {
 	int len = 0;
-	while (*s) {
-		s += mblen(*s);
+	while (!s.empty()) {
+		int n = mblen((unsigned char)s[0]);
+		s.remove_prefix(n);
 		len++;
 	}
 	return len;

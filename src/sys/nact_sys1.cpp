@@ -199,7 +199,7 @@ top:
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_VERB; i++) {
 			if(chk[i]) {
-				ags->draw_text(caption_verb[i].c_str());
+				ags->draw_text(caption_verb[i]);
 				ags->menu.newline();
 				id[index++] = i;
 			}
@@ -208,7 +208,7 @@ top:
 top2:
 		for(int i = page; i < MAX_VERB; i++) {
 			if(chk[i]) {
-				ags->draw_text(caption_verb[i].c_str());
+				ags->draw_text(caption_verb[i]);
 				ags->menu.newline();
 				id[index++] = i;
 			}
@@ -223,7 +223,7 @@ top2:
 			goto top2;
 		}
 		// 次のページを追加
-		ags->draw_text(strings.next_page.c_str());
+		ags->draw_text(strings.next_page);
 		ags->menu.newline();
 		id[index++] = -1;
 	}
@@ -281,20 +281,20 @@ top:
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_OBJ; i++) {
 			if(chk[i]) {
-				ags->draw_text(caption_obj[i].c_str());
+				ags->draw_text(caption_obj[i]);
 				ags->menu.newline();
 				id[index++] = i;
 			}
 		}
 		// 戻るを追加
-		ags->draw_text(strings.back.c_str());
+		ags->draw_text(strings.back);
 		ags->menu.newline();
 		id[index++] = 0;
 	} else {
 top2:
 		for(int i = page; i < MAX_OBJ; i++) {
 			if(chk[i]) {
-				ags->draw_text(caption_obj[i].c_str());
+				ags->draw_text(caption_obj[i]);
 				ags->menu.newline();
 				id[index++] = i;
 			}
@@ -309,12 +309,12 @@ top2:
 			goto top2;
 		}
 		// 戻るを追加
-		ags->draw_text(strings.back.c_str());
+		ags->draw_text(strings.back);
 		ags->menu.newline();
 		id[index++] = 0;
 
 		// 次のページを追加
-		ags->draw_text(strings.next_page.c_str());
+		ags->draw_text(strings.next_page);
 		ags->menu.newline();
 		id[index++] = -1;
 	}

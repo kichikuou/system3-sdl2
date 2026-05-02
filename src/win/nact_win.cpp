@@ -93,7 +93,7 @@ void NACT::text_dialog()
 				swprintf_s(wstring, 64, L"文字列を入力してください（最大%d文字）", g_nact->tvar_maxlen);
 				SetWindowTextW(GetDlgItem(hDlg, IDC_TEXT), wstring);
 
-				std::string oldstr = g_nact->encoding->toUtf8(g_nact->tvar[g_nact->tvar_index - 1].c_str());
+				std::string oldstr = g_nact->encoding->toUtf8(g_nact->tvar[g_nact->tvar_index - 1]);
 				MultiByteToWideChar(CP_UTF8, 0, oldstr.c_str(), -1, wstring, 64);
 				SetWindowTextW(GetDlgItem(hDlg, IDC_EDITBOX), wstring);
 				EnableWindow(GetDlgItem(hDlg, IDOK), oldstr[0] != '\0');

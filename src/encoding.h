@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 
 // Gaiji characters are mapped to Unicode Private Use Area U+E000-U+E0BB.
 const int GAIJI_FIRST = 0xE000;
@@ -14,23 +15,17 @@ class Encoding {
 
 	virtual ~Encoding() = default;
 
-	// Returns Unicode codepoint of the first character of *s, and advances *s
+	// Returns Unicode codepoint of the first character of s, and advances s
 	// to the next character.
-	virtual int next_codepoint(const unsigned char** s) = 0;
-	int next_codepoint(const char** s) {
-		return next_codepoint(reinterpret_cast<const unsigned char **>(s));
-	}
+	virtual int next_codepoint(std::string_view& s) = 0;
 	// Determines the byte length of a character based on the first byte.
 	virtual int mblen(unsigned char first_byte) = 0;
 	// Returns the number of characters in s.
-	int mbslen(const unsigned char* s);
-	int mbslen(const char* s) {
-		return mbslen(reinterpret_cast<const unsigned char*>(s));
-	}
+	int mbslen(std::string_view s);
 
-	// Convert from/to utf-8 encoding. Caller must free() the returned buffer.
-	virtual std::string fromUtf8(const char* s) = 0;
-	virtual std::string toUtf8(const char* s) = 0;
+	// Convert from/to utf-8 encoding.
+	virtual std::string fromUtf8(std::string_view s) = 0;
+	virtual std::string toUtf8(std::string_view s) = 0;
 };
 
 #endif // _ENCODING_H_
