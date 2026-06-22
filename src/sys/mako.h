@@ -44,7 +44,6 @@ public:
 
 #ifdef _WIN32
 	void select_sound(BGMDevice dev);
-	void on_mci_notify(const SDL_SysWMmsg* msg);
 #endif
 
 	bool use_fm;

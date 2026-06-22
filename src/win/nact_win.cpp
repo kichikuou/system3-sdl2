@@ -244,9 +244,6 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			break;
 		}
 		break;
-	case MM_MCINOTIFY:
-		mako->on_mci_notify(msg);
-		break;
 	}
 	return true;
 }

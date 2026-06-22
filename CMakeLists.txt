@@ -44,7 +44,7 @@ if (ANDROID)
     src/generic/mako.cpp
     )
   find_library(ndk_log log)
-  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf SDL2_mixer ymfm ${ndk_log})
+  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf ymfm ${ndk_log})
 
 elseif (EMSCRIPTEN)
   add_executable(system3)
@@ -163,7 +163,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(system3 PRIVATE
       src/win/nact_win.cpp
-      src/win/mako.cpp
+      src/generic/mako.cpp
       src/win/resource.rc
       )
     target_compile_definitions(system3 PRIVATE NOMINMAX)
@@ -172,12 +172,10 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
       target_link_options(system3 PRIVATE -static)
     endif()
   else()
-    pkg_check_modules(SDL2MIXER REQUIRED IMPORTED_TARGET SDL2_mixer)
     target_sources(system3 PRIVATE
       src/generic/nact_generic.cpp
       src/generic/mako.cpp
       )
-    target_link_libraries(system3 PRIVATE PkgConfig::SDL2MIXER)
     set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
     install(TARGETS system3 RUNTIME DESTINATION bin)
     install(DIRECTORY resources/
@@ -239,6 +237,15 @@ if(NINTENDO_SWITCH)
     ICON "switch/icon.jpg"
     ROMFS "resources"
   )
+endif()
+
+if (NOT EMSCRIPTEN)
+  target_sources(system3 PRIVATE src/sys/mako_music.cpp)
+  target_include_directories(system3 PRIVATE deps/dr_libs deps/stb)
+  # dr_mp3 and stb_vorbis are amalgamated into this translation unit; silence
+  # their warnings so they are not promoted to errors by WARNING_AS_ERROR.
+  set_source_files_properties(src/sys/mako_music.cpp PROPERTIES
+    COMPILE_OPTIONS "$<IF:$<CXX_COMPILER_ID:MSVC>,/w,-w>")
 endif()
 
 target_compile_definitions(system3 PRIVATE RESOURCE_PATH="${RESOURCE_PATH}")

@@ -40,7 +40,7 @@ are supported.
 
 #### `-playlist` _filename_
 _filename_ is a text file that lists the audio files to play in lieu of CD
-audio tracks, one per line. For example:
+audio tracks, one per line. MP3, OGG, and WAV files are supported. For example:
 
 ```plaintext
 # This line is ignored
@@ -125,7 +125,7 @@ the game ID. You need to specify the `game` option in `system3.ini`.
 
 ```bash
 $ git submodule update --init
-$ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev librtmidi-dev nlohmann-json3-dev
+$ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev librtmidi-dev nlohmann-json3-dev
 $ mkdir -p out/debug
 $ cd out/debug
 $ cmake -DCMAKE_BUILD_TYPE=Debug ../../
@@ -137,7 +137,7 @@ $ sudo make install
 
 ```bash
 $ git submodule update --init
-$ brew install cmake pkg-config sdl2 sdl2_ttf sdl2_mixer rtmidi nlohmann-json
+$ brew install cmake pkg-config sdl2 sdl2_ttf rtmidi nlohmann-json
 $ mkdir -p out/debug
 $ cd out/debug
 $ cmake -DCMAKE_BUILD_TYPE=Debug ../../
