@@ -79,17 +79,19 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	init_windows();
 	init_text();
 
-	SDL_Init(SDL_INIT_GAMECONTROLLER);
-	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
-		if (SDL_IsGameController(i)) {
-			sdl_gamecontroller = SDL_GameControllerOpen(i);
+	SDL_Init(SDL_INIT_GAMEPAD);
+	SDL_JoystickID* ids = SDL_GetJoysticks(nullptr);
+	for (int i = 0; ids && ids[i]; ++i) {
+		if (SDL_IsGamepad(ids[i])) {
+			sdl_gamecontroller = SDL_OpenGamepad(ids[i]);
 			if (sdl_gamecontroller) {
 				break;
 			} else {
-				WARNING("Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+				WARNING("Could not open gamepad %i: %s\n", i, SDL_GetError());
 			}
 		}
 	}
+	SDL_free(ids);
 }
 
 NACT::~NACT()
@@ -526,7 +528,7 @@ void NACT::text_wait()
 	if (msgskip->skipping())
 		return;
 
-	Uint32 dwTime = SDL_GetTicks() + text_wait_time;
+	Uint64 dwTime = SDL_GetTicks() + text_wait_time;
 	while (!terminate) {
 		if (get_key(false) && wait_keydown)
 			break;

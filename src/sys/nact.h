@@ -14,7 +14,7 @@
 #include <string_view>
 #include <vector>
 #include <stdio.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "common.h"
 #include "config.h"
 #include "cg.h"
@@ -284,6 +284,10 @@ protected:
 
 	// helpers
 	bool is_message(uint8_t c) { return c == ' ' || c & 0x80; }
+
+#ifdef _WIN32
+	void handle_windows_event(MSG* msg);
+#endif
 
 private:
 	std::u16string decode_text(std::string_view string);

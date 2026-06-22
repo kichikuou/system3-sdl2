@@ -178,10 +178,9 @@ MakoMusic::MakoMusic(const std::string& path, int loops, const SDL_AudioSpec& de
 		return;
 	const SDL_AudioSpec& src_spec = decoder->spec();
 
-	stream = SDL_NewAudioStream(src_spec.format, src_spec.channels, src_spec.freq,
-							   device_spec.format, device_spec.channels, device_spec.freq);
+	stream = SDL_CreateAudioStream(&src_spec, &device_spec);
 	if (!stream) {
-		WARNING("SDL_NewAudioStream failed: %s", SDL_GetError());
+		WARNING("SDL_CreateAudioStream failed: %s", SDL_GetError());
 		return;
 	}
 	playing = true;
@@ -227,7 +226,7 @@ void MakoMusic::mix(Uint8* out, int len)
 	Uint8* tmp = SDL_stack_alloc(Uint8, len);
 	int got = SDL_AudioStreamGet(stream, tmp, len);
 	if (got > 0)
-		SDL_MixAudioFormat(out, tmp, AUDIO_S16SYS, got, SDL_MIX_MAXVOLUME);
+		SDL_MixAudioFormat(out, tmp, AUDIO_S16SYS, got, 1.0f);
 	SDL_stack_free(tmp);
 	if (input_finished && SDL_AudioStreamAvailable(stream) <= 0)
 		playing = false;

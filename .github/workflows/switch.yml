@@ -1,5 +1,7 @@
 name: Nintendo Switch Build
-on: [push, pull_request]
+# Disabled: devkitPro provides no SDL3 portlib yet, so the Switch build cannot be
+# migrated off SDL2. Run manually once an SDL3 portlib is available.
+on: workflow_dispatch
 
 jobs:
   build:

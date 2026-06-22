@@ -16,7 +16,7 @@
 #include "game_id.h"
 #include "cg.h"
 #include "dri.h"
-#include <SDL_ttf.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 struct Config;
 

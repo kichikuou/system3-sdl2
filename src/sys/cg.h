@@ -8,7 +8,7 @@
 #define _CG_H_
 
 #include <memory>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "common.h"
 
 inline uint8_t* surface_line(SDL_Surface* surface, int y)
@@ -29,14 +29,16 @@ struct CG {
 
 	CG() = default;
 	CG(int x, int y, int width, int height)
-		: surface_(SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8)),
-		  x(x), y(y) {}
+		: surface_(SDL_CreateSurface(width, height, SDL_PIXELFORMAT_INDEX8)),
+		  x(x), y(y) {
+		SDL_CreateSurfacePalette(surface_.get());
+	}
 	explicit operator bool() const noexcept { return static_cast<bool>(surface_); }
 
 	SDL_Surface* surface() const { return surface_.get(); }
 	int width() const { return surface_->w; }
 	int height() const { return surface_->h; }
-	SDL_Palette* palette() const { return surface_->format->palette; }
+	SDL_Palette* palette() const { return SDL_GetSurfacePalette(surface_.get()); }
 };
 
 #endif // _CG_H_

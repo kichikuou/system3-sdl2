@@ -42,14 +42,14 @@ protected:
 	void exec_y(int cmd, int param);
 
 	void wait_impl(int tm) {
-		uint32_t dwTime = SDL_GetTicks() + tm;
+		Uint64 dwTime = SDL_GetTicks() + tm;
 		while (!terminate && SDL_GetTicks() < dwTime) {
 			sys_sleep(16);
 		}
 	}
 
 	void wait_keyquit_impl(int tm) {
-		Uint32 dwTime = SDL_GetTicks() + tm;
+		Uint64 dwTime = SDL_GetTicks() + tm;
 		while (!terminate) {
 			if (get_key()) {
 				while (!terminate) {

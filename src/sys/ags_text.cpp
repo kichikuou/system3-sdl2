@@ -30,8 +30,8 @@ int AGS::draw_text(ScreenId dest, int x, int y, std::u16string_view codes, int f
 	case 48: font = hFont48; break;
 	case 64: font = hFont64; break;
 	}
-	int ascent = TTF_FontAscent(font);
-	int descent = TTF_FontDescent(font);
+	int ascent = TTF_GetFontAscent(font);
+	int descent = TTF_GetFontDescent(font);
 	// Adjust dest_y if the font height is larger than the specified size.
 	int dest_y = y - (ascent - descent - font_size) / 2;
 
@@ -49,7 +49,7 @@ int AGS::draw_text(ScreenId dest, int x, int y, std::u16string_view codes, int f
 				draw_char(dest, dest_x, dest_y, code, font, color);
 
 			int miny, maxy, advance;
-			TTF_GlyphMetrics(font, code, NULL, NULL, &miny, &maxy, &advance);
+			TTF_GetGlyphMetrics(font, code, NULL, NULL, &miny, &maxy, &advance);
 			// Some fonts report incorrect Ascent/Descent value so we need to fix them.
 			if (miny < descent) descent = miny;
 			if (maxy > ascent) ascent = maxy;
