@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <limits.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "mako.h"
 #include "mako_midi.h"
@@ -33,7 +33,9 @@ const int8_t RANCE42_tracks[] = {2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,1
 const int8_t DPSALL_tracks[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,5,1,2,3,-1};
 #endif
 
-SDL_AudioDeviceID g_device;
+// The main output stream, opened together with the audio device via
+// SDL_OpenAudioDeviceStream().  Its callback mixes fm/music/pcm together.
+SDL_AudioStream* g_stream;
 SDL_AudioSpec g_device_spec;
 
 std::unique_ptr<MakoMusic> music;
@@ -62,24 +64,35 @@ void mix_pcm(Uint8* out, int len)
 	Uint8* tmp = SDL_stack_alloc(Uint8, len);
 	int got = SDL_AudioStreamGet(pcm_stream, tmp, len);
 	if (got > 0)
-		SDL_MixAudioFormat(out, tmp, AUDIO_S16SYS, got, SDL_MIX_MAXVOLUME);
+		SDL_MixAudioFormat(out, tmp, AUDIO_S16SYS, got, 1.0f);
 	SDL_stack_free(tmp);
 }
 
-void audio_callback(void*, Uint8* stream, int len)
+// SDL3 audio callback: rather than handing us a buffer to fill, SDL asks us to
+// feed `additional_amount` bytes into the stream via SDL_PutAudioStreamData().
+void SDLCALL audio_callback(void*, SDL_AudioStream* stream, int additional_amount, int /*total_amount*/)
 {
-	SDL_memset(stream, 0, len);
-	if (fm) {
-		int frames = len / 4;
-		int16_t* tmp = SDL_stack_alloc(int16_t, frames * 2);
-		fm->Process(tmp, frames);
-		SDL_MixAudioFormat(stream, reinterpret_cast<Uint8*>(tmp), AUDIO_S16SYS, len, SDL_MIX_MAXVOLUME);
-		SDL_stack_free(tmp);
+	// Mix in bounded chunks so the scratch buffers (and the per-source
+	// SDL_stack_alloc() below) stay small no matter how much SDL requests.
+	const int CHUNK = 4096;  // bytes; 1024 stereo S16 frames
+	Uint8 buffer[CHUNK];
+	while (additional_amount > 0) {
+		int len = additional_amount < CHUNK ? additional_amount : CHUNK;
+		SDL_memset(buffer, 0, len);
+		if (fm) {
+			int frames = len / 4;
+			int16_t* tmp = SDL_stack_alloc(int16_t, frames * 2);
+			fm->Process(tmp, frames);
+			SDL_MixAudioFormat(buffer, reinterpret_cast<Uint8*>(tmp), AUDIO_S16SYS, len, 1.0f);
+			SDL_stack_free(tmp);
+		}
+		if (music)
+			music->mix(buffer, len);
+		if (pcm_stream)
+			mix_pcm(buffer, len);
+		SDL_PutAudioStreamData(stream, buffer, len);
+		additional_amount -= len;
 	}
-	if (music)
-		music->mix(stream, len);
-	if (pcm_stream)
-		mix_pcm(stream, len);
 }
 
 } // namespace
@@ -110,19 +123,18 @@ MAKO::MAKO(const Config& config, const GameId& game_id) :
 		cd_track[i] = 0;
 
 	SDL_InitSubSystem(SDL_INIT_AUDIO);
-	SDL_AudioSpec want;
-	SDL_zero(want);
-	want.freq = SAMPLE_RATE;
-	want.format = AUDIO_S16SYS;
-	want.channels = 2;
-	want.samples = 4096;
-	want.callback = &audio_callback;
-	g_device = SDL_OpenAudioDevice(nullptr, 0, &want, &g_device_spec, 0);
-	if (!g_device) {
-		WARNING("SDL_OpenAudioDevice failed: %s", SDL_GetError());
+	// g_device_spec is the format our callback produces; the resampling streams
+	// used by MakoMusic/MakoYmfm/pcm convert their sources into this format.
+	SDL_zero(g_device_spec);
+	g_device_spec.freq = SAMPLE_RATE;
+	g_device_spec.format = AUDIO_S16SYS;
+	g_device_spec.channels = 2;
+	g_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &g_device_spec, audio_callback, nullptr);
+	if (!g_stream) {
+		WARNING("SDL_OpenAudioDeviceStream failed: %s", SDL_GetError());
 		use_fm = false;
 	} else {
-		SDL_PauseAudioDevice(g_device, 0);
+		SDL_ResumeAudioStreamDevice(g_stream);
 	}
 
 	midi = std::make_unique<MAKOMidi>(config.midi_device);
@@ -136,8 +148,8 @@ MAKO::~MAKO()
 	stop_pcm();
 	midi.reset();
 
-	if (g_device)
-		SDL_CloseAudioDevice(g_device);
+	if (g_stream)
+		SDL_DestroyAudioStream(g_stream);  // also closes the audio device
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
@@ -185,17 +197,17 @@ void MAKO::play_music(int page)
 		auto m = std::make_unique<MakoMusic>(file, next_loop, g_device_spec);
 		if (!m->is_open())
 			return;
-		SDL_LockAudioDevice(g_device);
+		SDL_LockAudioStream(g_stream);
 		music = std::move(m);
-		SDL_UnlockAudioDevice(g_device);
+		SDL_UnlockAudioStream(g_stream);
 	} else if (use_fm) {
 		std::vector<uint8_t> data = amus.load(page);
 		if (data.empty())
 			return;
 		auto f = std::make_unique<MakoYmfm>(SAMPLE_RATE, std::move(data));
-		SDL_LockAudioDevice(g_device);
+		SDL_LockAudioStream(g_stream);
 		fm = std::move(f);
-		SDL_UnlockAudioDevice(g_device);
+		SDL_UnlockAudioStream(g_stream);
 	} else if (midi->is_available()) {
 		if (!midi->play(game_id, amus, mda, page, next_loop))
 			return;
@@ -207,10 +219,10 @@ void MAKO::play_music(int page)
 void MAKO::stop_music()
 {
 	if (music || fm) {
-		SDL_LockAudioDevice(g_device);
+		SDL_LockAudioStream(g_stream);
 		std::unique_ptr<MakoMusic> old_music = std::move(music);
 		std::unique_ptr<MakoYmfm> old_fm = std::move(fm);
-		SDL_UnlockAudioDevice(g_device);
+		SDL_UnlockAudioStream(g_stream);
 		// old_music/old_fm are destroyed here, outside the lock.
 	}
 	if (midi->is_available())
@@ -220,19 +232,19 @@ void MAKO::stop_music()
 
 bool MAKO::check_music()
 {
-	SDL_LockAudioDevice(g_device);
+	SDL_LockAudioStream(g_stream);
 	if (fm) {
 		int mark, loop;
 		fm->get_mark(&mark, &loop);
-		SDL_UnlockAudioDevice(g_device);
+		SDL_UnlockAudioStream(g_stream);
 		return !loop;
 	}
 	if (music) {
 		bool playing = music->is_playing();
-		SDL_UnlockAudioDevice(g_device);
+		SDL_UnlockAudioStream(g_stream);
 		return playing;
 	}
-	SDL_UnlockAudioDevice(g_device);
+	SDL_UnlockAudioStream(g_stream);
 	return midi->is_playing();
 }
 
@@ -297,13 +309,13 @@ void MAKO::select_sound(BGMDevice dev)
 
 void MAKO::get_mark(int* mark, int* loop)
 {
-	SDL_LockAudioDevice(g_device);
+	SDL_LockAudioStream(g_stream);
 	if (fm) {
 		fm->get_mark(mark, loop);
-		SDL_UnlockAudioDevice(g_device);
+		SDL_UnlockAudioStream(g_stream);
 		return;
 	}
-	SDL_UnlockAudioDevice(g_device);
+	SDL_UnlockAudioStream(g_stream);
 	midi->get_mark(mark, loop);
 }
 
@@ -326,8 +338,7 @@ void MAKO::play_pcm(int page, int loops)
 		}
 		src.assign(wav, wav + wavlen);
 		SDL_FreeWAV(wav);
-		stream = SDL_NewAudioStream(spec.format, spec.channels, spec.freq,
-								   g_device_spec.format, g_device_spec.channels, g_device_spec.freq);
+		stream = SDL_CreateAudioStream(&spec, &g_device_spec);
 	} else {
 		// AMSE形式 (乙女戦記)
 		data = amse.load(page);
@@ -339,29 +350,29 @@ void MAKO::play_pcm(int page, int loops)
 			src.push_back(data[i] & 0xf0);
 			src.push_back((data[i] & 0x0f) << 4);
 		}
-		stream = SDL_NewAudioStream(AUDIO_U8, 1, 8000,
-								   g_device_spec.format, g_device_spec.channels, g_device_spec.freq);
+		SDL_AudioSpec src_spec = { AUDIO_U8, 1, 8000 };
+		stream = SDL_CreateAudioStream(&src_spec, &g_device_spec);
 	}
 	if (!stream) {
-		WARNING("SDL_NewAudioStream failed: %s", SDL_GetError());
+		WARNING("SDL_CreateAudioStream failed: %s", SDL_GetError());
 		return;
 	}
-	SDL_LockAudioDevice(g_device);
+	SDL_LockAudioStream(g_stream);
 	pcm_stream = stream;
 	pcm_src = std::move(src);
 	pcm_loops = loops ? loops : -1;
 	pcm_input_finished = false;
-	SDL_UnlockAudioDevice(g_device);
+	SDL_UnlockAudioStream(g_stream);
 }
 
 void MAKO::stop_pcm()
 {
-	SDL_LockAudioDevice(g_device);
+	SDL_LockAudioStream(g_stream);
 	SDL_AudioStream* old = pcm_stream;
 	pcm_stream = nullptr;
 	pcm_src.clear();
 	pcm_input_finished = false;
-	SDL_UnlockAudioDevice(g_device);
+	SDL_UnlockAudioStream(g_stream);
 	if (old)
 		SDL_FreeAudioStream(old);
 }
@@ -369,10 +380,10 @@ void MAKO::stop_pcm()
 bool MAKO::check_pcm()
 {
 	// 再生中でtrue
-	SDL_LockAudioDevice(g_device);
+	SDL_LockAudioStream(g_stream);
 	bool playing = pcm_stream &&
 		(!pcm_input_finished || SDL_AudioStreamAvailable(pcm_stream) > 0);
-	SDL_UnlockAudioDevice(g_device);
+	SDL_UnlockAudioStream(g_stream);
 	return playing;
 }
 

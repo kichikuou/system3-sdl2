@@ -47,14 +47,14 @@ protected:
 	uint16 cali() override;
 
 	void wait_impl(int tm) {
-		uint32_t dwTime = SDL_GetTicks() + tm;
+		Uint64 dwTime = SDL_GetTicks() + tm;
 		while (!terminate && SDL_GetTicks() < dwTime) {
 			sys_sleep(16);
 		}
 	}
 
 	void wait_keyquit_impl(int tm) {
-		Uint32 dwTime = SDL_GetTicks() + tm;
+		Uint64 dwTime = SDL_GetTicks() + tm;
 		while (!terminate) {
 			if (get_key()) {
 				while (!terminate) {
@@ -712,7 +712,7 @@ void NACT_Sys2::cmd_y()
 			break;
 		case 3:
 			{
-				Uint32 dwTime = SDL_GetTicks() + param * 1000 / 60;
+				Uint64 dwTime = SDL_GetTicks() + param * 1000 / 60;
 				for(;;) {
 					if(terminate) {
 						return;

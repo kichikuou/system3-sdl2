@@ -21,7 +21,7 @@ const uint32 SCANLINE_ALPHA = 0x38;  // 0-255
 
 SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int height)
 {
-	SDL_Surface* sf = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+	SDL_Surface* sf = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_ARGB8888);
 	for (int y = 0; y < height; y++) {
 		uint32* p = reinterpret_cast<uint32*>(surface_line(sf, y));
 		uint32 v = y % 2 ? (SCANLINE_ALPHA << 24) : 0;
@@ -50,18 +50,18 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 	}
 
 	SDL_SetWindowSize(g_window, window_width, window_height);
-	SDL_RenderSetLogicalSize(g_renderer, window_width, window_height);
+	SDL_SetRenderLogicalPresentation(g_renderer, window_width, window_height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, screen_width, screen_height);
 	scanline_texture = NULL;
 
 	// DIBSection 8bpp * 3 (表, 裏, メニュー)
 	for(int i = 0; i < 3; i++) {
-		hBmpScreen[i] = SDL_CreateRGBSurfaceWithFormat(0, 640, 480, 8, SDL_PIXELFORMAT_INDEX8);
+		hBmpScreen[i] = SDL_CreateSurface(640, 480, SDL_PIXELFORMAT_INDEX8);
 		vram[i] = reinterpret_cast<uint8_t(*)[640]>(hBmpScreen[i]->pixels);
 	}
 
 	// All surfaces share the same palette.
-	screen_palette = hBmpScreen[0]->format->palette;
+	screen_palette = SDL_CreateSurfacePalette(hBmpScreen[0]);
 	SDL_SetSurfacePalette(hBmpScreen[1], screen_palette);
 	SDL_SetSurfacePalette(hBmpScreen[2], screen_palette);
 
@@ -79,17 +79,17 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 		if (!rw_font)
 			sys_error("Cannot open default font");
 	}
-	hFont16 = TTF_OpenFontRW(rw_font, 0, 16);
-	SDL_RWseek(rw_font, 0, SEEK_SET);
-	hFont24 = TTF_OpenFontRW(rw_font, 0, 24);
-	SDL_RWseek(rw_font, 0, SEEK_SET);
-	hFont32 = TTF_OpenFontRW(rw_font, 0, 32);
-	SDL_RWseek(rw_font, 0, SEEK_SET);
-	hFont48 = TTF_OpenFontRW(rw_font, 0, 48);
-	SDL_RWseek(rw_font, 0, SEEK_SET);
-	hFont64 = TTF_OpenFontRW(rw_font, 0, 64);
+	hFont16 = TTF_OpenFontIO(rw_font, false, 16);
+	SDL_RWseek(rw_font, 0, SDL_IO_SEEK_SET);
+	hFont24 = TTF_OpenFontIO(rw_font, false, 24);
+	SDL_RWseek(rw_font, 0, SDL_IO_SEEK_SET);
+	hFont32 = TTF_OpenFontIO(rw_font, false, 32);
+	SDL_RWseek(rw_font, 0, SDL_IO_SEEK_SET);
+	hFont48 = TTF_OpenFontIO(rw_font, false, 48);
+	SDL_RWseek(rw_font, 0, SDL_IO_SEEK_SET);
+	hFont64 = TTF_OpenFontIO(rw_font, false, 64);
 	if (!hFont16 || !hFont24 || !hFont32 || !hFont48 || !hFont64) {
-		sys_error("TTF_OpenFontRW failed: %s", TTF_GetError());
+		sys_error("TTF_OpenFontIO failed: %s", SDL_GetError());
 	}
 	if (config.no_antialias)
 		ags_setAntialiasedStringMode(0);
@@ -379,7 +379,7 @@ void AGS::fade_out(int duration_ms, bool white)
 
 	fade_color = white ? 255 : 0;
 
-	Uint32 dwStart = SDL_GetTicks();
+	Uint64 dwStart = SDL_GetTicks();
 	while (fade_level < 255) {
 		g_nact->sys_sleep(16);
 		int t = SDL_GetTicks() - dwStart;
@@ -393,7 +393,7 @@ void AGS::fade_in(int duration_ms)
 	if (fade_level == 0)
 		return;
 
-	Uint32 dwStart = SDL_GetTicks();
+	Uint64 dwStart = SDL_GetTicks();
 	while (fade_level > 0) {
 		g_nact->sys_sleep(16);
 		int t = SDL_GetTicks() - dwStart;
@@ -421,8 +421,8 @@ void AGS::update_screen()
 	}
 
 	SDL_RenderClear(g_renderer);
-	SDL_Rect src = {0, 0, screen_width, screen_height};
-	SDL_Rect dest = {0, 0, window_width, screen_height};
+	SDL_FRect src = {0.f, 0.f, (float)screen_width, (float)screen_height};
+	SDL_FRect dest = {0.f, 0.f, (float)window_width, (float)screen_height};
 	if (scroll > 0) {
 		src.y = scroll;
 		src.h = dest.h = screen_height - scroll;
@@ -430,7 +430,7 @@ void AGS::update_screen()
 		dest.y = -scroll;
 		src.h = dest.h = screen_height + scroll;
 	}
-	SDL_RenderCopy(g_renderer, sdlTexture, &src, &dest);
+	SDL_RenderTexture(g_renderer, sdlTexture, &src, &dest);
 
 	if (fade_level) {
 		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
@@ -440,7 +440,7 @@ void AGS::update_screen()
 		SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
 	}
 	if (scanline_texture)
-		SDL_RenderCopy(g_renderer, scanline_texture, NULL, NULL);
+		SDL_RenderTexture(g_renderer, scanline_texture, NULL, NULL);
 	SDL_RenderPresent(g_renderer);
 }
 
@@ -456,18 +456,18 @@ void AGS::set_scanline_mode(bool enable)
 
 bool AGS::save_screenshot(const char* path)
 {
-	SDL_Surface* sf = SDL_CreateRGBSurface(0, screen_width, screen_height, 32, 0, 0, 0, 0);
+	SDL_Surface* sf = SDL_CreateSurface(screen_width, screen_height, SDL_GetPixelFormatForMasks(32, 0, 0, 0, 0));
 	SDL_BlitSurface(hBmpScreen[0], NULL, sf, NULL);
 
 	if (scanline_texture) {
 		SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(sf);
 		SDL_Texture *tx = create_scanline_texture(renderer, screen_width, screen_height);
-		SDL_RenderCopy(renderer, tx, NULL, NULL);
+		SDL_RenderTexture(renderer, tx, NULL, NULL);
 		SDL_DestroyTexture(tx);
 		SDL_DestroyRenderer(renderer);
 	}
 
-	bool ok = SDL_SaveBMP(sf, path) == 0;
+	bool ok = SDL_SaveBMP(sf, path);
 	if (!ok) {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "system3",
 								 SDL_GetError(), g_window);

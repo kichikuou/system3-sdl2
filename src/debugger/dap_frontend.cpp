@@ -3,7 +3,7 @@
 #include "debugger/frontend.h"
 #include <algorithm>
 #include <queue>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "nlohmann/json.hpp"
 #include "common.h"
 #include "encoding.h"

@@ -19,13 +19,13 @@ namespace {
 const int MOSAIC_SIZE = 16;
 
 void mosaic(SDL_Surface* sf) {
-	SDL_Surface *tmp = SDL_CreateRGBSurfaceWithFormat(
-		0, (sf->w + MOSAIC_SIZE - 1) / MOSAIC_SIZE, (sf->h + MOSAIC_SIZE - 1) / MOSAIC_SIZE, 8, SDL_PIXELFORMAT_INDEX8);
-	if (sf->format->palette)
-		SDL_SetSurfacePalette(tmp, sf->format->palette);
-	// NOTE: SDL_BlitScaled() does not support 8-bit surfaces.
-	SDL_SoftStretch(sf, NULL, tmp, NULL);
-	SDL_SoftStretch(tmp, NULL, sf, NULL);
+	SDL_Surface *tmp = SDL_CreateSurface(
+		(sf->w + MOSAIC_SIZE - 1) / MOSAIC_SIZE, (sf->h + MOSAIC_SIZE - 1) / MOSAIC_SIZE, SDL_PIXELFORMAT_INDEX8);
+	if (SDL_GetSurfacePalette(sf))
+		SDL_SetSurfacePalette(tmp, SDL_GetSurfacePalette(sf));
+	// NOTE: SDL_BlitSurfaceScaled() does not support 8-bit surfaces.
+	SDL_StretchSurface(sf, NULL, tmp, NULL, SDL_SCALEMODE_NEAREST);
+	SDL_StretchSurface(tmp, NULL, sf, NULL, SDL_SCALEMODE_NEAREST);
 	SDL_FreeSurface(tmp);
 }
 

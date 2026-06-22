@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       matrix:
         build-type: ["Debug", "Release"]
@@ -17,7 +17,7 @@ jobs:
     - name: Install Deps
       run: |
         sudo apt update
-        sudo apt install libsdl2-dev libsdl2-ttf-dev librtmidi-dev nlohmann-json3-dev
+        sudo apt install libsdl3-dev libsdl3-ttf-dev librtmidi-dev nlohmann-json3-dev
 
     - name: Build
       run: |

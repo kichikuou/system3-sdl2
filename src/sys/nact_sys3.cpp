@@ -746,7 +746,7 @@ void NACT_Sys3::exec_y(int cmd, int param)
 			} else if(param == 10001) {
 				wait_keydown = true;
 			} else {
-				Uint32 dwTime = SDL_GetTicks() + param * 1000 / 60;
+				Uint64 dwTime = SDL_GetTicks() + param * 1000 / 60;
 				for(;;) {
 					if(terminate) {
 						return;

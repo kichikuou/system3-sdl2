@@ -1,9 +1,10 @@
 #include <limits.h>
+#include <stdio.h>
 #ifdef _WIN32
 #include <windows.h>
 #undef ERROR
 #endif
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "common.h"
 
 SDL_RWops* open_resource(const char* name, const char* type) {

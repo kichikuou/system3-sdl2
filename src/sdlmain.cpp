@@ -1,3 +1,4 @@
+#include <SDL3/SDL_main.h>
 #include <string>
 #include "common.h"
 #include "config.h"
@@ -35,7 +36,6 @@ SDL_Window* create_window(const GameId& game_id)
 
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 #ifdef __EMSCRIPTEN__
 	// Stop SDL from calling emscripten_sleep() in functions that are called
 	// indirectly, which does not work with ASYNCIFY_IGNORE_INDIRECT=1. For
@@ -57,7 +57,7 @@ SDL_Window* create_window(const GameId& game_id)
 #else
 	const char *window_title = title.c_str();
 #endif
-	return SDL_CreateWindow(window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
+	return SDL_CreateWindow(window_title, 640, 400, flags);
 }
 
 } // namespace
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 	GameId game_id(config);
 
 	g_window = create_window(game_id);
-	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
+	g_renderer = SDL_CreateRenderer(g_window, NULL);
 	sdl_custom_event_type = SDL_RegisterEvents(1);
 
 	// system3 初期化

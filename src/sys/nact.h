@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "common.h"
 #include "config.h"
 #include "dri.h"
@@ -195,6 +195,10 @@ public:
 	void set_var(int index, uint16_t value) { var[index] = value; }
 	const char* get_string(int index) const { return tvar[index].c_str(); }
 	void set_string(int index, const std::string& value) { tvar[index] = value; }
+
+#ifdef _WIN32
+	void handle_windows_event(MSG* msg);
+#endif
 
 private:
 	void pump_events();

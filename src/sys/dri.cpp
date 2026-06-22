@@ -7,7 +7,7 @@
 #include "dri.h"
 #include <memory>
 #include <string.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "game_id.h"
 #include "fileio.h"
 
@@ -185,7 +185,7 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 	uint8 buf[4];
 
 	// ページの位置を取得
-	SDL_RWread(rw, buf, 4, 1);
+	SDL_ReadIO(rw, buf, 4);
 	int link_sector = buf[0] | (buf[1] << 8);
 	int data_sector = buf[2] | (buf[3] << 8);
 
@@ -196,7 +196,7 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 	}
 
 	SDL_RWseek(rw, (link_sector - 1) * 256 + (page - 1) * 2, RW_SEEK_SET);
-	SDL_RWread(rw, buf, 2, 1);
+	SDL_ReadIO(rw, buf, 2);
 
 	int disk_index = buf[0];
 	int link_index = buf[1];
@@ -281,7 +281,7 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 
 	// データ取得
 	SDL_RWseek(rw, link_index * 2, RW_SEEK_SET);
-	SDL_RWread(rw, buf, 4, 1);
+	SDL_ReadIO(rw, buf, 4);
 	int start_sector = buf[0] | (buf[1] << 8);
 	int end_sector = buf[2] | (buf[3] << 8);
 
@@ -293,7 +293,7 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 	}
 	std::vector<uint8_t> buffer(size);
 	SDL_RWseek(rw, (start_sector - 1) * 256, RW_SEEK_SET);
-	SDL_RWread(rw, buffer.data(), size, 1);
+	SDL_ReadIO(rw, buffer.data(), size);
 
 	SDL_RWclose(rw);
 

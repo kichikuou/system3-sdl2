@@ -8,7 +8,6 @@
 #include <windows.h>
 #undef ERROR
 #endif
-#include <SDL_syswm.h>
 #include "nact.h"
 #include "ags.h"
 #include "texthook.h"
@@ -21,8 +20,17 @@ enum TouchState {
 };
 
 extern SDL_Window* g_window;
+extern SDL_Renderer* g_renderer;
 static int mousex, mousey, wheel;
 static TouchState touch_state = TOUCH_NONE;
+
+static int GetNumTouchFingers(SDL_TouchID touchID)
+{
+	int num = 0;
+	SDL_Finger** fingers = SDL_GetTouchFingers(touchID, &num);
+	SDL_free(fingers);
+	return num;
+}
 
 void NACT::handle_event(SDL_Event e)
 {
@@ -42,10 +50,13 @@ void NACT::handle_event(SDL_Event e)
 		break;
 #endif
 
-	case SDL_MOUSEMOTION:
-		mousex = e.motion.x * ags->screen_width / ags->window_width;
-		mousey = e.motion.y * ags->screen_height / ags->window_height;
+	case SDL_MOUSEMOTION: {
+		float rx, ry;
+		SDL_RenderCoordinatesFromWindow(g_renderer, e.motion.x, e.motion.y, &rx, &ry);
+		mousex = rx * ags->screen_width / ags->window_width;
+		mousey = ry * ags->screen_height / ags->window_height;
 		break;
+	}
 
 	case SDL_MOUSEWHEEL:
 		wheel += e.wheel.y * (e.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1 : 1);
@@ -56,7 +67,7 @@ void NACT::handle_event(SDL_Event e)
 	case SDL_FINGERMOTION:
 		mousex = e.tfinger.x * ags->screen_width;
 		mousey = e.tfinger.y * ags->screen_height;
-		switch (SDL_GetNumTouchFingers(e.tfinger.touchId)) {
+		switch (GetNumTouchFingers(e.tfinger.touchID)) {
 		case 0:
 			touch_state = TOUCH_NONE;
 			break;
@@ -115,7 +126,7 @@ uint8 NACT::get_key()
 	pump_events();
 
 	// キーボード＆マウス
-	const Uint8* key = SDL_GetKeyboardState(NULL);
+	const bool* key = SDL_GetKeyboardState(NULL);
 	Uint32 mouse = SDL_GetMouseState(NULL, NULL);
 
 	if(key[SDL_SCANCODE_UP    ] || key[SDL_SCANCODE_KP_8 ] ) val |= 0x01;
@@ -185,7 +196,7 @@ void NACT::show_quit_dialog()
 		buttons,
 	};
 	int buttonid = 0;
-	if (SDL_ShowMessageBox(&messagebox_data, &buttonid) < 0) {
+	if (!SDL_ShowMessageBox(&messagebox_data, &buttonid)) {
 		WARNING("error displaying message box");
 		buttonid = 1;
 	}
