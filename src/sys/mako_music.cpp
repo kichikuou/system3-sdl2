@@ -171,18 +171,24 @@ std::unique_ptr<MakoMusicDecoder> create_decoder(const std::string& path)
 
 } // namespace
 
-MakoMusic::MakoMusic(const std::string& path, int loops, const SDL_AudioSpec& device_spec)
+MakoMusic::MakoMusic(SDL_AudioDeviceID device, const std::string& path, int loops)
 	: decoder(create_decoder(path)), loops_(loops)
 {
 	if (!decoder)
 		return;
 	const SDL_AudioSpec& src_spec = decoder->spec();
+	SDL_AudioSpec device_spec;
+	SDL_GetAudioDeviceFormat(device, &device_spec, nullptr);
 	stream = SDL_CreateAudioStream(&src_spec, &device_spec);
 	if (!stream) {
 		WARNING("SDL_CreateAudioStream failed: %s", SDL_GetError());
 		return;
 	}
 	playing = true;
+	SDL_SetAudioStreamGetCallback(stream, [](void* self, SDL_AudioStream*, int additional_amount, int) {
+		static_cast<MakoMusic*>(self)->AudioCallback(additional_amount);
+	}, this);
+	SDL_BindAudioStream(device, stream);
 }
 
 MakoMusic::~MakoMusic()
@@ -214,19 +220,21 @@ void MakoMusic::decode()
 	}
 }
 
-void MakoMusic::mix(Uint8* out, int len)
+void MakoMusic::AudioCallback(int additional_amount)
 {
-	if (!stream || !playing)
+	if (!playing)
 		return;
 
-	while (SDL_GetAudioStreamAvailable(stream) < len && !input_finished)
+	while (SDL_GetAudioStreamAvailable(stream) < additional_amount && !input_finished)
 		decode();
-
-	Uint8* tmp = SDL_stack_alloc(Uint8, len);
-	int got = SDL_GetAudioStreamData(stream, tmp, len);
-	if (got > 0)
-		SDL_MixAudio(out, tmp, SDL_AUDIO_S16, got, 1.0f);
-	SDL_stack_free(tmp);
 	if (input_finished && SDL_GetAudioStreamAvailable(stream) <= 0)
 		playing = false;
+}
+
+bool MakoMusic::is_playing() const
+{
+	SDL_LockAudioStream(stream);
+	bool result = playing;
+	SDL_UnlockAudioStream(stream);
+	return result;
 }
