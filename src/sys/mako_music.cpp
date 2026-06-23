@@ -35,7 +35,7 @@ public:
 		}
 		initialized = true;
 		spec_.freq = static_cast<int>(mp3.sampleRate);
-		spec_.format = AUDIO_S16SYS;
+		spec_.format = SDL_AUDIO_S16;
 		spec_.channels = static_cast<Uint8>(mp3.channels);
 	}
 
@@ -75,7 +75,7 @@ public:
 		}
 		stb_vorbis_info info = stb_vorbis_get_info(vorbis);
 		spec_.freq = static_cast<int>(info.sample_rate);
-		spec_.format = AUDIO_S16SYS;
+		spec_.format = SDL_AUDIO_S16;
 		spec_.channels = static_cast<Uint8>(info.channels);
 	}
 
@@ -119,7 +119,7 @@ public:
 	~WavDecoder() override
 	{
 		if (data)
-			SDL_FreeWAV(data);
+			SDL_free(data);
 	}
 
 	bool is_open() const override { return data_size > 0 && frame_size > 0; }
@@ -177,7 +177,6 @@ MakoMusic::MakoMusic(const std::string& path, int loops, const SDL_AudioSpec& de
 	if (!decoder)
 		return;
 	const SDL_AudioSpec& src_spec = decoder->spec();
-
 	stream = SDL_CreateAudioStream(&src_spec, &device_spec);
 	if (!stream) {
 		WARNING("SDL_CreateAudioStream failed: %s", SDL_GetError());
@@ -189,7 +188,7 @@ MakoMusic::MakoMusic(const std::string& path, int loops, const SDL_AudioSpec& de
 MakoMusic::~MakoMusic()
 {
 	if (stream)
-		SDL_FreeAudioStream(stream);
+		SDL_DestroyAudioStream(stream);
 }
 
 void MakoMusic::decode()
@@ -200,7 +199,7 @@ void MakoMusic::decode()
 
 	if (chunk.frames == 0) {
 		if (loops_ && --loops_ == 0) {
-			SDL_AudioStreamFlush(stream);
+			SDL_FlushAudioStream(stream);
 			input_finished = true;
 		} else {
 			decoder->seek_start();
@@ -209,8 +208,8 @@ void MakoMusic::decode()
 	}
 	const SDL_AudioSpec& spec = decoder->spec();
 	int bytes = chunk.frames * SDL_AUDIO_BITSIZE(spec.format) / 8 * spec.channels;
-	if (SDL_AudioStreamPut(stream, chunk.data, bytes) < 0) {
-		WARNING("SDL_AudioStreamPut failed: %s", SDL_GetError());
+	if (!SDL_PutAudioStreamData(stream, chunk.data, bytes)) {
+		WARNING("SDL_PutAudioStreamData failed: %s", SDL_GetError());
 		input_finished = true;
 	}
 }
@@ -220,14 +219,14 @@ void MakoMusic::mix(Uint8* out, int len)
 	if (!stream || !playing)
 		return;
 
-	while (SDL_AudioStreamAvailable(stream) < len && !input_finished)
+	while (SDL_GetAudioStreamAvailable(stream) < len && !input_finished)
 		decode();
 
 	Uint8* tmp = SDL_stack_alloc(Uint8, len);
-	int got = SDL_AudioStreamGet(stream, tmp, len);
+	int got = SDL_GetAudioStreamData(stream, tmp, len);
 	if (got > 0)
-		SDL_MixAudioFormat(out, tmp, AUDIO_S16SYS, got, 1.0f);
+		SDL_MixAudio(out, tmp, SDL_AUDIO_S16, got, 1.0f);
 	SDL_stack_free(tmp);
-	if (input_finished && SDL_AudioStreamAvailable(stream) <= 0)
+	if (input_finished && SDL_GetAudioStreamAvailable(stream) <= 0)
 		playing = false;
 }

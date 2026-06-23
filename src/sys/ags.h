@@ -29,7 +29,7 @@ class FILEIO;
 
 struct SurfaceDeleter {
 	void operator()(SDL_Surface* s) const noexcept {
-		if (s) SDL_FreeSurface(s);
+		if (s) SDL_DestroySurface(s);
 	}
 };
 
@@ -68,7 +68,7 @@ private:
 	SDL_Palette* screen_palette;
 
 	// フォント
-	SDL_RWops* rw_font;
+	SDL_IOStream* rw_font;
 	TTF_Font* hFont16;
 	TTF_Font* hFont24;
 	TTF_Font* hFont32;

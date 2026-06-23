@@ -39,7 +39,7 @@ CG AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent)
 	// VSP2L展開
 	CG cg(sx * 8, sy * 2, width * 8, height * 2);
 	if (transparent >= 0) {
-		SDL_SetColorKey(cg.surface(), SDL_TRUE, transparent | base);
+		SDL_SetSurfaceColorKey(cg.surface(), true, transparent | base);
 	}
 	uint8 cgdata[3][2][200], mask = 0;
 	int p = 0x1a;

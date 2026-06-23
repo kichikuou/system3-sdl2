@@ -38,19 +38,19 @@ void NACT::handle_event(SDL_Event e)
 		return;
 
 	switch (e.type) {
-	case SDL_QUIT:
+	case SDL_EVENT_QUIT:
 		show_quit_dialog();
 		break;
 
 #ifdef __ANDROID__
-	case SDL_KEYUP:
+	case SDL_EVENT_KEY_UP:
 		if (e.key.scancode == SDL_SCANCODE_AC_BACK) {
 			show_quit_dialog();
 		}
 		break;
 #endif
 
-	case SDL_MOUSEMOTION: {
+	case SDL_EVENT_MOUSE_MOTION: {
 		float rx, ry;
 		SDL_RenderCoordinatesFromWindow(g_renderer, e.motion.x, e.motion.y, &rx, &ry);
 		mousex = rx * ags->screen_width / ags->window_width;
@@ -58,13 +58,13 @@ void NACT::handle_event(SDL_Event e)
 		break;
 	}
 
-	case SDL_MOUSEWHEEL:
+	case SDL_EVENT_MOUSE_WHEEL:
 		wheel += e.wheel.y * (e.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1 : 1);
 		break;
 
-	case SDL_FINGERDOWN:
-	case SDL_FINGERUP:
-	case SDL_FINGERMOTION:
+	case SDL_EVENT_FINGER_DOWN:
+	case SDL_EVENT_FINGER_UP:
+	case SDL_EVENT_FINGER_MOTION:
 		mousex = e.tfinger.x * ags->screen_width;
 		mousey = e.tfinger.y * ags->screen_height;
 		switch (GetNumTouchFingers(e.tfinger.touchID)) {
@@ -141,14 +141,14 @@ uint8 NACT::get_key()
 	// マウス移動で方向入力はサポートしない
 
 	if(sdl_gamecontroller) {
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_UP) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTY) <= -8000) val |= 0x01;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_DOWN) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTY) >= 8000) val |= 0x02;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_LEFT) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTX) <= -8000) val |= 0x04;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTX) >= 8000) val |= 0x08;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_A)) val |= 0x10;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_B)) val |= 0x20;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_X)) val |= 0x40;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_Y)) val |= 0x80;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_DPAD_UP) || SDL_GetGamepadAxis(sdl_gamecontroller, SDL_GAMEPAD_AXIS_LEFTY) <= -8000) val |= 0x01;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_DPAD_DOWN) || SDL_GetGamepadAxis(sdl_gamecontroller, SDL_GAMEPAD_AXIS_LEFTY) >= 8000) val |= 0x02;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_DPAD_LEFT) || SDL_GetGamepadAxis(sdl_gamecontroller, SDL_GAMEPAD_AXIS_LEFTX) <= -8000) val |= 0x04;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_DPAD_RIGHT) || SDL_GetGamepadAxis(sdl_gamecontroller, SDL_GAMEPAD_AXIS_LEFTX) >= 8000) val |= 0x08;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_SOUTH)) val |= 0x10;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_EAST)) val |= 0x20;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_WEST)) val |= 0x40;
+		if(SDL_GetGamepadButton(sdl_gamecontroller, SDL_GAMEPAD_BUTTON_NORTH)) val |= 0x80;
 	}
 
 	return val;

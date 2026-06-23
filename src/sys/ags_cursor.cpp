@@ -72,7 +72,7 @@ void AGS::load_cursor(int page)
 			}
 		}
 		if(hCursor[i]) {
-			SDL_FreeCursor(hCursor[i]);
+			SDL_DestroyCursor(hCursor[i]);
 		}
 		// TODO: fix amask/xmask values
 		hCursor[i] = SDL_CreateCursor(amask, xmask, 32, 32, 2, 2);

@@ -42,7 +42,7 @@ CG AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	// GL3展開
 	CG cg(sx * 8, sy, width * 8, height);
 	if (transparent >= 0) {
-		SDL_SetColorKey(cg.surface(), SDL_TRUE, transparent | base);
+		SDL_SetSurfaceColorKey(cg.surface(), true, transparent | base);
 	}
 	uint8 cgdata[4][80][3];
 	int p = 0x36;

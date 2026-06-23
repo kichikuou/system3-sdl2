@@ -231,7 +231,7 @@ void AGS::close_text_window(int index, bool update)
 void AGS::clear_menu_window()
 {
 	SDL_Rect rect = {0, 0, 640, 480};
-	SDL_FillRect(hBmpScreen[2], &rect, menu.back_color);
+	SDL_FillSurfaceRect(hBmpScreen[2], &rect, menu.back_color);
 	menu.reset_pos(2, 2);
 }
 
@@ -311,7 +311,7 @@ void AGS::get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey)
 void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color)
 {
 	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
-	SDL_FillRect(hBmpScreen[0], &rect, back_color);
+	SDL_FillSurfaceRect(hBmpScreen[0], &rect, back_color);
 
 	if(frame) {
 		SDL_Rect rects[] = {
@@ -320,7 +320,7 @@ void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_co
 			{sx + 1, sy + 1, 2, ey - sy - 1},
 			{ex - 2, sy + 1, 2, ey - sy - 1},
 		};
-		SDL_FillRects(hBmpScreen[0], rects, 4, frame_color);
+		SDL_FillSurfaceRects(hBmpScreen[0], rects, 4, frame_color);
 		box_line(0, sx + 4, sy + 4, ex - 4, ey - 4, frame_color);
 	}
 	draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);

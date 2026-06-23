@@ -26,7 +26,7 @@ void mosaic(SDL_Surface* sf) {
 	// NOTE: SDL_BlitSurfaceScaled() does not support 8-bit surfaces.
 	SDL_StretchSurface(sf, NULL, tmp, NULL, SDL_SCALEMODE_NEAREST);
 	SDL_StretchSurface(tmp, NULL, sf, NULL, SDL_SCALEMODE_NEAREST);
-	SDL_FreeSurface(tmp);
+	SDL_DestroySurface(tmp);
 }
 
 }  // namespace
@@ -228,7 +228,7 @@ void AGS::draw_mesh(int sx, int sy, int width, int height)
 void AGS::box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color)
 {
 	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
-	SDL_FillRect(hBmpScreen[dest], &rect, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &rect, color);
 	if(dest == 0) {
 		draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}
@@ -241,10 +241,10 @@ void AGS::box_line(int dest, int sx, int sy, int ex, int ey, uint8 color)
 	SDL_Rect left   = {sx, sy, 1, ey - sy + 1};
 	SDL_Rect right  = {ex, sy, 1, ey - sy + 1};
 
-	SDL_FillRect(hBmpScreen[dest], &top, color);
-	SDL_FillRect(hBmpScreen[dest], &bottom, color);
-	SDL_FillRect(hBmpScreen[dest], &left, color);
-	SDL_FillRect(hBmpScreen[dest], &right, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &top, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &bottom, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &left, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &right, color);
 	if(dest == 0) {
 		draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}

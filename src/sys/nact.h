@@ -153,7 +153,7 @@ protected:
 	void set_cursor(int x, int y);
 	int get_wheel();
 
-	SDL_GameController *sdl_gamecontroller = NULL;
+	SDL_Gamepad *sdl_gamecontroller = NULL;
 
 	// Y27 ダイアログ
 	void text_dialog();

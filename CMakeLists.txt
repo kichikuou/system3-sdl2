@@ -250,6 +250,4 @@ if (NOT EMSCRIPTEN)
 endif()
 
 target_compile_definitions(system3 PRIVATE RESOURCE_PATH="${RESOURCE_PATH}")
-# SDL2->SDL3 migration: keep SDL2-spelled symbols compiling via the oldnames aliases.
-target_compile_definitions(system3 PRIVATE SDL_ENABLE_OLD_NAMES)
 target_include_directories(system3 PRIVATE src src/sys)
