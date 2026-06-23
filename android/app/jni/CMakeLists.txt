@@ -3,35 +3,25 @@ cmake_minimum_required(VERSION 3.14)
 project(GAME)
 set(PROJECT_ROOT_DIR ../../..)
 
-# Compilation of SDL and companion libraries
-include(FetchContent)
-FetchContent_Declare(
-  SDL
-  URL https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-2.32.10.tar.gz
-  URL_HASH SHA1=ce98fa93e31836a751feca374ab28a0770b63c16
-)
-FetchContent_Declare(
-  SDL_ttf
-  URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.22.0/SDL2_ttf-2.22.0.tar.gz
-  URL_HASH SHA1=da5e86b601ad299a697878fab1af6f3be47b529d
-)
-set(SDL2TTF_SAMPLES OFF CACHE BOOL "Build the SDL2_ttf sample program(s)" FORCE)
-set(SDL2TTF_INSTALL OFF CACHE BOOL "Enable SDL2_ttf install target" FORCE)
-set(SDL2TTF_VENDORED ON CACHE BOOL "Use vendored third-party libraries" FORCE)
-
-FetchContent_MakeAvailable(SDL)
-FetchContent_MakeAvailable(SDL_ttf)
+# SDL3 and SDL3_ttf are provided as Android Archives (.aar) and exposed to CMake
+# via prefab (see app/build.gradle).
+find_package(SDL3 REQUIRED CONFIG)
+find_package(SDL3_ttf REQUIRED CONFIG)
 
 # The main CMakeLists.txt of system3
 add_subdirectory(${PROJECT_ROOT_DIR} src)
 
-# Copy asset files
+# Copy license files into the assets directory so they can be shown in-app.
+# SDL.txt / SDL_ttf.txt are extracted from the release zips by app/build.gradle;
+# freetype's and harfbuzz' licenses (statically linked into the SDL3_ttf .aar)
+# are not shipped there, so they are vendored under android/licenses.
 set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src/main/assets)
+set(LICENSES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../licenses)
 file(MAKE_DIRECTORY ${ASSETS_DIR}/licenses)
 file(COPY_FILE ${PROJECT_ROOT_DIR}/COPYING.txt ${ASSETS_DIR}/licenses/system3)
 file(COPY_FILE ${PROJECT_ROOT_DIR}/resources/fonts/MTLc3m.ttf.license ${ASSETS_DIR}/licenses/MTLc3m)
 file(COPY_FILE ${PROJECT_ROOT_DIR}/deps/ymfm/LICENSE ${ASSETS_DIR}/licenses/ymfm)
-file(COPY_FILE ${sdl_SOURCE_DIR}/LICENSE.txt ${ASSETS_DIR}/licenses/SDL)
-file(COPY_FILE ${sdl_ttf_SOURCE_DIR}/LICENSE.txt ${ASSETS_DIR}/licenses/SDL_ttf)
-file(COPY_FILE ${sdl_ttf_SOURCE_DIR}/external/freetype/docs/GPLv2.TXT ${ASSETS_DIR}/licenses/freetype)
-file(COPY_FILE ${sdl_ttf_SOURCE_DIR}/external/harfbuzz/COPYING ${ASSETS_DIR}/licenses/harfbuzz)
+file(COPY_FILE ${LICENSES_DIR}/SDL.txt ${ASSETS_DIR}/licenses/SDL)
+file(COPY_FILE ${LICENSES_DIR}/SDL_ttf.txt ${ASSETS_DIR}/licenses/SDL_ttf)
+file(COPY_FILE ${LICENSES_DIR}/freetype.txt ${ASSETS_DIR}/licenses/freetype)
+file(COPY_FILE ${LICENSES_DIR}/harfbuzz.txt ${ASSETS_DIR}/licenses/harfbuzz)
