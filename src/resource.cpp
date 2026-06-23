@@ -8,7 +8,7 @@
 #include <SDL3/SDL.h>
 #include "common.h"
 
-SDL_RWops* open_resource(const char* name, const char* type) {
+SDL_IOStream* open_resource(const char* name, const char* type) {
 #ifdef _WIN32
 	// On Windows, read from resource.
 	HINSTANCE hInst = GetModuleHandle(NULL);
@@ -18,26 +18,26 @@ SDL_RWops* open_resource(const char* name, const char* type) {
 		WARNING("Cannot load resource %s (type: %s)", name, type);
 		return NULL;
 	}
-	return SDL_RWFromConstMem(LockResource(hGlobal), SizeofResource(hInst, hRes));
+	return SDL_IOFromConstMem(LockResource(hGlobal), SizeofResource(hInst, hRes));
 #else
 	// On Android, read from APK assets.
 	// On other platforms, read from a file under RESOURCE_PATH.
 	char path[PATH_MAX];
 	snprintf(path, PATH_MAX, "%s%s/%s", RESOURCE_PATH, type, name);
-	return SDL_RWFromFile(path, "rb");
+	return SDL_IOFromFile(path, "rb");
 #endif
 }
 
-SDL_RWops* open_file(const char* name) {
+SDL_IOStream* open_file(const char* name) {
 #ifdef __ANDROID__
-	// SDL_RWFromFile() does not resolve relative paths using the current
+	// SDL_IOFromFile() does not resolve relative paths using the current
 	// directory on Android (and SDL3 removed SDL_RWFromFP), so resolve to an
 	// absolute path first.
 	char path[PATH_MAX];
 	if (!realpath(name, path))
 		return NULL;
-	return SDL_RWFromFile(path, "rb");
+	return SDL_IOFromFile(path, "rb");
 #else
-	return SDL_RWFromFile(name, "rb");
+	return SDL_IOFromFile(name, "rb");
 #endif
 }

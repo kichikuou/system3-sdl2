@@ -568,7 +568,7 @@ private:
 					base = CELL_EMPTY;
 				if (base == CELL_EMPTY) {
 					SDL_Rect rect = { px, py, TILE_SIZE, TILE_SIZE };
-					SDL_FillRect(composed_map.surface(), &rect, 0);
+					SDL_FillSurfaceRect(composed_map.surface(), &rect, 0);
 				} else {
 					draw_map_tile(base, px, py, false);
 				}

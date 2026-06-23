@@ -81,7 +81,7 @@ CG AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, i
 	// Extract pixel data
 	CG cg(sx, sy, width, height);
 	if (transparent >= 0) {
-		SDL_SetColorKey(cg.surface(), SDL_TRUE, transparent);
+		SDL_SetSurfaceColorKey(cg.surface(), true, transparent);
 	}
 	std::vector<uint8_t> buf[3];
 	buf[0].resize(width);

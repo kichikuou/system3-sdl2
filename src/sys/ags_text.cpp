@@ -79,7 +79,7 @@ void AGS::draw_char(ScreenId dest, int dest_x, int dest_y, uint16 code, TTF_Font
 		}
 	}
 
-	SDL_FreeSurface(fs);
+	SDL_DestroySurface(fs);
 }
 
 int AGS::nearest_color(int r, int g, int b) {
@@ -128,7 +128,7 @@ void AGS::draw_char_antialias(ScreenId dest, int dest_x, int dest_y, uint16 code
 		}
 	}
 
-	SDL_FreeSurface(fs);
+	SDL_DestroySurface(fs);
 }
 
 void AGS::draw_gaiji(ScreenId dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color)

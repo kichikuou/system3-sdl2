@@ -18,7 +18,7 @@ inline uint8_t* surface_line(SDL_Surface* surface, int y)
 
 struct SurfaceDeleter {
 	void operator()(SDL_Surface* s) const noexcept {
-		if (s) SDL_FreeSurface(s);
+		if (s) SDL_DestroySurface(s);
 	}
 };
 

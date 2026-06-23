@@ -270,7 +270,7 @@ protected:
 	// input
 	bool mouse_move_enabled = true;
 	bool wait_keydown = true;	// ウェイト時のキー受付
-	SDL_GameController *sdl_gamecontroller = NULL;
+	SDL_Gamepad *sdl_gamecontroller = NULL;
 
 	uint8 get_key(bool notify_texthook = true);
 	void wait_key_release(uint8_t mask = 0xff);

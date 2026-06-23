@@ -26,7 +26,7 @@ void mosaic(SDL_Surface* sf) {
 	// NOTE: SDL_BlitSurfaceScaled() does not support 8-bit surfaces.
 	SDL_StretchSurface(sf, NULL, tmp, NULL, SDL_SCALEMODE_NEAREST);
 	SDL_StretchSurface(tmp, NULL, sf, NULL, SDL_SCALEMODE_NEAREST);
-	SDL_FreeSurface(tmp);
+	SDL_DestroySurface(tmp);
 }
 
 }  // namespace
@@ -248,7 +248,7 @@ void AGS::draw_mesh(int sx, int sy, int width, int height)
 void AGS::box_fill(ScreenId dest, int sx, int sy, int ex, int ey, uint8 color)
 {
 	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
-	SDL_FillRect(hBmpScreen[dest], &rect, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &rect, color);
 	if(dest == SCREEN_FRONT) {
 		invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}
@@ -261,10 +261,10 @@ void AGS::box_line(ScreenId dest, int sx, int sy, int ex, int ey, uint8 color)
 	SDL_Rect left   = {sx, sy, 1, ey - sy + 1};
 	SDL_Rect right  = {ex, sy, 1, ey - sy + 1};
 
-	SDL_FillRect(hBmpScreen[dest], &top, color);
-	SDL_FillRect(hBmpScreen[dest], &bottom, color);
-	SDL_FillRect(hBmpScreen[dest], &left, color);
-	SDL_FillRect(hBmpScreen[dest], &right, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &top, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &bottom, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &left, color);
+	SDL_FillSurfaceRect(hBmpScreen[dest], &right, color);
 	if(dest == SCREEN_FRONT) {
 		invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}
@@ -273,7 +273,7 @@ void AGS::box_line(ScreenId dest, int sx, int sy, int ex, int ey, uint8 color)
 void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color)
 {
 	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
-	SDL_FillRect(hBmpScreen[SCREEN_FRONT], &rect, back_color);
+	SDL_FillSurfaceRect(hBmpScreen[SCREEN_FRONT], &rect, back_color);
 
 	if (frame) {
 		SDL_Rect rects[] = {
@@ -282,7 +282,7 @@ void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_co
 			{sx + 1, sy + 1, 2, ey - sy - 1},
 			{ex - 2, sy + 1, 2, ey - sy - 1},
 		};
-		SDL_FillRects(hBmpScreen[SCREEN_FRONT], rects, 4, frame_color);
+		SDL_FillSurfaceRects(hBmpScreen[SCREEN_FRONT], rects, 4, frame_color);
 		box_line(SCREEN_FRONT, sx + 4, sy + 4, ex - 4, ey - 4, frame_color);
 	}
 	invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
