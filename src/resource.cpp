@@ -1,5 +1,6 @@
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #ifdef _WIN32
 #include <windows.h>
 #undef ERROR
@@ -29,12 +30,13 @@ SDL_RWops* open_resource(const char* name, const char* type) {
 
 SDL_RWops* open_file(const char* name) {
 #ifdef __ANDROID__
-	// We cannot use SDL_RWFromFile() because it does not resolve relative
-	// paths using the current directory on Android.
-	FILE *fp = fopen(name, "rb");
-	if (!fp)
+	// SDL_RWFromFile() does not resolve relative paths using the current
+	// directory on Android (and SDL3 removed SDL_RWFromFP), so resolve to an
+	// absolute path first.
+	char path[PATH_MAX];
+	if (!realpath(name, path))
 		return NULL;
-	return SDL_RWFromFP(fp, SDL_TRUE);
+	return SDL_RWFromFile(path, "rb");
 #else
 	return SDL_RWFromFile(name, "rb");
 #endif

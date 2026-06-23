@@ -44,7 +44,7 @@ void NACT::handle_event(SDL_Event e)
 
 #ifdef __ANDROID__
 	case SDL_KEYUP:
-		if (e.key.keysym.scancode == SDL_SCANCODE_AC_BACK) {
+		if (e.key.scancode == SDL_SCANCODE_AC_BACK) {
 			show_quit_dialog();
 		}
 		break;
