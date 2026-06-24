@@ -7,8 +7,7 @@ android/app/build
 android/app/src/main/assets
 android/keystore.jks
 android/local.properties
-# Prebuilt SDL3/SDL3_ttf AARs and their bundled licenses are fetched by
+# The prebuilt SDL3 AAR and its bundled license are fetched by
 # app/build.gradle at build time.
 android/app/aars/
 android/licenses/SDL.txt
-android/licenses/SDL_ttf.txt

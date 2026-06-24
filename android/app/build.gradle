@@ -8,15 +8,12 @@ else {
 }
 apply plugin: 'kotlin-android'
 
-// SDL3 and SDL3_ttf are consumed as prebuilt Android Archives (.aar), exposed to
-// the native build via prefab. Download the official .aar files into app/aars/
-// if not already present, and extract each library's own LICENSE.txt into
-// ../licenses for in-app display.
+// SDL3 is consumed as a prebuilt Android Archive (.aar), exposed to the native
+// build via prefab. Download the official .aar file into app/aars/ if not already
+// present, and extract its LICENSE.txt into ../licenses for in-app display.
 def sdlAars = [
     [url: 'https://github.com/libsdl-org/SDL/releases/download/release-3.4.10/SDL3-devel-3.4.10-android.zip',
      aar: 'SDL3-3.4.10.aar', license: 'SDL.txt'],
-    [url: 'https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.2.2/SDL3_ttf-devel-3.2.2-android.zip',
-     aar: 'SDL3_ttf-3.2.2.aar', license: 'SDL_ttf.txt'],
 ]
 def aarsDir = file('aars')
 def licensesDir = file('../licenses')
@@ -126,7 +123,6 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation files('aars/SDL3-3.4.10.aar')
-    implementation files('aars/SDL3_ttf-3.2.2.aar')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 }
