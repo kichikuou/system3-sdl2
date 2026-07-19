@@ -62,10 +62,6 @@ class Launcher private constructor(private val rootDir: File) {
             }
             return gLauncher!!
         }
-
-        fun updateGameList() {
-            gLauncher?.updateGameList()
-        }
     }
 
     data class Entry(val path: File, val title: String, val timestamp: Long)
@@ -81,7 +77,7 @@ class Launcher private constructor(private val rootDir: File) {
         get() = File(rootDir, SAVE_DIR)
 
     init {
-        updateGameList()
+        refreshGameList()
     }
 
     fun install(input: InputStream) {
@@ -138,7 +134,7 @@ class Launcher private constructor(private val rootDir: File) {
         observer?.onGameListChange()
     }
 
-    private fun updateGameList() {
+    fun refreshGameList() {
         var saveDirFound = false
         games.clear()
         for (path in rootDir.listFiles() ?: emptyArray()) {

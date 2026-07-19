@@ -19,6 +19,7 @@ package io.github.kichikuou.system3
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.os.Process
 import android.text.InputType
 import android.widget.EditText
 import org.libsdl.app.SDLActivity
@@ -40,6 +41,14 @@ class GameActivity : SDLActivity() {
         gameRoot = File(intent.getStringExtra(EXTRA_GAME_ROOT)!!)
     }
 
+    override fun onDestroy() {
+        try {
+            super.onDestroy()
+        } finally {
+            Process.killProcess(Process.myPid())
+        }
+    }
+
     override fun getLibraries(): Array<String> {
         return arrayOf("SDL2", "system3")
     }
@@ -58,7 +67,6 @@ class GameActivity : SDLActivity() {
         if (str.isNullOrEmpty())
             return
         File(gameRoot, Launcher.TITLE_FILE).writeText(str)
-        Launcher.updateGameList()
     }
 
     private fun textInputDialog(oldVal: String, maxLen: Int, result: Array<String?>) {

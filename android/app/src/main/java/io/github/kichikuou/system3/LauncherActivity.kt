@@ -65,6 +65,11 @@ class LauncherActivity : Activity(), LauncherObserver {
         super.onDestroy()
     }
 
+    override fun onResume() {
+        super.onResume()
+        launcher.refreshGameList()
+    }
+
     private fun onListItemClick(position: Int) {
         startGame(launcher.games[position].path)
     }
