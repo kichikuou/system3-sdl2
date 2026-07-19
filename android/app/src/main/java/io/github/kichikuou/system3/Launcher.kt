@@ -162,8 +162,8 @@ class Launcher private constructor(private val rootDir: File) {
                 // Process only files under save/
                 if (zipEntry.isDirectory || !zipEntry.name.startsWith("save/"))
                     return@forEachZipEntry
+                val path = resolveOutputPath(saveDir, zipEntry.name.removePrefix("save/"))
                 Log.i("importSaveData", zipEntry.name)
-                val path = File(rootDir, zipEntry.name)
                 path.parentFile?.mkdirs()
                 FileOutputStream(path).buffered().use {
                     zip.copyTo(it)
@@ -188,7 +188,7 @@ class Launcher private constructor(private val rootDir: File) {
             if (zipEntry.isDirectory)
                 return@forEachZipEntry
             progressCallback(entryName)
-            FileOutputStream(File(outDir, entryName)).buffered().use {
+            FileOutputStream(resolveOutputPath(outDir, entryName)).buffered().use {
                 zip.copyTo(it)
             }
             configWriter.maybeAdd(entryName)
@@ -225,6 +225,15 @@ class Launcher private constructor(private val rootDir: File) {
             File(outDir, PLAYLIST_FILE).writeText(playlist)
         }
     }
+}
+
+private fun resolveOutputPath(baseDir: File, relativePath: String): File {
+    val canonicalBase = baseDir.canonicalFile
+    val file = File(canonicalBase, relativePath).canonicalFile
+    if (!file.path.startsWith(canonicalBase.path + File.separator)) {
+        throw IOException("Output path is outside target directory: $relativePath")
+    }
+    return file
 }
 
 private fun forEachZipEntry(input: InputStream, action: (ZipEntry, ZipInputStream) -> Unit) {
