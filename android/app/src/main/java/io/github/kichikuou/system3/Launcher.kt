@@ -19,10 +19,12 @@ package io.github.kichikuou.system3
 
 import android.os.Build
 import android.util.Log
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.*
 import java.nio.charset.Charset
@@ -38,6 +40,13 @@ interface LauncherObserver {
     fun onInstallProgress(path: String)
     fun onInstallSuccess(path: File)
     fun onInstallFailure(msgId: Int)
+}
+
+sealed class InstallState {
+    object Idle : InstallState()
+    data class Installing(val progress: String?) : InstallState()
+    data class Succeeded(val path: File) : InstallState()
+    data class Failed(val msgId: Int) : InstallState()
 }
 
 private const val SAVE_DIR = "save"
@@ -64,7 +73,9 @@ class Launcher private constructor(private val rootDir: File) {
     val titles: List<String>
         get() = games.map(Entry::title)
     var observer: LauncherObserver? = null
-    var isInstalling = false
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var installJob: Job? = null
+    var installState: InstallState = InstallState.Idle
         private set
     val saveDir: File
         get() = File(rootDir, SAVE_DIR)
@@ -73,28 +84,52 @@ class Launcher private constructor(private val rootDir: File) {
         updateGameList()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun install(input: InputStream) {
-        val dir = createDirForGame()
-        isInstalling = true
-        GlobalScope.launch(Dispatchers.Main) {
+        if (installJob?.isActive == true) {
+            input.close()
+            return
+        }
+        installState = InstallState.Installing(null)
+        installJob = scope.launch {
             try {
-                withContext(Dispatchers.IO) {
-                    extractFiles(input, dir) { msg ->
-                        GlobalScope.launch(Dispatchers.Main) {
-                            observer?.onInstallProgress(msg)
+                val dir = withContext(Dispatchers.IO) {
+                    input.use {
+                        extractFilesTransactionally(it) { msg ->
+                            withContext(Dispatchers.Main) {
+                                setInstallProgress(msg)
+                            }
                         }
                     }
                 }
-                observer?.onInstallSuccess(dir)
+                setInstallSucceeded(dir)
             } catch (e: InstallFailureException) {
-                observer?.onInstallFailure(e.msgId)
+                setInstallFailed(e.msgId)
             } catch (e: Exception) {
                 Log.e("launcher", "Failed to extract ZIP", e)
-                observer?.onInstallFailure(R.string.zip_extraction_error)
+                setInstallFailed(R.string.zip_extraction_error)
             }
-            isInstalling = false
         }
+    }
+
+    fun consumeInstallResult() {
+        if (installState is InstallState.Succeeded || installState is InstallState.Failed) {
+            installState = InstallState.Idle
+        }
+    }
+
+    private fun setInstallProgress(progress: String) {
+        installState = InstallState.Installing(progress)
+        observer?.onInstallProgress(progress)
+    }
+
+    private fun setInstallSucceeded(path: File) {
+        installState = InstallState.Succeeded(path)
+        observer?.onInstallSuccess(path)
+    }
+
+    private fun setInstallFailed(msgId: Int) {
+        installState = InstallState.Failed(msgId)
+        observer?.onInstallFailure(msgId)
     }
 
     fun uninstall(id: Int) {
@@ -180,13 +215,34 @@ class Launcher private constructor(private val rootDir: File) {
         }
     }
 
-    private fun extractFiles(input: InputStream, outDir: File, progressCallback: (String) -> Unit) {
+    private suspend fun extractFilesTransactionally(
+        input: InputStream,
+        progressCallback: suspend (String) -> Unit
+    ): File {
+        val dir = createDirForGame()
+        var committed = false
+        try {
+            extractFiles(input, dir, progressCallback)
+            committed = true
+            return dir
+        } finally {
+            if (!committed && !dir.deleteRecursively()) {
+                Log.w("launcher", "Failed to delete incomplete install directory: $dir")
+            }
+        }
+    }
+
+    private suspend fun extractFiles(
+        input: InputStream,
+        outDir: File,
+        progressCallback: suspend (String) -> Unit
+    ) {
         val configWriter = GameConfigWriter()
-        forEachZipEntry(input) { zipEntry, zip ->
+        forEachZipEntrySuspending(input) { zipEntry, zip ->
             Log.i("extractFiles", zipEntry.name)
             val entryName = File(zipEntry.name).name
             if (zipEntry.isDirectory)
-                return@forEachZipEntry
+                return@forEachZipEntrySuspending
             progressCallback(entryName)
             FileOutputStream(resolveOutputPath(outDir, entryName)).buffered().use {
                 zip.copyTo(it)
@@ -236,7 +292,17 @@ private fun resolveOutputPath(baseDir: File, relativePath: String): File {
     return file
 }
 
-private fun forEachZipEntry(input: InputStream, action: (ZipEntry, ZipInputStream) -> Unit) {
+private fun forEachZipEntry(input: InputStream, action: (ZipEntry, ZipInputStream) -> Unit) =
+    runBlocking {
+        forEachZipEntrySuspending(input) { zipEntry, zip ->
+            action(zipEntry, zip)
+        }
+    }
+
+private suspend fun forEachZipEntrySuspending(
+    input: InputStream,
+    action: suspend (ZipEntry, ZipInputStream) -> Unit
+) {
     val zip = if (Build.VERSION.SDK_INT >= 24) {
         ZipInputStream(input.buffered(), Charset.forName("Shift_JIS"))
     } else {
