@@ -178,7 +178,7 @@ void NACT::show_quit_dialog()
 	};
 	const SDL_MessageBoxData messagebox_data = {
 		SDL_MESSAGEBOX_INFORMATION,
-		nullptr,
+		g_window,
 		"System3",
 		"Quit game?\nAny unsaved progress will be lost.",
 		SDL_arraysize(buttons),
@@ -187,7 +187,7 @@ void NACT::show_quit_dialog()
 	int buttonid = 0;
 	if (SDL_ShowMessageBox(&messagebox_data, &buttonid) < 0) {
 		WARNING("error displaying message box");
-		return;
+		buttonid = 1;
 	}
 	if (buttonid == 1) {
 		quit(0);
