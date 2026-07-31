@@ -96,7 +96,14 @@ void AGS::init_windows()
 			}
 			break;
 		case GameId::GAKUEN_KING:
-			text_w[i].reset(112, 310, 623, 391, false, false);
+			switch (i) {
+			default:
+			case 0: text_w[i].reset(112, 310, 623, 391, false, false); break;
+			case 1: text_w[i].reset(48, 310, 591, 391, false, false); break;
+			case 2: text_w[i].reset(0, 0, 639, 391, false, false); break;
+			case 3: text_w[i].reset(24, 310, 183, 391, false, false); break;
+			case 4: text_w[i].reset(464, 310, 623, 391, false, false); break;
+			}
 			menu_w[i].reset(416, 24, 591, 248, true, true);
 			break;
 		default:
@@ -325,4 +332,3 @@ void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_co
 	}
 	draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 }
-

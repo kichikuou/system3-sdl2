@@ -207,6 +207,56 @@ private:
 	static NACT* create_system3(const Config& config, const GameId& game_id);
 };
 
+class NACT_Sys3 : public NACT {
+public:
+	NACT_Sys3(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
+	static NACT_Sys3* create(const Config& config, const GameId& game_id);
+
+protected:
+	void cmd_branch() override;
+	void cmd_open_verb() override;
+	void cmd_b() override;
+	void cmd_e() override;
+	void cmd_g() override;
+	void cmd_h() override;
+	void cmd_i() override;
+	void cmd_j() override;
+	void cmd_k() override;
+	void cmd_l() override;
+	void cmd_m() override;
+	void cmd_n() override;
+	void cmd_o() override;
+	void cmd_p() override;
+	void cmd_q() override;
+	void cmd_t() override;
+	void cmd_u() override;
+	void cmd_v() override;
+	void cmd_w() override;
+	void cmd_y() override;
+	void cmd_z() override;
+	uint16 cali() override;
+
+	void exec_y(int cmd, int param);
+	uint16 cali2();
+
+private:
+	static constexpr int MAX_PCM = 256;
+
+	int pcm_index = 0;
+	int pcm[MAX_PCM] = {};
+	bool column = true;		// 座標モード
+	int mouse_sence = 16;	// マウス感度
+
+	void cmd_open_obj(int verb);
+	struct K3HackInfo;
+	static const K3HackInfo yakata3cd_k3_hack_table[];
+	static const K3HackInfo yakata3fd_k3_hack_table[];
+	static const K3HackInfo onlyyou_k3_hack_table[];
+	bool k3_hack(const K3HackInfo* info_table);
+};
+
+NACT_Sys3* create_gakuen_king(const Config& config, const GameId& game_id);
+
 extern std::unique_ptr<NACT> g_nact;
 
 #endif // _NACT_H_

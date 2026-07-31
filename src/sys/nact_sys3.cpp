@@ -75,56 +75,6 @@
 #define M_X var[57]
 #define M_Y var[58]
 
-#define MAX_PCM 256
-
-namespace {
-
-class NACT_Sys3 : public NACT {
-public:
-	NACT_Sys3(const Config& config, const GameId& game_id) : NACT(config, game_id) {}
-
-protected:
-	void cmd_branch() override;
-	void cmd_open_verb() override;
-	void cmd_b() override;
-	void cmd_e() override;
-	void cmd_g() override;
-	void cmd_h() override;
-	void cmd_i() override;
-	void cmd_j() override;
-	void cmd_k() override;
-	void cmd_l() override;
-	void cmd_m() override;
-	void cmd_n() override;
-	void cmd_o() override;
-	void cmd_p() override;
-	void cmd_q() override;
-	void cmd_t() override;
-	void cmd_u() override;
-	void cmd_v() override;
-	void cmd_w() override;
-	void cmd_y() override;
-	void cmd_z() override;
-	uint16 cali() override;
-
-	void exec_y(int cmd, int param);
-
-private:
-	int pcm_index = 0;
-	int pcm[MAX_PCM] = {};
-	bool column = true;		// 座標モード
-	int mouse_sence = 16;	// マウス感度
-
-	void cmd_open_obj(int verb);
-	uint16 cali2();
-
-	struct K3HackInfo;
-	static const K3HackInfo yakata3cd_k3_hack_table[];
-	static const K3HackInfo yakata3fd_k3_hack_table[];
-	static const K3HackInfo onlyyou_k3_hack_table[];
-	bool k3_hack(const K3HackInfo* info_table);
-};
-
 void NACT_Sys3::cmd_branch()
 {
 	int condition = cali();
@@ -1314,6 +1264,8 @@ bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 	return true;
 }
 
+namespace {
+
 class NACT_Toushin2 : public NACT_Sys3 {
 public:
 	NACT_Toushin2(const Config& config, const GameId& game_id)
@@ -1359,126 +1311,22 @@ public:
 	}
 };
 
-class NACT_GakuenKing : public NACT_Toushin2 {
-public:
-	NACT_GakuenKing(const Config& config, const GameId& game_id)
-		: NACT_Toushin2(config, game_id) {}
-
-	void cmd_i() override {
-		int p1 = cali();
-		int p2 = cali();
-		int p3 = cali();
-
-		switch (p1) {
-		case 1:
-			if (p3 == 255) {
-				for (int i = 0; i < 63; i++) {
-					grid_select_data[i] = p2;
-				}
-			} else if (1 <= p3 && p3 <= 63) {
-				grid_select_data[p3 - 1] = p2;
-			}
-			break;
-		case 2:
-			switch (p2) {
-			case 1:
-				RND = grid_select(376, 8, 32, 32, 7, 9, grid_prev_selection);
-				if (RND != GRID_SELECT_CANCELED)
-					grid_prev_selection = RND;
-				wait_key_release();
-				break;
-			default:
-				TRACE_UNIMPLEMENTED("I %d,%d,%d:", p1, p2, p3);
-				return;
-			}
-			break;
-		default:
-			TRACE_UNIMPLEMENTED("I %d,%d,%d:", p1, p2, p3);
-			return;
-		}
-		TRACE("I %d,%d,%d:", p1, p2, p3);
-	}
-
-	void cmd_y() override {
-		int cmd = cali();
-		int param = cali();
-
-		TRACE("Y %d,%d:", cmd, param);
-
-		switch (cmd) {
-		case 20:  // audio device check
-			exec_y(14, param);
-			break;
-		case 25:
-			ags->menu.back_color = ags->text.back_color = (param == 1 || param == 2) ? 0 : 1;
-			// text_window = param;
-			break;
-		case 118:
-			ags->text.pos.x = param;
-			break;
-		case 119:
-			ags->text.pos.y = param;
-			break;
-		default:
-			exec_y(cmd, param);
-			break;
-		}
-	}
-
-private:
-	const uint16_t GRID_SELECT_CANCELED = 80;
-	uint16_t grid_select_data[63] = {};
-	uint16_t grid_prev_selection = 0;
-
-	// I command
-	uint16_t grid_select(int left_x, int top_y, int xsize, int ysize, int nr_cols, int nr_rows, int initial_index) {
-		int x = initial_index % nr_cols;
-		int y = initial_index / nr_cols;
-		set_cursor(x * xsize + xsize / 2 + left_x, y * ysize + ysize / 2 + top_y);
-		while (!terminate) {
-			int mx, my;
-			get_cursor(&mx, &my);
-			x = (mx - left_x) / xsize;
-			y = (my - top_y) / ysize;
-			int key = get_key();
-			if (key & 0xf) {
-				if (key & 1) y--;  // up
-				if (key & 2) y++;  // down
-				if (key & 4) x--;  // left
-				if (key & 8) x++;  // right
-				x = std::clamp(x, 0, nr_cols - 1);
-				y = std::clamp(y, 0, nr_rows - 1);
-				set_cursor(x * xsize + xsize / 2 + left_x, y * ysize + ysize / 2 + top_y);
-				wait_key_release();
-			} else if (key == 16) {  // enter
-				wait_key_release();
-				if (0 <= x && x < nr_cols && 0 <= y && y < nr_rows) {
-					int sel = nr_cols * y + x;
-					if (grid_select_data[sel])
-						return sel + 1;
-				}
-			} else if (key == 32) {  // space
-				wait_key_release();
-				return GRID_SELECT_CANCELED;
-			} else {
-				sys_sleep(16);
-			}
-		}
-		return GRID_SELECT_CANCELED;
-	}
-};
-
 }  // namespace
 
 // static
-NACT* NACT::create_system3(const Config& config, const GameId& game_id) {
+NACT_Sys3* NACT_Sys3::create(const Config& config, const GameId& game_id) {
 	switch (game_id.game) {
 	case GameId::TOUSHIN2:
 	case GameId::NISE_NAGURI:
 		return new NACT_Toushin2(config, game_id);
 	case GameId::GAKUEN_KING:
-		return new NACT_GakuenKing(config, game_id);
+		return create_gakuen_king(config, game_id);
 	default:
 		return new NACT_Sys3(config, game_id);
 	}
+}
+
+// static
+NACT* NACT::create_system3(const Config& config, const GameId& game_id) {
+	return NACT_Sys3::create(config, game_id);
 }
