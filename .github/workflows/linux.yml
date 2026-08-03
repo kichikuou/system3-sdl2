@@ -17,11 +17,12 @@ jobs:
     - name: Install Deps
       run: |
         sudo apt update
-        sudo apt install libsdl2-dev libsdl2-ttf-dev librtmidi-dev nlohmann-json3-dev
+        sudo apt install libsdl2-dev libsdl2-ttf-dev librtmidi-dev nlohmann-json3-dev ninja-build
 
     - name: Build
       run: |
-        mkdir -p out/${{ matrix.build-type }}
-        cd out/${{ matrix.build-type }}
-        cmake -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} ../../
-        make -j4
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+        cmake --build build
+
+    - name: Test
+      run: ctest --output-on-failure --test-dir build

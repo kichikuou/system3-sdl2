@@ -96,6 +96,7 @@ const struct CRCTable {
 	uint32 crc32_a;
 	uint32 crc32_b;
 } crc_table[] = {
+	{GameId::SYSTEM1_GENERIC, "system1_generic", 1, "System 1", JAPANESE},
 	{GameId::BUNKASAI, "bunkasai", 1, "あぶない文化祭前夜", JAPANESE, CRC32_BUNKASAI},
 	{GameId::CRESCENT, "crescent", 1, "クレセントムーンがぁる", JAPANESE, CRC32_CRESCENT},
 	{GameId::DPS, "dps", 1, "D.P.S - Dream Program System", JAPANESE, CRC32_DPS},
@@ -122,6 +123,7 @@ const struct CRCTable {
 	{GameId::GAKUEN, "gakuen", 1, "学園戦記", JAPANESE, CRC32_GAKUEN},
 	{GameId::GAKUEN, "gakuen_eng", 1, "Gakuen Senki", ENGLISH, CRC32_GAKUEN_ENG},
 
+	{GameId::SYSTEM2_GENERIC, "system2_generic", 2, "System 2", JAPANESE},
 	{GameId::AYUMI_FD, "ayumi_fd", 2, "あゆみちゃん物語", JAPANESE, CRC32_AYUMI_FD},
 	{GameId::AYUMI_HINT, "ayumi_hint", 2, "あゆみちゃん物語 ヒントディスク", JAPANESE, CRC32_AYUMI_HINT},
 	{GameId::AYUMI_PROTO, "ayumi_proto", 2, "あゆみちゃん物語 PROTO", JAPANESE, CRC32_AYUMI_PROTO},
@@ -138,6 +140,7 @@ const struct CRCTable {
 	{GameId::SDPS_KAIZOKU, "sdps_kaizoku", 2, "Super D.P.S - うれしたのし海賊稼業", JAPANESE, CRC32_SDPS, CRC32_SDPS_KAIZOKU},
 	{GameId::YAKATA2, "yakata2", 2, "ALICEの館II", JAPANESE, CRC32_YAKATA2},
 
+	{GameId::SYSTEM3_GENERIC, "system3_generic", 3, "System 3", JAPANESE},
 	{GameId::AMBIVALENZ_FD, "ambivalenz_fd", 3, "AmbivalenZ −二律背反−", JAPANESE, CRC32_AMBIVALENZ_FD},
 	{GameId::AMBIVALENZ_CD, "ambivalenz_cd", 3, "AmbivalenZ −二律背反−", JAPANESE, CRC32_AMBIVALENZ_CD},
 	{GameId::DPS_ALL, "dps_all", 3, "D.P.S. 全部", JAPANESE, CRC32_DPSALL},
@@ -172,7 +175,7 @@ const struct CRCTable {
 const CRCTable* lookup(uint32 crc32_a, uint32 crc32_b)
 {
 	for (const CRCTable* t = crc_table; t->id; t++) {
-		if (crc32_a == t->crc32_a && (!t->crc32_b || crc32_b == t->crc32_b))
+		if (t->crc32_a && crc32_a == t->crc32_a && (!t->crc32_b || crc32_b == t->crc32_b))
 			return t;
 	}
 	return NULL;

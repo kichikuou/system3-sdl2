@@ -15,6 +15,7 @@ struct GameId {
 		UNKNOWN,
 
 		// System 1
+		SYSTEM1_GENERIC,
 		BUNKASAI,
 		CRESCENT,
 		DPS,
@@ -40,6 +41,7 @@ struct GameId {
 		GAKUEN,
 
 		// System 2
+		SYSTEM2_GENERIC,
 		AYUMI_FD,
 		AYUMI_HINT,
 		AYUMI_PROTO,
@@ -57,6 +59,7 @@ struct GameId {
 		YAKATA2,
 
 		// System 3
+		SYSTEM3_GENERIC,
 		AMBIVALENZ_FD,
 		AMBIVALENZ_CD,
 		DPS_ALL,

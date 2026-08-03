@@ -1,0 +1,14 @@
+	!RND : 0!
+	!tests_failed : 0!
+
+	Y 240, 1:
+
+	%#arithmetic.adv:
+
+	; System 1 cannot return the failure count as its process exit status.
+	; Print the success marker only when every assertion passed.
+	{tests_failed = 0: '0 tests failed' R}
+	Y 253, 0:
+
+*default:
+	EOF

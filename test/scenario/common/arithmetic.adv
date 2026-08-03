@@ -1,0 +1,31 @@
+	; Addition and saturating overflow.
+	{3 + 4 \ 7: !tests_failed : tests_failed + 1! '[FAIL] addition' R}
+	{50000 + 50000 \ 65535: !tests_failed : tests_failed + 1! '[FAIL] addition overflow' R}
+
+	; Subtraction saturates at zero.
+	{10 - 3 \ 7: !tests_failed : tests_failed + 1! '[FAIL] subtraction' R}
+	{3 - 10 \ 0: !tests_failed : tests_failed + 1! '[FAIL] subtraction underflow' R}
+
+	; Multiplication and precedence.
+	{3 * 4 \ 12: !tests_failed : tests_failed + 1! '[FAIL] multiplication' R}
+	{1000 * 1000 \ 65535: !tests_failed : tests_failed + 1! '[FAIL] multiplication overflow' R}
+	{2 + 3 * 4 \ 14: !tests_failed : tests_failed + 1! '[FAIL] precedence' R}
+	{(2 + 3) * 4 \ 20: !tests_failed : tests_failed + 1! '[FAIL] parentheses' R}
+
+	; Comparisons.
+	{3 < 4 \ 1: !tests_failed : tests_failed + 1! '[FAIL] less than' R}
+	{4 < 3 \ 0: !tests_failed : tests_failed + 1! '[FAIL] false less than' R}
+	{4 > 3 \ 1: !tests_failed : tests_failed + 1! '[FAIL] greater than' R}
+	{3 \ 3: !tests_failed : tests_failed + 1! '[FAIL] equality' R}
+	{3 = 4: !tests_failed : tests_failed + 1! '[FAIL] inequality' R}
+
+	; Variables use the same expression evaluator.
+	!actual : 40!
+	!expected : 42!
+	!actual : actual + 2!
+	{actual \ expected: !tests_failed : tests_failed + 1! '[FAIL] variables' R}
+
+	%0:
+
+*default:
+	EOF

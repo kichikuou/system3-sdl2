@@ -7,6 +7,7 @@ endif ()
 
 project(System3 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
+include(CTest)
 
 # Generates a static library from pkg_check_modules() result
 function(add_static_library name pkg)
@@ -250,3 +251,7 @@ endif()
 
 target_compile_definitions(system3 PRIVATE RESOURCE_PATH="${RESOURCE_PATH}")
 target_include_directories(system3 PRIVATE src src/sys)
+
+if (BUILD_TESTING AND NOT ANDROID AND NOT EMSCRIPTEN AND NOT NINTENDO_SWITCH)
+  add_subdirectory(test)
+endif()

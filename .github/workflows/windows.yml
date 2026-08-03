@@ -51,6 +51,9 @@ jobs:
         cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_COMPILE_WARNING_AS_ERROR=YES
         cmake --build build
 
+    - name: Test
+      run: ctest --output-on-failure --test-dir build
+
     - name: Package
       run: |
         cp build/system3.exe COPYING.txt dist/
