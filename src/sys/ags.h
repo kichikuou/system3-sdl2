@@ -109,6 +109,11 @@ public:
 	void update_screen();
 
 	void load_cg(int page, int transparent);
+	// Decodes a CG without drawing it, but still updates the palette.
+	CG load_cg_surface(int page, int transparent = -1);
+	// Returns an ACG page bytes, without decoding it.
+	std::vector<uint8_t> load_cg_data(int page) { return acg.load(page); }
+	void blit_cg(int dest, CG& cg, const SDL_Rect* src, int dx, int dy);
 	void set_cg_file(const char *file_name);
 
 	void load_censor_list(const char* fname);
@@ -121,7 +126,11 @@ public:
 	void fade_out(int duration_ms, bool white);
 	void fade_in(int duration_ms);
 
-	void copy(int sx, int sy, int ex, int ey, int dx, int dy);
+	void copy(int sx, int sy, int ex, int ey, int dx, int dy) {
+		copy_screen(src_screen, dest_screen, sx, sy, ex, ey, dx, dy);
+	}
+	void copy_screen(int src, int dest, int sx, int sy, int ex, int ey, int dx, int dy,
+					 int transparent_color = -1);
 	void gcopy(int gsc, int gde, int glx, int gly, int gsw);
 	void paint(int x, int y, uint8 color);
 	void draw_box(int index);

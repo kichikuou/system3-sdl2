@@ -1,0 +1,15 @@
+	!tests_failed : 0!
+
+	; System3-sdl2 extension: draw ASCII as half-width characters so the
+	; text-hook output is easy for CTest and humans to read.
+	Y 240, 1:
+
+	%#map.adv:
+	%#saveload.adv:
+
+	H 0, tests_failed: ' tests failed' R
+	!RND : tests_failed!
+	Y 255, 0:
+
+*default:
+	EOF

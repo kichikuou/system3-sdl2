@@ -106,11 +106,12 @@ void NACT::process_next_event()
 	handle_event(std::move(e));
 }
 
-uint8 NACT::get_key()
+uint8 NACT::get_key(bool notify_texthook)
 {
 	uint8 val = 0;
 
-	texthook_keywait();
+	if (notify_texthook)
+		texthook_keywait();
 
 	pump_events();
 

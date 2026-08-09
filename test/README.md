@@ -10,7 +10,7 @@ require [sys3c](https://github.com/kichikuou/sys3c). After installing sys3c
 and changing the scenario sources, regenerate it with:
 
 ```sh
-for system in system1 system2 system3; do
-  (cd test/scenario/$system && sys3c)
+for dir in system1 system2 system3 gakuen_king; do
+  (cd test/scenario/$dir && sys3c)
 done
 ```

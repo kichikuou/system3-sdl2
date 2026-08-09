@@ -104,7 +104,14 @@ void AGS::init_windows()
 			case 3: text_w[i].reset(24, 310, 183, 391, false, false); break;
 			case 4: text_w[i].reset(464, 310, 623, 391, false, false); break;
 			}
-			menu_w[i].reset(416, 24, 591, 248, true, true);
+			switch (i) {
+			default:
+			case 0: menu_w[i].reset(416, 24, 591, 248, true, true); break;
+			case 1: menu_w[i].reset(32, 16, 191, 216, true, true); break;
+			case 2: menu_w[i].reset(448, 16, 607, 216, true, true); break;
+			case 3: menu_w[i].reset(32, 223, 191, 383, true, true); break;
+			case 4: menu_w[i].reset(448, 223, 607, 383, true, true); break;
+			}
 			break;
 		default:
 			text_w[i].reset(8, 311, 623, 391, true, false);

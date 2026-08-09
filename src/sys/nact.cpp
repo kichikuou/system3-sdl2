@@ -513,18 +513,15 @@ void NACT::message(uint8_t first_byte)
 
 void NACT::text_wait()
 {
+	if (msgskip->skipping())
+		return;
+
 	Uint32 dwTime = SDL_GetTicks() + text_wait_time;
-	for(;;) {
-		if(terminate) {
-			return;
-		}
-		RND = get_key();
-		if(RND && wait_keydown) {
+	while (!terminate) {
+		if (get_key(false) && wait_keydown)
 			break;
-		}
-		if(dwTime <= SDL_GetTicks()) {
+		if (dwTime <= SDL_GetTicks())
 			break;
-		}
 		sys_sleep(16);
 	}
 }

@@ -1,0 +1,135 @@
+	; Map state tests. The only way a scenario can read the map back is
+	; N x,y, so every check writes state and then reads it through N.
+	;
+	; The synthetic AMAP.DAT (see make_amap.py) stores
+	;   tile  = (x + y * 7 + page * 11) % 192   -> N's D03
+	;   bit13 = 1 when (x + y) is odd           -> N's D02
+	;   bit14 = 1 when (x * y) % 3 == 0         -> N's D01
+	; and leaves bits 8-12 zero, so D04 = tile & 31.
+
+	Y 55, 1:
+
+	; --- base cells --------------------------------------------------------
+	N 3, 4:
+	{D01 \ 1: !tests_failed : tests_failed + 1! '[FAIL] base D01' R}
+	{D02 \ 1: !tests_failed : tests_failed + 1! '[FAIL] base D02' R}
+	{D03 \ 42: !tests_failed : tests_failed + 1! '[FAIL] base D03' R}
+	{D04 \ 10: !tests_failed : tests_failed + 1! '[FAIL] base D04' R}
+
+	N 10, 20:
+	{D01 \ 0: !tests_failed : tests_failed + 1! '[FAIL] walkable D01' R}
+	{D02 \ 0: !tests_failed : tests_failed + 1! '[FAIL] walkable D02' R}
+	{D03 \ 161: !tests_failed : tests_failed + 1! '[FAIL] walkable D03' R}
+	{D04 \ 1: !tests_failed : tests_failed + 1! '[FAIL] walkable D04' R}
+
+	; --- layer priority ----------------------------------------------------
+	; Z hides the base cell and reports itself as a wall.
+	Z 3, 4, 12:
+	N 3, 4:
+	{D01 \ 1: !tests_failed : tests_failed + 1! '[FAIL] Z D01' R}
+	{D02 \ 1: !tests_failed : tests_failed + 1! '[FAIL] Z D02' R}
+	{D03 \ 12: !tests_failed : tests_failed + 1! '[FAIL] Z D03' R}
+	{D04 \ 32: !tests_failed : tests_failed + 1! '[FAIL] Z D04' R}
+
+	W 3, 4, 77:
+	N 3, 4:
+	{D03 \ 77: !tests_failed : tests_failed + 1! '[FAIL] W over Z' R}
+	{D04 \ 64: !tests_failed : tests_failed + 1! '[FAIL] W layer tag' R}
+
+	; 255 empties one cell of the layer only; N falls back to Z.
+	W 3, 4, 255:
+	N 3, 4:
+	{D03 \ 12: !tests_failed : tests_failed + 1! '[FAIL] W 255 fallback' R}
+	{D04 \ 32: !tests_failed : tests_failed + 1! '[FAIL] W 255 layer tag' R}
+
+	Z 3, 4, 255:
+	N 3, 4:
+	{D03 \ 42: !tests_failed : tests_failed + 1! '[FAIL] Z 255 fallback' R}
+	{D04 \ 10: !tests_failed : tests_failed + 1! '[FAIL] Z 255 layer tag' R}
+
+	; Tile 0 is a real tile, not an empty cell.
+	Z 3, 4, 0:
+	N 3, 4:
+	{D03 \ 0: !tests_failed : tests_failed + 1! '[FAIL] Z tile 0' R}
+	{D04 \ 32: !tests_failed : tests_failed + 1! '[FAIL] Z tile 0 layer tag' R}
+	Z 3, 4, 255:
+
+	; --- 254 clears the whole layer ---------------------------------------
+	Z 20, 30, 100:
+	Z 21, 30, 101:
+	W 20, 30, 102:
+	W 22, 30, 103:
+	Z 0, 0, 254:
+	N 21, 30:
+	{D03 \ 50: !tests_failed : tests_failed + 1! '[FAIL] Z 254 clears layer' R}
+	{D04 \ 18: !tests_failed : tests_failed + 1! '[FAIL] Z 254 layer tag' R}
+	N 20, 30:
+	{D03 \ 102: !tests_failed : tests_failed + 1! '[FAIL] Z 254 keeps W' R}
+	W 0, 0, 254:
+	N 20, 30:
+	{D03 \ 49: !tests_failed : tests_failed + 1! '[FAIL] W 254 clears layer' R}
+	{D04 \ 17: !tests_failed : tests_failed + 1! '[FAIL] W 254 layer tag' R}
+	N 22, 30:
+	{D03 \ 51: !tests_failed : tests_failed + 1! '[FAIL] W 254 clears whole layer' R}
+
+	; --- B builds a base cell ---------------------------------------------
+	; N is not B's inverse: D04 is derived from D03, so writing D04 = 17
+	; with D03 = 200 reads back as D04 = 8.
+	!D01 : 1!
+	!D02 : 0!
+	!D03 : 200!
+	!D04 : 17!
+	B 50, 50:
+	N 50, 50:
+	{D01 \ 1: !tests_failed : tests_failed + 1! '[FAIL] B D01' R}
+	{D02 \ 0: !tests_failed : tests_failed + 1! '[FAIL] B D02' R}
+	{D03 \ 200: !tests_failed : tests_failed + 1! '[FAIL] B D03' R}
+	{D04 \ 8: !tests_failed : tests_failed + 1! '[FAIL] B D04' R}
+
+	; --- Y 55 area switching ----------------------------------------------
+	Z 3, 4, 12:
+	W 5, 5, 99:
+	Y 55, 2:
+	N 3, 4:
+	{D03 \ 53: !tests_failed : tests_failed + 1! '[FAIL] Y55 loads AMAP page' R}
+	{D04 \ 21: !tests_failed : tests_failed + 1! '[FAIL] Y55 AMAP page D04' R}
+	; (D03/D04 above would be 12/32 if the Z layer had survived.)
+	{D02 \ 1: !tests_failed : tests_failed + 1! '[FAIL] Y55 AMAP page D02' R}
+	; The W layer is cleared together with the Z layer.
+	N 5, 5:
+	{D03 \ 62: !tests_failed : tests_failed + 1! '[FAIL] Y55 clears W layer' R}
+	{D04 \ 30: !tests_failed : tests_failed + 1! '[FAIL] Y55 W layer tag' R}
+
+	Z 3, 4, 12:
+	Y 55, 2:
+	N 3, 4:
+	{D03 \ 53: !tests_failed : tests_failed + 1! '[FAIL] Y55 same id base map' R}
+	{D04 \ 21: !tests_failed : tests_failed + 1! '[FAIL] Y55 same id clears Z' R}
+
+	Y 55, 1:
+	N 3, 4:
+	{D03 \ 42: !tests_failed : tests_failed + 1! '[FAIL] Y55 return base map' R}
+	{D04 \ 10: !tests_failed : tests_failed + 1! '[FAIL] Y55 return D04' R}
+	N 5, 5:
+	{D03 \ 51: !tests_failed : tests_failed + 1! '[FAIL] Y55 return base map at 5,5' R}
+
+	W 0, 0, 254:
+
+	; --- display flags -----------------------------------------------------
+	; These have no read-back command; only check that they run and do not
+	; disturb the map data.
+	Y 56, 0:
+	Y 56, 1:
+	Y 57, 0:
+	Y 57, 1:
+	Y 58, 27:
+	Y 59, 1:
+	Y 59, 0:
+	Y 112, 0:
+	N 3, 4:
+	{D03 \ 42: !tests_failed : tests_failed + 1! '[FAIL] display flags kept map' R}
+
+	%0:
+
+*default:
+	EOF

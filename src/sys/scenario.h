@@ -58,6 +58,7 @@ public:
 			: is_page_call(is_page_call), page(page), addr(addr) {}
 	};
 	const std::vector<StackFrame>& get_call_stack() const { return call_stack; }
+	void set_call_stack(std::vector<StackFrame> frames) { call_stack = std::move(frames); }
 	int write_instruction(int page, int addr, uint8_t op);
 
 private:

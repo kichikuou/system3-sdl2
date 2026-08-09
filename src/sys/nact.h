@@ -22,11 +22,11 @@
 
 #define MAX_VERB 128
 #define MAX_OBJ 256
-#define MAX_VAR 512
+#define MAX_VAR 768  // Gakuen KING uses up to VAR737.
 #define MAX_STRVAR 10
 
 #define TRACE(fmt, ...) if (config.trace) trace(fmt "\n", ##__VA_ARGS__)
-#define TRACE_UNIMPLEMENTED(fmt, ...) trace("Unimplemented command " fmt "\n", ##__VA_ARGS__)
+#define TRACE_UNIMPLEMENTED(fmt, ...) trace("Unimplemented command at %d:%04x " fmt "\n", sco.page(), sco.cmd_addr(), ##__VA_ARGS__)
 
 class AGS;
 class MAKO;
@@ -80,7 +80,7 @@ protected:
 	void cmd_set_verbobj2();
 	virtual void cmd_open_verb() = 0;
 
-	void cmd_a();
+	virtual void cmd_a();
 	virtual void cmd_b() { sco.unknown_command('B'); }
 	virtual void cmd_d() { sco.unknown_command('D'); }
 	virtual void cmd_e() { sco.unknown_command('E'); }
@@ -146,7 +146,7 @@ protected:
 	int menu_select(int num_items);
 	void wait_after_open_menu();
 
-	uint8 get_key();
+	uint8 get_key(bool notify_texthook = true);
 	void wait_key_release(uint8_t mask = 0xff);
 
 	void get_cursor(int* x, int* y);

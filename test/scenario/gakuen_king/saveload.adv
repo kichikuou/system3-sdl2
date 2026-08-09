@@ -1,0 +1,81 @@
+	; Save and load tests.
+	;
+	; L resumes right after the Q that wrote the file, so the round trip runs
+	; part of this page twice. The W layer tells the two passes apart: a load
+	; clears both map layers, and every other state the scenario can read is
+	; either restored or unchanged.
+	;
+	; Failures recorded between Q and L are rolled back together with the rest
+	; of the variables, so those checks are caught by the '[FAIL]' text in the
+	; text hook output rather than by the counter.
+
+	\L_roundtrip:
+	\L_partial_load:
+	\L_bad_slots:
+	%0:
+
+*L_roundtrip:
+	Y 55, 1:
+	W 5, 5, 99:
+	!VAR100 : 1234!
+	!VAR700 : 4321!
+	Q 1:
+	!VAR101 : RND!
+	N 5, 5:
+	{D03 = 99:
+		; First pass.
+		{VAR101 \ 1: !tests_failed : tests_failed + 1! '[FAIL] Q RND' R}
+		; Wreck everything the load has to bring back.
+		!VAR100 : 0!
+		!VAR700 : 0!
+		Z 3, 4, 12:
+		Y 55, 2:
+		L 1:
+		'[FAIL] L did not resume the saved position' R
+		!tests_failed : tests_failed + 1!
+	}
+
+	; Second pass, after the load.
+	{VAR101 \ 0: !tests_failed : tests_failed + 1! '[FAIL] L RND' R}
+	{VAR100 \ 1234: !tests_failed : tests_failed + 1! '[FAIL] L variable' R}
+	{VAR700 \ 4321: !tests_failed : tests_failed + 1! '[FAIL] L high variable' R}
+	{D03 \ 51: !tests_failed : tests_failed + 1! '[FAIL] L clears the W layer' R}
+	N 3, 4:
+	{D03 \ 42: !tests_failed : tests_failed + 1! '[FAIL] L restores the map area' R}
+	{D04 \ 10: !tests_failed : tests_failed + 1! '[FAIL] L clears the Z layer' R}
+
+	\0:
+	'[FAIL] label call stack lost by L' R
+	!tests_failed : tests_failed + 1!
+
+*L_partial_load:
+	; Y 82,var reloads that one variable from the save file RND selects.
+	!VAR614 : 111!
+	!VAR615 : 222!
+	!VAR616 : 333!
+	Q 3:
+	!VAR614 : 1!
+	!VAR615 : 2!
+	!VAR616 : 3!
+	!RND : 3!
+	Y 82, VAR615:
+	{VAR615 \ 222: !tests_failed : tests_failed + 1! '[FAIL] Y82 value' R}
+	{VAR614 \ 1: !tests_failed : tests_failed + 1! '[FAIL] Y82 wrote VAR614' R}
+	{VAR616 \ 3: !tests_failed : tests_failed + 1! '[FAIL] Y82 wrote VAR616' R}
+	; A file that does not exist zeroes the target instead.
+	!RND : 20!
+	Y 82, VAR616:
+	{VAR616 \ 0: !tests_failed : tests_failed + 1! '[FAIL] Y82 missing file' R}
+	\0:
+
+*L_bad_slots:
+	!RND : 0!
+	L 20:
+	{RND \ 255: !tests_failed : tests_failed + 1! '[FAIL] L missing slot' R}
+	!RND : 0!
+	Q 30:
+	{RND \ 255: !tests_failed : tests_failed + 1! '[FAIL] Q invalid slot' R}
+	\0:
+
+*default:
+	EOF

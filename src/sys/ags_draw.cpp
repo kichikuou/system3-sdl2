@@ -31,15 +31,15 @@ void mosaic(SDL_Surface* sf) {
 
 }  // namespace
 
-void AGS::load_cg(int page, int transparent)
+CG AGS::load_cg_surface(int page, int transparent)
 {
 	if (bmp_prefix) {
 		WARNING("not implemented");
-		return;
+		return CG();
 	}
 	std::vector<uint8_t> data = acg.load(page);
 	if (data.empty())
-		return;
+		return CG();
 
 	bool set_palette = extract_palette && !ignore_palette.count(page);
 	CG cg;
@@ -92,24 +92,12 @@ void AGS::load_cg(int page, int transparent)
 		break;
 	}
 
-	// J command
-	if (cg_dest.has_value()) {
-		cg.x = cg_dest->x;
-		cg.y = cg_dest->y;
-		cg_dest = std::nullopt;
+	if (cg.surface()) {
+		SDL_SetSurfacePalette(cg.surface(), screen_palette);
+		if (censor_list.count(page))
+			mosaic(cg.surface());
 	}
 
-	if (extract_cg && cg.surface()) {
-		SDL_SetSurfacePalette(cg.surface(), screen_palette);
-		if (censor_list.count(page)) {
-			mosaic(cg.surface());
-		}
-		SDL_Rect dstrect = { cg.x, cg.y, cg.width(), cg.height() };
-		SDL_BlitSurface(cg.surface(), NULL, hBmpScreen[dest_screen], &dstrect);
-		if (dest_screen == 0) {
-			draw_screen(dstrect.x, dstrect.y, dstrect.w, dstrect.h);
-		}
-	}
 	if (set_palette) {
 		dirty_rect = {0, 0, screen_width, screen_height};
 #ifdef ENABLE_DEBUGGER
@@ -117,20 +105,53 @@ void AGS::load_cg(int page, int transparent)
 			g_debugger->on_palette_change();
 #endif
 	}
+	return cg;
 }
 
-void AGS::copy(int sx, int sy, int ex, int ey, int dx, int dy)
+void AGS::blit_cg(int dest, CG& cg, const SDL_Rect* src, int dx, int dy)
+{
+	if (!cg.surface())
+		return;
+	SDL_Rect dstrect = { dx, dy, src ? src->w : cg.width(), src ? src->h : cg.height() };
+	SDL_BlitSurface(cg.surface(), src, hBmpScreen[dest], &dstrect);
+	if (dest == 0) {
+		draw_screen(dstrect.x, dstrect.y, dstrect.w, dstrect.h);
+	}
+}
+
+void AGS::load_cg(int page, int transparent)
+{
+	CG cg = load_cg_surface(page, transparent);
+	if (!cg)
+		return;
+
+	// J command
+	if (cg_dest.has_value()) {
+		cg.x = cg_dest->x;
+		cg.y = cg_dest->y;
+		cg_dest = std::nullopt;
+	}
+
+	if (extract_cg)
+		blit_cg(dest_screen, cg, NULL, cg.x, cg.y);
+}
+
+void AGS::copy_screen(int src, int dest, int sx, int sy, int ex, int ey, int dx, int dy, int transparent_color)
 {
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 	SDL_Rect srcrect = {sx, sy, width, height};
 	SDL_Rect destrect = {dx, dy, width, height};
 
-	SDL_BlitSurface(hBmpScreen[src_screen], &srcrect, hBmpScreen[dest_screen], &destrect);
+	SDL_Surface* src_surface = hBmpScreen[src];
+	if (transparent_color >= 0)
+		SDL_SetColorKey(src_surface, SDL_TRUE, transparent_color);
+	SDL_BlitSurface(src_surface, &srcrect, hBmpScreen[dest], &destrect);
+	if (transparent_color >= 0)
+		SDL_SetColorKey(src_surface, SDL_FALSE, 0);
 
-	if(dest_screen == 0) {
-		draw_screen(dx, dy, ex - sx + 1, ey - sy + 1);
-	}
+	if (dest == 0)
+		draw_screen(dx, dy, width, height);
 }
 
 void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
