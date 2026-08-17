@@ -55,6 +55,9 @@ track.
 By default, system3-sdl2 uses MIDI sound if available. This option forces FM
 tone generator emulation.
 
+#### `-fullscreen`
+Starts the game in fullscreen mode.
+
 #### `-mididevice` _number_
 Specifies the MIDI device number to use. If not specified, the first available
 device is used.

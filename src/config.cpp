@@ -154,6 +154,8 @@ Config::Config(int argc, char *argv[])
 			title = argv[++i];
 		else if (strcmp(argv[i], "-scanline") == 0)
 			scanline = true;
+		else if (strcmp(argv[i], "-fullscreen") == 0)
+			fullscreen = true;
 #ifdef ENABLE_DEBUGGER
 		else if (strcmp(argv[i], "-debugger") == 0)
 			debugger_mode = parse_debugger_mode(argv[++i]);
@@ -224,6 +226,8 @@ void Config::load_ini()
 				title = val;
 			else if (!strcasecmp(key, "scanline"))
 				scanline = to_bool(val, lineno);
+			else if (!strcasecmp(key, "fullscreen"))
+				fullscreen = to_bool(val, lineno);
 #ifdef ENABLE_DEBUGGER
 			else if (!strcasecmp(key, "debugger"))
 				debugger_mode = parse_debugger_mode(val, lineno);

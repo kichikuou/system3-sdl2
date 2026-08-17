@@ -25,7 +25,7 @@ std::unique_ptr<NACT> g_nact;
 
 namespace {
 
-SDL_Window* create_window(const GameId& game_id)
+SDL_Window* create_window(const Config& config, const GameId& game_id)
 {
 	std::string title = "System3-sdl2 " SYSTEM3_VERSION;
 	if (game_id.title) {
@@ -48,7 +48,7 @@ SDL_Window* create_window(const GameId& game_id)
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 	Uint32 flags = SDL_WINDOW_FULLSCREEN;
 #else
-	Uint32 flags = SDL_WINDOW_RESIZABLE;
+	Uint32 flags = config.fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_RESIZABLE;
 #endif
 
 #ifdef __EMSCRIPTEN__
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 	}
 	GameId game_id(config);
 
-	g_window = create_window(game_id);
+	g_window = create_window(config, game_id);
 	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
 	sdl_custom_event_type = SDL_RegisterEvents(1);
 

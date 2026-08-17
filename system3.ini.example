@@ -21,6 +21,9 @@ playlist = bgm/playlist.txt
 ; Force FM tone generator emulation even if MIDI is available.
 fm = true
 
+; If set to true, the game starts in fullscreen mode.
+;fullscreen = true
+
 ; MIDI device number to use for music playback.
 mididevice = 0
 

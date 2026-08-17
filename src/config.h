@@ -47,6 +47,7 @@ struct Config {
 	bool use_fm = false;
 	bool no_antialias = false;
 	bool scanline = false;
+	bool fullscreen = false;
 	TexthookMode texthook_mode = TexthookMode::NONE;
 	DebuggerMode debugger_mode = DebuggerMode::DISABLED;
 	std::string texthook_suppressions;
