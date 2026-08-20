@@ -87,8 +87,6 @@ private:
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);
 	void draw_gaiji(int dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color);
 
-	void draw_screen(int sx, int sy, int width, int heignt);
-
 	uint8_t palR(uint8_t col) const { return screen_palette->colors[col].r; }
 	uint8_t palG(uint8_t col) const { return screen_palette->colors[col].g; }
 	uint8_t palB(uint8_t col) const { return screen_palette->colors[col].b; }
@@ -122,6 +120,8 @@ public:
 	std::vector<uint32_t> get_screen_palette() const;
 	uint8 get_pixel(int dest, int x, int y) const { return vram[dest][y][x]; }
 	void set_pixel(int dest, int x, int y, uint8 color) { vram[dest][y][x] = color; }
+	// Marks a rectangle of the display screen for the next update_screen().
+	void draw_screen(int sx, int sy, int width, int height);
 
 	void fade_out(int duration_ms, bool white);
 	void fade_in(int duration_ms);

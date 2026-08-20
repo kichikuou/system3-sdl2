@@ -93,6 +93,7 @@ private:
 			exec_y(14, param);
 			break;
 		case 25:
+			fixed_cursor_shape = (param == 1);
 			if (0 <= param && param <= 4) {
 				ags->menu.back_color = ags->text.back_color =
 					(param == 1 || param == 2) ? 0 : 1;
@@ -212,6 +213,7 @@ private:
 			return;
 		}
 		load_digit_font(exe);
+		load_mouse_cursors(exe);
 		load_credit_text(exe);
 	}
 
@@ -1225,6 +1227,53 @@ private:
 		VAR_TROOP_COUNT = VAR_TROOP_COUNT_FULL;
 	}
 
+	// --- mouse cursor ------------------------------------------------------
+
+	// The shapes GAKUEN.COM hands to the mouse driver: six 16x16 patterns of
+	// two 32-byte planes each, the interior first and the silhouette second.
+	// Pattern 0 is blank and unused.
+	static constexpr int MOUSE_CURSOR_OFFSET = 0x2a92;
+	static constexpr int NR_MOUSE_CURSORS = 6;
+	static constexpr int MOUSE_CURSOR_SIZE = 16;
+
+	struct MouseCursor {
+		uint16_t body[MOUSE_CURSOR_SIZE];
+		uint16_t silhouette[MOUSE_CURSOR_SIZE];  // body plus its outline
+	};
+	MouseCursor mouse_cursor[NR_MOUSE_CURSORS] = {};
+
+	bool fixed_cursor_shape = false;  // set by Y 25,1
+
+	void load_mouse_cursors(const std::vector<uint8_t>& exe) {
+		const uint8_t* p = &exe[MOUSE_CURSOR_OFFSET];
+		for (MouseCursor& cursor : mouse_cursor) {
+			for (uint16_t* plane : {cursor.body, cursor.silhouette}) {
+				for (int row = 0; row < MOUSE_CURSOR_SIZE; row++, p += 2)
+					plane[row] = p[0] | p[1] << 8;
+			}
+		}
+	}
+
+	int pick_cursor_shape() {
+		if (fixed_cursor_shape)
+			return 5;
+		int r = random(100);
+		return r < 5 ? r : 1;
+	}
+
+	void draw_mouse_cursor(int shape, int x, int y) {
+		const MouseCursor& cursor = mouse_cursor[shape];
+		for (int row = 0; row < MOUSE_CURSOR_SIZE; row++) {
+			for (int col = 0; col < MOUSE_CURSOR_SIZE; col++) {
+				uint16_t bit = 0x8000 >> col;
+				if (!(cursor.silhouette[row] & bit))
+					continue;
+				ags->set_pixel(0, x + col, y + row, (cursor.body[row] & bit) ? 15 : 0);
+			}
+		}
+		ags->draw_screen(x, y, MOUSE_CURSOR_SIZE, MOUSE_CURSOR_SIZE);
+	}
+
 	// --- I grid selection -------------------------------------------------
 
 	// I 2 composes its overlays over the background CG on the work screen and
@@ -1293,42 +1342,91 @@ private:
 
 		int& cx = grid_cursor_x[wide ? 1 : 0];
 		int& cy = grid_cursor_y[wide ? 1 : 0];
+
+		// The original relies on the mouse pointer movement for visual feedback
+		// on player input. In system3-sdl2 the pointer may be absent or
+		// unmovable, so we draw the cursor shape onto the grid instead. It
+		// disappears once the player moves the pointer, and comes back on the
+		// next direction key.
+		const int shape = pick_cursor_shape();
+		bool cursor_drawn = false;
+		int seen_x, seen_y;
+		get_cursor(&seen_x, &seen_y);
+		// Hides the system pointer and draws the cursor at (cx, cy) instead.
+		auto show_cursor = [&] {
+			SDL_ShowCursor(SDL_DISABLE);
+			draw_mouse_cursor(shape, cx, cy);
+			cursor_drawn = true;
+		};
+		// Erases the drawn cursor and restores the system pointer. Must be
+		// called before (cx, cy) moves, which is where the cursor is drawn.
+		auto hide_cursor = [&] {
+			if (!cursor_drawn)
+				return;
+			SDL_ShowCursor(SDL_ENABLE);
+			ags->copy_screen(WORK_SCREEN, 0, cx, cy, cx + MOUSE_CURSOR_SIZE - 1,
+			                 cy + MOUSE_CURSOR_SIZE - 1, cx, cy);
+			cursor_drawn = false;
+		};
 		set_cursor(cx, cy);
+		show_cursor();
 
 		while (!terminate) {
 			uint8_t key = get_key();
+			int mx, my;
+			get_cursor(&mx, &my);
+			// A pointer position that is neither where it was nor where
+			// set_cursor() put it is a move by the player. The pointer comes
+			// back through a scaling that rounds, so allow it one pixel.
+			if ((mx != seen_x || my != seen_y) &&
+			    (std::abs(mx - cx) > 1 || std::abs(my - cy) > 1))
+				hide_cursor();
+			seen_x = mx;
+			seen_y = my;
 			if (!key) {
 				sys_sleep(16);
 				continue;
 			}
 			if (!(key & 0xb0)) {
+				hide_cursor();
 				if (key & 1 && cy >= (wide ? 54 : 55)) cy -= 32;
 				if (key & 2 && cy < (wide ? 247 : 248)) cy += 32;
 				if (key & 4 && cx >= (wide ? 544 : 424)) cx -= cell_w;
 				if (key & 8 && cx < (wide ? 433 : 553)) cx += cell_w;
 				set_cursor(cx, cy);
+				show_cursor();
 				wait_key_release(0x0f);
 				continue;
 			}
 			if (key & 0xa0) {
+				hide_cursor();
 				wait_key_release();
 				return GRID_SELECT_CANCELED;
 			}
-			// The item comes from where the pointer actually is. The original
-			// confines it to the grid with the mouse driver; here the pointer
-			// can leave the grid and the selection is clamped instead.
-			int mx, my;
-			get_cursor(&mx, &my);
-			int col = std::clamp((mx - GRID_X) / cell_w, 0, cols - 1);
-			int row = std::clamp((my - 7 - (wide ? 1 : 0)) / 32, 0, rows - 1);
-			cx = col * cell_w + (wide ? 432 : 392);
-			cy = row * 32 + (wide ? 22 : 23);
-			set_cursor(cx, cy);
+			int col, row;
+			if (cursor_drawn) {
+				col = (cx - (wide ? 432 : 392)) / cell_w;
+				row = (cy - (wide ? 22 : 23)) / 32;
+			} else {
+				if (mx < GRID_X || mx >= GRID_X + cols * cell_w ||
+				    my < 7 || my >= 7 + rows * 32) {
+					// outside the grid.
+					wait_key_release();
+					continue;
+				}
+				col = (mx - GRID_X) / cell_w;
+				row = (my - 7 - (wide ? 1 : 0)) / 32;
+				cx = col * cell_w + (wide ? 432 : 392);
+				cy = row * 32 + (wide ? 22 : 23);
+				set_cursor(cx, cy);
+			}
+			hide_cursor();
 			wait_key_release();
 			// The state table is not consulted: state 0 returns its number
 			// too, and the scenario rejects it.
 			return static_cast<uint16_t>(row * cols + col + 1);
 		}
+		hide_cursor();
 		return GRID_SELECT_CANCELED;
 	}
 
