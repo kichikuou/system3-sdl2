@@ -48,6 +48,8 @@ if (ANDROID)
   target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf ymfm ${ndk_log})
 
 elseif (EMSCRIPTEN)
+  option(JSPI "Use JavaScript Promise Integration instead of Asyncify" OFF)
+
   add_executable(system3)
 
   target_sources(system3 PRIVATE
@@ -62,16 +64,23 @@ elseif (EMSCRIPTEN)
   # Without optimizations, Asyncify generates very large code.
   list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG "-O1")
 
+  if (JSPI)
+    target_link_options(system3 PRIVATE -sJSPI)
+  else()
+    target_link_options(system3 PRIVATE
+      -sASYNCIFY=1
+      -sASYNCIFY_IGNORE_INDIRECT=1
+      -sASYNCIFY_REMOVE=SDL_Delay
+      "-sASYNCIFY_ADD=NACT::execute()"
+      )
+  endif()
+
   target_link_options(system3 PRIVATE
     -sENVIRONMENT=web
     -sMODULARIZE=1
     -sEXPORT_ES6=1
-    -sASYNCIFY=1
-    -sASYNCIFY_IGNORE_INDIRECT=1
-    -sASYNCIFY_REMOVE=SDL_Delay
     -sALLOW_MEMORY_GROWTH=1
     -sNO_EXIT_RUNTIME=1
-    "-sASYNCIFY_ADD=NACT::execute()"
     -sEXPORTED_FUNCTIONS=_main,_malloc
     -sEXPORTED_RUNTIME_METHODS=FS,IDBFS,HEAPU8,HEAP16,getValue,addRunDependency,removeRunDependency,stringToUTF8OnStack
     --emit-tsd=system3.d.ts
