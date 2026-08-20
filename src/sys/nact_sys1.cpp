@@ -744,7 +744,7 @@ public:
 				sys_sleep(16);
 			}
 			sys_sleep(100);
-			wait_key_release(0x18);
+			wait_key_release(0x1f);
 			ags->clear_text_window(text_window, true);
 			break;
 		case 2:

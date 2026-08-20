@@ -805,7 +805,7 @@ void NACT_Sys2::cmd_y()
 				sys_sleep(16);
 			}
 			sys_sleep(100);
-			wait_key_release(0x18);
+			wait_key_release(0x1f);
 			break;
 		case 254:
 			RND = 0;

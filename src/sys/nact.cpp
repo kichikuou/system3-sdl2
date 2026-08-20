@@ -424,7 +424,7 @@ void NACT::cmd_a()
 	}
 	sys_sleep(30);
 	if (!msgskip->skipping()) {
-		wait_key_release(0x18);
+		wait_key_release(0x1f);
 	}
 
 	// ウィンドウ更新
