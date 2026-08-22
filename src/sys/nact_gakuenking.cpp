@@ -442,13 +442,22 @@ private:
 	// T ...,255 leaves no sprite to draw.
 	static constexpr uint8_t SPRITE_HIDDEN = 0xff;
 
+	static constexpr int MAP_WORK_SCREEN = 2;
+	static constexpr int ANIMATION_FRAME_MS = 16;
+
 	uint16_t map_view_x = 0;
 	uint16_t map_view_y = 0;
 	uint16_t map_sprite_x = 0;
 	uint16_t map_sprite_y = 0;
-	uint16_t map_sprite_cell = 0;
 	uint8_t map_sprite_frame = SPRITE_HIDDEN;
 	uint8_t map_out_of_bounds_tile = CELL_EMPTY;
+	// The view and sprite state last drawn, for step detection.
+	uint16_t map_view_drawn_x = 0;
+	uint16_t map_view_drawn_y = 0;
+	uint16_t map_sprite_drawn_x = 0;
+	uint16_t map_sprite_drawn_y = 0;
+	bool map_sprite_drawn = false;
+	bool map_view_drawn = false;
 	bool map_base_visible_view = true;
 	bool map_overview_rebuild_pending = false;
 	// The J draw wait and the marker blink period. GAKUEN.COM sets this to
@@ -483,7 +492,6 @@ private:
 
 		map_sprite_x = x;
 		map_sprite_y = y;
-		map_sprite_cell = static_cast<uint16_t>(y * MAP_WIDTH + x);
 		if (direction == 0 || direction == 255) {
 			map_sprite_frame = static_cast<uint8_t>(direction);
 		} else if (direction >= 9) {
@@ -500,10 +508,50 @@ private:
 		if (map_overview_rebuild_pending)
 			map_marker_saved_color_stale = true;
 
-		for (int row = 0; row < VIEW_ROWS; row++) {
-			for (int col = 0; col < VIEW_COLS; col++) {
-				int cell_x = map_view_x - 5 + col;
-				int cell_y = map_view_y - 4 + row;
+		int view_step_x = static_cast<int>(map_view_x) - map_view_drawn_x;
+		int view_step_y = static_cast<int>(map_view_y) - map_view_drawn_y;
+		int sprite_step_x = static_cast<int>(map_sprite_x) - map_sprite_drawn_x;
+		int sprite_step_y = static_cast<int>(map_sprite_y) - map_sprite_drawn_y;
+		if (map_sprite_frame == SPRITE_HIDDEN || !map_sprite_drawn)
+			sprite_step_x = sprite_step_y = 0;
+		if (!can_animate(view_step_x, view_step_y, sprite_step_x, sprite_step_y))
+			view_step_x = view_step_y = sprite_step_x = sprite_step_y = 0;
+
+		// The composed image holds the cells of both the old and the new view.
+		// The sprite is drawn on top of every animation frame.
+		int origin_x = map_view_x - 5 - std::max(view_step_x, 0);
+		int origin_y = map_view_y - 4 - std::max(view_step_y, 0);
+		draw_map_cells(origin_x, origin_y, VIEW_COLS + std::abs(view_step_x),
+					   VIEW_ROWS + std::abs(view_step_y));
+
+		update_map_overview();
+
+		animate_map_view(origin_x, origin_y, view_step_x, view_step_y,
+						 sprite_step_x, sprite_step_y);
+
+		map_overview_rebuild_pending = false;
+		map_view_drawn_x = map_view_x;
+		map_view_drawn_y = map_view_y;
+		map_sprite_drawn_x = map_sprite_x;
+		map_sprite_drawn_y = map_sprite_y;
+		map_sprite_drawn = map_sprite_frame != SPRITE_HIDDEN;
+		map_view_drawn = true;
+	}
+
+	static bool is_single_step(int step) { return -1 <= step && step <= 1; }
+
+	bool can_animate(int view_step_x, int view_step_y,
+					 int sprite_step_x, int sprite_step_y) {
+		return map_view_drawn && !map_overview_rebuild_pending &&
+			   is_single_step(view_step_x) && is_single_step(view_step_y) &&
+			   is_single_step(sprite_step_x) && is_single_step(sprite_step_y);
+	}
+
+	void draw_map_cells(int cell_x0, int cell_y0, int cols, int rows) {
+		for (int row = 0; row < rows; row++) {
+			for (int col = 0; col < cols; col++) {
+				int cell_x = cell_x0 + col;
+				int cell_y = cell_y0 + row;
 				bool inside = 0 <= cell_x && cell_x < MAP_WIDTH &&
 							  0 <= cell_y && cell_y < MAP_HEIGHT;
 				int offset = cell_y * MAP_WIDTH + cell_x;
@@ -511,15 +559,14 @@ private:
 				uint8_t base = inside ? (map_base[offset] & 0xff) : map_out_of_bounds_tile;
 				uint8_t layer_z = inside ? map_layer_z[offset] : CELL_EMPTY;
 				uint8_t layer_w = inside ? map_layer_w[offset] : CELL_EMPTY;
-				uint8_t sprite = (inside && offset == map_sprite_cell)
-					? map_sprite_frame : SPRITE_HIDDEN;
 
-				int px = VIEW_X + col * TILE_SIZE;
-				int py = VIEW_Y + row * TILE_SIZE;
+				int px = col * TILE_SIZE;
+				int py = row * TILE_SIZE;
 				if (!map_base_visible_view)
 					base = CELL_EMPTY;
 				if (base == CELL_EMPTY) {
-					ags->box_fill(0, px, py, px + TILE_SIZE - 1, py + TILE_SIZE - 1, 0);
+					ags->box_fill(MAP_WORK_SCREEN, px, py,
+								  px + TILE_SIZE - 1, py + TILE_SIZE - 1, 0);
 				} else {
 					draw_map_tile(base, px, py, false);
 				}
@@ -527,17 +574,48 @@ private:
 					draw_map_tile(layer_z, px, py, false);
 				if (layer_w != CELL_EMPTY)
 					draw_map_tile(layer_w, px, py, true);
-				if (sprite != SPRITE_HIDDEN)
-					draw_map_sprite(sprite, px, py);
 			}
 		}
+	}
 
-		update_map_overview();
+	// The pixel position of something that moves `step` cells and arrives at
+	// `to`, at animation frame `frame` of `frames`.
+	static int step_position(int to, int step, int frame, int frames) {
+		return to - step * TILE_SIZE * (frames - frame) / frames;
+	}
 
-		// Movement and animation speed: every map redraw blocks for this long.
-		wait_ticks(map_animation_ticks);
+	// Draws the view window of the composed map and the sprite on top of it,
+	// moving both from where they were drawn last to where they are now.
+	// This is an enhancement; GAKUEN.COM draws the new position at once and
+	// then waits for map_animation_ticks.
+	void animate_map_view(int origin_x, int origin_y,
+						  int view_step_x, int view_step_y,
+						  int sprite_step_x, int sprite_step_y) {
+		int duration = ticks_to_ms(map_animation_ticks);
+		int frames = std::clamp(duration / ANIMATION_FRAME_MS, 2, TILE_SIZE);
+		// Pixel positions on the composed image.
+		int window_x = (map_view_x - 5 - origin_x) * TILE_SIZE;
+		int window_y = (map_view_y - 4 - origin_y) * TILE_SIZE;
+		int sprite_x = (map_sprite_x - origin_x) * TILE_SIZE;
+		int sprite_y = (map_sprite_y - origin_y) * TILE_SIZE;
 
-		map_overview_rebuild_pending = false;
+		uint32_t start = SDL_GetTicks();
+		for (int frame = 1; frame <= frames && !terminate; frame++) {
+			int wx = step_position(window_x, view_step_x, frame, frames);
+			int wy = step_position(window_y, view_step_y, frame, frames);
+			ags->copy_screen(MAP_WORK_SCREEN, 0, wx, wy,
+							 wx + VIEW_COLS * TILE_SIZE - 1,
+							 wy + VIEW_ROWS * TILE_SIZE - 1, VIEW_X, VIEW_Y);
+			if (map_sprite_frame != SPRITE_HIDDEN) {
+				int sx = step_position(sprite_x, sprite_step_x, frame, frames);
+				int sy = step_position(sprite_y, sprite_step_y, frame, frames);
+				draw_map_sprite(map_sprite_frame, VIEW_X + sx - wx, VIEW_Y + sy - wy);
+			}
+			uint32_t deadline = start + duration * frame / frames;
+			uint32_t now = SDL_GetTicks();
+			if (now < deadline)
+				sys_sleep(deadline - now);
+		}
 	}
 
 	CG load_map_sheet(int page) {
@@ -556,22 +634,29 @@ private:
 			return;
 		}
 		int index = tile % TILES_PER_BANK;
-		blit_sheet(map_tile_cg[bank],
+		blit_sheet(MAP_WORK_SCREEN, map_tile_cg[bank],
 				   (index % SHEET_COLS) * TILE_SIZE,
 				   (index / SHEET_COLS) * TILE_SIZE,
 				   TILE_SIZE, TILE_SIZE, px, py, transparent);
 	}
 
+	// Draws a sprite into the view of screen 0, clipped at the view border.
 	void draw_map_sprite(uint8_t frame, int px, int py) {
 		if (frame >= NR_SPRITE_FRAMES || !map_sprite_cg) {
 			WARNING("map sprite frame %d has no loaded CG", frame);
 			return;
 		}
-		blit_sheet(map_sprite_cg, frame * TILE_SIZE, 0,
-				   TILE_SIZE, TILE_SIZE, px, py, true);
+		int left = std::max(px, VIEW_X);
+		int top = std::max(py, VIEW_Y);
+		int right = std::min(px + TILE_SIZE, VIEW_X + VIEW_COLS * TILE_SIZE);
+		int bottom = std::min(py + TILE_SIZE, VIEW_Y + VIEW_ROWS * TILE_SIZE);
+		if (left >= right || top >= bottom)
+			return;
+		blit_sheet(0, map_sprite_cg, frame * TILE_SIZE + (left - px), top - py,
+				   right - left, bottom - top, left, top, true);
 	}
 
-	void blit_sheet(CG& cg, int sheet_x, int sheet_y,
+	void blit_sheet(int dest, CG& cg, int sheet_x, int sheet_y,
 					int width, int height, int dx, int dy, bool transparent) {
 		SDL_Rect src = { sheet_x, sheet_y, width, height };
 		if (src.x + width > cg.width() || src.y + height > cg.height()) {
@@ -581,7 +666,7 @@ private:
 		}
 		SDL_SetColorKey(cg.surface(), transparent ? SDL_TRUE : SDL_FALSE,
 						TRANSPARENT_COLOR);
-		ags->blit_cg(0, cg, &src, dx, dy);
+		ags->blit_cg(dest, cg, &src, dx, dy);
 	}
 
 	// --- overview map -----------------------------------------------------
@@ -675,7 +760,7 @@ private:
 		if (bank >= NR_TILE_BANKS || !map_tile_cg[bank])
 			return;
 		int index = tile % TILES_PER_BANK;
-		blit_sheet(map_tile_cg[bank],
+		blit_sheet(0, map_tile_cg[bank],
 				   (index % SHEET_COLS) * OVERVIEW_CELL,
 				   OVERVIEW_PATTERN_Y + (index / SHEET_COLS) * OVERVIEW_CELL,
 				   OVERVIEW_CELL, OVERVIEW_CELL,
