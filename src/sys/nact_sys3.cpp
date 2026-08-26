@@ -713,7 +713,7 @@ void NACT_Sys3::exec_y(int cmd, int param)
 			}
 			break;
 		case 4:
-			RND = (param == 0 || param == 1) ? 0 : random(param);
+			RND = param == 0 ? 0 : random(param);
 			break;
 		case 5:
 			break;
