@@ -1358,7 +1358,7 @@ private:
 				ags->set_pixel(0, x + col, y + row, (cursor.body[row] & bit) ? 15 : 0);
 			}
 		}
-		ags->draw_screen(x, y, MOUSE_CURSOR_SIZE, MOUSE_CURSOR_SIZE);
+		ags->invalidate_screen(x, y, MOUSE_CURSOR_SIZE, MOUSE_CURSOR_SIZE);
 	}
 
 	// --- A key wait icon --------------------------------------------------

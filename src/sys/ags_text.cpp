@@ -409,7 +409,7 @@ void AGS::draw_text(std::string_view string, bool text_wait)
 		if (!draw_menu && text_wait && code != ' ') {
 			// 画面更新
 			if(screen == 0)
-				draw_screen(ctx.pos.x, dest_y, dest_x - ctx.pos.x, ascent - descent);
+				invalidate_screen(ctx.pos.x, dest_y, dest_x - ctx.pos.x, ascent - descent);
 			ctx.pos.x = dest_x;
 			// Wait
 			g_nact->text_wait();
@@ -418,7 +418,7 @@ void AGS::draw_text(std::string_view string, bool text_wait)
 	if (!draw_menu && !text_wait) {
 		// 画面更新
 		if(screen == 0)
-			draw_screen(ctx.pos.x, dest_y, dest_x - ctx.pos.x, ascent - descent);
+			invalidate_screen(ctx.pos.x, dest_y, dest_x - ctx.pos.x, ascent - descent);
 	}
 	ctx.pos.x = dest_x;
 }

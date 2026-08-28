@@ -156,7 +156,7 @@ void AGS::draw_push(int index)
 	int x = w.ex - 16;
 	int y = w.ey - 16;
 	draw_gaiji(0, x, y, push_bitmap ? push_bitmap : builtin_bitmap, 16, text.font_color);
-	draw_screen(x, y, 16, 16);
+	invalidate_screen(x, y, 16, 16);
 }
 
 void AGS::open_text_window(int index, bool erase)
@@ -197,7 +197,7 @@ void AGS::open_text_window(int index, bool erase)
 		SDL_SetSurfacePalette(hBmpScreen[0], w.window.palette());
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(w.window.surface(), NULL, hBmpScreen[0], &rect);
-		draw_screen(sx, sy, width, height);
+		invalidate_screen(sx, sy, width, height);
 		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 
@@ -233,7 +233,7 @@ void AGS::close_text_window(int index, bool update)
 		SDL_SetSurfacePalette(hBmpScreen[0], w.screen.palette());
 		SDL_Rect rect = {sx, sy, width, height};
 		SDL_BlitSurface(w.screen.surface(), NULL, hBmpScreen[0], &rect);
-		draw_screen(sx, sy, width, height);
+		invalidate_screen(sx, sy, width, height);
 		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 
@@ -280,7 +280,7 @@ void AGS::open_menu_window(int index)
 	SDL_Rect dst_rect = {sx, sy, width, height};
 	SDL_BlitSurface(hBmpScreen[2], &src_rect, hBmpScreen[0], &dst_rect);
 	box_line(0, sx, sy, ex, sy + menu.font_size + 3, menu.frame_color);
-	draw_screen(wsx, wsy, wwidth, wheight);
+	invalidate_screen(wsx, wsy, wwidth, wheight);
 }
 
 void AGS::redraw_menu_window(int index, int selected)
@@ -297,7 +297,7 @@ void AGS::redraw_menu_window(int index, int selected)
 	SDL_Rect dst_rect = {sx, sy, width, height};
 	SDL_BlitSurface(hBmpScreen[2], &src_rect, hBmpScreen[0], &dst_rect);
 	box_line(0, sx, sy + (menu.font_size + 4) * selected, ex, sy + (menu.font_size + 4) * (selected + 1) - 1, menu.frame_color);
-	draw_screen(sx, sy, width, height);
+	invalidate_screen(sx, sy, width, height);
 }
 
 void AGS::close_menu_window(int index)
@@ -308,7 +308,7 @@ void AGS::close_menu_window(int index)
 		SDL_SetSurfacePalette(hBmpScreen[0], w.screen.palette());
 		SDL_Rect rect = {w.screen.x, w.screen.y, w.screen.width(), w.screen.height()};
 		SDL_BlitSurface(w.screen.surface(), NULL, hBmpScreen[0], &rect);
-		draw_screen(w.screen.x, w.screen.y, w.screen.width(), w.screen.height());
+		invalidate_screen(w.screen.x, w.screen.y, w.screen.width(), w.screen.height());
 		SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
 	}
 }
@@ -337,5 +337,5 @@ void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_co
 		SDL_FillRects(hBmpScreen[0], rects, 4, frame_color);
 		box_line(0, sx + 4, sy + 4, ex - 4, ey - 4, frame_color);
 	}
-	draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);
+	invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 }

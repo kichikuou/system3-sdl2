@@ -115,7 +115,7 @@ void AGS::blit_cg(int dest, CG& cg, const SDL_Rect* src, int dx, int dy)
 	SDL_Rect dstrect = { dx, dy, src ? src->w : cg.width(), src ? src->h : cg.height() };
 	SDL_BlitSurface(cg.surface(), src, hBmpScreen[dest], &dstrect);
 	if (dest == 0) {
-		draw_screen(dstrect.x, dstrect.y, dstrect.w, dstrect.h);
+		invalidate_screen(dstrect.x, dstrect.y, dstrect.w, dstrect.h);
 	}
 }
 
@@ -151,7 +151,7 @@ void AGS::copy_screen(int src, int dest, int sx, int sy, int ex, int ey, int dx,
 		SDL_SetColorKey(src_surface, SDL_FALSE, 0);
 
 	if (dest == 0)
-		draw_screen(dx, dy, width, height);
+		invalidate_screen(dx, dy, width, height);
 }
 
 void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
@@ -169,7 +169,7 @@ void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 	SDL_BlitSurface(hBmpScreen[src], &srcrect, hBmpScreen[dest], &destrect);
 
 	if(dest == 0) {
-		draw_screen(dx, dy, glx * 8, gly);
+		invalidate_screen(dx, dy, glx * 8, gly);
 	}
 }
 
@@ -213,7 +213,7 @@ void AGS::paint(int x, int y, uint8 color)
 		miny = std::min(y, miny);
 		maxy = std::max(y, maxy);
 	}
-	draw_screen(minx, miny, maxx - minx + 1, maxy - miny + 1);
+	invalidate_screen(minx, miny, maxx - minx + 1, maxy - miny + 1);
 }
 
 void AGS::draw_box(int index)
@@ -243,7 +243,7 @@ void AGS::draw_mesh(int sx, int sy, int width, int height)
 			vram[0][y + 1][x] = 255;
 		}
 	}
-	draw_screen(sx, sy, width, height);
+	invalidate_screen(sx, sy, width, height);
 }
 
 void AGS::box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color)
@@ -251,7 +251,7 @@ void AGS::box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color)
 	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
 	SDL_FillRect(hBmpScreen[dest], &rect, color);
 	if(dest == 0) {
-		draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);
+		invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}
 }
 
@@ -267,7 +267,7 @@ void AGS::box_line(int dest, int sx, int sy, int ex, int ey, uint8 color)
 	SDL_FillRect(hBmpScreen[dest], &left, color);
 	SDL_FillRect(hBmpScreen[dest], &right, color);
 	if(dest == 0) {
-		draw_screen(sx, sy, ex - sx + 1, ey - sy + 1);
+		invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}
 }
 

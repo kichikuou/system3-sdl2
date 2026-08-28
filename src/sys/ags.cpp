@@ -402,7 +402,7 @@ void AGS::fade_in(int duration_ms)
 	update_screen();
 }
 
-void AGS::draw_screen(int sx, int sy, int width, int height)
+void AGS::invalidate_screen(int sx, int sy, int width, int height)
 {
 	SDL_Rect rect = {sx, sy, width, height};
 	SDL_Rect screen_rect = {0, 0, screen_width, screen_height};

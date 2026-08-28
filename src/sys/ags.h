@@ -120,8 +120,7 @@ public:
 	std::vector<uint32_t> get_screen_palette() const;
 	uint8 get_pixel(int dest, int x, int y) const { return vram[dest][y][x]; }
 	void set_pixel(int dest, int x, int y, uint8 color) { vram[dest][y][x] = color; }
-	// Marks a rectangle of the display screen for the next update_screen().
-	void draw_screen(int sx, int sy, int width, int height);
+	void invalidate_screen(int sx, int sy, int width, int height);
 
 	void fade_out(int duration_ms, bool white);
 	void fade_in(int duration_ms);
