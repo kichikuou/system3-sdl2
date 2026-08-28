@@ -144,6 +144,7 @@ public:
 	void clear_text_window(int index, bool erase);
 	bool return_text_line(int index);
 	void draw_push(int index);
+	void set_push_bitmap(const uint8_t* bitmap) { push_bitmap = bitmap; }
 	void open_text_window(int index, bool erase);
 	void close_text_window(int index, bool update);
 	void set_text_window(int index, int sx, int sy, int ex, int ey, bool save) {
@@ -262,6 +263,7 @@ private:
 
 	Dri acg;
 	const char* bmp_prefix = NULL;
+	const uint8_t* push_bitmap = nullptr;
 };
 
 extern "C" void ags_setAntialiasedStringMode(int on);

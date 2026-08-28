@@ -145,7 +145,7 @@ bool AGS::return_text_line(int index)
 
 void AGS::draw_push(int index)
 {
-	const uint8_t push_bitmap[32] = {
+	static const uint8_t builtin_bitmap[32] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe0, 0x00,
 		0x90, 0x00, 0x99, 0x74, 0xe9, 0x44, 0x89, 0x77,
@@ -155,7 +155,7 @@ void AGS::draw_push(int index)
 	Window& w = text_w[index - 1];
 	int x = w.ex - 16;
 	int y = w.ey - 16;
-	draw_gaiji(0, x, y, push_bitmap, 16, text.font_color);
+	draw_gaiji(0, x, y, push_bitmap ? push_bitmap : builtin_bitmap, 16, text.font_color);
 	draw_screen(x, y, 16, 16);
 }
 

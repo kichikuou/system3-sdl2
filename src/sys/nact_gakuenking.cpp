@@ -55,6 +55,7 @@ public:
 
 private:
 	void cmd_a() override {
+		set_push_bitmap();
 		NACT::cmd_a();
 		map_overview_rebuild_pending = true;
 	}
@@ -93,7 +94,7 @@ private:
 			exec_y(14, param);
 			break;
 		case 25:
-			fixed_cursor_shape = (param == 1);
+			fixed_shapes = (param == 1);
 			if (0 <= param && param <= 4) {
 				ags->menu.back_color = ags->text.back_color =
 					(param == 1 || param == 2) ? 0 : 1;
@@ -214,6 +215,7 @@ private:
 		}
 		load_digit_font(exe);
 		load_mouse_cursors(exe);
+		load_push_bitmaps(exe);
 		load_credit_text(exe);
 	}
 
@@ -1327,7 +1329,7 @@ private:
 	};
 	MouseCursor mouse_cursor[NR_MOUSE_CURSORS] = {};
 
-	bool fixed_cursor_shape = false;  // set by Y 25,1
+	bool fixed_shapes = false;  // set by Y 25,1
 
 	void load_mouse_cursors(const std::vector<uint8_t>& exe) {
 		const uint8_t* p = &exe[MOUSE_CURSOR_OFFSET];
@@ -1340,7 +1342,7 @@ private:
 	}
 
 	int pick_cursor_shape() {
-		if (fixed_cursor_shape)
+		if (fixed_shapes)
 			return 5;
 		int r = random(100);
 		return r < 5 ? r : 1;
@@ -1357,6 +1359,23 @@ private:
 			}
 		}
 		ags->draw_screen(x, y, MOUSE_CURSOR_SIZE, MOUSE_CURSOR_SIZE);
+	}
+
+	// --- A key wait icon --------------------------------------------------
+
+	static constexpr int PUSH_BITMAP_OFFSET = 0x08aa;
+	static constexpr int NR_PUSH_BITMAPS = 4;
+
+	uint8_t push_bitmap[NR_PUSH_BITMAPS][32] = {};
+
+	void load_push_bitmaps(const std::vector<uint8_t>& exe) {
+		memcpy(push_bitmap, &exe[PUSH_BITMAP_OFFSET], sizeof(push_bitmap));
+	}
+
+	void set_push_bitmap() {
+		int r = random(100);
+		r = r < NR_PUSH_BITMAPS ? r : 0;
+		ags->set_push_bitmap(fixed_shapes ? nullptr : push_bitmap[r]);
 	}
 
 	// --- I grid selection -------------------------------------------------
