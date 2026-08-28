@@ -63,13 +63,13 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 	const char* name = NULL;
 
 	switch (game_id.game) {
-		case GameId::BUNKASAI:		// あぶない文化祭前夜
+		case GameId::BUNKASAI:
 			name = "AMUS_AB.MDA";
 			break;
-		case GameId::CRESCENT:		// クレセントムーンがぁる
+		case GameId::CRESCENT:
 			name = "AMUS_CRS.MDA";
 			break;
-		case GameId::DPS:			// D.P.S. - Dream Program System
+		case GameId::DPS:
 			name = "AMUS_DPS.MDA";
 			break;
 		case GameId::DPS_SG_FAHREN:
@@ -83,95 +83,101 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 		case GameId::DPS_SG3_SOTSUGYOU:
 			name = "AMUS_SG.MDA";
 			break;
-		case GameId::FUKEI:		// 婦警さんＶＸ
+		case GameId::FUKEI:
 			name = "AMUS_VX.MDA";
 			break;
-		case GameId::INTRUDER:		// Intruder -桜屋敷の探索-
-			name = "AMUS_INT";
+		case GameId::INTRUDER:
+			name = "AMUS_INT.MDA";
 			break;
-		case GameId::TENGU:		// あぶないてんぐ伝説
-			name = "AMUS_AT";
+		case GameId::TENGU:
+			name = "AMUS_AT.MDA";
 			break;
-		case GameId::TOUSHIN_HINT:	// 闘神都市 ヒントディスク
-			name = "AMUS_T1";
+		case GameId::TOUSHIN_HINT:
+			name = "AMUS_T1.MDA";
 			break;
-		case GameId::LITTLE_VAMPIRE:		// Little Vampire
-			name = "AMUS_LP2";
+		case GameId::LITTLE_VAMPIRE:
+			name = "AMUS_LP2.MDA";
 			break;
-		case GameId::YAKATA:		// ALICEの館
-			name = "AMUS_AL1";
-			break;
-
-		case GameId::AYUMI_FD:		// あゆみちゃん物語 (FD)
-		case GameId::AYUMI_HINT:		// あゆみちゃん物語 ヒントディスク
-		case GameId::AYUMI_PROTO:		// あゆみちゃん物語 PROTO
-			name = "AMUS_AYM";
-			break;
-		case GameId::DALK_HINT:		// DALK ヒントディスク
-			name = "AMUS_DLK";
-			break;
-		case GameId::DRSTOP:		// Dr. STOP!
-			name = "AMUS_DRS";
-			break;
-		case GameId::PROG_FD:	// Prostudent -G- (FD)
-			name = "AMUS_PSG";
-			break;
-		case GameId::RANCE3_HINT:		// Rance3 ヒントディスク
-			name = "AMUS_R3H";
-			break;
-		case GameId::SDPS_MARIA:		// Super D.P.S
-		case GameId::SDPS_TONO:
-		case GameId::SDPS_KAIZOKU:
-			name = "AMUS_SDP";
-			break;
-		case GameId::YAKATA2:		// ALICEの館II
-			name = "AMUS_AL2";
+		case GameId::YAKATA:
+			name = "AMUS_AL1.MDA";
 			break;
 
-		case GameId::AMBIVALENZ_FD:	// AmbivalenZ (FD)
-		case GameId::AMBIVALENZ_CD:	// AmbivalenZ (CD)
-			name = "AMUS_AMB.MDA";
-			break;
-		case GameId::DPS_ALL:		// DPS全部
-			name = "AMUS_ALL.MDA";
-			break;
-		case GameId::FUNNYBEE_CD:		// Funny Bee (CD)
-		case GameId::FUNNYBEE_FD:		// Funny Bee (FD)
-			name = "AMUS_BEE.MDA";
-			break;
-		case GameId::ONLYYOU:		// Only You
-		case GameId::ONLYYOU_DEMO:	// Only You (DEMO)
-			name = "AMUS_OY.MDA";
-			break;
-		case GameId::PROG_CD:	// Prostudent -G- (CD)
-			name = "AMUS_PSG.MDA";
-			break;
-		case GameId::RANCE41:		// Rance 4.1
-			name = "AMUS_R41.MDA";
-			break;
-		case GameId::RANCE42:		// Rance 4.2
-			name = "AMUS_R42.MDA";
-			break;
-		case GameId::AYUMI_CD:		// あゆみちゃん物語 (CD)
-		case GameId::AYUMI_LIVE_256:	// あゆみちゃん物語 実写版
-		case GameId::AYUMI_LIVE_FULL:	// あゆみちゃん物語 フルカラー実写版
+		case GameId::AYUMI_FD:
+		case GameId::AYUMI_HINT:
+		case GameId::AYUMI_PROTO:
 			name = "AMUS_AYM.MDA";
 			break;
-		case GameId::YAKATA3_CD:		// アリスの館３ (CD)
-		case GameId::YAKATA3_FD:		// アリスの館３ (FD)
+		case GameId::DALK_HINT:
+			name = "AMUS_DLK.MDA";
+			break;
+		case GameId::DRSTOP:
+			name = "AMUS_DRS.MDA";
+			break;
+		case GameId::PROG_FD:
+			name = "AMUS_PSG.MDA";
+			break;
+		case GameId::RANCE3_HINT:
+			name = "AMUS_R3H.MDA";
+			break;
+		case GameId::SDPS_MARIA:
+		case GameId::SDPS_TONO:
+		case GameId::SDPS_KAIZOKU:
+			name = "AMUS_SDP.MDA";
+			break;
+		case GameId::YAKATA2:
+			name = "AMUS_AL2.MDA";
+			break;
+
+		case GameId::AMBIVALENZ_FD:
+		case GameId::AMBIVALENZ_CD:
+			name = "AMUS_AMB.MDA";
+			break;
+		case GameId::DPS_ALL:
+			name = "AMUS_ALL.MDA";
+			break;
+		case GameId::FUNNYBEE_CD:
+		case GameId::FUNNYBEE_FD:
+			name = "AMUS_BEE.MDA";
+			break;
+		case GameId::ONLYYOU:
+		case GameId::ONLYYOU_DEMO:
+			name = "AMUS_OY.MDA";
+			break;
+		case GameId::PROG_CD:
+			name = "AMUS_PSG.MDA";
+			break;
+		case GameId::RANCE4:
+			name = "AMUS_R4.MDA";
+			break;
+		case GameId::RANCE41:
+			name = "AMUS_R41.MDA";
+			break;
+		case GameId::RANCE42:
+			name = "AMUS_R42.MDA";
+			break;
+		case GameId::AYUMI_CD:
+		case GameId::AYUMI_LIVE_256:
+		case GameId::AYUMI_LIVE_FULL:
+			name = "AMUS_AYM.MDA";
+			break;
+		case GameId::YAKATA3_CD:
+		case GameId::YAKATA3_FD:
 			name = "AMUS_AL3.MDA";
 			break;
-		case GameId::HASHIRIONNA2:	// 走り女２ (Rance 4.x ヒントディスク)
+		case GameId::HASHIRIONNA2:
 			name = "AMUS_RG2.MDA";
 			break;
-		case GameId::TOUSHIN2_GD:		// 闘神都市２ グラフィックディスク
-			name = "AMUS_T2";
+		case GameId::TOUSHIN2_GD:
+			name = "AMUS_T2.MDA";
 			break;
-		case GameId::OTOME:		// 乙女戦記
+		case GameId::OTOME:
 			name = "AMUS_OTM.MDA";
 			break;
-		case GameId::MUGEN:		// 夢幻泡影
+		case GameId::MUGEN:
 			name = "AMUS_MGN.MDA";
+			break;
+		case GameId::GAKUEN_KING:
+			name = "AMUS_KNG.MDA";
 			break;
 	}
 
@@ -211,41 +217,41 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 	if(disk_index == 2) {
 		SDL_RWclose(rw);
 		switch (game_id.game) {
-			case GameId::DPS_SG_FAHREN:	// D.P.S. SG - Fahren Fliegen
-				name = "BMUS_FAH";
+			case GameId::DPS_SG_FAHREN:
+				name = "BMUS_FAH.MDA";
 				break;
-			case GameId::DPS_SG_KATEI:	// D.P.S. SG - 家庭教師はステキなお仕事
-				name = "BMUS_KAT";
+			case GameId::DPS_SG_KATEI:
+				name = "BMUS_KAT.MDA";
 				break;
-			case GameId::DPS_SG_NOBUNAGA:	// D.P.S. SG - 信長の淫謀
-				name = "BMUS_NOB";
+			case GameId::DPS_SG_NOBUNAGA:
+				name = "BMUS_NOB.MDA";
 				break;
-			case GameId::DPS_SG2_ANTIQUE:	// D.P.S. SG set2 - ANTIQUE HOUSE
-				name = "BMUS_ANT";
+			case GameId::DPS_SG2_ANTIQUE:
+				name = "BMUS_ANT.MDA";
 				break;
-			case GameId::DPS_SG2_IKENAI:	// D.P.S. SG set2 - いけない内科検診再び
-				name = "BMUS_NAI";
+			case GameId::DPS_SG2_IKENAI:
+				name = "BMUS_NAI.MDA";
 				break;
-			case GameId::DPS_SG2_AKAI:	// D.P.S. SG set2 - 朱い夜
-				name = "BMUS_AKA";
+			case GameId::DPS_SG2_AKAI:
+				name = "BMUS_AKA.MDA";
 				break;
-			case GameId::DPS_SG3_RABBIT:	// D.P.S. SG set3 - Rabbit P4P
-				name = "BMUS_RAB";
+			case GameId::DPS_SG3_RABBIT:
+				name = "BMUS_RAB.MDA";
 				break;
-			case GameId::DPS_SG3_SHINKON:	// D.P.S. SG set3 - しんこんさんものがたり
-				name = "BMUS_SIN";
+			case GameId::DPS_SG3_SHINKON:
+				name = "BMUS_SIN.MDA";
 				break;
-			case GameId::DPS_SG3_SOTSUGYOU:	// D.P.S. SG set3 - 卒業
-				name = "BMUS_SOT";
+			case GameId::DPS_SG3_SOTSUGYOU:
+				name = "BMUS_SOT.MDA";
 				break;
-			case GameId::SDPS_MARIA:		// Super D.P.S - マリアとカンパン
-				name = "BMUS_MTK";
+			case GameId::SDPS_MARIA:
+				name = "BMUS_MTK.MDA";
 				break;
-			case GameId::SDPS_TONO:		// Super D.P.S - 遠野の森
-				name = "BMUS_TNM";
+			case GameId::SDPS_TONO:
+				name = "BMUS_TNM.MDA";
 				break;
-			case GameId::SDPS_KAIZOKU:	// Super D.P.S - うれしたのし海賊稼業
-				name = "BMUS_KAM";
+			case GameId::SDPS_KAIZOKU:
+				name = "BMUS_KAM.MDA";
 				break;
 			default:
 				name = NULL;
@@ -260,8 +266,8 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 	} else if(disk_index == 3) {
 		SDL_RWclose(rw);
 		switch (game_id.game) {
-			case GameId::TOUSHIN_HINT:	// 闘神都市 ヒントディスク
-				name = "CMUS_T1";
+			case GameId::TOUSHIN_HINT:
+				name = "CMUS_T1.MDA";
 				break;
 			default:
 				name = NULL;
