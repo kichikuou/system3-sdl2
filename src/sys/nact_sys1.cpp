@@ -179,7 +179,7 @@ void NACT_Sys1::cmd_open_verb()
 	bool chk[MAX_VERB] = {};
 	int page = 0;
 
-	if (game_id.is(GameId::GAKUEN))
+	if (game_id.is(GameId::GAKUEN_SENKI))
 		menu_window = 1;
 	int menu_max = ags->calculate_menu_max(menu_window);
 
@@ -1052,7 +1052,7 @@ NACT* NACT::create_system1(const Config& config, const GameId& game_id)
 	switch (game_id.game) {
 	case GameId::LITTLE_VAMPIRE:
 		return new NACT_LittleVampire(config, game_id);
-	case GameId::GAKUEN:
+	case GameId::GAKUEN_SENKI:
 		return new NACT_GakuenSenki(config, game_id);
 	case GameId::INTRUDER:
 		return new NACT_Intruder(config, game_id);

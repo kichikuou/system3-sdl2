@@ -47,7 +47,7 @@ CG AGS::load_cg_surface(int page, int transparent)
 	case 1:
 		switch (game_id.game) {
 		case GameId::BUNKASAI:
-		case GameId::GAKUEN:
+		case GameId::GAKUEN_SENKI:
 			cg = load_vsp(data, set_palette, transparent);
 			break;
 		case GameId::INTRUDER:

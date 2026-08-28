@@ -33,8 +33,8 @@
 #define CRC32_VAMPIRE		0x957bcfbf	// Little Vampire
 #define CRC32_VAMPIRE_ENG		0x61985a7f	// Little Vampire (English) Patch 2.0
 #define CRC32_YAKATA		0x8cef6fa6	// ALICEの館
-#define CRC32_GAKUEN		0xe4d6ec66  // 学園戦記 (unofficial system1 port) 1.0JP
-#define CRC32_GAKUEN_ENG	0x6ba8c102  // Gakuen Senki (English) 1.2
+#define CRC32_GAKUEN_SENKI	0xe4d6ec66  // 学園戦記 (unofficial system1 port) 1.0JP
+#define CRC32_GAKUEN_SENKI_ENG	0x6ba8c102  // Gakuen Senki (English) 1.2
 
 // SYSTEM2
 
@@ -120,8 +120,8 @@ const struct CRCTable {
 	{GameId::LITTLE_VAMPIRE, "little_vampire", 1, "Little Vampire", JAPANESE, CRC32_VAMPIRE},
 	{GameId::LITTLE_VAMPIRE, "little_vampire_eng", 1, "Little Vampire", ENGLISH, CRC32_VAMPIRE_ENG},
 	{GameId::YAKATA, "yakata", 1, "ALICEの館", JAPANESE, CRC32_YAKATA},
-	{GameId::GAKUEN, "gakuen", 1, "学園戦記", JAPANESE, CRC32_GAKUEN},
-	{GameId::GAKUEN, "gakuen_eng", 1, "Gakuen Senki", ENGLISH, CRC32_GAKUEN_ENG},
+	{GameId::GAKUEN_SENKI, "gakuen", 1, "学園戦記", JAPANESE, CRC32_GAKUEN_SENKI},
+	{GameId::GAKUEN_SENKI, "gakuen_eng", 1, "Gakuen Senki", ENGLISH, CRC32_GAKUEN_SENKI_ENG},
 
 	{GameId::SYSTEM2_GENERIC, "system2_generic", 2, "System 2", JAPANESE},
 	{GameId::AYUMI_FD, "ayumi_fd", 2, "あゆみちゃん物語", JAPANESE, CRC32_AYUMI_FD},

@@ -38,7 +38,7 @@ struct GameId {
 		TOUSHIN_HINT,
 		LITTLE_VAMPIRE,
 		YAKATA,
-		GAKUEN,
+		GAKUEN_SENKI,
 
 		// System 2
 		SYSTEM2_GENERIC,

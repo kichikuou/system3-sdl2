@@ -56,11 +56,11 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 			uint8_t g = (data[p++] & 0xf) * 0x11;
 			colors[i] = {r, g, b, 255};
 			// In Gakuen Senki, zero entries should not be set to the palette.
-			if (game_id.is(GameId::GAKUEN) && (b | r | g) != 0) {
+			if (game_id.is(GameId::GAKUEN_SENKI) && (b | r | g) != 0) {
 				SDL_SetPaletteColors(program_palette, colors + i, base + i, 1);
 			}
 		}
-		if (!game_id.is(GameId::GAKUEN)) {
+		if (!game_id.is(GameId::GAKUEN_SENKI)) {
 			SDL_SetPaletteColors(program_palette, colors, base, 16);
 		}
 	}
@@ -72,7 +72,7 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 
 	// VSP展開
 	// Gakuen Senki uses exact sx values rather than 8x.
-	CG cg(game_id.is(GameId::GAKUEN) ? sx : sx * 8, sy, width * 8, height);
+	CG cg(game_id.is(GameId::GAKUEN_SENKI) ? sx : sx * 8, sy, width * 8, height);
 	if (transparent >= 0) {
 		SDL_SetColorKey(cg.surface(), SDL_TRUE, transparent | base);
 	}
@@ -155,7 +155,7 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 		}
 	}
 
-	if (game_id.is(GameId::GAKUEN)) {
+	if (game_id.is(GameId::GAKUEN_SENKI)) {
 		// Gakuen Senki's images were converted to VSP for the modern port, but don't always adhere to VSP's width restrictions, which demand
 		// every image width be a factor of 8. Thankfully, the exceptions are designed to fit into specific parts of the GUI, and so have
 		// consistent widths for each output position.

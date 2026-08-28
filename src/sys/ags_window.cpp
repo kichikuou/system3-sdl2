@@ -87,7 +87,7 @@ void AGS::init_windows()
 			text_w[i].reset(104, 304, 620, 382, false, false);
 			menu_w[i].reset(420, 28, 620, 244, true, true);
 			break;
-		case GameId::GAKUEN:
+		case GameId::GAKUEN_SENKI:
 			text_w[i].reset(8, 260, 505, 384, false, false);
 			if (i == 1) {
 				menu_w[i].reset(128, 32, 337, 178, true, true);

@@ -40,7 +40,7 @@ SDL_Texture* create_scanline_texture(SDL_Renderer* renderer, int width, int heig
 AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 {
 	// 画面サイズ
-	if (game_id.is(GameId::GAKUEN)) {
+	if (game_id.is(GameId::GAKUEN_SENKI)) {
 		window_width = 582;
 		screen_width = 512;
 		window_height = screen_height = 424;
@@ -481,7 +481,7 @@ bool AGS::save_screenshot(const char* path)
 int AGS::calculate_menu_max(int window) {
 	if (game_id.is(GameId::INTRUDER))
 		return 6;
-	if (game_id.is(GameId::GAKUEN))
+	if (game_id.is(GameId::GAKUEN_SENKI))
 		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (menu.font_size + 4);
 	return 11;
 }
