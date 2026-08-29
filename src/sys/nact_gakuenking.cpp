@@ -818,7 +818,7 @@ private:
 	uint8_t key_saved_facing = 0;
 	// Last direction key seen by K, used as the result of K 2.
 	uint8_t key_facing = 1;
-	bool key_menu_from_panel = false;
+	bool key_menu_from_click = false;
 	bool key_from_mouse = false;
 	std::vector<uint16_t> path;
 
@@ -898,11 +898,12 @@ private:
 					   VIEW_Y <= y && y < VIEW_Y + VIEW_ROWS * TILE_SIZE;
 		if (in_key_panel(x, y)) {
 			D01 = 0x20;
-			key_menu_from_panel = true;
+			key_menu_from_click = true;
 		} else if (!in_view) {
 			D01 = left ? 0x10 : 0x40;
 		} else if (!left) {
 			D01 = 0x20;
+			key_menu_from_click = true;
 		} else if (build_path(map_view_x - VIEW_COLS / 2 + (x - VIEW_X) / TILE_SIZE,
 							  map_view_y - VIEW_ROWS / 2 + (y - VIEW_Y) / TILE_SIZE)) {
 			take_step(next_path_step());
@@ -911,9 +912,10 @@ private:
 			int dx = x - (VIEW_X + VIEW_COLS * TILE_SIZE / 2);
 			int dy = y - (VIEW_Y + VIEW_ROWS * TILE_SIZE / 2);
 			if (std::abs(dx) > std::abs(dy))
-				D01 = dx < 0 ? 4 : 8;
+				take_step(dx < 0 ? 4 : 8);
 			else
-				D01 = dy < 0 ? 1 : 2;
+				take_step(dy < 0 ? 1 : 2);
+			key_from_mouse = true;
 		}
 	}
 
@@ -926,8 +928,8 @@ private:
 	// left button or Enter confirms it.
 	void run_direction_menu() {
 		int saved_x = -1, saved_y = -1;
-		if (key_menu_from_panel) {
-			key_menu_from_panel = false;
+		if (key_menu_from_click) {
+			key_menu_from_click = false;
 			get_cursor(&saved_x, &saved_y);
 			set_cursor(KEY_PANEL_X + KEY_PANEL_SIZE / 2, KEY_PANEL_Y + KEY_PANEL_SIZE / 2);
 		}
