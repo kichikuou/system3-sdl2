@@ -30,7 +30,7 @@ Game Compatibility
 | `fukei` | 婦警さんＶＸ | |
 | `funnybee_cd` | 宇宙快盗ファニーBee (CD) | |
 | `funnybee_fd` | 宇宙快盗ファニーBee (FD) | |
-| `gakuen_king` | 学園KING -日出彦 学校をつくる- | Unsupported[^1] |
+| `gakuen_king` | 学園KING -日出彦 学校をつくる- | |
 | `hashirionna2` | 走り女2 | |
 | `intruder` | Intruder -桜屋敷の探索- | |
 | `little_vampire` | Little Vampire | |
