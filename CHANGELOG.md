@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.0 - 2026-08-29
+- Gakuen King (PC-9801 / FM-TOWNS edition) is now playable.
+- Playlist audio files are now decoded by the built-in decoders, so SDL2_mixer
+  is no longer required. MP3, OGG and WAV files are supported.
+- Added `-fullscreen` option.
+- Updated the game detection for the latest Rance 4.x English translations. (#38)
+- LEFT/UP/DOWN arrow keys no longer skip messages.
+- Fixed a bug where the built-in MIDI auxiliary data was not found in many games.
+
 ## 1.7.2 - 2026-02-10
 - Fall back to FM/MIDI sound if no playlist is specified.
 - Fixed color palette issue in Gakuen Senki.
