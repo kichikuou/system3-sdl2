@@ -31,7 +31,7 @@ void mosaic(SDL_Surface* sf) {
 
 }  // namespace
 
-CG AGS::load_cg_surface(int page, int transparent)
+CG AGS::load_cg_surface(int page, int transparent, uint8_t flags)
 {
 	if (bmp_prefix) {
 		WARNING("not implemented");
@@ -41,42 +41,42 @@ CG AGS::load_cg_surface(int page, int transparent)
 	if (data.empty())
 		return CG();
 
-	bool set_palette = extract_palette && !ignore_palette.count(page);
+	bool set_palette = (flags & CG_EXTRACT_PALETTE) && !ignore_palette.count(page);
 	CG cg;
 	switch (game_id.sys_ver) {
 	case 1:
 		switch (game_id.game) {
 		case GameId::BUNKASAI:
 		case GameId::GAKUEN_SENKI:
-			cg = load_vsp(data, set_palette, transparent);
+			cg = load_vsp(data, set_palette, transparent, flags);
 			break;
 		case GameId::INTRUDER:
-			// cg = load_gm3(data, transparent);
-			cg = load_vsp(data, set_palette, transparent);  // 暫定
+			// cg = load_gm3(data, transparent, flags);
+			cg = load_vsp(data, set_palette, transparent, flags);  // 暫定
 			break;
 		case GameId::LITTLE_VAMPIRE:
-			cg = load_vsp2l(data, transparent);
+			cg = load_vsp2l(data, transparent, flags);
 			break;
 		default:
-			cg = load_gl3(data, set_palette, transparent);
+			cg = load_gl3(data, set_palette, transparent, flags);
 			break;
 		}
 		break;
 	case 2:
 		if (game_id.is(GameId::AYUMI_PROTO)) {
 			// あゆみちゃん物語 PROTO
-			cg = load_gl3(data, set_palette, transparent);
+			cg = load_gl3(data, set_palette, transparent, flags);
 		} else if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT)) {
 			// あゆみちゃん物語
-			cg = load_vsp(data, set_palette, transparent);
+			cg = load_vsp(data, set_palette, transparent, flags);
 		} else if (game_id.is_sdps()) {
 			// Super D.P.S
-			cg = load_pms(page, data, set_palette, transparent);
+			cg = load_pms(page, data, set_palette, transparent, flags);
 		} else {
 			if(data[0x8] == 0) {
-				cg = load_vsp(data, set_palette, transparent);
+				cg = load_vsp(data, set_palette, transparent, flags);
 			} else {
-				cg = load_pms(page, data, set_palette, transparent);
+				cg = load_pms(page, data, set_palette, transparent, flags);
 			}
 		}
 		break;
@@ -84,10 +84,10 @@ CG AGS::load_cg_surface(int page, int transparent)
 		if(data[0x8] == 0) {
 			if (game_id.is(GameId::FUNNYBEE_FD) || game_id.is(GameId::FUNNYBEE_CD))
 				set_palette = !ignore_palette.count(page);
-			cg = load_vsp(data, set_palette, transparent);
+			cg = load_vsp(data, set_palette, transparent, flags);
 		} else {
 			set_palette = set_palette || game_id.is(GameId::FUNNYBEE_CD);
-			cg = load_pms(page, data, set_palette, transparent);
+			cg = load_pms(page, data, set_palette, transparent, flags);
 		}
 		break;
 	}
@@ -119,9 +119,9 @@ void AGS::blit_cg(int dest, CG& cg, const SDL_Rect* src, int dx, int dy)
 	}
 }
 
-void AGS::load_cg(int page, int transparent)
+void AGS::load_cg(int page, int transparent, uint8_t flags)
 {
-	CG cg = load_cg_surface(page, transparent);
+	CG cg = load_cg_surface(page, transparent, flags);
 	if (!cg)
 		return;
 
@@ -132,7 +132,7 @@ void AGS::load_cg(int page, int transparent)
 		cg_dest = std::nullopt;
 	}
 
-	if (extract_cg)
+	if (flags & CG_EXTRACT_CG)
 		blit_cg(dest_screen, cg, NULL, cg.x, cg.y);
 }
 

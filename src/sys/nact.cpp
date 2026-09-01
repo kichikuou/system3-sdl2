@@ -33,7 +33,8 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	  game_id(game_id),
 	  encoding(Encoding::create(game_id.encoding)),
 	  strings(config.get_strings(encoding.get(), game_id.language == ENGLISH)),
-	  seed(SDL_GetTicks())
+	  seed(SDL_GetTicks()),
+	  cg_flags(CG_GET_PALETTE | CG_EXTRACT_PALETTE | CG_EXTRACT_CG)
 {
 	platform_initialize();
 

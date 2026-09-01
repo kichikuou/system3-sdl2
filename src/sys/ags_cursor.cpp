@@ -10,7 +10,7 @@
 extern SDL_Window* g_window;
 extern SDL_Renderer* g_renderer;
 
-void AGS::load_cursor(int page)
+void AGS::load_cursor(int page, uint8_t flags)
 {
 	// カーソルCGをロードする
 	auto j_backup = cg_dest;
@@ -19,7 +19,7 @@ void AGS::load_cursor(int page)
 	cg_dest = {0, 0};
 	dest_screen = 1;
 
-	load_cg(page, -1);
+	load_cg(page, -1, flags);
 
 	cg_dest = j_backup;
 	dest_screen = dest;

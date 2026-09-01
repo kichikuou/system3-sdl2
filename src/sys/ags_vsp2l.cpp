@@ -7,7 +7,7 @@
 #include "ags.h"
 #include <string.h>
 
-CG AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent)
+CG AGS::load_vsp2l(const std::vector<uint8_t>& data, int transparent, uint8_t flags)
 {
 	// ヘッダ取得
 	int sx = data[0] | (data[1] << 8);

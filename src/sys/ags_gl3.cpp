@@ -7,7 +7,7 @@
 #include "ags.h"
 #include <string.h>
 
-CG AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent)
+CG AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent, uint8_t flags)
 {
 	// ヘッダ取得
 	uint16 tmp = (data[0x30] | (data[0x31] << 8)) - 0x8000;
@@ -23,7 +23,7 @@ CG AGS::load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	}
 
 	// パレット取得
-	if(get_palette) {
+	if (flags & CG_GET_PALETTE) {
 		SDL_Color colors[16];
 		for(int i = 0; i < 16; i++) {
 			uint8_t b = (data[i * 3 + 0] & 0xf) * 0x11;

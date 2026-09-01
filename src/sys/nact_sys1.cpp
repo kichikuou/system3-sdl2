@@ -339,7 +339,7 @@ void NACT_Sys1::cmd_g()
 
 	TRACE("G %d:", page);
 
-	ags->load_cg(page, -1);
+	load_cg(page, -1);
 }
 
 void NACT_Sys1::cmd_l()
@@ -392,7 +392,7 @@ void NACT_Sys1::cmd_u()
 
 	TRACE("U %d,%d:", page, transparent);
 
-	ags->load_cg(page, transparent);
+	load_cg(page, transparent);
 }
 
 void NACT_Sys1::cmd_y()
@@ -543,9 +543,9 @@ public:
 
 	void opening() override {
 		mako->play_music(4);
-		ags->load_cg(3, -1);
+		load_cg(3, -1);
 		WAIT(2000);
-		ags->load_cg(38, -1);
+		load_cg(38, -1);
 		cmd_a();
 		draw_box(0);
 	}
@@ -559,12 +559,12 @@ public:
 
 	void opening() override {
 		mako->set_cd_track(1, 1);
-		ags->load_cg(302, -1);
+		load_cg(302, -1);
 		WAIT(3000);
-		ags->load_cg(303, -1);
+		load_cg(303, -1);
 		WAIT(3000);
 		mako->play_music(1);
-		ags->load_cg(304, -1);
+		load_cg(304, -1);
 		WAIT(4000);
 	}
 
@@ -575,7 +575,7 @@ public:
 		page = (page == 3) ? 94 : page;
 
 		if (enable_graphics)
-			ags->load_cg(page, -1);
+			load_cg(page, -1);
 	}
 
 	void cmd_y() override {
@@ -629,7 +629,7 @@ public:
 
 		if (param != 30 && (param < 34 || param > 46)) {
 			if (enable_graphics) {
-				ags->load_cg(param + 250, -1);
+				load_cg(param + 250, -1);
 			}
 		}
 
@@ -642,13 +642,13 @@ public:
 			// Originally this would have loaded Image 296, the party status bar, to screen 1 for future reference. However, due to trouble with
 			// the palette, I decided to load it before using each subcommand, instead.
 			/*ags->dest_screen = 1;
-			  ags->load_cg(296, -1);
+			  load_cg(296, -1);
 			  ags->dest_screen = 0;*/
 		}
 		else if (param == 30) {
 			// Load party status bar to screen 1.
 			ags->dest_screen = 1;
-			ags->load_cg(296, -1);
+			load_cg(296, -1);
 			ags->dest_screen = 0;
 
 			// Draw Wataru's icon.
@@ -661,7 +661,7 @@ public:
 
 			// Load party status bar to screen 1.
 			ags->dest_screen = 1;
-			ags->load_cg(296, -1);
+			load_cg(296, -1);
 			ags->dest_screen = 0;
 
 			// Draw a blank party icon to init or clear the party box.
@@ -673,7 +673,7 @@ public:
 
 			// Load party status bar to screen 1.
 			ags->dest_screen = 1;
-			ags->load_cg(296, -1);
+			load_cg(296, -1);
 			ags->dest_screen = 0;
 
 			// Draw a party member's icon to the party bar.
@@ -694,9 +694,9 @@ public:
 		: NACT_Sys1(config, game_id) {}
 
 	void opening() override {
-		ags->load_cg(77, -1);
+		load_cg(77, -1);
 		WAIT(1667);
-		ags->load_cg(74, -1);
+		load_cg(74, -1);
 	}
 
 	void cmd_g() override {
@@ -704,7 +704,7 @@ public:
 		TRACE("G %d:", page);
 
 		page = (page == 97) ? 96 : (page == 98) ? 97 : page;
-		ags->load_cg(page, -1);
+		load_cg(page, -1);
 		if (page == 94)
 			WAIT(400);
 		if (page == 81 || page == 82)
@@ -716,7 +716,7 @@ public:
 		int transparent = sco.getd();
 		TRACE("U %d,%d:", page, transparent);
 
-		ags->load_cg(page, 11);
+		load_cg(page, 11);
 		if (page == 5)
 			WAIT(400);
 	}
@@ -781,7 +781,7 @@ public:
 
 			// 矢印を消去する
 			if (map_page) {
-				ags->load_cg(map_page, -1);
+				load_cg(map_page, -1);
 				if (paint_x) {
 					ags->paint(paint_x, paint_y * 2, 2 + 16);
 				}
@@ -806,8 +806,8 @@ public:
 				ags->box_fill(0, 0, 0, 640, 400, 0);
 			} else {
 				// Restore the screen
-				ags->load_cg(74, 8);
-				ags->load_cg(81, -1);
+				load_cg(74, 8);
+				load_cg(81, -1);
 				map_page = 81;
 			}
 		} else if (cmd == 3) {
@@ -838,9 +838,9 @@ public:
 
 	void opening() override {
 		mako->play_music(2);
-		ags->load_cg(1, -1);
+		load_cg(1, -1);
 		WAIT(3000);
-		ags->load_cg(81, -1);
+		load_cg(81, -1);
 	}
 
 	void cmd_y() override {
@@ -880,12 +880,12 @@ public:
 		switch (cmd) {
 		case 130:
 			WAIT(2000);
-			ags->load_cg(180, -1);
+			load_cg(180, -1);
 
 			WAIT(2000);
 			draw_box(0);
 			ags->dest_screen = 1;
-			ags->load_cg(173, -1);
+			load_cg(173, -1);
 			ags->dest_screen = 0;
 			ags->gcopy(0x1ecd, 0x3a2a, 8, 60, 3);
 			WAIT(667);
@@ -1017,7 +1017,7 @@ public:
 			// slowest). Not available in the Hint Disk.
 			break;
 		case 20:
-			ags->load_cg(param, -1);
+			load_cg(param, -1);
 			break;
 		default:
 			exec_y(cmd, param);

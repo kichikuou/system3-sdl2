@@ -241,7 +241,7 @@ private:
 	void load_cg_to_work_screen(int page) {
 		int saved = ags->dest_screen;
 		ags->dest_screen = WORK_SCREEN;
-		ags->load_cg(page, -1);
+		load_cg(page, -1);
 		ags->dest_screen = saved;
 	}
 
@@ -623,7 +623,7 @@ private:
 	CG load_map_sheet(int page) {
 		if (page == 0)
 			return CG();
-		CG cg = ags->load_cg_surface(page, TRANSPARENT_COLOR);
+		CG cg = ags->load_cg_surface(page, TRANSPARENT_COLOR, cg_flags);
 		if (!cg)
 			ERROR("map resource error: CG page %d not available", page);
 		return cg;
@@ -1202,7 +1202,7 @@ private:
 		load_cg_to_work_screen(230);
 		// Save the part of the display CG 208 overwrites.
 		ags->copy_screen(0, WORK_SCREEN, 16, 192, 367, 294, 0, 48);
-		ags->load_cg(208, -1);
+		load_cg(208, -1);
 
 		VAR_TROOP_COUNT_FULL = VAR_TROOP_COUNT;
 		draw_troop_counts();

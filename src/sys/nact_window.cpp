@@ -94,3 +94,8 @@ void NACT::draw_box(int index)
 		ags->box_line(ags->dest_screen, b.sx, b.sy, b.ex, b.ey, b.color);
 	}
 }
+
+void NACT::load_cg(int page, int transparent)
+{
+	ags->load_cg(page, transparent, cg_flags);
+}

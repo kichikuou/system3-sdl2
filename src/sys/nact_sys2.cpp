@@ -445,7 +445,7 @@ void NACT_Sys2::cmd_g()
 			page--;
 		}
 	}
-	ags->load_cg(page, -1);
+	load_cg(page, -1);
 
 	if (game_id.is(GameId::DALK_HINT)) {
 		if(page == 3) {
@@ -632,7 +632,7 @@ void NACT_Sys2::cmd_u()
 
 	TRACE("U %d,%d:", page, transparent);
 
-	ags->load_cg(page, transparent);
+	load_cg(page, transparent);
 }
 
 void NACT_Sys2::cmd_v()

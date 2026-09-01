@@ -250,7 +250,7 @@ void NACT_Sys3::cmd_g()
 
 	TRACE("G %d:", page);
 
-	ags->load_cg(page, -1);
+	load_cg(page, -1);
 }
 
 void NACT_Sys3::cmd_h()
@@ -622,7 +622,7 @@ void NACT_Sys3::cmd_u()
 	if (game_id.is_rance4x()) {
 		transparent = (transparent == 28) ? 12 : transparent;
 	}
-	ags->load_cg(page, transparent);
+	load_cg(page, transparent);
 }
 
 void NACT_Sys3::cmd_v()
@@ -806,12 +806,14 @@ void NACT_Sys3::exec_y(int cmd, int param)
 			ags->fade_out(param * 16 * 1000 / 60, cmd == 43);
 			break;
 		case 45:
-			ags->extract_palette = param ? true : false;
+			if (param) {
+				cg_flags |= CG_EXTRACT_PALETTE;
+			} else {
+				cg_flags &= ~CG_EXTRACT_PALETTE;
+			}
 			break;
 		case 46:
-			ags->get_palette = (param & 4) ? true : false;
-			ags->extract_palette = (param & 2) ? true : false;
-			ags->extract_cg = (param & 1) ? true : false;
+			cg_flags = param & 7;
 			break;
 		case 60:
 			ags->scroll = param - 400;
@@ -840,7 +842,7 @@ void NACT_Sys3::exec_y(int cmd, int param)
 			mouse_sence = param;
 			break;
 		case 72:
-			ags->load_cursor(param);
+			ags->load_cursor(param, cg_flags);
 			break;
 		case 73:
 			ags->cursor_index = param;

@@ -8,7 +8,7 @@
 #include "game_id.h"
 #include <string.h>
 
-CG AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent)
+CG AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent, uint8_t flags)
 {
 	// ヘッダ取得
 	int sx = data[0x0] | (data[0x1] << 8);
@@ -19,7 +19,7 @@ CG AGS::load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, i
 	int height = ey - sy + 1;
 	uint16_t mask = data[0xa] | (data[0xb] << 8);
 
-	if(get_palette) {
+	if (flags & CG_GET_PALETTE) {
 		SDL_Color colors[256];
 		int p = 0x20;
 		for(int i = 0; i < 16; i++) {

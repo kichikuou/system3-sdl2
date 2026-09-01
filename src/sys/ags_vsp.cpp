@@ -26,7 +26,7 @@ void trim(CG& cg, int w, int h)
 
 }  // namespace
 
-CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent)
+CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent, uint8_t flags)
 {
 	// ヘッダ取得
 	int sx = data[0] | (data[1] << 8);
@@ -47,7 +47,7 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	}
 
 	// パレット取得
-	if(get_palette && transparent != 101) {
+	if ((flags & CG_GET_PALETTE) && transparent != 101) {
 		int p = 0x0a;
 		SDL_Color colors[16];
 		for(int i = 0; i < 16; i++) {

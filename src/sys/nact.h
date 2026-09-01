@@ -133,6 +133,9 @@ protected:
 	Box box[20];
 	void draw_box(int index);
 
+	uint8_t cg_flags;
+	void load_cg(int page, int transparent);
+
 	struct MenuItem {
 		uint16_t addr;
 		uint8_t verb;

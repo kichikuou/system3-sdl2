@@ -50,6 +50,12 @@ struct CG {
 	SDL_Palette* palette() const { return surface_->format->palette; }
 };
 
+enum CgFlags {
+	CG_EXTRACT_CG = 1,
+	CG_EXTRACT_PALETTE = 2,
+	CG_GET_PALETTE = 4,
+};
+
 class AGS
 {
 protected:
@@ -77,11 +83,11 @@ private:
 	SDL_Cursor* hCursor[10];
 
 	// AGS
-	CG load_gm3(const std::vector<uint8_t>& data, int transparent); // Intruder -桜屋敷の探索-
-	CG load_vsp2l(const std::vector<uint8_t>& data, int transparent); // Little Vampire
-	CG load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent);
-	CG load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent);
-	CG load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent);
+	CG load_gm3(const std::vector<uint8_t>& data, int transparent, uint8_t flags); // Intruder -桜屋敷の探索-
+	CG load_vsp2l(const std::vector<uint8_t>& data, int transparent, uint8_t flags); // Little Vampire
+	CG load_gl3(const std::vector<uint8_t>& data, bool set_palette, int transparent, uint8_t flags);
+	CG load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent, uint8_t flags);
+	CG load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent, uint8_t flags);
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);
@@ -103,9 +109,9 @@ public:
 
 	void update_screen();
 
-	void load_cg(int page, int transparent);
+	void load_cg(int page, int transparent, uint8_t flags);
 	// Decodes a CG without drawing it, but still updates the palette.
-	CG load_cg_surface(int page, int transparent = -1);
+	CG load_cg_surface(int page, int transparent, uint8_t flags);
 	// Returns an ACG page bytes, without decoding it.
 	std::vector<uint8_t> load_cg_data(int page) { return acg.load(page); }
 	void blit_cg(int dest, CG& cg, const SDL_Rect* src, int dx, int dy);
@@ -161,7 +167,7 @@ public:
 		menu_w[index - 1].frame = frame;
 	}
 
-	void load_cursor(int page);
+	void load_cursor(int page, uint8_t flags);
 	void select_cursor();
 	void translate_mouse_coords(int* x, int* y);
 
@@ -213,9 +219,6 @@ public:
 
 	// CG表示
 	std::optional<SDL_Point> cg_dest;
-	bool get_palette;
-	bool extract_palette;
-	bool extract_cg;
 	std::unordered_set<int> censor_list;
 	std::unordered_set<int> ignore_palette;
 	int palette_bank;
