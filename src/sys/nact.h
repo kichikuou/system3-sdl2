@@ -7,8 +7,10 @@
 #ifndef _NACT_H_
 #define _NACT_H_
 
+#include <algorithm>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <stdio.h>
 #include <SDL.h>
@@ -168,6 +170,36 @@ protected:
 	void close_menu_window(int index);
 	void get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey);
 	int calculate_menu_max(int window);
+
+	struct TextContext {
+		SDL_Point pos;
+		int origin_x;
+		int line_space;
+		int font_size;
+		uint8_t font_color;
+		uint8_t frame_color;
+		uint8_t back_color;
+		int current_line_height;
+
+		void reset_pos(int x, int y) {
+			pos.x = origin_x = x;
+			pos.y = y;
+			current_line_height = 0;
+		}
+		void newline() {
+			pos.x = origin_x;
+			pos.y += std::max(font_size, current_line_height) + line_space;
+			current_line_height = 0;
+		}
+	};
+	TextContext text;
+	TextContext menu;
+
+	bool draw_hankaku = false;
+	bool draw_menu = false;
+
+	void init_text();
+	void draw_text(std::string_view string, bool wait = false);
 
 	struct MenuItem {
 		uint16_t addr;

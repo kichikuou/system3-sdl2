@@ -128,20 +128,20 @@ void NACT::clear_text_window(int index, bool erase)
 
 	if (erase) {
 		if (w.frame && ags->is_faded()) {
-			ags->draw_window(w.sx - 8, w.sy - 8, w.ex + 8, w.ey + 8, true, ags->text.frame_color, ags->text.back_color);
+			ags->draw_window(w.sx - 8, w.sy - 8, w.ex + 8, w.ey + 8, true, text.frame_color, text.back_color);
 		} else {
-			ags->box_fill(0, w.sx, w.sy, w.ex, w.ey, ags->text.back_color);
+			ags->box_fill(0, w.sx, w.sy, w.ex, w.ey, text.back_color);
 		}
 	}
 
-	ags->text.reset_pos(w.sx, w.sy + 2);
+	text.reset_pos(w.sx, w.sy + 2);
 }
 
 bool NACT::return_text_line(int index)
 {
-	ags->text.newline();
+	text.newline();
 	// Return true if the next line exceeds the bottom of the window
-	return ags->text.pos.y + ags->text.font_size > text_w[index - 1].ey;
+	return text.pos.y + text.font_size > text_w[index - 1].ey;
 }
 
 void NACT::draw_push(int index)
@@ -156,7 +156,7 @@ void NACT::draw_push(int index)
 	Window& w = text_w[index - 1];
 	int x = w.ex - 16;
 	int y = w.ey - 16;
-	ags->draw_gaiji(0, x, y, push_bitmap ? push_bitmap : builtin_bitmap, 16, ags->text.font_color);
+	ags->draw_gaiji(0, x, y, push_bitmap ? push_bitmap : builtin_bitmap, 16, text.font_color);
 	ags->invalidate_screen(x, y, 16, 16);
 }
 
@@ -181,12 +181,12 @@ void NACT::open_text_window(int index, bool erase)
 	}
 
 	if (erase) {
-		ags->draw_window(sx, sy, ex, ey, w.frame, ags->text.frame_color, ags->text.back_color);
+		ags->draw_window(sx, sy, ex, ey, w.frame, text.frame_color, text.back_color);
 	} else if (w.save && w.window) {
 		ags->restore_rect(w.window);
 	}
 
-	ags->text.reset_pos(w.sx, w.sy + ags->text.line_space);
+	text.reset_pos(w.sx, w.sy + text.line_space);
 }
 
 void NACT::close_text_window(int index, bool update)
@@ -208,14 +208,14 @@ void NACT::close_text_window(int index, bool update)
 	}
 
 	if (update) {
-		ags->text.reset_pos(w.sx, w.sy + ags->text.line_space);
+		text.reset_pos(w.sx, w.sy + text.line_space);
 	}
 }
 
 void NACT::clear_menu_window()
 {
-	ags->box_fill(2, 0, 0, 639, 479, ags->menu.back_color);
-	ags->menu.reset_pos(2, 2);
+	ags->box_fill(2, 0, 0, 639, 479, menu.back_color);
+	menu.reset_pos(2, 2);
 }
 
 void NACT::open_menu_window(int index)
@@ -224,7 +224,7 @@ void NACT::open_menu_window(int index)
 	int sx = w.sx;
 	int sy = w.sy;
 	int ex = w.ex;
-	int ey = menu_fix ? w.ey : sy + ags->menu.pos.y - 3;
+	int ey = menu_fix ? w.ey : sy + menu.pos.y - 3;
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 	int wsx = sx - (w.frame ? 8 : 0);
@@ -238,9 +238,9 @@ void NACT::open_menu_window(int index)
 		w.screen = ags->save_rect(wsx, wsy, wwidth, wheight);
 	}
 
-	ags->draw_window(wsx, wsy, wex, wey, w.frame, ags->menu.frame_color, ags->menu.back_color);
+	ags->draw_window(wsx, wsy, wex, wey, w.frame, menu.frame_color, menu.back_color);
 	ags->copy_screen(2, 0, 0, 0, width - 1, height - 1, sx, sy);
-	ags->box_line(0, sx, sy, ex, sy + ags->menu.font_size + 3, ags->menu.frame_color);
+	ags->box_line(0, sx, sy, ex, sy + menu.font_size + 3, menu.frame_color);
 	ags->invalidate_screen(wsx, wsy, wwidth, wheight);
 }
 
@@ -250,12 +250,12 @@ void NACT::redraw_menu_window(int index, int selected)
 	int sx = w.sx;
 	int sy = w.sy;
 	int ex = w.ex;
-	int ey = menu_fix ? w.ey : sy + ags->menu.pos.y - 3;
+	int ey = menu_fix ? w.ey : sy + menu.pos.y - 3;
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 
 	ags->copy_screen(2, 0, 0, 0, width - 1, height - 1, sx, sy);
-	ags->box_line(0, sx, sy + (ags->menu.font_size + 4) * selected, ex, sy + (ags->menu.font_size + 4) * (selected + 1) - 1, ags->menu.frame_color);
+	ags->box_line(0, sx, sy + (menu.font_size + 4) * selected, ex, sy + (menu.font_size + 4) * (selected + 1) - 1, menu.frame_color);
 	ags->invalidate_screen(sx, sy, width, height);
 }
 
@@ -281,24 +281,24 @@ int NACT::calculate_menu_max(int window)
 	if (game_id.is(GameId::INTRUDER))
 		return 6;
 	if (game_id.is(GameId::GAKUEN_SENKI))
-		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (ags->menu.font_size + 4);
+		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (menu.font_size + 4);
 	return 11;
 }
 
 void NACT::load_display_state(FILEIO* fio)
 {
-	ags->menu.font_size = fio->getw();
-	ags->text.font_size = fio->getw();
+	menu.font_size = fio->getw();
+	text.font_size = fio->getw();
 	ags->palette_bank = fio->getw();
 	if (!ags->palette_bank) {
 		ags->palette_bank = -1;
 	}
-	ags->text.font_color = fio->getw();
-	ags->menu.font_color = fio->getw();
-	ags->menu.frame_color = fio->getw();
-	ags->menu.back_color = fio->getw();
-	ags->text.frame_color = fio->getw();
-	ags->text.back_color = fio->getw();
+	text.font_color = fio->getw();
+	menu.font_color = fio->getw();
+	menu.frame_color = fio->getw();
+	menu.back_color = fio->getw();
+	text.frame_color = fio->getw();
+	text.back_color = fio->getw();
 	for (int i = 0; i < 10; i++) {
 		int sx = fio->getw();
 		int sy = fio->getw();
@@ -325,15 +325,15 @@ void NACT::load_display_state(FILEIO* fio)
 
 void NACT::save_display_state(FILEIO* fio)
 {
-	fio->putw(ags->menu.font_size);
-	fio->putw(ags->text.font_size);
+	fio->putw(menu.font_size);
+	fio->putw(text.font_size);
 	fio->putw(ags->palette_bank == -1 ? 0 : ags->palette_bank);
-	fio->putw(ags->text.font_color);
-	fio->putw(ags->menu.font_color);
-	fio->putw(ags->menu.frame_color);
-	fio->putw(ags->menu.back_color);
-	fio->putw(ags->text.frame_color);
-	fio->putw(ags->text.back_color);
+	fio->putw(text.font_color);
+	fio->putw(menu.font_color);
+	fio->putw(menu.frame_color);
+	fio->putw(menu.back_color);
+	fio->putw(text.frame_color);
+	fio->putw(text.back_color);
 	for (int i = 0; i < 10; i++) {
 		fio->putw(menu_w[i].sx);
 		fio->putw(menu_w[i].sy);

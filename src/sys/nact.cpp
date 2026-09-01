@@ -71,7 +71,7 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	msgskip = new MsgSkip();
 
 	init_windows();
-	ags->text.reset_pos(text_w[0].sx, text_w[0].sy + 2);
+	init_text();
 
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
 	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
@@ -326,9 +326,9 @@ void NACT::cmd_page_call()
 
 void NACT::cmd_set_menu()
 {
-	if(ags->draw_menu) {
-		ags->menu.newline();
-		ags->draw_menu = false;
+	if (draw_menu) {
+		menu.newline();
+		draw_menu = false;
 
 		TRACE("$");
 	} else {
@@ -336,7 +336,7 @@ void NACT::cmd_set_menu()
 			clear_menu_window();
 		}
 		menu_items.emplace_back(sco.getw());
-		ags->draw_menu = true;
+		draw_menu = true;
 
 		if (game_id.is(GameId::GAKUEN_SENKI))
 			menu_window = 2;
@@ -478,7 +478,7 @@ void NACT::cmd_x()
 	TRACE("X %d:", index);
 
 	if(1 <= index && index <= 10) {
-		ags->draw_text(tvar[index - 1]);
+		draw_text(tvar[index - 1]);
 	}
 }
 
@@ -501,14 +501,14 @@ void NACT::message(uint8_t first_byte)
 		buf[i] = '\0';
 	}
 
-	ags->draw_text(buf, text_wait_enb);
+	draw_text(buf, text_wait_enb);
 
 	if (game_id.is_system1_dps()) {
-		if(!ags->draw_menu) {
+		if (!draw_menu) {
 			text_refresh = false;
 		}
 	}
-	if (!ags->draw_menu)
+	if (!draw_menu)
 		msgskip->on_message(sco.page(), sco.current_addr());
 
 	// TODO: Convert hankaku to zenkaku
@@ -622,7 +622,7 @@ int NACT::menu_select(int num_items)
 	get_menu_window_rect(menu_window, &sx, &sy, &ex, nullptr);
 	int mx = ex - 16;
 	int my = sy + 10;
-	int height = ags->menu.font_size + 4;
+	int height = menu.font_size + 4;
 	int current_index = 0;
 
 	set_cursor(mx, my);

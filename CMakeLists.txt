@@ -221,6 +221,7 @@ target_sources(system3 PRIVATE
   src/sys/nact_sys1.cpp
   src/sys/nact_sys2.cpp
   src/sys/nact_sys3.cpp
+  src/sys/nact_text.cpp
   src/sys/nact_window.cpp
   src/sys/scenario.cpp
   )

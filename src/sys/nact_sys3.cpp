@@ -105,16 +105,16 @@ void NACT_Sys3::cmd_open_verb()
 	int id[32], index = 0;
 
 	clear_menu_window();
-	ags->draw_menu = true;
+	draw_menu = true;
 
 	for(int i = 0; i < MAX_VERB; i++) {
 		if(chk[i]) {
-			ags->draw_text(caption_verb[i]);
-			ags->menu.newline();
+			draw_text(caption_verb[i]);
+			menu.newline();
 			id[index++] = i;
 		}
 	}
-	ags->draw_menu = false;
+	draw_menu = false;
 
 	int selection = menu_select(index);
 	if (terminate)
@@ -156,20 +156,20 @@ void NACT_Sys3::cmd_open_obj(int verb)
 	int id[32], index = 0;
 
 	clear_menu_window();
-	ags->draw_menu = true;
+	draw_menu = true;
 
 	for(int i = 0; i < MAX_OBJ; i++) {
 		if(chk[i]) {
-			ags->draw_text(caption_obj[i]);
-			ags->menu.newline();
+			draw_text(caption_obj[i]);
+			menu.newline();
 			id[index++] = i;
 		}
 	}
 	// 戻るを追加
-	ags->draw_text(strings.back);
-	ags->menu.newline();
+	draw_text(strings.back);
+	menu.newline();
 	id[index++] = 0;
-	ags->draw_menu = false;
+	draw_menu = false;
 
 	int selection = menu_select(index);
 	if (terminate)
@@ -299,7 +299,7 @@ void NACT_Sys3::cmd_h()
 		}
 	}
 	string[p++] = '\0';
-	ags->draw_text(string);
+	draw_text(string);
 }
 
 void NACT_Sys3::cmd_i()
@@ -610,8 +610,8 @@ void NACT_Sys3::cmd_t()
 	TRACE("T %d,%d:", x, y);
 
 	// x方向はカラム単位で切り捨て
-	ags->text.pos.x = column ? x * 8 : x & 0xfff8;
-	ags->text.pos.y = y;
+	text.pos.x = column ? x * 8 : x & 0xfff8;
+	text.pos.y = y;
 }
 
 void NACT_Sys3::cmd_u()
@@ -776,17 +776,17 @@ void NACT_Sys3::exec_y(int cmd, int param)
 		case 24:
 			break;
 		case 25:
-			ags->menu.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
+			menu.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
 		case 26:
-			ags->text.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
+			text.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
 		case 27:
 			tvar_maxlen = param;
 			text_dialog();
 			break;
 		case 28:
-			ags->text.line_space = (param == 0) ? 2 : 0;
+			text.line_space = (param == 0) ? 2 : 0;
 			break;
 		case 30:
 			ags->src_screen = param ? 1 : 0;
@@ -907,12 +907,12 @@ void NACT_Sys3::exec_y(int cmd, int param)
 		case 228:
 		case 229:
 			{
-				ags->draw_text(tvar[param - 1]);
+				draw_text(tvar[param - 1]);
 				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1]);
 				if (padlen > 0) {
 					char pad[10] = "         ";
 					pad[padlen] = '\0';
-					ags->draw_text(pad);
+					draw_text(pad);
 				}
 			}
 			break;
@@ -977,7 +977,7 @@ void NACT_Sys3::exec_y(int cmd, int param)
 			}
 			break;
 		case 240:
-			ags->draw_hankaku = (param == 1) ? true : false;
+			draw_hankaku = (param == 1) ? true : false;
 			break;
 		case 241:
 			break;
@@ -1033,17 +1033,17 @@ void NACT_Sys3::cmd_z()
 	if(cmd == 0) {
 		ags->palette_bank = (uint8)(param & 0xff);
 	} else if(cmd == 1) {
-		ags->text.font_color = (uint8)(param & 0xff);
+		text.font_color = (uint8)(param & 0xff);
 	} else if(cmd == 2) {
-		ags->menu.font_color = (uint8)(param & 0xff);
+		menu.font_color = (uint8)(param & 0xff);
 	} else if(cmd == 3) {
-		ags->menu.frame_color = (uint8)(param & 0xff);
+		menu.frame_color = (uint8)(param & 0xff);
 	} else if(cmd == 4) {
-		ags->menu.back_color = (uint8)(param & 0xff);
+		menu.back_color = (uint8)(param & 0xff);
 	} else if(cmd == 5) {
-		ags->text.frame_color = (uint8)(param & 0xff);
+		text.frame_color = (uint8)(param & 0xff);
 	} else if(cmd == 6) {
-		ags->text.back_color = (uint8)(param & 0xff);
+		text.back_color = (uint8)(param & 0xff);
 	} else if(cmd == 7) {
 		ags->cursor_color = (uint8)(param & 0xff);
 	} else if(101 <= cmd && cmd <= 199) {
@@ -1195,15 +1195,15 @@ bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 		ags->draw_window(
 			info->left - 6, info->top - 6,
 			info->left + info->w * info->cols + 6, info->top + info->h + 6,
-			true, ags->menu.frame_color, ags->menu.back_color);
-		int orig_font_size = ags->text.font_size;
-		ags->text.pos.x = info->left;
-		ags->text.pos.y = info->top;
-		ags->text.font_size = info->w;
-		ags->draw_text("12345");
-		ags->text.font_size = orig_font_size;
+			true, menu.frame_color, menu.back_color);
+		int orig_font_size = text.font_size;
+		text.pos.x = info->left;
+		text.pos.y = info->top;
+		text.font_size = info->w;
+		draw_text("12345");
+		text.font_size = orig_font_size;
 		int left = info->left + info->w * (var[info->var] - 1);
-		ags->box_line(0, left, info->top, left + info->w, info->top + info->h, ags->text.font_color);
+		ags->box_line(0, left, info->top, left + info->w, info->top + info->h, text.font_color);
 	}
 
 	// Only You: Prevents the cursor from being locked due to unselectable cells.
@@ -1297,7 +1297,7 @@ public:
 	void cmd_p() override {
 		int p1 = cali();
 		TRACE("P %d:", p1);
-		ags->text.font_color = p1;
+		text.font_color = p1;
 	}
 
 	void cmd_t() override {

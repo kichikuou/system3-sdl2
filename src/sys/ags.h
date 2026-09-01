@@ -116,7 +116,7 @@ public:
 	CG save_rect(int x, int y, int width, int height);
 	void restore_rect(const CG& cg);
 
-	void draw_text(std::string_view string, bool text_wait = false);
+	int draw_text(int dest, int x, int y, std::u16string_view codes, int font_size, uint8 color);
 
 	void load_cursor(int page, uint8_t flags);
 	void select_cursor();
@@ -135,36 +135,6 @@ public:
 	int scroll = 0;
 	int window_width, window_height;
 	int screen_width, screen_height;
-
-	struct TextContext {
-		SDL_Point pos;
-		int origin_x;
-		int line_space;
-		int font_size;
-		uint8_t font_color;
-		uint8_t frame_color;
-		uint8_t back_color;
-		int current_line_height;
-
-		void reset_pos(int x, int y) {
-			pos.x = origin_x = x;
-			pos.y = y;
-			current_line_height = 0;
-		}
-		void newline() {
-			pos.x = origin_x;
-			pos.y += std::max(font_size, current_line_height) + line_space;
-			current_line_height = 0;
-		}
-	};
-	// メッセージ表示
-	TextContext text;
-
-	// メニュー表示
-	TextContext menu;
-
-	bool draw_hankaku;
-	bool draw_menu;
 
 	// CG表示
 	std::optional<SDL_Point> cg_dest;

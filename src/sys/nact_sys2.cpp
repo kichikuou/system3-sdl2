@@ -275,16 +275,16 @@ void NACT_Sys2::cmd_open_verb()
 	int id[32], index = 0;
 
 	clear_menu_window();
-	ags->draw_menu = true;
+	draw_menu = true;
 
 	for(int i = 0; i < MAX_VERB; i++) {
 		if(chk[i]) {
-			ags->draw_text(caption_verb[i]);
-			ags->menu.newline();
+			draw_text(caption_verb[i]);
+			menu.newline();
 			id[index++] = i;
 		}
 	}
-	ags->draw_menu = false;
+	draw_menu = false;
 
 	int selection = menu_select(index);
 	if (terminate)
@@ -326,20 +326,20 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	int id[32], index = 0;
 
 	clear_menu_window();
-	ags->draw_menu = true;
+	draw_menu = true;
 
 	for(int i = 0; i < MAX_OBJ; i++) {
 		if(chk[i]) {
-			ags->draw_text(caption_obj[i]);
-			ags->menu.newline();
+			draw_text(caption_obj[i]);
+			menu.newline();
 			id[index++] = i;
 		}
 	}
 	// 戻るを追加
-	ags->draw_text(strings.back);
-	ags->menu.newline();
+	draw_text(strings.back);
+	menu.newline();
 	id[index++] = 0;
-	ags->draw_menu = false;
+	draw_menu = false;
 
 	int selection = menu_select(index);
 	if (terminate)
@@ -496,7 +496,7 @@ void NACT_Sys2::cmd_h()
 		}
 	}
 	string[p++] = '\0';
-	ags->draw_text(string);
+	draw_text(string);
 }
 
 void NACT_Sys2::cmd_i()
@@ -587,7 +587,7 @@ void NACT_Sys2::cmd_p()
 	int param = sco.getd();
 
 	if (!game_id.is(GameId::YAKATA2) && !game_id.is(GameId::DALK_HINT) && !game_id.is(GameId::RANCE3_HINT)) {
-		ags->text.font_color = (uint8)((param & 0x7) + 16);
+		text.font_color = (uint8)((param & 0x7) + 16);
 	}
 
 	TRACE("P %d:", param);
@@ -746,10 +746,10 @@ void NACT_Sys2::cmd_y()
 			RND = 1;
 			break;
 		case 25:
-			ags->menu.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
+			menu.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
 		case 26:
-			ags->text.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
+			text.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
 		case 27:
 			{
@@ -778,17 +778,17 @@ void NACT_Sys2::cmd_y()
 		case 228:
 		case 229:
 			if(1 <= param && param <= 10) {
-				ags->draw_text(tvar[param - 1]);
+				draw_text(tvar[param - 1]);
 				int padlen = cmd - 220 - encoding->mbslen(tvar[param - 1]);
 				if (padlen > 0) {
 					char pad[10] = "         ";
 					pad[padlen] = '\0';
-					ags->draw_text(pad);
+					draw_text(pad);
 				}
 			}
 			break;
 		case 240:  // System3-sdl2 extension
-			ags->draw_hankaku = (param == 1) ? true : false;
+			draw_hankaku = (param == 1) ? true : false;
 			break;
 		case 252:
 			RND = 8;

@@ -189,36 +189,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 	// 画面選択
 	src_screen = dest_screen = 0;
 
-	// メッセージ表示
-	text.line_space = 2;
-	text.font_size = 16;
-	if (game_id.sys_ver == 1) {
-		text.font_color = 15 + 16;
-		text.frame_color = 15 + 16;
-		text.back_color = 0 + 16;
-	} else {
-		text.font_color = 15;
-		text.frame_color = 15;
-		text.back_color = 0;
-	}
-
-	// メニュー表示
-	menu.reset_pos(2, 2);
-	menu.line_space = 4;
-	menu.font_size = 16;
-	if (game_id.sys_ver == 1) {
-		menu.font_color = 15 + 16;
-		menu.frame_color = 15 + 16;
-		menu.back_color = 0 + 16;
-	} else {
-		menu.font_color = 15;
-		menu.frame_color = 15;
-		menu.back_color = 0;
-	}
-
-	draw_hankaku = false;
-	draw_menu = false;
-
 	// CG表示
 	cg_dest = std::nullopt;
 	palette_bank = -1;
