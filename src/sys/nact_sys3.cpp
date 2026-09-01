@@ -1044,8 +1044,6 @@ void NACT_Sys3::cmd_z()
 		text.frame_color = (uint8)(param & 0xff);
 	} else if(cmd == 6) {
 		text.back_color = (uint8)(param & 0xff);
-	} else if(cmd == 7) {
-		ags->cursor_color = (uint8)(param & 0xff);
 	} else if(101 <= cmd && cmd <= 199) {
 		mako->set_cd_track(cmd - 100, param);
 	}

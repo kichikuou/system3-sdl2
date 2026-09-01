@@ -7,12 +7,10 @@
 #ifndef _AGS_H_
 #define _AGS_H_
 
-#include <algorithm>
+#include <optional>
 #include <string_view>
 #include <unordered_set>
 #include <vector>
-#include <memory>
-#include <optional>
 #include <stdio.h>
 #include "common.h"
 #include "game_id.h"
@@ -143,7 +141,6 @@ public:
 	int palette_bank;
 
 	// マウスカーソル
-	uint8 cursor_color;
 	int cursor_index;
 
 private:

@@ -194,7 +194,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 	palette_bank = -1;
 
 	// マウスカーソル
-	cursor_color = 15;
 	cursor_index = 0;
 
 	set_scanline_mode(config.scanline);
