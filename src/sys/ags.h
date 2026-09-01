@@ -129,7 +129,6 @@ public:
 					 int transparent_color = -1);
 	void gcopy(int gsc, int gde, int glx, int gly, int gsw);
 	void paint(int x, int y, uint8 color);
-	void draw_box(int index);
 	void draw_mesh(int sx, int sy, int width, int height);
 	void box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color);
 	void box_line(int dest, int sx, int sy, int ex, int ey, uint8 color);
@@ -160,10 +159,6 @@ public:
 	}
 	void set_menu_window_frame(int index, bool frame) {
 		menu_w[index - 1].frame = frame;
-	}
-
-	void set_box(int index, uint8 color, int sx, int sy, int ex, int ey) {
-		box[index - 1] = {color, sx, sy, ex, ey};
 	}
 
 	void load_cursor(int page);
@@ -247,16 +242,6 @@ public:
 
 private:
 	void init_windows();
-
-	// Box (E and Y7 commands)
-	struct Box {
-		uint8 color = 0;
-		int sx = 0;
-		int sy = 0;
-		int ex = 639;
-		int ey = 399;
-	};
-	Box box[20];
 
 	Dri acg;
 	const char* bmp_prefix = NULL;

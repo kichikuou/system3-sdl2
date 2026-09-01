@@ -122,6 +122,17 @@ protected:
 	bool show_push = true;		// Push表示
 	bool clear_text = true;	// メニュー後のメッセージウィンドウ消去
 
+	// Box (E and Y7 commands)
+	struct Box {
+		uint8 color = 0;
+		int sx = 0;
+		int sy = 0;
+		int ex = 639;
+		int ey = 399;
+	};
+	Box box[20];
+	void draw_box(int index);
+
 	struct MenuItem {
 		uint16_t addr;
 		uint8_t verb;

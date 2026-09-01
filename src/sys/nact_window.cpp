@@ -78,3 +78,19 @@ void NACT::save_display_state(FILEIO* fio)
 		fio->putw(0);
 	}
 }
+
+void NACT::draw_box(int index)
+{
+	if (index == 0) {
+		// Clear the entire screen
+		ags->box_fill(ags->dest_screen, 0, 0, 639, 479, 0);
+		return;
+	}
+
+	Box& b = box[index - 1];
+	if (1 <= index && index <= 10) {
+		ags->box_fill(ags->dest_screen, b.sx, b.sy, b.ex, b.ey, b.color);
+	} else if (11 <= index && index <= 20) {
+		ags->box_line(ags->dest_screen, b.sx, b.sy, b.ex, b.ey, b.color);
+	}
+}

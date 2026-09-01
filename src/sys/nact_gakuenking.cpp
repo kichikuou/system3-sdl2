@@ -42,8 +42,8 @@ public:
 	NACT_GakuenKing(const Config& config, const GameId& game_id)
 		: NACT_Sys3(config, game_id) {
 		text_wait_time = 0;	// Y 13 and Y 14 set this
-		ags->set_box(1, 0, 16, 8, 367, 295);
-		ags->set_box(2, 0, 40, 0, 599, 298);
+		box[0] = {0, 16, 8, 367, 295};
+		box[1] = {0, 40, 0, 599, 298};
 		load_executable_data();
 		amap.open("AMAP.DAT");
 		map_base.fill(0);

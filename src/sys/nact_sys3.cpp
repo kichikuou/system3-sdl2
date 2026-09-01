@@ -241,7 +241,7 @@ void NACT_Sys3::cmd_e()
 		sx = sx * 8;
 		ex = ex * 8 - 1;
 	}
-	ags->set_box(index, color, sx, sy, ex, ey);
+	box[index - 1] = {color, sx, sy, ex, ey};
 }
 
 void NACT_Sys3::cmd_g()
@@ -720,7 +720,7 @@ void NACT_Sys3::exec_y(int cmd, int param)
 		case 6:
 			break;
 		case 7:
-			ags->draw_box(param);
+			draw_box(param);
 			break;
 		case 8:
 			tvar_index = param;

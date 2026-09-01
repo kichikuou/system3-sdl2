@@ -216,22 +216,6 @@ void AGS::paint(int x, int y, uint8 color)
 	invalidate_screen(minx, miny, maxx - minx + 1, maxy - miny + 1);
 }
 
-void AGS::draw_box(int index)
-{
-	if(index == 0) {
-		// 全画面消去
-		box_fill(dest_screen, 0, 0, 639, 479, 0);
-		return;
-	}
-
-	Box& b = box[index - 1];
-	if (1 <= index && index <= 10) {
-		box_fill(dest_screen, b.sx, b.sy, b.ex, b.ey, b.color);
-	} else if (11 <= index && index <= 20) {
-		box_line(dest_screen, b.sx, b.sy, b.ex, b.ey, b.color);
-	}
-}
-
 void AGS::draw_mesh(int sx, int sy, int width, int height)
 {
 	// super d.p.s

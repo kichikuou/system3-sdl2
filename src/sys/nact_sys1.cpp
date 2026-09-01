@@ -547,7 +547,7 @@ public:
 		WAIT(2000);
 		ags->load_cg(38, -1);
 		cmd_a();
-		ags->draw_box(0);
+		draw_box(0);
 	}
 };
 
@@ -883,7 +883,7 @@ public:
 			ags->load_cg(180, -1);
 
 			WAIT(2000);
-			ags->draw_box(0);
+			draw_box(0);
 			ags->dest_screen = 1;
 			ags->load_cg(173, -1);
 			ags->dest_screen = 0;
@@ -902,7 +902,7 @@ public:
 				ags->gcopy(i + 0x2306, i + 0x2306, 1, 165, 3);
 			}
 			WAIT_KEYQUIT(6000);
-			ags->draw_box(param);
+			draw_box(param);
 			break;
 		default:
 			exec_y(cmd, param);
