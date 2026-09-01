@@ -546,7 +546,7 @@ bool NACT::load(int index)
 	for (int i = 0; i < 512; i++) {
 		var[i] = fio->getw();
 	}
-	ags->load(fio.get());
+	load_display_state(fio.get());
 	for (int i = 0; i < 10; i++) {
 		tvar[i] = fio->read_string(22);
 	}
@@ -586,7 +586,7 @@ bool NACT::save(int index, const char header[112])
 	for (int i = 0; i < 512; i++) {
 		fio->putw(var[i]);
 	}
-	ags->save(fio.get());
+	save_display_state(fio.get());
 	for (int i = 0; i < 10; i++) {
 		fio->write_string(tvar[i], 22);
 	}

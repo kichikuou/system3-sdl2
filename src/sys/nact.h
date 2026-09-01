@@ -32,6 +32,7 @@ class AGS;
 class MAKO;
 class MsgSkip;
 class Encoding;
+class FILEIO;
 
 // special codes for NACT::exit_code
 const int NACT_HALT = -1;
@@ -142,6 +143,8 @@ protected:
 
 	bool load(int index);
 	bool save(int index, const char header[112]);
+	void load_display_state(FILEIO* fio);
+	void save_display_state(FILEIO* fio);
 
 	int menu_select(int num_items);
 	void wait_after_open_menu();

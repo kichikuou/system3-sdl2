@@ -101,9 +101,6 @@ public:
 	AGS(const Config& config, const GameId& game_id);
 	~AGS();
 
-	void load(FILEIO* fio);
-	void save(FILEIO* fio);
-
 	void update_screen();
 
 	void load_cg(int page, int transparent);
@@ -232,7 +229,6 @@ public:
 	uint8 cursor_color;
 	int cursor_index;
 
-private:
 	// Window (B command)
 	struct Window {
 		int sx;
@@ -248,6 +244,8 @@ private:
 	};
 	Window menu_w[10];
 	Window text_w[10];
+
+private:
 	void init_windows();
 
 	// Box (E and Y7 commands)
