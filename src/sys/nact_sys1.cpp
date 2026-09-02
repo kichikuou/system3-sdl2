@@ -192,15 +192,13 @@ top:
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	clear_menu_window();
-	draw_menu = true;
+	clear_menu_lines();
 
 	if(cnt <= menu_max) {
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_VERB; i++) {
 			if(chk[i]) {
-				draw_text(caption_verb[i]);
-				menu.newline();
+				add_menu_line(caption_verb[i]);
 				id[index++] = i;
 			}
 		}
@@ -208,8 +206,7 @@ top:
 top2:
 		for(int i = page; i < MAX_VERB; i++) {
 			if(chk[i]) {
-				draw_text(caption_verb[i]);
-				menu.newline();
+				add_menu_line(caption_verb[i]);
 				id[index++] = i;
 			}
 			page = i + 1;
@@ -223,13 +220,11 @@ top2:
 			goto top2;
 		}
 		// 次のページを追加
-		draw_text(strings.next_page);
-		menu.newline();
+		add_menu_line(strings.next_page);
 		id[index++] = -1;
 	}
-	draw_menu = false;
 
-	int selection = menu_select(index);
+	int selection = menu_select();
 	if (terminate)
 		return;
 
@@ -274,28 +269,24 @@ top:
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	clear_menu_window();
-	draw_menu = true;
+	clear_menu_lines();
 
 	if(cnt <= menu_max - 1) {
 		// 1ページ内に全て表示できる
 		for(int i = 0; i < MAX_OBJ; i++) {
 			if(chk[i]) {
-				draw_text(caption_obj[i]);
-				menu.newline();
+				add_menu_line(caption_obj[i]);
 				id[index++] = i;
 			}
 		}
 		// 戻るを追加
-		draw_text(strings.back);
-		menu.newline();
+		add_menu_line(strings.back);
 		id[index++] = 0;
 	} else {
 top2:
 		for(int i = page; i < MAX_OBJ; i++) {
 			if(chk[i]) {
-				draw_text(caption_obj[i]);
-				menu.newline();
+				add_menu_line(caption_obj[i]);
 				id[index++] = i;
 			}
 			page = i + 1;
@@ -309,18 +300,15 @@ top2:
 			goto top2;
 		}
 		// 戻るを追加
-		draw_text(strings.back);
-		menu.newline();
+		add_menu_line(strings.back);
 		id[index++] = 0;
 
 		// 次のページを追加
-		draw_text(strings.next_page);
-		menu.newline();
+		add_menu_line(strings.next_page);
 		id[index++] = -1;
 	}
-	draw_menu = false;
 
-	int selection = menu_select(index);
+	int selection = menu_select();
 	if (terminate)
 		return;
 

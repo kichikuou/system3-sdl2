@@ -359,7 +359,6 @@ void NACT::init_text()
 		text.back_color = 0;
 	}
 
-	menu.reset_pos(2, 2);
 	menu.line_space = 4;
 	menu.font_size = 16;
 	if (game_id.sys_ver == 1) {
@@ -373,16 +372,8 @@ void NACT::init_text()
 	}
 }
 
-void NACT::draw_text(std::string_view string, bool wait)
+std::u16string NACT::decode_text(std::string_view string)
 {
-	if (string.empty())
-		return;
-
-	TextContext& ctx = draw_menu ? menu : text;
-	ScreenId screen = draw_menu ? SCREEN_MENU : ags->dest_screen;
-	if (ctx.current_line_height < ctx.font_size)
-		ctx.current_line_height = ctx.font_size;
-
 	std::u16string codes;
 	while (!string.empty()) {
 		int code = encoding->next_codepoint(string);
@@ -391,12 +382,39 @@ void NACT::draw_text(std::string_view string, bool wait)
 		} else {
 			code = convert_to_zenkaku(code);
 		}
-		if (!draw_menu && !(GAIJI_FIRST <= code && code <= GAIJI_LAST))
-			texthook_character(sco.page(), code);
 		codes.push_back(code);
 	}
+	return codes;
+}
 
-	if (draw_menu || !wait) {
+void NACT::add_menu_line(std::string_view string)
+{
+	menu_lines.push_back(decode_text(string));
+}
+
+void NACT::draw_text(std::string_view string, bool wait)
+{
+	if (string.empty())
+		return;
+
+	std::u16string codes = decode_text(string);
+
+	if (defining_menu_item()) {
+		*pending_menu_line += codes;
+		return;
+	}
+
+	for (char16_t code : codes) {
+		if (!(GAIJI_FIRST <= code && code <= GAIJI_LAST))
+			texthook_character(sco.page(), code);
+	}
+
+	TextContext& ctx = text;
+	ScreenId screen = ags->dest_screen;
+	if (ctx.current_line_height < ctx.font_size)
+		ctx.current_line_height = ctx.font_size;
+
+	if (!wait) {
 		ctx.pos.x = ags->draw_text(screen, ctx.pos.x, ctx.pos.y, codes, ctx.font_size, ctx.font_color);
 		return;
 	}

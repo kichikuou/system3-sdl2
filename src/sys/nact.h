@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -164,7 +165,10 @@ protected:
 	void open_text_window(int index, bool erase);
 	void close_text_window(int index, bool update);
 
-	void clear_menu_window();
+	void clear_menu_lines();
+	void add_menu_line(std::string_view string);
+	void draw_menu_lines(int index);
+	int menu_window_bottom(int index);
 	void open_menu_window(int index);
 	void redraw_menu_window(int index, int selected);
 	void close_menu_window(int index);
@@ -196,7 +200,6 @@ protected:
 	TextContext menu;
 
 	bool draw_hankaku = false;
-	bool draw_menu = false;
 
 	void init_text();
 	void draw_text(std::string_view string, bool wait = false);
@@ -208,6 +211,10 @@ protected:
 		explicit MenuItem(uint16_t addr, uint8_t verb = 0, uint8_t obj = 0) : addr(addr), verb(verb), obj(obj) {}
 	};
 	std::vector<MenuItem> menu_items;
+
+	std::vector<std::u16string> menu_lines;
+	std::optional<std::u16string> pending_menu_line;
+	bool defining_menu_item() const { return pending_menu_line.has_value(); }
 
 	std::string caption_verb[MAX_VERB];
 	std::string caption_obj[MAX_OBJ];
@@ -225,7 +232,7 @@ protected:
 	void load_display_state(FILEIO* fio);
 	void save_display_state(FILEIO* fio);
 
-	int menu_select(int num_items);
+	int menu_select();
 	void wait_after_open_menu();
 
 	uint8 get_key(bool notify_texthook = true);
@@ -279,6 +286,8 @@ public:
 	void set_string(int index, const std::string& value) { tvar[index] = value; }
 
 private:
+	std::u16string decode_text(std::string_view string);
+
 	void pump_events();
 	void handle_event(SDL_Event e);
 	bool handle_platform_event(const SDL_Event& e);

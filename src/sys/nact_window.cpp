@@ -8,6 +8,10 @@
 #include "ags.h"
 #include "fileio.h"
 
+namespace {
+constexpr int MENU_TEXT_MARGIN = 2;
+}
+
 void NACT::Window::reset(int sx, int sy, int ex, int ey, bool frame, bool save) {
 	this->sx = sx;
 	this->sy = sy;
@@ -212,10 +216,29 @@ void NACT::close_text_window(int index, bool update)
 	}
 }
 
-void NACT::clear_menu_window()
+void NACT::clear_menu_lines()
 {
-	ags->box_fill(SCREEN_MENU, 0, 0, 639, 479, menu.back_color);
-	menu.reset_pos(2, 2);
+	menu_lines.clear();
+	pending_menu_line.reset();
+}
+
+void NACT::draw_menu_lines(int index)
+{
+	Window &w = menu_w[index - 1];
+
+	int y = w.sy + MENU_TEXT_MARGIN;
+	for (const std::u16string& line : menu_lines) {
+		ags->draw_text(SCREEN_FRONT, w.sx + MENU_TEXT_MARGIN, y, line, menu.font_size, menu.font_color);
+		y += menu.font_size + menu.line_space;
+	}
+}
+
+int NACT::menu_window_bottom(int index)
+{
+	Window &w = menu_w[index - 1];
+	if (menu_fix)
+		return w.ey;
+	return w.sy + static_cast<int>(menu_lines.size()) * (menu.font_size + menu.line_space) - 1;
 }
 
 void NACT::open_menu_window(int index)
@@ -224,9 +247,7 @@ void NACT::open_menu_window(int index)
 	int sx = w.sx;
 	int sy = w.sy;
 	int ex = w.ex;
-	int ey = menu_fix ? w.ey : sy + menu.pos.y - 3;
-	int width = ex - sx + 1;
-	int height = ey - sy + 1;
+	int ey = menu_window_bottom(index);
 	int wsx = sx - (w.frame ? 8 : 0);
 	int wsy = sy - (w.frame ? 8 : 0);
 	int wex = ex + (w.frame ? 8 : 0);
@@ -239,7 +260,7 @@ void NACT::open_menu_window(int index)
 	}
 
 	ags->draw_window(wsx, wsy, wex, wey, w.frame, menu.frame_color, menu.back_color);
-	ags->copy_screen(SCREEN_MENU, SCREEN_FRONT, 0, 0, width - 1, height - 1, sx, sy);
+	draw_menu_lines(index);
 	ags->box_line(SCREEN_FRONT, sx, sy, ex, sy + menu.font_size + 3, menu.frame_color);
 	ags->invalidate_screen(wsx, wsy, wwidth, wheight);
 }
@@ -250,11 +271,12 @@ void NACT::redraw_menu_window(int index, int selected)
 	int sx = w.sx;
 	int sy = w.sy;
 	int ex = w.ex;
-	int ey = menu_fix ? w.ey : sy + menu.pos.y - 3;
+	int ey = menu_window_bottom(index);
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 
-	ags->copy_screen(SCREEN_MENU, SCREEN_FRONT, 0, 0, width - 1, height - 1, sx, sy);
+	ags->box_fill(SCREEN_FRONT, sx, sy, ex, ey, menu.back_color);
+	draw_menu_lines(index);
 	ags->box_line(SCREEN_FRONT, sx, sy + (menu.font_size + 4) * selected, ex, sy + (menu.font_size + 4) * (selected + 1) - 1, menu.frame_color);
 	ags->invalidate_screen(sx, sy, width, height);
 }

@@ -326,17 +326,17 @@ void NACT::cmd_page_call()
 
 void NACT::cmd_set_menu()
 {
-	if (draw_menu) {
-		menu.newline();
-		draw_menu = false;
+	if (defining_menu_item()) {
+		menu_lines.push_back(std::move(*pending_menu_line));
+		pending_menu_line.reset();
 
 		TRACE("$");
 	} else {
 		if (menu_items.empty()) {
-			clear_menu_window();
+			clear_menu_lines();
 		}
 		menu_items.emplace_back(sco.getw());
-		draw_menu = true;
+		pending_menu_line.emplace();
 
 		if (game_id.is(GameId::GAKUEN_SENKI))
 			menu_window = 2;
@@ -360,7 +360,7 @@ void NACT::cmd_open_menu()
 		}
 	}
 
-	int selection = menu_select(static_cast<int>(menu_items.size()));
+	int selection = menu_select();
 	if (terminate)
 		return;
 
@@ -504,11 +504,11 @@ void NACT::message(uint8_t first_byte)
 	draw_text(buf, text_wait_enb);
 
 	if (game_id.is_system1_dps()) {
-		if (!draw_menu) {
+		if (!defining_menu_item()) {
 			text_refresh = false;
 		}
 	}
-	if (!draw_menu)
+	if (!defining_menu_item())
 		msgskip->on_message(sco.page(), sco.current_addr());
 
 	// TODO: Convert hankaku to zenkaku
@@ -609,8 +609,10 @@ bool NACT::save(int index, const char header[112])
 	return true;
 }
 
-int NACT::menu_select(int num_items)
+int NACT::menu_select()
 {
+	int num_items = static_cast<int>(menu_lines.size());
+
 	if (msgskip->get_flags() & MSGSKIP_STOP_ON_MENU)
 		msgskip->activate(false);
 

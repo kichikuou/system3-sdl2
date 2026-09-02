@@ -274,19 +274,16 @@ void NACT_Sys2::cmd_open_verb()
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	clear_menu_window();
-	draw_menu = true;
+	clear_menu_lines();
 
 	for(int i = 0; i < MAX_VERB; i++) {
 		if(chk[i]) {
-			draw_text(caption_verb[i]);
-			menu.newline();
+			add_menu_line(caption_verb[i]);
 			id[index++] = i;
 		}
 	}
-	draw_menu = false;
 
-	int selection = menu_select(index);
+	int selection = menu_select();
 	if (terminate)
 		return;
 
@@ -325,23 +322,19 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	clear_menu_window();
-	draw_menu = true;
+	clear_menu_lines();
 
 	for(int i = 0; i < MAX_OBJ; i++) {
 		if(chk[i]) {
-			draw_text(caption_obj[i]);
-			menu.newline();
+			add_menu_line(caption_obj[i]);
 			id[index++] = i;
 		}
 	}
 	// 戻るを追加
-	draw_text(strings.back);
-	menu.newline();
+	add_menu_line(strings.back);
 	id[index++] = 0;
-	draw_menu = false;
 
-	int selection = menu_select(index);
+	int selection = menu_select();
 	if (terminate)
 		return;
 
