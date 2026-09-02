@@ -108,13 +108,13 @@ CG AGS::load_cg_surface(int page, int transparent, uint8_t flags)
 	return cg;
 }
 
-void AGS::blit_cg(int dest, CG& cg, const SDL_Rect* src, int dx, int dy)
+void AGS::blit_cg(ScreenId dest, CG& cg, const SDL_Rect* src, int dx, int dy)
 {
 	if (!cg.surface())
 		return;
 	SDL_Rect dstrect = { dx, dy, src ? src->w : cg.width(), src ? src->h : cg.height() };
 	SDL_BlitSurface(cg.surface(), src, hBmpScreen[dest], &dstrect);
-	if (dest == 0) {
+	if (dest == SCREEN_FRONT) {
 		invalidate_screen(dstrect.x, dstrect.y, dstrect.w, dstrect.h);
 	}
 }
@@ -136,7 +136,7 @@ void AGS::load_cg(int page, int transparent, uint8_t flags)
 		blit_cg(dest_screen, cg, NULL, cg.x, cg.y);
 }
 
-void AGS::copy_screen(int src, int dest, int sx, int sy, int ex, int ey, int dx, int dy, int transparent_color)
+void AGS::copy_screen(ScreenId src, ScreenId dest, int sx, int sy, int ex, int ey, int dx, int dy, int transparent_color)
 {
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
@@ -150,15 +150,15 @@ void AGS::copy_screen(int src, int dest, int sx, int sy, int ex, int ey, int dx,
 	if (transparent_color >= 0)
 		SDL_SetColorKey(src_surface, SDL_FALSE, 0);
 
-	if (dest == 0)
+	if (dest == SCREEN_FRONT)
 		invalidate_screen(dx, dy, width, height);
 }
 
 void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 {
 	// N88-BASIC時代のコピーコマンド
-	int src = (gsw == 0 || gsw == 2) ? 0 : 1;
-	int dest = (gsw == 0 || gsw == 3) ? 0 : 1;
+	ScreenId src = (gsw == 0 || gsw == 2) ? SCREEN_FRONT : SCREEN_BACK;
+	ScreenId dest = (gsw == 0 || gsw == 3) ? SCREEN_FRONT : SCREEN_BACK;
 	int sx = (gsc % 80) * 8;
 	int sy = gsc / 80;
 	int dx = (gde % 80) * 8;
@@ -168,14 +168,14 @@ void AGS::gcopy(int gsc, int gde, int glx, int gly, int gsw)
 
 	SDL_BlitSurface(hBmpScreen[src], &srcrect, hBmpScreen[dest], &destrect);
 
-	if(dest == 0) {
+	if(dest == SCREEN_FRONT) {
 		invalidate_screen(dx, dy, glx * 8, gly);
 	}
 }
 
 void AGS::paint(int x, int y, uint8 color)
 {
-	uint8_t old_color = vram[0][y][x];
+	uint8_t old_color = vram[SCREEN_FRONT][y][x];
 	if (old_color == color)
 		return;
 
@@ -186,25 +186,25 @@ void AGS::paint(int x, int y, uint8 color)
 	while (!stack.empty()) {
 		std::tie(x, y) = stack.back();
 		stack.pop_back();
-		while (x >= 0 && vram[0][y][x] == old_color) x--;
+		while (x >= 0 && vram[SCREEN_FRONT][y][x] == old_color) x--;
 		x++;
 		minx = std::min(x, minx);
 		bool span_above = false, span_below = false;
-		for (; x < 640 && vram[0][y][x] == old_color; x++) {
-			vram[0][y][x] = color;
+		for (; x < 640 && vram[SCREEN_FRONT][y][x] == old_color; x++) {
+			vram[SCREEN_FRONT][y][x] = color;
 			if (y > 0) {
-				if (!span_above && vram[0][y - 1][x] == old_color) {
+				if (!span_above && vram[SCREEN_FRONT][y - 1][x] == old_color) {
 					stack.push_back({x, y - 1});
 					span_above = true;
-				} else if (span_above && vram[0][y - 1][x] != old_color) {
+				} else if (span_above && vram[SCREEN_FRONT][y - 1][x] != old_color) {
 					span_above = false;
 				}
 			}
 			if (y < screen_height - 1) {
-				if (!span_below && vram[0][y + 1][x] == old_color) {
+				if (!span_below && vram[SCREEN_FRONT][y + 1][x] == old_color) {
 					stack.push_back({x, y + 1});
 					span_below = true;
-				} else if (span_below && vram[0][y + 1][x] != old_color) {
+				} else if (span_below && vram[SCREEN_FRONT][y + 1][x] != old_color) {
 					span_below = false;
 				}
 			}
@@ -221,25 +221,25 @@ void AGS::draw_mesh(int sx, int sy, int width, int height)
 	// super d.p.s
 	for(int y = sy, h = 0; h < height && y < 480; y += 2, h += 2) {
 		for(int x = sx, w = 0; w < width && x < 640; x += 2, w += 2) {
-			vram[0][y][x] = 255;
+			vram[SCREEN_FRONT][y][x] = 255;
 		}
 		for(int x = sx + 1, w = 1; w < width && x < 640; x += 2, w += 2) {
-			vram[0][y + 1][x] = 255;
+			vram[SCREEN_FRONT][y + 1][x] = 255;
 		}
 	}
 	invalidate_screen(sx, sy, width, height);
 }
 
-void AGS::box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color)
+void AGS::box_fill(ScreenId dest, int sx, int sy, int ex, int ey, uint8 color)
 {
 	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
 	SDL_FillRect(hBmpScreen[dest], &rect, color);
-	if(dest == 0) {
+	if(dest == SCREEN_FRONT) {
 		invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}
 }
 
-void AGS::box_line(int dest, int sx, int sy, int ex, int ey, uint8 color)
+void AGS::box_line(ScreenId dest, int sx, int sy, int ex, int ey, uint8 color)
 {
 	SDL_Rect top    = {sx, sy, ex - sx + 1, 1};
 	SDL_Rect bottom = {sx, ey, ex - sx + 1, 1};
@@ -250,7 +250,7 @@ void AGS::box_line(int dest, int sx, int sy, int ex, int ey, uint8 color)
 	SDL_FillRect(hBmpScreen[dest], &bottom, color);
 	SDL_FillRect(hBmpScreen[dest], &left, color);
 	SDL_FillRect(hBmpScreen[dest], &right, color);
-	if(dest == 0) {
+	if(dest == SCREEN_FRONT) {
 		invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 	}
 }
@@ -258,7 +258,7 @@ void AGS::box_line(int dest, int sx, int sy, int ex, int ey, uint8 color)
 void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color)
 {
 	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
-	SDL_FillRect(hBmpScreen[0], &rect, back_color);
+	SDL_FillRect(hBmpScreen[SCREEN_FRONT], &rect, back_color);
 
 	if (frame) {
 		SDL_Rect rects[] = {
@@ -267,8 +267,8 @@ void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_co
 			{sx + 1, sy + 1, 2, ey - sy - 1},
 			{ex - 2, sy + 1, 2, ey - sy - 1},
 		};
-		SDL_FillRects(hBmpScreen[0], rects, 4, frame_color);
-		box_line(0, sx + 4, sy + 4, ex - 4, ey - 4, frame_color);
+		SDL_FillRects(hBmpScreen[SCREEN_FRONT], rects, 4, frame_color);
+		box_line(SCREEN_FRONT, sx + 4, sy + 4, ex - 4, ey - 4, frame_color);
 	}
 	invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
 }
@@ -279,15 +279,15 @@ CG AGS::save_rect(int x, int y, int width, int height)
 	SDL_SetPaletteColors(cg.palette(), screen_palette->colors, 0, 256);
 
 	SDL_Rect rect = {x, y, width, height};
-	SDL_BlitSurface(hBmpScreen[0], &rect, cg.surface(), NULL);
+	SDL_BlitSurface(hBmpScreen[SCREEN_FRONT], &rect, cg.surface(), NULL);
 	return cg;
 }
 
 void AGS::restore_rect(const CG& cg)
 {
-	SDL_SetSurfacePalette(hBmpScreen[0], cg.palette());
+	SDL_SetSurfacePalette(hBmpScreen[SCREEN_FRONT], cg.palette());
 	SDL_Rect rect = {cg.x, cg.y, cg.width(), cg.height()};
-	SDL_BlitSurface(cg.surface(), NULL, hBmpScreen[0], &rect);
+	SDL_BlitSurface(cg.surface(), NULL, hBmpScreen[SCREEN_FRONT], &rect);
 	invalidate_screen(cg.x, cg.y, cg.width(), cg.height());
-	SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
+	SDL_SetSurfacePalette(hBmpScreen[SCREEN_FRONT], screen_palette);
 }

@@ -379,7 +379,7 @@ void NACT::draw_text(std::string_view string, bool wait)
 		return;
 
 	TextContext& ctx = draw_menu ? menu : text;
-	int screen = draw_menu ? 2 : ags->dest_screen;
+	ScreenId screen = draw_menu ? SCREEN_MENU : ags->dest_screen;
 	if (ctx.current_line_height < ctx.font_size)
 		ctx.current_line_height = ctx.font_size;
 

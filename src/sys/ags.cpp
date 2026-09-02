@@ -54,16 +54,16 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 	sdlTexture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, screen_width, screen_height);
 	scanline_texture = NULL;
 
-	// DIBSection 8bpp * 3 (表, 裏, メニュー)
-	for(int i = 0; i < 3; i++) {
+	// DIBSection 8bpp
+	for(int i = 0; i < NR_SCREENS; i++) {
 		hBmpScreen[i] = SDL_CreateRGBSurfaceWithFormat(0, 640, 480, 8, SDL_PIXELFORMAT_INDEX8);
 		vram[i] = reinterpret_cast<uint8_t(*)[640]>(hBmpScreen[i]->pixels);
 	}
 
 	// All surfaces share the same palette.
-	screen_palette = hBmpScreen[0]->format->palette;
-	SDL_SetSurfacePalette(hBmpScreen[1], screen_palette);
-	SDL_SetSurfacePalette(hBmpScreen[2], screen_palette);
+	screen_palette = hBmpScreen[SCREEN_FRONT]->format->palette;
+	SDL_SetSurfacePalette(hBmpScreen[SCREEN_BACK], screen_palette);
+	SDL_SetSurfacePalette(hBmpScreen[SCREEN_MENU], screen_palette);
 
 	if (!config.censor_list.empty())
 		load_censor_list(config.censor_list.c_str());
@@ -186,9 +186,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 
 	SDL_SetPaletteColors(screen_palette, program_palette->colors, 0, 256);
 
-	// 画面選択
-	src_screen = dest_screen = 0;
-
 	// CG表示
 	cg_dest = std::nullopt;
 	palette_bank = -1;
@@ -220,7 +217,7 @@ AGS::~AGS()
 
 	SDL_FreePalette(program_palette);
 
-	for(int i = 0; i < 3; i++) {
+	for(int i = 0; i < NR_SCREENS; i++) {
 		SDL_FreeSurface(hBmpScreen[i]);
 	}
 
@@ -308,7 +305,7 @@ void AGS::update_screen()
 	if (!SDL_RectEmpty(&dirty_rect)) {
 		SDL_Surface *sf;
 		SDL_LockTextureToSurface(sdlTexture, &dirty_rect, &sf);
-		SDL_BlitSurface(hBmpScreen[0], &dirty_rect, sf, NULL);
+		SDL_BlitSurface(hBmpScreen[SCREEN_FRONT], &dirty_rect, sf, NULL);
 		SDL_UnlockTexture(sdlTexture);
 		dirty_rect = {};
 	}
@@ -350,7 +347,7 @@ void AGS::set_scanline_mode(bool enable)
 bool AGS::save_screenshot(const char* path)
 {
 	SDL_Surface* sf = SDL_CreateRGBSurface(0, screen_width, screen_height, 32, 0, 0, 0, 0);
-	SDL_BlitSurface(hBmpScreen[0], NULL, sf, NULL);
+	SDL_BlitSurface(hBmpScreen[SCREEN_FRONT], NULL, sf, NULL);
 
 	if (scanline_texture) {
 		SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(sf);

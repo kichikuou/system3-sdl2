@@ -130,7 +130,7 @@ void NACT::clear_text_window(int index, bool erase)
 		if (w.frame && ags->is_faded()) {
 			ags->draw_window(w.sx - 8, w.sy - 8, w.ex + 8, w.ey + 8, true, text.frame_color, text.back_color);
 		} else {
-			ags->box_fill(0, w.sx, w.sy, w.ex, w.ey, text.back_color);
+			ags->box_fill(SCREEN_FRONT, w.sx, w.sy, w.ex, w.ey, text.back_color);
 		}
 	}
 
@@ -156,7 +156,7 @@ void NACT::draw_push(int index)
 	Window& w = text_w[index - 1];
 	int x = w.ex - 16;
 	int y = w.ey - 16;
-	ags->draw_gaiji(0, x, y, push_bitmap ? push_bitmap : builtin_bitmap, 16, text.font_color);
+	ags->draw_gaiji(SCREEN_FRONT, x, y, push_bitmap ? push_bitmap : builtin_bitmap, 16, text.font_color);
 	ags->invalidate_screen(x, y, 16, 16);
 }
 
@@ -214,7 +214,7 @@ void NACT::close_text_window(int index, bool update)
 
 void NACT::clear_menu_window()
 {
-	ags->box_fill(2, 0, 0, 639, 479, menu.back_color);
+	ags->box_fill(SCREEN_MENU, 0, 0, 639, 479, menu.back_color);
 	menu.reset_pos(2, 2);
 }
 
@@ -239,8 +239,8 @@ void NACT::open_menu_window(int index)
 	}
 
 	ags->draw_window(wsx, wsy, wex, wey, w.frame, menu.frame_color, menu.back_color);
-	ags->copy_screen(2, 0, 0, 0, width - 1, height - 1, sx, sy);
-	ags->box_line(0, sx, sy, ex, sy + menu.font_size + 3, menu.frame_color);
+	ags->copy_screen(SCREEN_MENU, SCREEN_FRONT, 0, 0, width - 1, height - 1, sx, sy);
+	ags->box_line(SCREEN_FRONT, sx, sy, ex, sy + menu.font_size + 3, menu.frame_color);
 	ags->invalidate_screen(wsx, wsy, wwidth, wheight);
 }
 
@@ -254,8 +254,8 @@ void NACT::redraw_menu_window(int index, int selected)
 	int width = ex - sx + 1;
 	int height = ey - sy + 1;
 
-	ags->copy_screen(2, 0, 0, 0, width - 1, height - 1, sx, sy);
-	ags->box_line(0, sx, sy + (menu.font_size + 4) * selected, ex, sy + (menu.font_size + 4) * (selected + 1) - 1, menu.frame_color);
+	ags->copy_screen(SCREEN_MENU, SCREEN_FRONT, 0, 0, width - 1, height - 1, sx, sy);
+	ags->box_line(SCREEN_FRONT, sx, sy + (menu.font_size + 4) * selected, ex, sy + (menu.font_size + 4) * (selected + 1) - 1, menu.frame_color);
 	ags->invalidate_screen(sx, sy, width, height);
 }
 

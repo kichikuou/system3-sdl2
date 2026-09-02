@@ -231,16 +231,13 @@ private:
 
 	// --- screens and CG loading -------------------------------------------
 
-	// The second VRAM page for offscreen work.
-	static constexpr int WORK_SCREEN = 1;
-
 	// Palette index the color keyed blits treat as transparent.
 	static constexpr int TRANSPARENT_COLOR = 7;
 
 	// Y 111
 	void load_cg_to_work_screen(int page) {
-		int saved = ags->dest_screen;
-		ags->dest_screen = WORK_SCREEN;
+		ScreenId saved = ags->dest_screen;
+		ags->dest_screen = SCREEN_BACK;
 		load_cg(page, -1);
 		ags->dest_screen = saved;
 	}
@@ -411,7 +408,7 @@ private:
 
 		if (map_id == 0) {
 			// Fill the direction key panel area with color 1.
-			ags->box_fill(0, 16, 304, 103, 391, 1);
+			ags->box_fill(SCREEN_FRONT, 16, 304, 103, 391, 1);
 			reset_map_overview();
 		} else if (map_id == 255) {
 			for (auto& record : map_explored)
@@ -444,7 +441,6 @@ private:
 	// T ...,255 leaves no sprite to draw.
 	static constexpr uint8_t SPRITE_HIDDEN = 0xff;
 
-	static constexpr int MAP_WORK_SCREEN = 2;
 	static constexpr int ANIMATION_FRAME_MS = 16;
 
 	uint16_t map_view_x = 0;
@@ -567,7 +563,7 @@ private:
 				if (!map_base_visible_view)
 					base = CELL_EMPTY;
 				if (base == CELL_EMPTY) {
-					ags->box_fill(MAP_WORK_SCREEN, px, py,
+					ags->box_fill(SCREEN_MENU, px, py,
 								  px + TILE_SIZE - 1, py + TILE_SIZE - 1, 0);
 				} else {
 					draw_map_tile(base, px, py, false);
@@ -605,7 +601,7 @@ private:
 		for (int frame = 1; frame <= frames && !terminate; frame++) {
 			int wx = step_position(window_x, view_step_x, frame, frames);
 			int wy = step_position(window_y, view_step_y, frame, frames);
-			ags->copy_screen(MAP_WORK_SCREEN, 0, wx, wy,
+			ags->copy_screen(SCREEN_MENU, SCREEN_FRONT, wx, wy,
 							 wx + VIEW_COLS * TILE_SIZE - 1,
 							 wy + VIEW_ROWS * TILE_SIZE - 1, VIEW_X, VIEW_Y);
 			if (map_sprite_frame != SPRITE_HIDDEN) {
@@ -636,7 +632,7 @@ private:
 			return;
 		}
 		int index = tile % TILES_PER_BANK;
-		blit_sheet(MAP_WORK_SCREEN, map_tile_cg[bank],
+		blit_sheet(SCREEN_MENU, map_tile_cg[bank],
 				   (index % SHEET_COLS) * TILE_SIZE,
 				   (index / SHEET_COLS) * TILE_SIZE,
 				   TILE_SIZE, TILE_SIZE, px, py, transparent);
@@ -654,11 +650,11 @@ private:
 		int bottom = std::min(py + TILE_SIZE, VIEW_Y + VIEW_ROWS * TILE_SIZE);
 		if (left >= right || top >= bottom)
 			return;
-		blit_sheet(0, map_sprite_cg, frame * TILE_SIZE + (left - px), top - py,
+		blit_sheet(SCREEN_FRONT, map_sprite_cg, frame * TILE_SIZE + (left - px), top - py,
 				   right - left, bottom - top, left, top, true);
 	}
 
-	void blit_sheet(int dest, CG& cg, int sheet_x, int sheet_y,
+	void blit_sheet(ScreenId dest, CG& cg, int sheet_x, int sheet_y,
 					int width, int height, int dx, int dy, bool transparent) {
 		SDL_Rect src = { sheet_x, sheet_y, width, height };
 		if (src.x + width > cg.width() || src.y + height > cg.height()) {
@@ -699,7 +695,7 @@ private:
 
 	void reset_map_overview() {
 		map_overview_rebuild_pending = true;
-		ags->box_fill(0, OVERVIEW_X, OVERVIEW_Y,
+		ags->box_fill(SCREEN_FRONT, OVERVIEW_X, OVERVIEW_Y,
 					  OVERVIEW_X + OVERVIEW_W - 1, OVERVIEW_Y + OVERVIEW_H - 1, 0);
 	}
 
@@ -737,7 +733,7 @@ private:
 	}
 
 	void rebuild_map_overview() {
-		ags->box_fill(0, OVERVIEW_X, OVERVIEW_Y,
+		ags->box_fill(SCREEN_FRONT, OVERVIEW_X, OVERVIEW_Y,
 					  OVERVIEW_X + OVERVIEW_W - 1, OVERVIEW_Y + OVERVIEW_H - 1, 0);
 		for (int y = 0; y < MAP_HEIGHT; y++) {
 			for (int x = 0; x < MAP_WIDTH; x++) {
@@ -762,7 +758,7 @@ private:
 		if (bank >= NR_TILE_BANKS || !map_tile_cg[bank])
 			return;
 		int index = tile % TILES_PER_BANK;
-		blit_sheet(0, map_tile_cg[bank],
+		blit_sheet(SCREEN_FRONT, map_tile_cg[bank],
 				   (index % SHEET_COLS) * OVERVIEW_CELL,
 				   OVERVIEW_PATTERN_Y + (index / SHEET_COLS) * OVERVIEW_CELL,
 				   OVERVIEW_CELL, OVERVIEW_CELL,
@@ -781,12 +777,12 @@ private:
 			if (!map_marker_saved_color_stale) {
 				int px = OVERVIEW_X + map_marker_prev_x * OVERVIEW_CELL;
 				int py = OVERVIEW_Y + map_marker_prev_y * OVERVIEW_CELL;
-				ags->box_fill(0, px, py, px + OVERVIEW_CELL - 1, py + OVERVIEW_CELL - 1,
+				ags->box_fill(SCREEN_FRONT, px, py, px + OVERVIEW_CELL - 1, py + OVERVIEW_CELL - 1,
 							  map_marker_saved_color);
 			}
 			map_marker_prev_x = map_marker_x;
 			map_marker_prev_y = map_marker_y;
-			map_marker_saved_color = ags->get_pixel(0, x, y);
+			map_marker_saved_color = ags->get_pixel(SCREEN_FRONT, x, y);
 			map_marker_saved_color_stale = false;
 		}
 
@@ -794,7 +790,7 @@ private:
 		if (now >= map_marker_blink_deadline) {
 			map_marker_blink_deadline = now + ticks_to_ms(map_animation_ticks + 10);
 			map_marker_blink_color ^= 0x0f;
-			ags->box_fill(0, x, y, x + OVERVIEW_CELL - 1, y + OVERVIEW_CELL - 1, map_marker_blink_color);
+			ags->box_fill(SCREEN_FRONT, x, y, x + OVERVIEW_CELL - 1, y + OVERVIEW_CELL - 1, map_marker_blink_color);
 		}
 	}
 
@@ -1050,19 +1046,19 @@ private:
 	// the work screen.
 	void draw_key_panel() {
 		int x = key_panel_src_x;
-		ags->copy_screen(WORK_SCREEN, 0, x + 104, 304, x + 191, 391, KEY_PANEL_X, KEY_PANEL_Y);
+		ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, x + 104, 304, x + 191, 391, KEY_PANEL_X, KEY_PANEL_Y);
 		switch (key_panel_direction) {
 		case 1:
-			ags->copy_screen(WORK_SCREEN, 0, x + 192, 304, x + 279, 343, KEY_PANEL_X, KEY_PANEL_Y);
+			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, x + 192, 304, x + 279, 343, KEY_PANEL_X, KEY_PANEL_Y);
 			break;
 		case 2:
-			ags->copy_screen(WORK_SCREEN, 0, x + 192, 352, x + 279, 391, KEY_PANEL_X, KEY_PANEL_Y + 48);
+			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, x + 192, 352, x + 279, 391, KEY_PANEL_X, KEY_PANEL_Y + 48);
 			break;
 		case 4:
-			ags->copy_screen(WORK_SCREEN, 0, x + 280, 304, x + 319, 391, KEY_PANEL_X, KEY_PANEL_Y);
+			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, x + 280, 304, x + 319, 391, KEY_PANEL_X, KEY_PANEL_Y);
 			break;
 		case 8:
-			ags->copy_screen(WORK_SCREEN, 0, x + 328, 304, x + 367, 391, KEY_PANEL_X + 48, KEY_PANEL_Y);
+			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, x + 328, 304, x + 367, 391, KEY_PANEL_X + 48, KEY_PANEL_Y);
 			break;
 		default:
 			break;
@@ -1104,12 +1100,12 @@ private:
 	}
 
 	void draw_digit(int digit, int x, int y, uint8_t color) {
-		ags->box_fill(0, x, y, x + DIGIT_WIDTH - 1, y + DIGIT_HEIGHT - 1, DIGIT_BACK_COLOR);
+		ags->box_fill(SCREEN_FRONT, x, y, x + DIGIT_WIDTH - 1, y + DIGIT_HEIGHT - 1, DIGIT_BACK_COLOR);
 		for (int row = 0; row < DIGIT_HEIGHT; row++) {
 			uint8_t bits = digit_font[digit][row];
 			for (int col = 0; col < DIGIT_WIDTH; col++) {
 				if (bits & (0x80 >> col))
-					ags->set_pixel(0, x + col, y + row, color);
+					ags->set_pixel(SCREEN_FRONT, x + col, y + row, color);
 			}
 		}
 	}
@@ -1128,7 +1124,7 @@ private:
 		int i = 0;
 		while (i < digits && d[i] == 0) {
 			// Leading zeros are blanked.
-			ags->box_fill(0, x + i * DIGIT_WIDTH, y,
+			ags->box_fill(SCREEN_FRONT, x + i * DIGIT_WIDTH, y,
 						  x + i * DIGIT_WIDTH + DIGIT_WIDTH - 1, y + DIGIT_HEIGHT - 1,
 						  DIGIT_BACK_COLOR);
 			i++;
@@ -1168,7 +1164,7 @@ private:
 			draw_number(VAR_PE_SCORE, 2, 88, 272);
 		} else {
 			// Redraw the direction key panel from the work screen.
-			ags->copy_screen(WORK_SCREEN, 0, 104, 304, 191, 391, KEY_PANEL_X, KEY_PANEL_Y);
+			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, 104, 304, 191, 391, KEY_PANEL_X, KEY_PANEL_Y);
 		}
 	}
 
@@ -1201,7 +1197,7 @@ private:
 
 		load_cg_to_work_screen(230);
 		// Save the part of the display CG 208 overwrites.
-		ags->copy_screen(0, WORK_SCREEN, 16, 192, 367, 294, 0, 48);
+		ags->copy_screen(SCREEN_FRONT, SCREEN_BACK, 16, 192, 367, 294, 0, 48);
 		load_cg(208, -1);
 
 		VAR_TROOP_COUNT_FULL = VAR_TROOP_COUNT;
@@ -1254,7 +1250,7 @@ private:
 		}
 
 		// Restore the saved area.
-		ags->copy_screen(WORK_SCREEN, 0, 0, 48, 351, 150, 16, 192);
+		ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, 0, 48, 351, 150, 16, 192);
 	}
 
 	const TroopButton* troop_button_at(int x, int y) {
@@ -1268,7 +1264,7 @@ private:
 	void draw_troop_button(int image_x, const TroopButton& b) {
 		// The subtract buttons use the lower row of images.
 		int image_y = b.step < 0 ? 24 : 4;
-		ags->copy_screen(WORK_SCREEN, 0, image_x, image_y,
+		ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, image_x, image_y,
 		                 image_x + TROOP_BUTTON_WIDTH - 1,
 		                 image_y + TROOP_BUTTON_HEIGHT - 1, b.x, b.y);
 	}
@@ -1288,7 +1284,7 @@ private:
 			int digit = value / divisor;
 			value %= divisor;
 			divisor /= 10;
-			ags->copy_screen(WORK_SCREEN, 0, digit * 48, 0, digit * 48 + 47, 47,
+			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, digit * 48, 0, digit * 48 + 47, 47,
 			                 120 + i * 48, 232);
 		}
 	}
@@ -1357,7 +1353,7 @@ private:
 				uint16_t bit = 0x8000 >> col;
 				if (!(cursor.silhouette[row] & bit))
 					continue;
-				ags->set_pixel(0, x + col, y + row, (cursor.body[row] & bit) ? 15 : 0);
+				ags->set_pixel(SCREEN_FRONT, x + col, y + row, (cursor.body[row] & bit) ? 15 : 0);
 			}
 		}
 		ags->invalidate_screen(x, y, MOUSE_CURSOR_SIZE, MOUSE_CURSOR_SIZE);
@@ -1437,13 +1433,13 @@ private:
 			int ex = sx + cell_w - 1;
 			int ey = sy + (wide ? 31 : 32);
 			if (state == 0) {
-				ags->box_fill(WORK_SCREEN, sx, sy, ex, ey, 0);
+				ags->box_fill(SCREEN_BACK, sx, sy, ex, ey, 0);
 			} else {
 				for (int n = 0; n < 3; n++)
-					ags->box_line(WORK_SCREEN, sx + n, sy + n, ex - n, ey - n, 15);
+					ags->box_line(SCREEN_BACK, sx + n, sy + n, ex - n, ey - n, 15);
 			}
 		}
-		ags->copy_screen(WORK_SCREEN, 0, GRID_COPY_X1, 0, GRID_COPY_X2, GRID_COPY_Y2,
+		ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, GRID_COPY_X1, 0, GRID_COPY_X2, GRID_COPY_Y2,
 		                 GRID_COPY_X1, 0);
 
 		int& cx = grid_cursor_x[wide ? 1 : 0];
@@ -1470,7 +1466,7 @@ private:
 			if (!cursor_drawn)
 				return;
 			SDL_ShowCursor(SDL_ENABLE);
-			ags->copy_screen(WORK_SCREEN, 0, cx, cy, cx + MOUSE_CURSOR_SIZE - 1,
+			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, cx, cy, cx + MOUSE_CURSOR_SIZE - 1,
 			                 cy + MOUSE_CURSOR_SIZE - 1, cx, cy);
 			cursor_drawn = false;
 		};
@@ -1568,7 +1564,7 @@ private:
 			load_cg_to_work_screen(VAR_BATTLE_DRAW_CG);
 			break;
 		case 1:
-			ags->box_fill(WORK_SCREEN, 0, 0, 4 * BATTLE_FRAME_W - 1, BATTLE_FRAME_H - 1,
+			ags->box_fill(SCREEN_BACK, 0, 0, 4 * BATTLE_FRAME_W - 1, BATTLE_FRAME_H - 1,
 						  BATTLE_BACK_COLOR);
 			break;
 		case 2:
@@ -1581,7 +1577,7 @@ private:
 					part -= BATTLE_PARTS_PER_ROW;
 				int sx = part * BATTLE_PART_SIZE;
 				int sy = BATTLE_PART_SHEET_Y + row * BATTLE_PART_SIZE;
-				ags->copy_screen(WORK_SCREEN, WORK_SCREEN,
+				ags->copy_screen(SCREEN_BACK, SCREEN_BACK,
 				                 sx, sy, sx + BATTLE_PART_SIZE - 1, sy + BATTLE_PART_SIZE - 1,
 				                 part_x, part_y, TRANSPARENT_COLOR);
 			}
@@ -1594,7 +1590,7 @@ private:
 				int frame = mode - 3;
 				int sx = frame * BATTLE_FRAME_W;
 				int dx = (frame < 2) ? BATTLE_LEFT_DEST_X : BATTLE_RIGHT_DEST_X;
-				ags->copy_screen(WORK_SCREEN, 0, sx, 0, sx + BATTLE_FRAME_W - 1,
+				ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, sx, 0, sx + BATTLE_FRAME_W - 1,
 				                 BATTLE_FRAME_H - 1, dx, BATTLE_DEST_Y);
 			}
 			break;
@@ -1614,7 +1610,7 @@ private:
 		for (int half = 0; half < 2; half++) {
 			int sx = base_x + half * BATTLE_FRAME_W;
 			for (int frame = 0; frame < 2; frame++) {
-				ags->copy_screen(WORK_SCREEN, WORK_SCREEN,
+				ags->copy_screen(SCREEN_BACK, SCREEN_BACK,
 				                 sx, BATTLE_TEMPLATE_Y,
 				                 sx + BATTLE_FRAME_W - 1, BATTLE_TEMPLATE_Y + BATTLE_TEMPLATE_H - 1,
 				                 base_x + frame * BATTLE_FRAME_W, half * BATTLE_TEMPLATE_H);
@@ -1663,7 +1659,7 @@ private:
 			int value = table[offset] | (table[offset + 1] << 8);
 			int x = DISSOLVE_X + value % DISSOLVE_STRIDE;
 			int y = DISSOLVE_Y + value / DISSOLVE_STRIDE;
-			ags->copy_screen(WORK_SCREEN, 0, x, y, x, y, x, y);
+			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, x, y, x, y, x, y);
 			if ((i & 0x2f) == 0x2f)
 				wait_ticks(1);
 		}
@@ -1779,13 +1775,13 @@ private:
 	}
 
 	void clear_credit_column() {
-		ags->box_fill(WORK_SCREEN, CREDIT_X1, 0, CREDIT_X2, 399, 0);
+		ags->box_fill(SCREEN_BACK, CREDIT_X1, 0, CREDIT_X2, 399, 0);
 	}
 
 	void draw_credit_text(int x, int y, std::string_view str, bool hankaku) {
-		int saved_screen = ags->dest_screen;
+		ScreenId saved_screen = ags->dest_screen;
 		bool saved_hankaku = draw_hankaku;
-		ags->dest_screen = WORK_SCREEN;
+		ags->dest_screen = SCREEN_BACK;
 		draw_hankaku = hankaku;
 		text.pos.x = x;
 		text.pos.y = y;
@@ -1798,10 +1794,10 @@ private:
 		constexpr int band_rows[] = {315, 317, 384, 386};
 
 		for (int step = 0; step < steps && !terminate; step++) {
-			ags->copy_screen(WORK_SCREEN, 0, CREDIT_X1, step, CREDIT_X2,
+			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, CREDIT_X1, step, CREDIT_X2,
 			                 step + CREDIT_BAND_H - 1, CREDIT_X1, CREDIT_BAND_Y);
 			for (int row : band_rows)
-				ags->box_fill(0, CREDIT_X1, row, CREDIT_X2, row, 0);
+				ags->box_fill(SCREEN_FRONT, CREDIT_X1, row, CREDIT_X2, row, 0);
 			wait_ticks(get_key() ? 1 : 4);
 		}
 	}

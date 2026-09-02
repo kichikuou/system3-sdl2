@@ -789,10 +789,10 @@ void NACT_Sys3::exec_y(int cmd, int param)
 			text.line_space = (param == 0) ? 2 : 0;
 			break;
 		case 30:
-			ags->src_screen = param ? 1 : 0;
+			ags->src_screen = param ? SCREEN_BACK : SCREEN_FRONT;
 			break;
 		case 31:
-			ags->dest_screen = param ? 1 : 0;
+			ags->dest_screen = param ? SCREEN_BACK : SCREEN_FRONT;
 			break;
 		case 32:
 			RND = (param <= 480) ? param : 480;
@@ -822,9 +822,9 @@ void NACT_Sys3::exec_y(int cmd, int param)
 			break;
 		case 61:
 			if(param) {
-				ags->set_pixel(D03, D01, D02, (uint8)RND);
+				ags->set_pixel(static_cast<ScreenId>(D03), D01, D02, (uint8)RND);
 			} else {
-				RND = ags->get_pixel(D03, D01, D02);
+				RND = ags->get_pixel(static_cast<ScreenId>(D03), D01, D02);
 			}
 			break;
 		case 70:
@@ -1201,7 +1201,7 @@ bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 		draw_text("12345");
 		text.font_size = orig_font_size;
 		int left = info->left + info->w * (var[info->var] - 1);
-		ags->box_line(0, left, info->top, left + info->w, info->top + info->h, text.font_color);
+		ags->box_line(SCREEN_FRONT, left, info->top, left + info->w, info->top + info->h, text.font_color);
 	}
 
 	// Only You: Prevents the cursor from being locked due to unselectable cells.
@@ -1259,7 +1259,7 @@ bool NACT_Sys3::k3_hack(const K3HackInfo* info_table)
 	if (info->draw_window) {
 		// Clear the menu window.
 		ags->box_fill(
-			0, info->left - 6, info->top - 6,
+			SCREEN_FRONT, info->left - 6, info->top - 6,
 			info->left + info->w * info->cols + 6, info->top + info->h + 6, 0);
 	}
 

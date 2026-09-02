@@ -20,6 +20,13 @@
 
 struct Config;
 
+enum ScreenId {
+	SCREEN_FRONT,
+	SCREEN_BACK,
+	SCREEN_MENU,
+	NR_SCREENS,
+};
+
 enum CgFlags {
 	CG_EXTRACT_CG = 1,
 	CG_EXTRACT_PALETTE = 2,
@@ -35,8 +42,8 @@ private:
 	SDL_Texture* scanline_texture;
 
 	// Surface
-	SDL_Surface* hBmpScreen[3]; // 8bpp * 3 (表, 裏, メニュー)
-	uint8_t (*vram[3])[640];  // convenience pointer to hBmpScreen[i]->pixels
+	SDL_Surface* hBmpScreen[NR_SCREENS]; // 8bpp
+	uint8_t (*vram[NR_SCREENS])[640];  // convenience pointer to hBmpScreen[i]->pixels
 
 	SDL_Palette* program_palette;
 	SDL_Palette* screen_palette;
@@ -59,8 +66,8 @@ private:
 	CG load_pms(int page, const std::vector<uint8_t>& data, bool set_palette, int transparent, uint8_t flags);
 	CG load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transparent, uint8_t flags);
 
-	void draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
-	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);
+	void draw_char(ScreenId dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
+	void draw_char_antialias(ScreenId dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);
 
 	uint8_t palR(uint8_t col) const { return screen_palette->colors[col].r; }
 	uint8_t palG(uint8_t col) const { return screen_palette->colors[col].g; }
@@ -83,17 +90,17 @@ public:
 	CG load_cg_surface(int page, int transparent, uint8_t flags);
 	// Returns an ACG page bytes, without decoding it.
 	std::vector<uint8_t> load_cg_data(int page) { return acg.load(page); }
-	void blit_cg(int dest, CG& cg, const SDL_Rect* src, int dx, int dy);
+	void blit_cg(ScreenId dest, CG& cg, const SDL_Rect* src, int dx, int dy);
 	void set_cg_file(const char *file_name);
 
 	void load_censor_list(const char* fname);
 
 	void set_palette(int index, uint8_t r, uint8_t g, uint8_t b);
 	std::vector<uint32_t> get_screen_palette() const;
-	uint8 get_pixel(int dest, int x, int y) const { return vram[dest][y][x]; }
-	void set_pixel(int dest, int x, int y, uint8 color) { vram[dest][y][x] = color; }
+	uint8 get_pixel(ScreenId dest, int x, int y) const { return vram[dest][y][x]; }
+	void set_pixel(ScreenId dest, int x, int y, uint8 color) { vram[dest][y][x] = color; }
 	void invalidate_screen(int sx, int sy, int width, int height);
-	void draw_gaiji(int dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color);
+	void draw_gaiji(ScreenId dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color);
 	bool is_faded() const { return fade_level != 0; }
 
 	void fade_out(int duration_ms, bool white);
@@ -102,19 +109,19 @@ public:
 	void copy(int sx, int sy, int ex, int ey, int dx, int dy) {
 		copy_screen(src_screen, dest_screen, sx, sy, ex, ey, dx, dy);
 	}
-	void copy_screen(int src, int dest, int sx, int sy, int ex, int ey, int dx, int dy,
+	void copy_screen(ScreenId src, ScreenId dest, int sx, int sy, int ex, int ey, int dx, int dy,
 					 int transparent_color = -1);
 	void gcopy(int gsc, int gde, int glx, int gly, int gsw);
 	void paint(int x, int y, uint8 color);
 	void draw_mesh(int sx, int sy, int width, int height);
-	void box_fill(int dest, int sx, int sy, int ex, int ey, uint8 color);
-	void box_line(int dest, int sx, int sy, int ex, int ey, uint8 color);
+	void box_fill(ScreenId dest, int sx, int sy, int ex, int ey, uint8 color);
+	void box_line(ScreenId dest, int sx, int sy, int ex, int ey, uint8 color);
 	void draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color);
 
 	CG save_rect(int x, int y, int width, int height);
 	void restore_rect(const CG& cg);
 
-	int draw_text(int dest, int x, int y, std::u16string_view codes, int font_size, uint8 color);
+	int draw_text(ScreenId dest, int x, int y, std::u16string_view codes, int font_size, uint8 color);
 
 	void load_cursor(int page, uint8_t flags);
 	void select_cursor();
@@ -126,9 +133,8 @@ public:
 
 	SDL_Rect dirty_rect = {};
 
-	// 画面選択
-	int src_screen;
-	int dest_screen;
+	ScreenId src_screen = SCREEN_FRONT;
+	ScreenId dest_screen = SCREEN_FRONT;
 
 	int scroll = 0;
 	int window_width, window_height;

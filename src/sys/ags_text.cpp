@@ -16,7 +16,7 @@ bool antialias = true;
 
 } // namespace
 
-int AGS::draw_text(int dest, int x, int y, std::u16string_view codes, int font_size, uint8 color)
+int AGS::draw_text(ScreenId dest, int x, int y, std::u16string_view codes, int font_size, uint8 color)
 {
 	uint8 antialias_cache[256*7];
 	if (antialias)
@@ -58,12 +58,12 @@ int AGS::draw_text(int dest, int x, int y, std::u16string_view codes, int font_s
 	}
 
 	// 画面更新
-	if (dest == 0)
+	if (dest == SCREEN_FRONT)
 		invalidate_screen(x, dest_y, dest_x - x, ascent - descent);
 	return dest_x;
 }
 
-void AGS::draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color)
+void AGS::draw_char(ScreenId dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color)
 {
 	// パターン取得
 	SDL_Color white = {0xff, 0xff, 0xff};
@@ -97,7 +97,7 @@ int AGS::nearest_color(int r, int g, int b) {
 	return col;
 }
 
-void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[])
+void AGS::draw_char_antialias(ScreenId dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[])
 {
 	// パターン取得
 	SDL_Color black = {0, 0, 0};
@@ -131,7 +131,7 @@ void AGS::draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF
 	SDL_FreeSurface(fs);
 }
 
-void AGS::draw_gaiji(int dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color)
+void AGS::draw_gaiji(ScreenId dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color)
 {
 	bool pattern[16][16];
 

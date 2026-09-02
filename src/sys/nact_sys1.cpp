@@ -639,47 +639,47 @@ public:
 		// One the actual MSX, this bar was constructed in an irregular fashion. This code constructs a more consistent version, where each square
 		// is 35px wide with 2px borders on each side. Since the borders are overlapped, this means each sub-sprite is placed 37px apart.
 		else if (param == 46) {
-			// Originally this would have loaded Image 296, the party status bar, to screen 1 for future reference. However, due to trouble with
+			// Originally this would have loaded Image 296, the party status bar, to the back screen for future reference. However, due to trouble with
 			// the palette, I decided to load it before using each subcommand, instead.
-			/*ags->dest_screen = 1;
+			/*ags->dest_screen = SCREEN_BACK;
 			  load_cg(296, -1);
-			  ags->dest_screen = 0;*/
+			  ags->dest_screen = SCREEN_FRONT;*/
 		}
 		else if (param == 30) {
-			// Load party status bar to screen 1.
-			ags->dest_screen = 1;
+			// Load party status bar to the back screen.
+			ags->dest_screen = SCREEN_BACK;
 			load_cg(296, -1);
-			ags->dest_screen = 0;
+			ags->dest_screen = SCREEN_FRONT;
 
 			// Draw Wataru's icon.
-			ags->src_screen = 1;
+			ags->src_screen = SCREEN_BACK;
 			ags->copy(10, 182, 48, 224, 7, 210);
-			ags->src_screen = 0;
+			ags->src_screen = SCREEN_FRONT;
 		}
 		else if (param >= 34 && param <= 39) {
 			int x = (39 - param) * 37 + 45;
 
-			// Load party status bar to screen 1.
-			ags->dest_screen = 1;
+			// Load party status bar to the back screen.
+			ags->dest_screen = SCREEN_BACK;
 			load_cg(296, -1);
-			ags->dest_screen = 0;
+			ags->dest_screen = SCREEN_FRONT;
 
 			// Draw a blank party icon to init or clear the party box.
-			ags->src_screen = 1;
+			ags->src_screen = SCREEN_BACK;
 			ags->copy(269, 182, 307, 224, x, 210);
-			ags->src_screen = 0;
+			ags->src_screen = SCREEN_FRONT;
 		} else {
 			int x = (45 - param) * 37 + 45;
 
-			// Load party status bar to screen 1.
-			ags->dest_screen = 1;
+			// Load party status bar to the back screen.
+			ags->dest_screen = SCREEN_BACK;
 			load_cg(296, -1);
-			ags->dest_screen = 0;
+			ags->dest_screen = SCREEN_FRONT;
 
 			// Draw a party member's icon to the party bar.
-			ags->src_screen = 1;
+			ags->src_screen = SCREEN_BACK;
 			ags->copy(x + 2, 182, x + 38, 224, x, 210);
-			ags->src_screen = 0;
+			ags->src_screen = SCREEN_FRONT;
 		}
 	}
 
@@ -803,7 +803,7 @@ public:
 		} else if (cmd == 2) {
 			if (param == 0) {
 				// Clear the screen
-				ags->box_fill(0, 0, 0, 640, 400, 0);
+				ags->box_fill(SCREEN_FRONT, 0, 0, 640, 400, 0);
 			} else {
 				// Restore the screen
 				load_cg(74, 8);
@@ -884,9 +884,9 @@ public:
 
 			WAIT(2000);
 			draw_box(0);
-			ags->dest_screen = 1;
+			ags->dest_screen = SCREEN_BACK;
 			load_cg(173, -1);
-			ags->dest_screen = 0;
+			ags->dest_screen = SCREEN_FRONT;
 			ags->gcopy(0x1ecd, 0x3a2a, 8, 60, 3);
 			WAIT(667);
 			ags->gcopy(0x1b65, 0x262e, 8, 60, 3);
@@ -963,7 +963,7 @@ public:
 			break;
 		case 7:
 			if (param == 1) {
-				ags->box_fill(0, 40, 8, 598, 270, 0);
+				ags->box_fill(SCREEN_FRONT, 40, 8, 598, 270, 0);
 			}
 			break;
 		case 255:
@@ -1000,10 +1000,10 @@ public:
 				// Unknown
 			}
 			else if (param == 6) {
-				ags->box_fill(0, 0, 0, 424, 276, 0);
+				ags->box_fill(SCREEN_FRONT, 0, 0, 424, 276, 0);
 			}
 			else if (param == 7) {
-				ags->box_fill(0, 0, 0, 640, 276, 0);
+				ags->box_fill(SCREEN_FRONT, 0, 0, 640, 276, 0);
 			}
 			break;
 		case 12:

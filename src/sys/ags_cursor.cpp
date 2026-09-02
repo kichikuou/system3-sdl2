@@ -14,10 +14,10 @@ void AGS::load_cursor(int page, uint8_t flags)
 {
 	// カーソルCGをロードする
 	auto j_backup = cg_dest;
-	int dest = dest_screen;
+	ScreenId dest = dest_screen;
 
 	cg_dest = {0, 0};
-	dest_screen = 1;
+	dest_screen = SCREEN_BACK;
 
 	load_cg(page, -1, flags);
 
@@ -32,7 +32,7 @@ void AGS::load_cursor(int page, uint8_t flags)
 
 		for(int y = 0; y < 32; y++) {
 			for(int x = 0; x < 32; x++) {
-				pat[y + 1][x + 1] = (vram[1][y >> 1][(x >> 1) + 16 * i] & 0xf) ? 1 : 0;
+				pat[y + 1][x + 1] = (vram[SCREEN_BACK][y >> 1][(x >> 1) + 16 * i] & 0xf) ? 1 : 0;
 			}
 		}
 
