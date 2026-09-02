@@ -104,7 +104,7 @@ void NACT_Sys3::cmd_open_verb()
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	ags->clear_menu_window();
+	clear_menu_window();
 	ags->draw_menu = true;
 
 	for(int i = 0; i < MAX_VERB; i++) {
@@ -155,7 +155,7 @@ void NACT_Sys3::cmd_open_obj(int verb)
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	ags->clear_menu_window();
+	clear_menu_window();
 	ags->draw_menu = true;
 
 	for(int i = 0; i < MAX_OBJ; i++) {
@@ -200,24 +200,26 @@ void NACT_Sys3::cmd_b()
 		if (game_id.is(GameId::AYUMI_CD) || game_id.is(GameId::AYUMI_LIVE_256) || game_id.is(GameId::AYUMI_LIVE_FULL)) {
 			p5 = 1;
 		}
-		ags->set_menu_window(index, column ? p1 * 8 : p1 & 0xfff8, p2, column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1, p4, p5);
+		menu_w[index - 1].reset(column ? p1 * 8 : p1 & 0xfff8, p2, column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1, p4,
+								menu_w[index - 1].frame, p5);
 		break;
 	case 2:
-		ags->set_menu_window_frame(index, p1);
+		menu_w[index - 1].frame = p1;
 		menu_window = index;
 		break;
 	case 3:
-		ags->set_text_window(index, column ? p1 * 8 : p1 & 0xfff8, p2, column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1, p4, p5);
+		text_w[index - 1].reset(column ? p1 * 8 : p1 & 0xfff8, p2, column ? p3 * 8 - 1 : (p3 & 0xfff8) - 1, p4,
+								text_w[index - 1].frame, p5);
 		break;
 	case 4:
 		if(p5 == 0) {
 			// ウィンドウ退避
-			ags->set_text_window_frame(index, p1);
-			ags->open_text_window(index, p4 ? false : true);
+			text_w[index - 1].frame = p1;
+			open_text_window(index, p4 ? false : true);
 			text_window = index;
 		} else {
 			// ウィンドウ復帰
-			ags->close_text_window(index, text_window == index ? true : false);
+			close_text_window(index, text_window == index ? true : false);
 		}
 		break;
 	default:
@@ -673,7 +675,7 @@ void NACT_Sys3::exec_y(int cmd, int param)
 {
 	switch(cmd) {
 		case 1:
-			ags->clear_text_window(text_window, (param == 0) ? true : false);
+			clear_text_window(text_window, (param == 0) ? true : false);
 			break;
 		case 2:
 			if(param == 0) {
@@ -932,7 +934,7 @@ void NACT_Sys3::exec_y(int cmd, int param)
 		case 233:
 			break;
 		case 234:
-			ags->menu_fix = param ? true : false;
+			menu_fix = param ? true : false;
 			break;
 		case 235:
 			break;

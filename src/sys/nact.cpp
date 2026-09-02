@@ -70,6 +70,9 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	mako = new MAKO(config, game_id);
 	msgskip = new MsgSkip();
 
+	init_windows();
+	ags->text.reset_pos(text_w[0].sx, text_w[0].sy + 2);
+
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
 	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
 		if (SDL_IsGameController(i)) {
@@ -330,7 +333,7 @@ void NACT::cmd_set_menu()
 		TRACE("$");
 	} else {
 		if (menu_items.empty()) {
-			ags->clear_menu_window();
+			clear_menu_window();
 		}
 		menu_items.emplace_back(sco.getw());
 		ags->draw_menu = true;
@@ -408,7 +411,7 @@ void NACT::cmd_a()
 		if (msgskip->get_flags() & MSGSKIP_STOP_ON_CLICK && get_key())
 			msgskip->activate(false);
 	} else if (show_push) {
-		ags->draw_push(text_window);
+		draw_push(text_window);
 	}
 
 	get_wheel();  // clear wheel input
@@ -429,7 +432,7 @@ void NACT::cmd_a()
 	}
 
 	// ウィンドウ更新
-	ags->clear_text_window(text_window, true);
+	clear_text_window(text_window, true);
 
 	if (game_id.is_system1_dps()) {
 		text_refresh = true;
@@ -449,8 +452,8 @@ void NACT::cmd_r()
 
 	TRACE("R");
 
-	// ウィンドウの表示範囲外の場合は改ページ
-	if(ags->return_text_line(text_window)) {
+	// If the text is outside the window, do a page break
+	if (return_text_line(text_window)) {
 		cmd_a();
 	}
 }
@@ -612,11 +615,11 @@ int NACT::menu_select(int num_items)
 		msgskip->activate(false);
 
 	// メニュー表示
-	ags->open_menu_window(menu_window);
+	open_menu_window(menu_window);
 
 	// マウス移動
 	int sx, sy, ex;
-	ags->get_menu_window_rect(menu_window, &sx, &sy, &ex, nullptr);
+	get_menu_window_rect(menu_window, &sx, &sy, &ex, nullptr);
 	int mx = ex - 16;
 	int my = sy + 10;
 	int height = ags->menu.font_size + 4;
@@ -654,7 +657,7 @@ int NACT::menu_select(int num_items)
 			int index = (my - sy) / height;
 			if(sx <= mx && mx <= ex && 0 <= index && index < num_items) {
 				current_index = index;
-				ags->redraw_menu_window(menu_window, current_index);
+				redraw_menu_window(menu_window, current_index);
 				selectable = true;
 			} else {
 				selectable = false;
@@ -669,7 +672,7 @@ int NACT::menu_select(int num_items)
 			} else if(val == 8) {
 				current_index = num_items - 1;
 			}
-			ags->redraw_menu_window(menu_window, current_index);
+			redraw_menu_window(menu_window, current_index);
 			selectable = true;
 		} else if(val == 16 && selectable) {
 			break;
@@ -680,9 +683,9 @@ int NACT::menu_select(int num_items)
 	}
 
 	// 画面更新
-	ags->close_menu_window(menu_window);
+	close_menu_window(menu_window);
 	if(clear_text) {
-		ags->clear_text_window(text_window, true);
+		clear_text_window(text_window, true);
 	}
 
 	return current_index;

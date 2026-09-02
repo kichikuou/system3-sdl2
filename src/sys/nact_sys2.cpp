@@ -274,7 +274,7 @@ void NACT_Sys2::cmd_open_verb()
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	ags->clear_menu_window();
+	clear_menu_window();
 	ags->draw_menu = true;
 
 	for(int i = 0; i < MAX_VERB; i++) {
@@ -325,7 +325,7 @@ void NACT_Sys2::cmd_open_obj(int verb)
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	ags->clear_menu_window();
+	clear_menu_window();
 	ags->draw_menu = true;
 
 	for(int i = 0; i < MAX_OBJ; i++) {
@@ -369,7 +369,7 @@ void NACT_Sys2::cmd_b()
 		if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT) || game_id.is(GameId::DRSTOP)) {
 			p5 = 1;
 		}
-		ags->set_menu_window(index, p1 * 8, p2, p3 * 8 - 1, p4, p5);
+		menu_w[index - 1].reset(p1 * 8, p2, p3 * 8 - 1, p4, menu_w[index - 1].frame, p5);
 		break;
 	case 2:
 		if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT) || game_id.is(GameId::DRSTOP)) {
@@ -378,11 +378,11 @@ void NACT_Sys2::cmd_b()
 //		if (game_id.is(GameId::PROG_FD)) {
 //			p1 = (index == 1 || index == 3);
 //		}
-		ags->set_menu_window_frame(index, p1);
+		menu_w[index - 1].frame = p1;
 		menu_window = index;
 		break;
 	case 3:
-		ags->set_text_window(index, p1 * 8, p2, p3 * 8 - 1, p4, p5);
+		text_w[index - 1].reset(p1 * 8, p2, p3 * 8 - 1, p4, text_w[index - 1].frame, p5);
 		break;
 	case 4:
 		if (game_id.is(GameId::AYUMI_FD) || game_id.is(GameId::AYUMI_HINT)) {
@@ -397,12 +397,12 @@ void NACT_Sys2::cmd_b()
 //			if (game_id.is(GameId::PROG_FD)) {
 //				p1 = (index == 1 || index == 3);
 //			} else
-			ags->set_text_window_frame(index, p1);
-			ags->open_text_window(index, p4 ? false : true);
+			text_w[index - 1].frame = p1;
+			open_text_window(index, p4 ? false : true);
 			text_window = index;
 		} else {
 			// ウィンドウ復帰
-			ags->close_text_window(index, text_window == index ? true : false);
+			close_text_window(index, text_window == index ? true : false);
 		}
 		break;
 	default:
@@ -693,7 +693,7 @@ void NACT_Sys2::cmd_y()
 
 	switch(cmd) {
 		case 1:
-			ags->clear_text_window(text_window, (param == 0) ? true : false);
+			clear_text_window(text_window, (param == 0) ? true : false);
 			break;
 		case 2:
 			if(param == 0) {

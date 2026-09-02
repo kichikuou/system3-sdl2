@@ -186,13 +186,10 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 
 	SDL_SetPaletteColors(screen_palette, program_palette->colors, 0, 256);
 
-	init_windows();
-
 	// 画面選択
 	src_screen = dest_screen = 0;
 
 	// メッセージ表示
-	text.reset_pos(text_w[0].sx, text_w[0].sy + 2);
 	text.line_space = 2;
 	text.font_size = 16;
 	if (game_id.sys_ver == 1) {
@@ -218,7 +215,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 		menu.frame_color = 15;
 		menu.back_color = 0;
 	}
-	menu_fix = false;
 
 	draw_hankaku = false;
 	draw_menu = false;
@@ -404,14 +400,6 @@ bool AGS::save_screenshot(const char* path)
 
 	SDL_FreeSurface(sf);
 	return ok;
-}
-
-int AGS::calculate_menu_max(int window) {
-	if (game_id.is(GameId::INTRUDER))
-		return 6;
-	if (game_id.is(GameId::GAKUEN_SENKI))
-		return (menu_w[window - 1].ey - menu_w[window - 1].sy) / (menu.font_size + 4);
-	return 11;
 }
 
 void AGS::load_censor_list(const char* fname)

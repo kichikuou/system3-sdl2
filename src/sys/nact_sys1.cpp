@@ -181,7 +181,7 @@ void NACT_Sys1::cmd_open_verb()
 
 	if (game_id.is(GameId::GAKUEN_SENKI))
 		menu_window = 1;
-	int menu_max = ags->calculate_menu_max(menu_window);
+	int menu_max = calculate_menu_max(menu_window);
 
 	for (const MenuItem& item : menu_items) {
 		chk[item.verb] = true;
@@ -192,7 +192,7 @@ top:
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	ags->clear_menu_window();
+	clear_menu_window();
 	ags->draw_menu = true;
 
 	if(cnt <= menu_max) {
@@ -245,7 +245,7 @@ top2:
 
 void NACT_Sys1::cmd_open_obj(int verb)
 {
-	int menu_max = ags->calculate_menu_max(menu_window);
+	int menu_max = calculate_menu_max(menu_window);
 
 	// 目的語メニューの表示
 	verb_obj = false;
@@ -274,7 +274,7 @@ top:
 	// メニュー項目の準備
 	int id[32], index = 0;
 
-	ags->clear_menu_window();
+	clear_menu_window();
 	ags->draw_menu = true;
 
 	if(cnt <= menu_max - 1) {
@@ -408,7 +408,7 @@ void NACT_Sys1::exec_y(int cmd, int param)
 {
 	switch(cmd) {
 	case 0:
-		ags->clear_text_window(text_window, true);
+		clear_text_window(text_window, true);
 		break;
 	case 1:
 		{
@@ -728,11 +728,11 @@ public:
 
 		switch (cmd) {
 		case 0:
-			ags->clear_text_window(text_window, true);
+			clear_text_window(text_window, true);
 			break;
 		case 1:
 			if (show_push) {
-				ags->draw_push(text_window);
+				draw_push(text_window);
 			}
 			for (;;) {
 				if (terminate) {
@@ -745,7 +745,7 @@ public:
 			}
 			sys_sleep(100);
 			wait_key_release(0x1f);
-			ags->clear_text_window(text_window, true);
+			clear_text_window(text_window, true);
 			break;
 		case 2:
 			if (param == 0) {

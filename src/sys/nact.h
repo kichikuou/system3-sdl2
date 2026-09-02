@@ -14,6 +14,7 @@
 #include <SDL.h>
 #include "common.h"
 #include "config.h"
+#include "cg.h"
 #include "dri.h"
 #include "game_id.h"
 #include "scenario.h"
@@ -135,6 +136,38 @@ protected:
 
 	uint8_t cg_flags;
 	void load_cg(int page, int transparent);
+
+	// Window (B command)
+	struct Window {
+		int sx;
+		int sy;
+		int ex;
+		int ey;
+		bool frame;
+		bool save;
+		CG screen;
+		CG window;
+
+		void reset(int sx, int sy, int ex, int ey, bool frame, bool save);
+	};
+	Window menu_w[10];
+	Window text_w[10];
+	bool menu_fix = false;
+	const uint8_t* push_bitmap = nullptr;
+	void init_windows();
+
+	void clear_text_window(int index, bool erase);
+	bool return_text_line(int index);
+	void draw_push(int index);
+	void open_text_window(int index, bool erase);
+	void close_text_window(int index, bool update);
+
+	void clear_menu_window();
+	void open_menu_window(int index);
+	void redraw_menu_window(int index, int selected);
+	void close_menu_window(int index);
+	void get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey);
+	int calculate_menu_max(int window);
 
 	struct MenuItem {
 		uint16_t addr;

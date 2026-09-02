@@ -99,7 +99,7 @@ private:
 				ags->menu.back_color = ags->text.back_color =
 					(param == 1 || param == 2) ? 0 : 1;
 				text_window = param + 1;
-				ags->open_text_window(text_window, false);
+				open_text_window(text_window, false);
 			}
 			break;
 		case 26:
@@ -1368,16 +1368,16 @@ private:
 	static constexpr int PUSH_BITMAP_OFFSET = 0x08aa;
 	static constexpr int NR_PUSH_BITMAPS = 4;
 
-	uint8_t push_bitmap[NR_PUSH_BITMAPS][32] = {};
+	uint8_t push_bitmaps[NR_PUSH_BITMAPS][32] = {};
 
 	void load_push_bitmaps(const std::vector<uint8_t>& exe) {
-		memcpy(push_bitmap, &exe[PUSH_BITMAP_OFFSET], sizeof(push_bitmap));
+		memcpy(push_bitmaps, &exe[PUSH_BITMAP_OFFSET], sizeof(push_bitmaps));
 	}
 
 	void set_push_bitmap() {
 		int r = random(100);
 		r = r < NR_PUSH_BITMAPS ? r : 0;
-		ags->set_push_bitmap(fixed_shapes ? nullptr : push_bitmap[r]);
+		push_bitmap = fixed_shapes ? nullptr : push_bitmaps[r];
 	}
 
 	// --- I grid selection -------------------------------------------------

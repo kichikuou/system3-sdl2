@@ -16,39 +16,11 @@
 #include <stdio.h>
 #include "common.h"
 #include "game_id.h"
+#include "cg.h"
 #include "dri.h"
 #include <SDL_ttf.h>
 
-inline uint8_t* surface_line(SDL_Surface* surface, int y)
-{
-	return static_cast<uint8*>(surface->pixels) + surface->pitch * y;
-}
-
 struct Config;
-class FILEIO;
-
-struct SurfaceDeleter {
-	void operator()(SDL_Surface* s) const noexcept {
-		if (s) SDL_FreeSurface(s);
-	}
-};
-
-struct CG {
-	std::unique_ptr<SDL_Surface, SurfaceDeleter> surface_;
-	int x;
-	int y;
-
-	CG() = default;
-	CG(int x, int y, int width, int height)
-		: surface_(SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8)),
-		  x(x), y(y) {}
-	explicit operator bool() const noexcept { return static_cast<bool>(surface_); }
-
-	SDL_Surface* surface() const { return surface_.get(); }
-	int width() const { return surface_->w; }
-	int height() const { return surface_->h; }
-	SDL_Palette* palette() const { return surface_->format->palette; }
-};
 
 enum CgFlags {
 	CG_EXTRACT_CG = 1,
@@ -91,7 +63,6 @@ private:
 
 	void draw_char(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color);
 	void draw_char_antialias(int dest, int dest_x, int dest_y, uint16 code, TTF_Font* font, uint8 color, uint8 cache[]);
-	void draw_gaiji(int dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color);
 
 	uint8_t palR(uint8_t col) const { return screen_palette->colors[col].r; }
 	uint8_t palG(uint8_t col) const { return screen_palette->colors[col].g; }
@@ -124,6 +95,8 @@ public:
 	uint8 get_pixel(int dest, int x, int y) const { return vram[dest][y][x]; }
 	void set_pixel(int dest, int x, int y, uint8 color) { vram[dest][y][x] = color; }
 	void invalidate_screen(int sx, int sy, int width, int height);
+	void draw_gaiji(int dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color);
+	bool is_faded() const { return fade_level != 0; }
 
 	void fade_out(int duration_ms, bool white);
 	void fade_in(int duration_ms);
@@ -140,32 +113,10 @@ public:
 	void box_line(int dest, int sx, int sy, int ex, int ey, uint8 color);
 	void draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color);
 
+	CG save_rect(int x, int y, int width, int height);
+	void restore_rect(const CG& cg);
+
 	void draw_text(std::string_view string, bool text_wait = false);
-
-	void clear_text_window(int index, bool erase);
-	bool return_text_line(int index);
-	void draw_push(int index);
-	void set_push_bitmap(const uint8_t* bitmap) { push_bitmap = bitmap; }
-	void open_text_window(int index, bool erase);
-	void close_text_window(int index, bool update);
-	void set_text_window(int index, int sx, int sy, int ex, int ey, bool save) {
-		text_w[index - 1].reset(sx, sy, ex, ey, text_w[index - 1].frame, save);
-	}
-	void set_text_window_frame(int index, bool frame) {
-		text_w[index - 1].frame = frame;
-	}
-
-	void clear_menu_window();
-	void open_menu_window(int index);
-	void redraw_menu_window(int index, int selected);
-	void close_menu_window(int index);
-	void get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey);
-	void set_menu_window(int index, int sx, int sy, int ex, int ey, bool save) {
-		menu_w[index - 1].reset(sx, sy, ex, ey, menu_w[index - 1].frame, save);
-	}
-	void set_menu_window_frame(int index, bool frame) {
-		menu_w[index - 1].frame = frame;
-	}
 
 	void load_cursor(int page, uint8_t flags);
 	void select_cursor();
@@ -174,7 +125,6 @@ public:
 	bool get_scanline_mode() const { return scanline_texture; }
 	void set_scanline_mode(bool enable);
 	bool save_screenshot(const char* path);
-	int calculate_menu_max(int window);
 
 	SDL_Rect dirty_rect = {};
 
@@ -212,7 +162,6 @@ public:
 
 	// メニュー表示
 	TextContext menu;
-	bool menu_fix;
 
 	bool draw_hankaku;
 	bool draw_menu;
@@ -227,28 +176,9 @@ public:
 	uint8 cursor_color;
 	int cursor_index;
 
-	// Window (B command)
-	struct Window {
-		int sx;
-		int sy;
-		int ex;
-		int ey;
-		bool frame;
-		bool save;
-		CG screen;
-		CG window;
-
-		void reset(int sx, int sy, int ex, int ey, bool frame, bool save);
-	};
-	Window menu_w[10];
-	Window text_w[10];
-
 private:
-	void init_windows();
-
 	Dri acg;
 	const char* bmp_prefix = NULL;
-	const uint8_t* push_bitmap = nullptr;
 };
 
 extern "C" void ags_setAntialiasedStringMode(int on);

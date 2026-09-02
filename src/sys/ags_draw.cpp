@@ -255,3 +255,39 @@ void AGS::box_line(int dest, int sx, int sy, int ex, int ey, uint8 color)
 	}
 }
 
+void AGS::draw_window(int sx, int sy, int ex, int ey, bool frame, uint8 frame_color, uint8 back_color)
+{
+	SDL_Rect rect = {sx, sy, ex - sx + 1, ey - sy + 1};
+	SDL_FillRect(hBmpScreen[0], &rect, back_color);
+
+	if (frame) {
+		SDL_Rect rects[] = {
+			{sx + 1, sy + 1, ex - sx - 1, 2},
+			{sx + 1, ey - 2, ex - sx - 1, 2},
+			{sx + 1, sy + 1, 2, ey - sy - 1},
+			{ex - 2, sy + 1, 2, ey - sy - 1},
+		};
+		SDL_FillRects(hBmpScreen[0], rects, 4, frame_color);
+		box_line(0, sx + 4, sy + 4, ex - 4, ey - 4, frame_color);
+	}
+	invalidate_screen(sx, sy, ex - sx + 1, ey - sy + 1);
+}
+
+CG AGS::save_rect(int x, int y, int width, int height)
+{
+	CG cg(x, y, width, height);
+	SDL_SetPaletteColors(cg.palette(), screen_palette->colors, 0, 256);
+
+	SDL_Rect rect = {x, y, width, height};
+	SDL_BlitSurface(hBmpScreen[0], &rect, cg.surface(), NULL);
+	return cg;
+}
+
+void AGS::restore_rect(const CG& cg)
+{
+	SDL_SetSurfacePalette(hBmpScreen[0], cg.palette());
+	SDL_Rect rect = {cg.x, cg.y, cg.width(), cg.height()};
+	SDL_BlitSurface(cg.surface(), NULL, hBmpScreen[0], &rect);
+	invalidate_screen(cg.x, cg.y, cg.width(), cg.height());
+	SDL_SetSurfacePalette(hBmpScreen[0], screen_palette);
+}

@@ -212,7 +212,6 @@ target_sources(system3 PRIVATE
   src/sys/ags_text.cpp
   src/sys/ags_vsp.cpp
   src/sys/ags_vsp2l.cpp
-  src/sys/ags_window.cpp
   src/sys/dri.cpp
   src/sys/game_id.cpp
   src/sys/msgskip.cpp
