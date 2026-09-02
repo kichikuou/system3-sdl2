@@ -39,8 +39,16 @@ void init_menu(bool mouse_move_enabled, const Config& config)
 		CheckMenuItem(hmenu, ID_TEXT_AUTO_COPY, MF_BYCOMMAND | MFS_CHECKED);
 }
 
-void init_console(int sys_ver)
+void init_console(const Config& config, int sys_ver)
 {
+	if (config.debugger_mode == DebuggerMode::DAP)
+		return;
+	if (config.debugger_mode != DebuggerMode::CLI && !config.trace &&
+		config.texthook_mode != TexthookMode::PRINT)
+		return;
+	// GetFileType() rejects the unusable handles a GUI program inherits.
+	if (GetFileType(GetStdHandle(STD_OUTPUT_HANDLE)) != FILE_TYPE_UNKNOWN)
+		return;
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
@@ -137,9 +145,7 @@ void NACT::text_dialog()
 void NACT::platform_initialize()
 {
 	init_menu(mouse_move_enabled, config);
-	if (config.debugger_mode == DebuggerMode::CLI ||
-		((config.trace || config.texthook_mode == TexthookMode::PRINT) && config.debugger_mode != DebuggerMode::DAP))
-		init_console(game_id.sys_ver);
+	init_console(config, game_id.sys_ver);
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 }
 
