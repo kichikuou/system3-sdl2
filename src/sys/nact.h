@@ -49,17 +49,44 @@ public:
 	NACT(const Config& config, const GameId& game_id);
 	virtual ~NACT();
 
+	// main loop
+	int mainloop();
+	void process_next_event();
+	void quit(int code);
+	bool is_terminating() const { return terminate; }
+
+	void set_skip_menu_state(bool enabled, bool checked);
+
+	virtual uint16 cali() = 0;
+
 	Scenario sco;
 	AGS* ags;
+	std::unique_ptr<Encoding> encoding;
+
+	// debugger accessors
+	uint16 get_var(int index) const { return var[index]; }
+	void set_var(int index, uint16_t value) { var[index] = value; }
+	const char* get_string(int index) const { return tvar[index].c_str(); }
+	void set_string(int index, const std::string& value) { tvar[index] = value; }
 
 protected:
+	const Config& config;
+	const GameId& game_id;
+	Strings strings;
 	MAKO* mako;
 	MsgSkip* msgskip;
 
-	// コマンドパーサ
+	void trace(const char *format, ...);
+	void sys_sleep(int ms);
+
+	// platform-specific setup / cleanup code
+	void platform_initialize();
+	void platform_finalize();
+
+	// command parser
 	void execute();
 
-	// 変数
+	// variables
 	uint16 var[MAX_VAR] = {};
 	uint16 var_stack[30][20] = {};
 	std::string tvar[MAX_STRVAR];
@@ -67,9 +94,10 @@ protected:
 	int tvar_index = 0;
 	int tvar_maxlen;
 
-	void message(uint8_t first_byte);
+	uint16 random(uint16 range);
+	uint32 seed;
 
-	// Commands
+	// commands
 	void cmd_calc();
 
 	virtual void cmd_branch() = 0;
@@ -114,19 +142,19 @@ protected:
 	// SYSTEM1
 	virtual void opening() {}
 
-	// DPS
-	bool text_refresh;
+	// save / load
+	bool load(int index);
+	bool save(int index, const char header[112]);
+	void load_display_state(FILEIO* fio);
+	void save_display_state(FILEIO* fio);
 
-	bool wait_keydown = true;	// ウェイト時のキー受付
-	int text_wait_time = 100;	// テキスト表示のウェイト
-	bool text_wait_enb = false;	// テキスト表示のウェイト有効／無効
+	// screen
+	uint8_t cg_flags;
+	void load_cg(int page, int transparent);
+	void fade_out(int duration_ms, bool white);
+	void fade_in(int duration_ms);
 
-	int menu_window = 1;	// メニューウィンドウ番号
-	int text_window = 1;	// メッセージウィンドウ番号
-	bool show_push = true;		// Push表示
-	bool clear_text = true;	// メニュー後のメッセージウィンドウ消去
-
-	// Box (E and Y7 commands)
+	// box (E and Y7 commands)
 	struct Box {
 		uint8 color = 0;
 		int sx = 0;
@@ -137,10 +165,7 @@ protected:
 	Box box[20];
 	void draw_box(int index);
 
-	uint8_t cg_flags;
-	void load_cg(int page, int transparent);
-
-	// Window (B command)
+	// window (B command)
 	struct Window {
 		int sx;
 		int sy;
@@ -155,9 +180,13 @@ protected:
 	};
 	Window menu_w[10];
 	Window text_w[10];
-	bool menu_fix = false;
-	const uint8_t* push_bitmap = nullptr;
 	void init_windows();
+
+	// message window
+	int text_window = 1;
+	bool text_refresh;	// DPS
+	bool show_push = true;
+	const uint8_t* push_bitmap = nullptr;
 
 	void clear_text_window(int index, bool erase);
 	bool return_text_line(int index);
@@ -165,16 +194,7 @@ protected:
 	void open_text_window(int index, bool erase);
 	void close_text_window(int index, bool update);
 
-	void clear_menu_lines();
-	void add_menu_line(std::string_view string);
-	void draw_menu_lines(int index);
-	int menu_window_bottom(int index);
-	void open_menu_window(int index);
-	void redraw_menu_window(int index, int selected);
-	void close_menu_window(int index);
-	void get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey);
-	int calculate_menu_max(int window);
-
+	// text
 	struct TextStyle {
 		int line_space;
 		int font_size;
@@ -201,9 +221,21 @@ protected:
 	}
 
 	bool draw_hankaku = false;
+	int text_wait_time = 100;
+	bool text_wait_enb = false;
 
 	void init_text();
 	void draw_text(std::string_view string, bool wait = false);
+	void message(uint8_t first_byte);
+	void text_wait();
+
+	// Y27 dialog
+	void text_dialog();
+
+	// menu
+	int menu_window = 1;
+	bool menu_fix = false;
+	bool clear_text = true;	// メニュー後のメッセージウィンドウ消去
 
 	struct MenuItem {
 		uint16_t addr;
@@ -222,72 +254,35 @@ protected:
 
 	bool verb_obj = false;	// 動詞-形容詞型メニューの定義中
 
-	// 下位関数
-	bool is_message(uint8_t c) { return c == ' ' || c & 0x80; }
-
-	uint16 random(uint16 range);
-	uint32 seed;	// 乱数の種
-
-	bool load(int index);
-	bool save(int index, const char header[112]);
-	void load_display_state(FILEIO* fio);
-	void save_display_state(FILEIO* fio);
-
+	void clear_menu_lines();
+	void add_menu_line(std::string_view string);
+	void draw_menu_lines(int index);
+	int menu_window_bottom(int index);
+	void open_menu_window(int index);
+	void redraw_menu_window(int index, int selected);
+	void close_menu_window(int index);
+	void get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey);
+	int calculate_menu_max(int window);
 	int menu_select();
 	void wait_after_open_menu();
 
-	void fade_out(int duration_ms, bool white);
-	void fade_in(int duration_ms);
+	// input
+	bool mouse_move_enabled = true;
+	bool wait_keydown = true;	// ウェイト時のキー受付
+	SDL_GameController *sdl_gamecontroller = NULL;
 
 	uint8 get_key(bool notify_texthook = true);
 	void wait_key_release(uint8_t mask = 0xff);
-
 	void get_cursor(int* x, int* y);
 	void set_cursor(int x, int y);
 	int get_wheel();
 
-	SDL_GameController *sdl_gamecontroller = NULL;
-
-	// Y27 ダイアログ
-	void text_dialog();
-
-	// 終了フラグ
+	// termination
 	bool terminate = false;
 	int exit_code;
 
-	// Platform-specific setup / cleanup code
-	void platform_initialize();
-	void platform_finalize();
-
-public:
-	int mainloop();
-	void sys_sleep(int ms);
-	void quit(int code);
-	void process_next_event();
-	bool is_terminating() const { return terminate; }
-
-	int get_screen_height();
-
-	void select_cursor();
-
-	void text_wait();
-	void set_skip_menu_state(bool enabled, bool checked);
-
-	virtual uint16 cali() = 0;
-
-	bool mouse_move_enabled = true;
-	const Config& config;
-	const GameId& game_id;
-	std::unique_ptr<Encoding> encoding;
-	Strings strings;
-
-	void trace(const char *format, ...);
-
-	int get_scenario_page() const { return sco.page(); }
-	uint16 get_var(int index) const { return var[index]; }
-	void set_var(int index, uint16_t value) { var[index] = value; }
-	const char* get_string(int index) const { return tvar[index].c_str(); }
-	void set_string(int index, const std::string& value) { tvar[index] = value; }
+	// helpers
+	bool is_message(uint8_t c) { return c == ' ' || c & 0x80; }
 
 private:
 	std::u16string decode_text(std::string_view string);

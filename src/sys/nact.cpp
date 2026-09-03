@@ -29,9 +29,9 @@ extern SDL_Window* g_window;
 // 初期化
 
 NACT::NACT(const Config& config, const GameId& game_id)
-	: config(config),
+	: encoding(Encoding::create(game_id.encoding)),
+	  config(config),
 	  game_id(game_id),
-	  encoding(Encoding::create(game_id.encoding)),
 	  strings(config.get_strings(encoding.get(), game_id.language == ENGLISH)),
 	  seed(SDL_GetTicks()),
 	  cg_flags(CG_GET_PALETTE | CG_EXTRACT_PALETTE | CG_EXTRACT_CG)
@@ -767,18 +767,6 @@ void NACT::sys_sleep(int ms) {
 #else
 	SDL_Delay(ms);
 #endif
-}
-
-// WinMainとのインターフェース
-
-int NACT::get_screen_height()
-{
-	return ags->screen_height;
-}
-
-void NACT::select_cursor()
-{
-	ags->select_cursor();
 }
 
 NACT* NACT::create(const Config& config, const GameId& game_id) {
