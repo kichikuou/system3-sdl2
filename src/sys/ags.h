@@ -23,7 +23,6 @@ struct Config;
 enum ScreenId {
 	SCREEN_FRONT,
 	SCREEN_BACK,
-	SCREEN_MENU,
 	NR_SCREENS,
 };
 
@@ -91,7 +90,9 @@ public:
 	// Returns an ACG page bytes, without decoding it.
 	std::vector<uint8_t> load_cg_data(int page) { return acg.load(page); }
 	void blit_cg(ScreenId dest, CG& cg, const SDL_Rect* src, int dx, int dy);
+	void blit_cg(CG& dest, CG& cg, const SDL_Rect* src, int dx, int dy);
 	void set_cg_file(const char *file_name);
+	CG create_offscreen(int width, int height);
 
 	void load_censor_list(const char* fname);
 

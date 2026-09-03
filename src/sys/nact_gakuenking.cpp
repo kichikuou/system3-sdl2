@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <optional>
 #include <string.h>
 #include <string>
 #include <string_view>
@@ -46,6 +47,7 @@ public:
 		box[1] = {0, 40, 0, 599, 298};
 		load_executable_data();
 		amap.open("AMAP.DAT");
+		composed_map = ags->create_offscreen((VIEW_COLS + 1) * TILE_SIZE, (VIEW_ROWS + 1) * TILE_SIZE);
 		map_base.fill(0);
 		map_layer_z.fill(CELL_EMPTY);
 		map_layer_w.fill(CELL_EMPTY);
@@ -462,6 +464,8 @@ private:
 	// 1-10 with the number keys, but we do not support that.
 	int map_animation_ticks = 9;
 
+	CG composed_map;
+
 	// The sheets loaded by Y 50-53, kept whole rather than split into per-tile images.
 	CG map_sprite_cg;
 	CG map_tile_cg[NR_TILE_BANKS];
@@ -563,8 +567,8 @@ private:
 				if (!map_base_visible_view)
 					base = CELL_EMPTY;
 				if (base == CELL_EMPTY) {
-					ags->box_fill(SCREEN_MENU, px, py,
-								  px + TILE_SIZE - 1, py + TILE_SIZE - 1, 0);
+					SDL_Rect rect = { px, py, TILE_SIZE, TILE_SIZE };
+					SDL_FillRect(composed_map.surface(), &rect, 0);
 				} else {
 					draw_map_tile(base, px, py, false);
 				}
@@ -601,9 +605,8 @@ private:
 		for (int frame = 1; frame <= frames && !terminate; frame++) {
 			int wx = step_position(window_x, view_step_x, frame, frames);
 			int wy = step_position(window_y, view_step_y, frame, frames);
-			ags->copy_screen(SCREEN_MENU, SCREEN_FRONT, wx, wy,
-							 wx + VIEW_COLS * TILE_SIZE - 1,
-							 wy + VIEW_ROWS * TILE_SIZE - 1, VIEW_X, VIEW_Y);
+			SDL_Rect window = { wx, wy, VIEW_COLS * TILE_SIZE, VIEW_ROWS * TILE_SIZE };
+			ags->blit_cg(SCREEN_FRONT, composed_map, &window, VIEW_X, VIEW_Y);
 			if (map_sprite_frame != SPRITE_HIDDEN) {
 				int sx = step_position(sprite_x, sprite_step_x, frame, frames);
 				int sy = step_position(sprite_y, sprite_step_y, frame, frames);
@@ -632,7 +635,7 @@ private:
 			return;
 		}
 		int index = tile % TILES_PER_BANK;
-		blit_sheet(SCREEN_MENU, map_tile_cg[bank],
+		blit_sheet(composed_map, map_tile_cg[bank],
 				   (index % SHEET_COLS) * TILE_SIZE,
 				   (index / SHEET_COLS) * TILE_SIZE,
 				   TILE_SIZE, TILE_SIZE, px, py, transparent);
@@ -654,17 +657,30 @@ private:
 				   right - left, bottom - top, left, top, true);
 	}
 
-	void blit_sheet(ScreenId dest, CG& cg, int sheet_x, int sheet_y,
-					int width, int height, int dx, int dy, bool transparent) {
-		SDL_Rect src = { sheet_x, sheet_y, width, height };
-		if (src.x + width > cg.width() || src.y + height > cg.height()) {
+	// Returns the rect of a sheet cell, and sets the color key the blit needs.
+	// Returns nullopt if the cell is outside the sheet.
+	std::optional<SDL_Rect> sheet_cell(CG& cg, int sheet_x, int sheet_y,
+									   int width, int height, bool transparent) {
+		if (sheet_x + width > cg.width() || sheet_y + height > cg.height()) {
 			WARNING("map resource error: (%d,%d)+%dx%d outside CG %dx%d",
 				  sheet_x, sheet_y, width, height, cg.width(), cg.height());
-			return;
+			return std::nullopt;
 		}
 		SDL_SetColorKey(cg.surface(), transparent ? SDL_TRUE : SDL_FALSE,
 						TRANSPARENT_COLOR);
-		ags->blit_cg(dest, cg, &src, dx, dy);
+		return SDL_Rect{ sheet_x, sheet_y, width, height };
+	}
+
+	void blit_sheet(ScreenId dest, CG& cg, int sheet_x, int sheet_y,
+					int width, int height, int dx, int dy, bool transparent) {
+		if (auto src = sheet_cell(cg, sheet_x, sheet_y, width, height, transparent))
+			ags->blit_cg(dest, cg, &*src, dx, dy);
+	}
+
+	void blit_sheet(CG& dest, CG& cg, int sheet_x, int sheet_y,
+					int width, int height, int dx, int dy, bool transparent) {
+		if (auto src = sheet_cell(cg, sheet_x, sheet_y, width, height, transparent))
+			ags->blit_cg(dest, cg, &*src, dx, dy);
 	}
 
 	// --- overview map -----------------------------------------------------

@@ -814,10 +814,12 @@ void NACT_Sys3::exec_y(int cmd, int param)
 			ags->scroll = param - 400;
 			break;
 		case 61:
-			if(param) {
-				ags->set_pixel(static_cast<ScreenId>(D03), D01, D02, (uint8)RND);
-			} else {
-				RND = ags->get_pixel(static_cast<ScreenId>(D03), D01, D02);
+			{
+				ScreenId screen = D03 ? SCREEN_BACK : SCREEN_FRONT;
+				if (param)
+					ags->set_pixel(screen, D01, D02, (uint8)RND);
+				else
+					RND = ags->get_pixel(screen, D01, D02);
 			}
 			break;
 		case 70:

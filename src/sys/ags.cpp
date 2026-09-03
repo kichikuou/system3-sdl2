@@ -63,7 +63,6 @@ AGS::AGS(const Config& config, const GameId& game_id) : game_id(game_id)
 	// All surfaces share the same palette.
 	screen_palette = hBmpScreen[SCREEN_FRONT]->format->palette;
 	SDL_SetSurfacePalette(hBmpScreen[SCREEN_BACK], screen_palette);
-	SDL_SetSurfacePalette(hBmpScreen[SCREEN_MENU], screen_palette);
 
 	if (!config.censor_list.empty())
 		load_censor_list(config.censor_list.c_str());

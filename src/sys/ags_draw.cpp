@@ -119,6 +119,21 @@ void AGS::blit_cg(ScreenId dest, CG& cg, const SDL_Rect* src, int dx, int dy)
 	}
 }
 
+void AGS::blit_cg(CG& dest, CG& cg, const SDL_Rect* src, int dx, int dy)
+{
+	if (!cg.surface())
+		return;
+	SDL_Rect dstrect = { dx, dy, src ? src->w : cg.width(), src ? src->h : cg.height() };
+	SDL_BlitSurface(cg.surface(), src, dest.surface(), &dstrect);
+}
+
+CG AGS::create_offscreen(int width, int height)
+{
+	CG cg(0, 0, width, height);
+	SDL_SetSurfacePalette(cg.surface(), screen_palette);
+	return cg;
+}
+
 void AGS::load_cg(int page, int transparent, uint8_t flags)
 {
 	CG cg = load_cg_surface(page, transparent, flags);
