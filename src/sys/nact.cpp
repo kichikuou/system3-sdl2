@@ -721,6 +721,40 @@ void NACT::wait_after_open_menu()
 	wait_key_release();
 }
 
+void NACT::fade_out(int duration_ms, bool white)
+{
+	if (ags->is_faded())
+		return;
+
+	ags->set_fade_color(white);
+
+	uint32_t start = SDL_GetTicks();
+	int level = 0;
+	while (level < 255) {
+		sys_sleep(16);
+		int t = SDL_GetTicks() - start;
+		level = t >= duration_ms ? 255 : t * 255 / duration_ms;
+		ags->set_fade_level(level);
+	}
+	ags->update_screen();
+}
+
+void NACT::fade_in(int duration_ms)
+{
+	if (!ags->is_faded())
+		return;
+
+	uint32_t start = SDL_GetTicks();
+	int level = 255;
+	while (level > 0) {
+		sys_sleep(16);
+		int t = SDL_GetTicks() - start;
+		level = t >= duration_ms ? 0 : (duration_ms - t) * 255 / duration_ms;
+		ags->set_fade_level(level);
+	}
+	ags->update_screen();
+}
+
 void NACT::sys_sleep(int ms) {
 	pump_events();
 	ags->update_screen();
@@ -757,3 +791,17 @@ NACT* NACT::create(const Config& config, const GameId& game_id) {
 		return create_system3(config, game_id);
 	}
 }
+
+#ifdef __EMSCRIPTEN__
+extern "C" {
+
+bool EMSCRIPTEN_KEEPALIVE save_screenshot(const char* path) {
+	return g_nact->ags->save_screenshot(path);
+}
+
+void EMSCRIPTEN_KEEPALIVE load_censor_list(const char *path) {
+	return g_nact->ags->load_censor_list(path);
+}
+
+}
+#endif

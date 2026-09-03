@@ -7,7 +7,6 @@
 #include "ags.h"
 #include <ctype.h>
 #include <string.h>
-#include "nact.h"
 #include "game_id.h"
 #include "config.h"
 #include "fileio.h"
@@ -261,36 +260,6 @@ std::vector<uint32_t> AGS::get_screen_palette() const
 	return palette;
 }
 
-void AGS::fade_out(int duration_ms, bool white)
-{
-	if (fade_level)
-		return;
-
-	fade_color = white ? 255 : 0;
-
-	Uint32 dwStart = SDL_GetTicks();
-	while (fade_level < 255) {
-		g_nact->sys_sleep(16);
-		int t = SDL_GetTicks() - dwStart;
-		fade_level = t >= duration_ms ? 255 : t * 255 / duration_ms;
-	}
-	update_screen();
-}
-
-void AGS::fade_in(int duration_ms)
-{
-	if (fade_level == 0)
-		return;
-
-	Uint32 dwStart = SDL_GetTicks();
-	while (fade_level > 0) {
-		g_nact->sys_sleep(16);
-		int t = SDL_GetTicks() - dwStart;
-		fade_level = t >= duration_ms ? 0 : (duration_ms - t) * 255 / duration_ms;
-	}
-	update_screen();
-}
-
 void AGS::invalidate_screen(int sx, int sy, int width, int height)
 {
 	SDL_Rect rect = {sx, sy, width, height};
@@ -403,17 +372,3 @@ void AGS::load_censor_list(const char* fname)
 
 	fclose(fp);
 }
-
-#ifdef __EMSCRIPTEN__
-extern "C" {
-
-bool EMSCRIPTEN_KEEPALIVE save_screenshot(const char* path) {
-	return g_nact->ags->save_screenshot(path);
-}
-
-void EMSCRIPTEN_KEEPALIVE load_censor_list(const char *path) {
-	return g_nact->ags->load_censor_list(path);
-}
-
-}
-#endif

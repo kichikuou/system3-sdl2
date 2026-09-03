@@ -103,9 +103,8 @@ public:
 	void invalidate_screen(int sx, int sy, int width, int height);
 	void draw_gaiji(ScreenId dest, int dest_x, int dest_y, const uint8_t bitmap[32], int size, uint8 color);
 	bool is_faded() const { return fade_level != 0; }
-
-	void fade_out(int duration_ms, bool white);
-	void fade_in(int duration_ms);
+	void set_fade_color(bool white) { fade_color = white ? 255 : 0; }
+	void set_fade_level(int level) { fade_level = level; }
 
 	void copy(int sx, int sy, int ex, int ey, int dx, int dy) {
 		copy_screen(src_screen, dest_screen, sx, sy, ex, ey, dx, dy);

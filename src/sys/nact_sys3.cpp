@@ -794,11 +794,11 @@ void NACT_Sys3::exec_y(int cmd, int param)
 			break;
 		case 40:
 		case 42:
-			ags->fade_in(param * 16 * 1000 / 60);
+			fade_in(param * 16 * 1000 / 60);
 			break;
 		case 41:
 		case 43:
-			ags->fade_out(param * 16 * 1000 / 60, cmd == 43);
+			fade_out(param * 16 * 1000 / 60, cmd == 43);
 			break;
 		case 45:
 			if (param) {

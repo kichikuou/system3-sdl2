@@ -236,6 +236,9 @@ protected:
 	int menu_select();
 	void wait_after_open_menu();
 
+	void fade_out(int duration_ms, bool white);
+	void fade_in(int duration_ms);
+
 	uint8 get_key(bool notify_texthook = true);
 	void wait_key_release(uint8_t mask = 0xff);
 
