@@ -624,7 +624,7 @@ int NACT::menu_select()
 	get_menu_window_rect(menu_window, &sx, &sy, &ex, nullptr);
 	int mx = ex - 16;
 	int my = sy + 10;
-	int height = menu.font_size + 4;
+	int height = menu_style.font_size + 4;
 	int current_index = 0;
 
 	set_cursor(mx, my);

@@ -175,29 +175,30 @@ protected:
 	void get_menu_window_rect(int index, int* sx, int* sy, int* ex, int* ey);
 	int calculate_menu_max(int window);
 
-	struct TextContext {
-		SDL_Point pos;
-		int origin_x;
+	struct TextStyle {
 		int line_space;
 		int font_size;
 		uint8_t font_color;
 		uint8_t frame_color;
 		uint8_t back_color;
-		int current_line_height;
-
-		void reset_pos(int x, int y) {
-			pos.x = origin_x = x;
-			pos.y = y;
-			current_line_height = 0;
-		}
-		void newline() {
-			pos.x = origin_x;
-			pos.y += std::max(font_size, current_line_height) + line_space;
-			current_line_height = 0;
-		}
 	};
-	TextContext text;
-	TextContext menu;
+	TextStyle text_style;
+	TextStyle menu_style;
+
+	SDL_Point text_pos;
+	int text_origin_x;
+	int text_line_height;
+
+	void reset_text_pos(int x, int y) {
+		text_pos.x = text_origin_x = x;
+		text_pos.y = y;
+		text_line_height = 0;
+	}
+	void text_newline() {
+		text_pos.x = text_origin_x;
+		text_pos.y += std::max(text_style.font_size, text_line_height) + text_style.line_space;
+		text_line_height = 0;
+	}
 
 	bool draw_hankaku = false;
 

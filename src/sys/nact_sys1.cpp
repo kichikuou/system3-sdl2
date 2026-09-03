@@ -346,7 +346,7 @@ void NACT_Sys1::cmd_p()
 {
 	int param = sco.getd();
 
-	text.font_color = (uint8)((param & 0x7) + 16);
+	text_style.font_color = (uint8)((param & 0x7) + 16);
 
 	TRACE("P %d:", param);
 }
@@ -776,18 +776,18 @@ public:
 			}
 
 			// 矢印を表示する
-			SDL_Point orig_pos = text.pos;
-			int orig_color = text.font_color;
-			text.font_size = 24;
-			text.font_color = 16;
+			SDL_Point orig_pos = text_pos;
+			int orig_color = text_style.font_color;
+			text_style.font_size = 24;
+			text_style.font_color = 16;
 
-			text.pos.x = 456;
-			text.pos.y = 103;
+			text_pos.x = 456;
+			text_pos.y = 103;
 			draw_text(buf[param - 1]);
 
-			text.pos = orig_pos;
-			text.font_size = 16;
-			text.font_color = orig_color;
+			text_pos = orig_pos;
+			text_style.font_size = 16;
+			text_style.font_color = orig_color;
 		} else if (cmd == 2) {
 			if (param == 0) {
 				// Clear the screen

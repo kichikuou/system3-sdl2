@@ -346,29 +346,29 @@ int convert_to_hankaku(int code)
 
 void NACT::init_text()
 {
-	text.reset_pos(text_w[0].sx, text_w[0].sy + 2);
-	text.line_space = 2;
-	text.font_size = 16;
+	reset_text_pos(text_w[0].sx, text_w[0].sy + 2);
+	text_style.line_space = 2;
+	text_style.font_size = 16;
 	if (game_id.sys_ver == 1) {
-		text.font_color = 15 + 16;
-		text.frame_color = 15 + 16;
-		text.back_color = 0 + 16;
+		text_style.font_color = 15 + 16;
+		text_style.frame_color = 15 + 16;
+		text_style.back_color = 0 + 16;
 	} else {
-		text.font_color = 15;
-		text.frame_color = 15;
-		text.back_color = 0;
+		text_style.font_color = 15;
+		text_style.frame_color = 15;
+		text_style.back_color = 0;
 	}
 
-	menu.line_space = 4;
-	menu.font_size = 16;
+	menu_style.line_space = 4;
+	menu_style.font_size = 16;
 	if (game_id.sys_ver == 1) {
-		menu.font_color = 15 + 16;
-		menu.frame_color = 15 + 16;
-		menu.back_color = 0 + 16;
+		menu_style.font_color = 15 + 16;
+		menu_style.frame_color = 15 + 16;
+		menu_style.back_color = 0 + 16;
 	} else {
-		menu.font_color = 15;
-		menu.frame_color = 15;
-		menu.back_color = 0;
+		menu_style.font_color = 15;
+		menu_style.frame_color = 15;
+		menu_style.back_color = 0;
 	}
 }
 
@@ -409,13 +409,12 @@ void NACT::draw_text(std::string_view string, bool wait)
 			texthook_character(sco.page(), code);
 	}
 
-	TextContext& ctx = text;
 	ScreenId screen = ags->dest_screen;
-	if (ctx.current_line_height < ctx.font_size)
-		ctx.current_line_height = ctx.font_size;
+	if (text_line_height < text_style.font_size)
+		text_line_height = text_style.font_size;
 
 	if (!wait) {
-		ctx.pos.x = ags->draw_text(screen, ctx.pos.x, ctx.pos.y, codes, ctx.font_size, ctx.font_color);
+		text_pos.x = ags->draw_text(screen, text_pos.x, text_pos.y, codes, text_style.font_size, text_style.font_color);
 		return;
 	}
 
@@ -425,11 +424,11 @@ void NACT::draw_text(std::string_view string, bool wait)
 		size_t next_nonspace = rest.find_first_not_of(u' ');
 		if (next_nonspace == std::u16string_view::npos)
 			break;
-		ctx.pos.x = ags->draw_text(screen, ctx.pos.x, ctx.pos.y, rest.substr(0, next_nonspace + 1),
-								   ctx.font_size, ctx.font_color);
+		text_pos.x = ags->draw_text(screen, text_pos.x, text_pos.y, rest.substr(0, next_nonspace + 1),
+									text_style.font_size, text_style.font_color);
 		rest.remove_prefix(next_nonspace + 1);
 		text_wait();
 	}
 	if (!rest.empty())
-		ctx.pos.x = ags->draw_text(screen, ctx.pos.x, ctx.pos.y, rest, ctx.font_size, ctx.font_color);
+		text_pos.x = ags->draw_text(screen, text_pos.x, text_pos.y, rest, text_style.font_size, text_style.font_color);
 }

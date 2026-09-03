@@ -580,7 +580,7 @@ void NACT_Sys2::cmd_p()
 	int param = sco.getd();
 
 	if (!game_id.is(GameId::YAKATA2) && !game_id.is(GameId::DALK_HINT) && !game_id.is(GameId::RANCE3_HINT)) {
-		text.font_color = (uint8)((param & 0x7) + 16);
+		text_style.font_color = (uint8)((param & 0x7) + 16);
 	}
 
 	TRACE("P %d:", param);
@@ -739,10 +739,10 @@ void NACT_Sys2::cmd_y()
 			RND = 1;
 			break;
 		case 25:
-			menu.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
+			menu_style.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
 		case 26:
-			text.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
+			text_style.font_size = (param == 1) ? 16 : (param == 2) ? 24 : (param == 3) ? 32 : (param == 4) ? 48 : (param == 5) ? 64 : 16;
 			break;
 		case 27:
 			{

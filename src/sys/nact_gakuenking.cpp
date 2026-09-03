@@ -96,7 +96,7 @@ private:
 		case 25:
 			fixed_shapes = (param == 1);
 			if (0 <= param && param <= 4) {
-				menu.back_color = text.back_color =
+				menu_style.back_color = text_style.back_color =
 					(param == 1 || param == 2) ? 0 : 1;
 				text_window = param + 1;
 				open_text_window(text_window, false);
@@ -105,7 +105,7 @@ private:
 		case 26:
 			if (0 <= param && param <= 4)
 				menu_window = param + 1;
-			menu.back_color = (param == 0) ? 1 : 0;
+			menu_style.back_color = (param == 0) ? 1 : 0;
 			break;
 		case 50:
 			map_overview_rebuild_pending = true;
@@ -161,10 +161,10 @@ private:
 			map_overview_rebuild_pending = true;
 			break;
 		case 118:
-			text.pos.x = param;
+			text_pos.x = param;
 			break;
 		case 119:
-			text.pos.y = param;
+			text_pos.y = param;
 			break;
 
 		// --- Shared with generic System3 ---
@@ -247,7 +247,7 @@ private:
 	void cmd_p() override {
 		int p1 = cali();
 		TRACE("P %d:", p1);
-		text.font_color = p1;
+		text_style.font_color = p1;
 	}
 
 	// The per-character wait of Y 13 and Y 14, in 1/100 s units.
@@ -1741,10 +1741,10 @@ private:
 
 		if (credit_entries.empty())
 			return;
-		int saved_size = text.font_size;
-		uint8_t saved_color = text.font_color;
-		text.font_size = 16;
-		text.font_color = 15;
+		int saved_size = text_style.font_size;
+		uint8_t saved_color = text_style.font_color;
+		text_style.font_size = 16;
+		text_style.font_color = 15;
 
 		clear_credit_column();
 		draw_credit_text(168, TOP_Y, credit_title, false);
@@ -1770,8 +1770,8 @@ private:
 				break;
 		}
 
-		text.font_size = saved_size;
-		text.font_color = saved_color;
+		text_style.font_size = saved_size;
+		text_style.font_color = saved_color;
 	}
 
 	void clear_credit_column() {
@@ -1783,8 +1783,8 @@ private:
 		bool saved_hankaku = draw_hankaku;
 		ags->dest_screen = SCREEN_BACK;
 		draw_hankaku = hankaku;
-		text.pos.x = x;
-		text.pos.y = y;
+		text_pos.x = x;
+		text_pos.y = y;
 		draw_text(str);
 		draw_hankaku = saved_hankaku;
 		ags->dest_screen = saved_screen;
@@ -1969,29 +1969,29 @@ private:
 
 	void save_text_state(std::vector<uint8_t>& block) {
 		int off = SAVE_OFF_TEXT_STATE;
-		put_le16(block, off, menu.font_size);
-		put_le16(block, off + 2, text.font_size);
+		put_le16(block, off, menu_style.font_size);
+		put_le16(block, off + 2, text_style.font_size);
 		put_le16(block, off + 4, ags->palette_bank == -1 ? 0 : ags->palette_bank);
-		put_le16(block, off + 6, text.font_color);
-		put_le16(block, off + 8, menu.font_color);
-		put_le16(block, off + 10, menu.frame_color);
-		put_le16(block, off + 12, menu.back_color);
-		put_le16(block, off + 14, text.frame_color);
-		put_le16(block, off + 16, text.back_color);
+		put_le16(block, off + 6, text_style.font_color);
+		put_le16(block, off + 8, menu_style.font_color);
+		put_le16(block, off + 10, menu_style.frame_color);
+		put_le16(block, off + 12, menu_style.back_color);
+		put_le16(block, off + 14, text_style.frame_color);
+		put_le16(block, off + 16, text_style.back_color);
 	}
 
 	void load_text_state(const std::vector<uint8_t>& data) {
 		int off = SAVE_OFF_TEXT_STATE;
-		menu.font_size = get_le16(data, off);
-		text.font_size = get_le16(data, off + 2);
+		menu_style.font_size = get_le16(data, off);
+		text_style.font_size = get_le16(data, off + 2);
 		int bank = get_le16(data, off + 4);
 		ags->palette_bank = bank ? bank : -1;
-		text.font_color = get_le16(data, off + 6);
-		menu.font_color = get_le16(data, off + 8);
-		menu.frame_color = get_le16(data, off + 10);
-		menu.back_color = get_le16(data, off + 12);
-		text.frame_color = get_le16(data, off + 14);
-		text.back_color = get_le16(data, off + 16);
+		text_style.font_color = get_le16(data, off + 6);
+		menu_style.font_color = get_le16(data, off + 8);
+		menu_style.frame_color = get_le16(data, off + 10);
+		menu_style.back_color = get_le16(data, off + 12);
+		text_style.frame_color = get_le16(data, off + 14);
+		text_style.back_color = get_le16(data, off + 16);
 	}
 
 	void save_call_stack(std::vector<uint8_t>& block) {
