@@ -46,6 +46,7 @@ class NACT
 {
 public:
 	static NACT* create(const Config& config, const GameId& game_id);
+	static const char* get_scenario_filename(const GameId& game_id);
 	NACT(const Config& config, const GameId& game_id);
 	virtual ~NACT();
 

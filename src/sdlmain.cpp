@@ -111,7 +111,8 @@ int main(int argc, char *argv[])
 
 #ifdef ENABLE_DEBUGGER
 	if (config.debugger_mode != DebuggerMode::DISABLED) {
-		g_debugger = std::make_unique<debugger::Debugger>("ADISK.DAT.symbols", config.debugger_mode);
+		std::string symbols_path = std::string(NACT::get_scenario_filename(game_id)) + ".symbols";
+		g_debugger = std::make_unique<debugger::Debugger>(symbols_path.c_str(), config.debugger_mode);
 		g_debugger->init();
 	}
 #endif

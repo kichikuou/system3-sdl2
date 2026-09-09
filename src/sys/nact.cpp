@@ -26,6 +26,15 @@
 
 extern SDL_Window* g_window;
 
+// static
+const char* NACT::get_scenario_filename(const GameId& game_id)
+{
+	return game_id.is(GameId::RANCE2_HINT) ? "GDISK.DAT" :
+	       game_id.is(GameId::PROG_OMAKE) ? "AGAME.DAT" :
+	       game_id.is(GameId::NISE_NAGURI) ? "ADISK.PAT" :
+	       "ADISK.DAT";
+}
+
 // 初期化
 
 NACT::NACT(const Config& config, const GameId& game_id)
@@ -56,13 +65,10 @@ NACT::NACT(const Config& config, const GameId& game_id)
 	}
 
 	// ADISK.DAT
-	const char* adisk_name =
-		game_id.is(GameId::RANCE2_HINT) ? "GDISK.DAT" :
-		game_id.is(GameId::PROG_OMAKE) ? "AGAME.DAT" :
-		"ADISK.DAT";
-	sco.open(adisk_name);
+	const char* scenario_filename = get_scenario_filename(game_id);
+	sco.open(scenario_filename);
 	if (!sco.loaded())
-		sys_error("Cannot open %s", adisk_name);
+		sys_error("Cannot open %s", scenario_filename);
 	sco.page_jump(0, 2);
 
 	// 各種クラス生成
