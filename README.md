@@ -161,19 +161,21 @@ $ make
 
 ### Windows (Microsoft Visual Studio)
 
-- Visual Studio 2022 can be used to clone this repository and will
-  automatically clone submodules as well.
-- Install [CMake](https://cmake.org/download/). (The CMake integration in
-  Visual Studio does not work.)
-- In the CMake GUI, press the "Browse Source..." button and select the root
-  folder of this repository.
-- Press the "Browse Build..." button. Create a new folder (e.g., `out`) under
-  the top-level directory of the repository and select it.
-- Press the "Configure" button. Specify the generator for your version of
-  Visual Studio and click "Finish."
-- Press the "Generate" button.
-- A `System3.sln` file should be generated in the build folder. Open it with
-  Visual Studio.
+- Install Visual Studio 2026 with the **Desktop development with C++**
+  workload.
+- On the Visual Studio start screen, select **Clone a repository** and clone
+  this repository.
+- Wait until the Output window reports `CMake generation finished.`
+- Select **Build > Build All** to build the project.
+
+The executable and its runtime DLLs are generated under
+`out/build/x64-Debug`:
+
+- `system3.exe`
+- `SDL2.dll`
+- `SDL2_ttf.dll`
+
+To run a game, copy all three files to the game folder and run `system3.exe`.
 
 ### Emscripten
 
