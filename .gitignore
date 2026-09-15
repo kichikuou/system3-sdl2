@@ -3,7 +3,9 @@ android/.gradle
 android/.idea/
 android/app/.cxx/
 android/app/.externalNativeBuild
+android/app/aars/
 android/app/build
 android/app/src/main/assets
 android/keystore.jks
+android/licenses/SDL.txt
 android/local.properties
