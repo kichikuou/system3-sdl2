@@ -7,9 +7,9 @@
 #include "dri.h"
 #include <memory>
 #include <string.h>
-#include <SDL.h>
 #include "game_id.h"
 #include "fileio.h"
+#include "sdl_compat.h"
 
 void Dri::open(const char* file_name)
 {
@@ -185,37 +185,37 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 		return {};
 	}
 
-	SDL_RWops* rw = open_resource(name, "mda");
+	sdl::IOStream* rw = open_resource(name, "mda");
 	if (!rw)
 		return {};
 	uint8 buf[4];
 
 	// ページの位置を取得
-	SDL_RWread(rw, buf, 4, 1);
+	sdl::ReadIO(rw, buf, 4);
 	int link_sector = buf[0] | (buf[1] << 8);
 	int data_sector = buf[2] | (buf[3] << 8);
 
 	if(page > (data_sector - link_sector) * 128 - 1) {
 		// ページ番号不正
-		SDL_RWclose(rw);
+		sdl::CloseIO(rw);
 		return {};
 	}
 
-	SDL_RWseek(rw, (link_sector - 1) * 256 + (page - 1) * 2, RW_SEEK_SET);
-	SDL_RWread(rw, buf, 2, 1);
+	sdl::SeekIO(rw, (link_sector - 1) * 256 + (page - 1) * 2, SEEK_SET);
+	sdl::ReadIO(rw, buf, 2);
 
 	int disk_index = buf[0];
 	int link_index = buf[1];
 
 	if(disk_index == 0 || disk_index == 0x1a) {
 		// 欠番
-		SDL_RWclose(rw);
+		sdl::CloseIO(rw);
 		return {};
 	}
 
 	// AMUS.MDA以外にリンクされている場合はリソースを開き直す
 	if(disk_index == 2) {
-		SDL_RWclose(rw);
+		sdl::CloseIO(rw);
 		switch (game_id.game) {
 			case GameId::DPS_SG_FAHREN:
 				name = "BMUS_FAH.MDA";
@@ -264,7 +264,7 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 			return {};
 		}
 	} else if(disk_index == 3) {
-		SDL_RWclose(rw);
+		sdl::CloseIO(rw);
 		switch (game_id.game) {
 			case GameId::TOUSHIN_HINT:
 				name = "CMUS_T1.MDA";
@@ -281,27 +281,27 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 		}
 	} else if(disk_index != 1) {
 		// AMUS.MDA以外にリンクされている場合は失敗
-		SDL_RWclose(rw);
+		sdl::CloseIO(rw);
 		return {};
 	}
 
 	// データ取得
-	SDL_RWseek(rw, link_index * 2, RW_SEEK_SET);
-	SDL_RWread(rw, buf, 4, 1);
+	sdl::SeekIO(rw, link_index * 2, SEEK_SET);
+	sdl::ReadIO(rw, buf, 4);
 	int start_sector = buf[0] | (buf[1] << 8);
 	int end_sector = buf[2] | (buf[3] << 8);
 
 	int size = (end_sector - start_sector) * 256;
 	if (size == 0) {
 		// サイズ不正
-		SDL_RWclose(rw);
+		sdl::CloseIO(rw);
 		return {};
 	}
 	std::vector<uint8_t> buffer(size);
-	SDL_RWseek(rw, (start_sector - 1) * 256, RW_SEEK_SET);
-	SDL_RWread(rw, buffer.data(), size, 1);
+	sdl::SeekIO(rw, (start_sector - 1) * 256, SEEK_SET);
+	sdl::ReadIO(rw, buffer.data(), size);
 
-	SDL_RWclose(rw);
+	sdl::CloseIO(rw);
 
 	return buffer;
 }

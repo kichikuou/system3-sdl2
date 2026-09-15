@@ -3,12 +3,13 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       matrix:
         build-type: ["Debug", "Release"]
+        sdl-version: [2, 3]
 
-    name: Linux ${{ matrix.build-type }}
+    name: Linux SDL${{ matrix.sdl-version }} ${{ matrix.build-type }}
     steps:
     - uses: actions/checkout@v6
       with:
@@ -17,11 +18,18 @@ jobs:
     - name: Install Deps
       run: |
         sudo apt update
-        sudo apt install libsdl2-dev libsdl2-ttf-dev librtmidi-dev nlohmann-json3-dev ninja-build
+        sudo apt install librtmidi-dev nlohmann-json3-dev ninja-build
+        if [ "${{ matrix.sdl-version }}" = 2 ]; then
+          sudo apt install libsdl2-dev libsdl2-ttf-dev
+        else
+          sudo apt install libsdl3-dev libsdl3-ttf-dev
+        fi
 
     - name: Build
       run: |
-        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+        cmake -S . -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+          -DSYSTEM3_SDL_VERSION=${{ matrix.sdl-version }}
         cmake --build build
 
     - name: Test

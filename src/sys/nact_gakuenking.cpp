@@ -568,7 +568,7 @@ private:
 					base = CELL_EMPTY;
 				if (base == CELL_EMPTY) {
 					SDL_Rect rect = { px, py, TILE_SIZE, TILE_SIZE };
-					SDL_FillRect(composed_map.surface(), &rect, 0);
+					sdl::FillSurfaceRect(composed_map.surface(), &rect, 0);
 				} else {
 					draw_map_tile(base, px, py, false);
 				}
@@ -666,8 +666,7 @@ private:
 				  sheet_x, sheet_y, width, height, cg.width(), cg.height());
 			return std::nullopt;
 		}
-		SDL_SetColorKey(cg.surface(), transparent ? SDL_TRUE : SDL_FALSE,
-						TRANSPARENT_COLOR);
+		sdl::SetSurfaceColorKey(cg.surface(), transparent, TRANSPARENT_COLOR);
 		return SDL_Rect{ sheet_x, sheet_y, width, height };
 	}
 
@@ -1472,7 +1471,7 @@ private:
 		get_cursor(&seen_x, &seen_y);
 		// Hides the system pointer and draws the cursor at (cx, cy) instead.
 		auto show_cursor = [&] {
-			SDL_ShowCursor(SDL_DISABLE);
+			sdl::HideCursor();
 			draw_mouse_cursor(shape, cx, cy);
 			cursor_drawn = true;
 		};
@@ -1481,7 +1480,7 @@ private:
 		auto hide_cursor = [&] {
 			if (!cursor_drawn)
 				return;
-			SDL_ShowCursor(SDL_ENABLE);
+			sdl::ShowCursor();
 			ags->copy_screen(SCREEN_BACK, SCREEN_FRONT, cx, cy, cx + MOUSE_CURSOR_SIZE - 1,
 			                 cy + MOUSE_CURSOR_SIZE - 1, cx, cy);
 			cursor_drawn = false;

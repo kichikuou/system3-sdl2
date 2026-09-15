@@ -16,7 +16,7 @@
 #include "game_id.h"
 #include "cg.h"
 #include "dri.h"
-#include <SDL_ttf.h>
+#include "ttf_compat.h"
 
 struct Config;
 
@@ -137,7 +137,7 @@ private:
 	int fade_color = 0;  // 0: black, 255: white
 
 	// font
-	SDL_RWops* rw_font;
+	sdl::IOStream* rw_font;
 	TTF_Font* hFont16;
 	TTF_Font* hFont24;
 	TTF_Font* hFont32;

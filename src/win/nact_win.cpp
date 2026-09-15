@@ -3,7 +3,9 @@
 #undef ERROR
 #include <time.h>
 #include "nact.h"
+#if SYSTEM3_SDL_VERSION == 2
 #include "SDL_syswm.h"
+#endif
 #include "encoding.h"
 #include "ags.h"
 #include "mako.h"
@@ -19,11 +21,33 @@ namespace {
 bool auto_copy_enabled = false;
 
 HWND get_hwnd(SDL_Window* window) {
+#if SYSTEM3_SDL_VERSION == 2
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	SDL_GetWindowWMInfo(window, &info);
 	return info.info.win.window;
+#else
+	return (HWND)SDL_GetPointerProperty(
+		SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+#endif
 }
+
+void set_fullscreen(bool fullscreen)
+{
+#if SYSTEM3_SDL_VERSION == 2
+	SDL_SetWindowFullscreen(
+		g_window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+#else
+	SDL_SetWindowFullscreen(g_window, fullscreen);
+#endif
+}
+
+#if SYSTEM3_SDL_VERSION == 3
+bool SDLCALL windows_message_hook(void* userdata, MSG* msg) {
+	static_cast<NACT*>(userdata)->handle_windows_event(msg);
+	return true;
+}
+#endif
 
 void init_menu(bool mouse_move_enabled, const Config& config)
 {
@@ -146,7 +170,11 @@ void NACT::platform_initialize()
 {
 	init_menu(mouse_move_enabled, config);
 	init_console(config, game_id.sys_ver);
+#if SYSTEM3_SDL_VERSION == 2
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+#else
+	SDL_SetWindowsMessageHook(windows_message_hook, this);
+#endif
 }
 
 void NACT::platform_finalize()
@@ -194,13 +222,27 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 		return false;
 	}
 
+#if SYSTEM3_SDL_VERSION == 2
 	if (e.type != SDL_SYSWMEVENT)
 		return false;
-	const SDL_SysWMmsg* msg = e.syswm.msg;
+	const SDL_SysWMmsg* syswm = e.syswm.msg;
+	MSG msg = {};
+	msg.hwnd = syswm->msg.win.hwnd;
+	msg.message = syswm->msg.win.msg;
+	msg.wParam = syswm->msg.win.wParam;
+	msg.lParam = syswm->msg.win.lParam;
+	handle_windows_event(&msg);
+	return true;
+#else
+	return false;
+#endif
+}
 
-	switch (msg->msg.win.msg) {
+void NACT::handle_windows_event(MSG* msg)
+{
+	switch (msg->message) {
 	case WM_COMMAND:
-		switch (msg->msg.win.wParam) {
+		switch (msg->wParam) {
 		case ID_SCREENSHOT:
 			save_screenshot(ags);
 			break;
@@ -211,10 +253,10 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 			quit(0);
 			break;
 		case ID_SCREEN_WINDOW:
-			SDL_SetWindowFullscreen(g_window, 0);
+			set_fullscreen(false);
 			break;
 		case ID_SCREEN_FULL:
-			SDL_SetWindowFullscreen(g_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			set_fullscreen(true);
 			break;
 		case ID_SCANLINE:
 			ags->set_scanline_mode(!ags->get_scanline_mode());
@@ -252,5 +294,4 @@ bool NACT::handle_platform_event(const SDL_Event& e)
 		}
 		break;
 	}
-	return true;
 }

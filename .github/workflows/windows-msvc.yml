@@ -6,13 +6,20 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: ["Win32", "x64"]
         include:
           - arch: "Win32"
+            sdl-version: 2
             package: "system3-sdl2-msvc-32bit"
           - arch: "x64"
+            sdl-version: 2
             package: "system3-sdl2-msvc-64bit"
-    name: MSVS ${{ matrix.arch }}
+          - arch: "Win32"
+            sdl-version: 3
+            package: "system3-sdl3-msvc-32bit"
+          - arch: "x64"
+            sdl-version: 3
+            package: "system3-sdl3-msvc-64bit"
+    name: MSVS SDL${{ matrix.sdl-version }} ${{ matrix.arch }}
     steps:
 
     - name: Checkout
@@ -24,7 +31,7 @@ jobs:
       run: |
         mkdir out
         cd out
-        cmake -A ${{ matrix.arch }} -DCMAKE_COMPILE_WARNING_AS_ERROR=YES ../
+        cmake -A ${{ matrix.arch }} -DCMAKE_COMPILE_WARNING_AS_ERROR=YES -DSYSTEM3_SDL_VERSION=${{ matrix.sdl-version }} ../
         cmake --build . --config Release
         cmake --install . --prefix artifacts
         cp ../COPYING.txt artifacts/

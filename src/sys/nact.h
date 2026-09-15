@@ -14,13 +14,18 @@
 #include <string_view>
 #include <vector>
 #include <stdio.h>
-#include <SDL.h>
+#include "sdl_compat.h"
 #include "common.h"
 #include "config.h"
 #include "cg.h"
 #include "dri.h"
 #include "game_id.h"
 #include "scenario.h"
+
+#ifdef _WIN32
+struct tagMSG;
+typedef tagMSG MSG;
+#endif
 
 #define RND var[ 0]
 
@@ -57,6 +62,10 @@ public:
 	bool is_terminating() const { return terminate; }
 
 	void set_skip_menu_state(bool enabled, bool checked);
+
+#ifdef _WIN32
+	void handle_windows_event(MSG* msg);
+#endif
 
 	virtual uint16 cali() = 0;
 
@@ -270,7 +279,7 @@ protected:
 	// input
 	bool mouse_move_enabled = true;
 	bool wait_keydown = true;	// ウェイト時のキー受付
-	SDL_GameController *sdl_gamecontroller = NULL;
+	sdl::Gamepad *sdl_gamecontroller = NULL;
 
 	uint8 get_key(bool notify_texthook = true);
 	void wait_key_release(uint8_t mask = 0xff);

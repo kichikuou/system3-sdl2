@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <string>
-#include <SDL.h>
+#include "sdl_compat.h"
 
 struct DecodedChunk {
 	const Uint8* data;

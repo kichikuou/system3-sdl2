@@ -9,6 +9,24 @@ project(System3 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 include(CTest)
 
+set(SYSTEM3_SDL_VERSION "2" CACHE STRING
+  "SDL major version (2 or 3)")
+set_property(CACHE SYSTEM3_SDL_VERSION PROPERTY STRINGS 2 3)
+if (NOT SYSTEM3_SDL_VERSION STREQUAL "2" AND
+    NOT SYSTEM3_SDL_VERSION STREQUAL "3")
+  message(FATAL_ERROR "SYSTEM3_SDL_VERSION must be 2 or 3")
+endif()
+
+add_library(system3_sdl INTERFACE)
+target_compile_definitions(system3_sdl INTERFACE
+  SYSTEM3_SDL_VERSION=${SYSTEM3_SDL_VERSION})
+
+if (SYSTEM3_SDL_VERSION STREQUAL "2")
+  set(SYSTEM3_AUDIO_BACKEND src/generic/mako.cpp)
+else()
+  set(SYSTEM3_AUDIO_BACKEND src/generic/mako_sdl3.cpp)
+endif()
+
 # Generates a static library from pkg_check_modules() result
 function(add_static_library name pkg)
   add_library(${name} INTERFACE)
@@ -38,6 +56,9 @@ endif()
 
 
 if (ANDROID)
+  if (NOT SYSTEM3_SDL_VERSION STREQUAL "2")
+    message(FATAL_ERROR "Android currently supports SDL2 only")
+  endif()
   add_library(system3 SHARED)
 
   target_sources(system3 PRIVATE
@@ -56,9 +77,14 @@ elseif (EMSCRIPTEN)
     src/emscripten/nact_emscripten.cpp
     src/emscripten/mako.cpp
     )
-  set(LIBS -sUSE_SDL=2 -sUSE_SDL_TTF=2)
-  target_compile_options(system3 PRIVATE ${LIBS})
-  target_link_options(system3 PRIVATE ${LIBS})
+  set(LIBS
+    -sUSE_SDL=${SYSTEM3_SDL_VERSION}
+    -sUSE_SDL_TTF=${SYSTEM3_SDL_VERSION})
+  if (SYSTEM3_SDL_VERSION STREQUAL "3")
+    list(APPEND LIBS -Wno-experimental)
+  endif()
+  target_compile_options(system3_sdl INTERFACE ${LIBS})
+  target_link_options(system3_sdl INTERFACE ${LIBS})
   target_link_libraries(system3 PRIVATE idbfs.js ymfm)
 
   # Without optimizations, Asyncify generates very large code.
@@ -92,20 +118,43 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
   if (MSVC)
     include(FetchContent)
-    FetchContent_Declare(sdl2
-      URL https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-devel-2.32.10-VC.zip
-      URL_HASH SHA1=27f5179346a0b0db80c4dd1769c7c9d62b9a91f3)
-    FetchContent_MakeAvailable(sdl2)
-    find_package(SDL2 REQUIRED CONFIG PATHS ${sdl2_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
-    get_target_property(SDL2_DLL SDL2::SDL2 IMPORTED_LOCATION)
+    if (SYSTEM3_SDL_VERSION STREQUAL "2")
+      FetchContent_Declare(sdl
+        URL https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-devel-2.32.10-VC.zip
+        URL_HASH SHA1=27f5179346a0b0db80c4dd1769c7c9d62b9a91f3)
+      FetchContent_MakeAvailable(sdl)
+      find_package(SDL2 REQUIRED CONFIG PATHS ${sdl_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
+      set(SDL_TARGET SDL2::SDL2)
+      set(SDL_MAIN_TARGET SDL2::SDL2main)
 
-    FetchContent_Declare(sdl2_ttf
-      URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.24.0/SDL2_ttf-devel-2.24.0-VC.zip
-      URL_HASH SHA1=2d18b9a4fc2ec0eee80de2a946b088d4e6efd0ee)
-    FetchContent_MakeAvailable(sdl2_ttf)
-    find_package(SDL2_ttf REQUIRED CONFIG PATHS ${sdl2_ttf_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
-    get_target_property(SDL2TTF_DLL SDL2_ttf::SDL2_ttf IMPORTED_LOCATION)
-    get_filename_component(SDL2TTF_LIBDIR ${SDL2TTF_DLL} DIRECTORY)
+      FetchContent_Declare(sdl_ttf
+        URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.24.0/SDL2_ttf-devel-2.24.0-VC.zip
+        URL_HASH SHA1=2d18b9a4fc2ec0eee80de2a946b088d4e6efd0ee)
+      FetchContent_MakeAvailable(sdl_ttf)
+      find_package(SDL2_ttf REQUIRED CONFIG PATHS ${sdl_ttf_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
+      set(SDL_TTF_TARGET SDL2_ttf::SDL2_ttf)
+    else()
+      FetchContent_Declare(sdl
+        URL https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-devel-3.4.16-VC.zip
+        URL_HASH SHA1=edcf1f567837e7464cf80df402661b41acd78dbf)
+      FetchContent_MakeAvailable(sdl)
+      find_package(SDL3 REQUIRED CONFIG PATHS ${sdl_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
+      set(SDL_TARGET SDL3::SDL3)
+      set(SDL_MAIN_TARGET "")
+
+      FetchContent_Declare(sdl_ttf
+        URL https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.2.2/SDL3_ttf-devel-3.2.2-VC.zip
+        URL_HASH SHA1=3786bc016d89ca4cf9739e4d342ca29e3e29c137)
+      FetchContent_MakeAvailable(sdl_ttf)
+      find_package(SDL3_ttf REQUIRED CONFIG PATHS ${sdl_ttf_SOURCE_DIR}/cmake NO_DEFAULT_PATH)
+      set(SDL_TTF_TARGET SDL3_ttf::SDL3_ttf)
+    endif()
+    get_target_property(SDL_DLL ${SDL_TARGET} IMPORTED_LOCATION)
+    get_target_property(SDL_TTF_DLL ${SDL_TTF_TARGET} IMPORTED_LOCATION)
+    get_filename_component(SDL_LIBDIR ${SDL_DLL} DIRECTORY)
+    get_filename_component(SDL_TTF_LIBDIR ${SDL_TTF_DLL} DIRECTORY)
+    target_link_libraries(system3_sdl INTERFACE
+      ${SDL_MAIN_TARGET} ${SDL_TARGET} ${SDL_TTF_TARGET})
 
     FetchContent_Declare(rtmidi
       URL https://github.com/thestk/rtmidi/archive/refs/tags/6.0.0.zip
@@ -127,36 +176,40 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
 
     target_compile_definitions(system3 PRIVATE _CRT_NONSTDC_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
     target_compile_options(system3 PRIVATE /utf-8 /wd4244)
-    target_link_libraries(system3 PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2_ttf::SDL2_ttf)
     add_custom_command(TARGET system3 POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE:SDL2::SDL2>" "$<TARGET_FILE_DIR:system3>"
+        "$<TARGET_FILE:${SDL_TARGET}>" "$<TARGET_FILE_DIR:system3>"
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE:SDL2_ttf::SDL2_ttf>" "$<TARGET_FILE_DIR:system3>"
+        "$<TARGET_FILE:${SDL_TTF_TARGET}>" "$<TARGET_FILE_DIR:system3>"
       COMMENT "Copying SDL runtime DLLs"
       VERBATIM)
     set_target_properties(system3 PROPERTIES
       WIN32_EXECUTABLE TRUE
-      VS_DEBUGGER_ENVIRONMENT "PATH=${SDL2_LIBDIR}$<SEMICOLON>${SDL2TTF_LIBDIR}$<SEMICOLON>$ENV{PATH}")
+      VS_DEBUGGER_ENVIRONMENT "PATH=${SDL_LIBDIR}$<SEMICOLON>${SDL_TTF_LIBDIR}$<SEMICOLON>$ENV{PATH}")
     set_directory_properties(PROPERTIES VS_STARTUP_PROJECT system3)
 
-    install(FILES ${SDL2_DLL} ${SDL2TTF_DLL} DESTINATION .)
+    install(FILES ${SDL_DLL} ${SDL_TTF_DLL} DESTINATION .)
     install(TARGETS system3 RUNTIME DESTINATION .)
   else()
     include(FindPkgConfig)
-    pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
-    pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
-    if (MINGW)
-      add_static_library(sdl2 SDL2)
-      add_static_library(sdl2_ttf SDL2TTF)
-      # Workaround for linking error
-      set_property(TARGET sdl2_ttf PROPERTY INTERFACE_LINK_LIBRARIES
-          $<LINK_GROUP:RESCAN,${SDL2TTF_STATIC_LIBRARIES}>)
+    if (SYSTEM3_SDL_VERSION STREQUAL "2")
+      pkg_check_modules(SDL REQUIRED IMPORTED_TARGET sdl2)
+      pkg_check_modules(SDLTTF REQUIRED IMPORTED_TARGET SDL2_ttf)
     else()
-      add_library(sdl2 ALIAS PkgConfig::SDL2)
-      add_library(sdl2_ttf ALIAS PkgConfig::SDL2TTF)
+      pkg_check_modules(SDL REQUIRED IMPORTED_TARGET sdl3)
+      pkg_check_modules(SDLTTF REQUIRED IMPORTED_TARGET sdl3-ttf)
     endif()
-    target_link_libraries(system3 PRIVATE sdl2 sdl2_ttf)
+    if (MINGW)
+      add_static_library(sdl SDL)
+      add_static_library(sdl_ttf SDLTTF)
+      # Workaround for linking error
+      set_property(TARGET sdl_ttf PROPERTY INTERFACE_LINK_LIBRARIES
+          $<LINK_GROUP:RESCAN,${SDLTTF_STATIC_LIBRARIES}>)
+    else()
+      add_library(sdl ALIAS PkgConfig::SDL)
+      add_library(sdl_ttf ALIAS PkgConfig::SDLTTF)
+    endif()
+    target_link_libraries(system3_sdl INTERFACE sdl sdl_ttf)
 
     find_package(nlohmann_json 3.2.0)
     if (nlohmann_json_FOUND)
@@ -180,8 +233,8 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_sources(system3 PRIVATE
       src/win/nact_win.cpp
-      src/generic/mako.cpp
       src/win/resource.rc
+      ${SYSTEM3_AUDIO_BACKEND}
       )
     target_compile_definitions(system3 PRIVATE NOMINMAX)
     target_link_libraries(system3 PRIVATE winmm)
@@ -191,7 +244,7 @@ else()  # NOT (ANDROID OR EMSCRIPTEN)
   else()
     target_sources(system3 PRIVATE
       src/generic/nact_generic.cpp
-      src/generic/mako.cpp
+      ${SYSTEM3_AUDIO_BACKEND}
       )
     set(RESOURCE_PATH ${CMAKE_INSTALL_PREFIX}/share/system3/)
     install(TARGETS system3 RUNTIME DESTINATION bin)
@@ -243,6 +296,9 @@ if (ENABLE_DEBUGGER)
 endif()
 
 if(NINTENDO_SWITCH)
+  if (SYSTEM3_SDL_VERSION STREQUAL "3")
+    message(FATAL_ERROR "Nintendo Switch currently supports SDL2 only")
+  endif()
   set(RESOURCE_PATH romfs:/)
 
   nx_generate_nacp(system3.nacp
@@ -269,6 +325,7 @@ endif()
 
 target_compile_definitions(system3 PRIVATE RESOURCE_PATH="${RESOURCE_PATH}")
 target_include_directories(system3 PRIVATE src src/sys)
+target_link_libraries(system3 PRIVATE system3_sdl)
 
 if (BUILD_TESTING AND NOT ANDROID AND NOT EMSCRIPTEN AND NOT NINTENDO_SWITCH)
   add_subdirectory(test)

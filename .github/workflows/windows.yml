@@ -10,14 +10,23 @@ jobs:
         include:
           - sys: mingw32
             package: "system3-sdl2-32bit"
+            sdl-version: 2
+            sdl-deps: "SDL2:p SDL2_ttf:p"
             deps: ""
           - sys: ucrt64
             package: "system3-sdl2-64bit"
+            sdl-version: 2
+            sdl-deps: "SDL2:p SDL2_ttf:p"
+            deps: "nlohmann-json:p"
+          - sys: ucrt64
+            package: "system3-sdl3-64bit"
+            sdl-version: 3
+            sdl-deps: "sdl3:p sdl3-ttf:p"
             deps: "nlohmann-json:p"
     defaults:
       run:
         shell: msys2 {0}
-    name: MSYS2 ${{ matrix.sys }}
+    name: MSYS2 SDL${{ matrix.sdl-version }} ${{ matrix.sys }}
     steps:
 
     - name: Set up MSYS2
@@ -25,8 +34,7 @@ jobs:
       with:
         msystem: ${{ matrix.sys }}
         pacboy: >-
-          SDL2:p
-          SDL2_ttf:p
+          ${{ matrix.sdl-deps }}
           rtmidi:p
           ${{ matrix.deps }}
 
@@ -48,7 +56,9 @@ jobs:
 
     - name: Build
       run: |
-        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_COMPILE_WARNING_AS_ERROR=YES
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=YES \
+          -DSYSTEM3_SDL_VERSION=${{ matrix.sdl-version }}
         cmake --build build
 
     - name: Test

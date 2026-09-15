@@ -41,9 +41,4 @@ enum CustomEvent {
 	DISABLE_CD_MENU,
 };
 
-// resource.cpp
-struct SDL_RWops;
-SDL_RWops* open_resource(const char* name, const char* type);
-SDL_RWops* open_file(const char* name);
-
 #endif

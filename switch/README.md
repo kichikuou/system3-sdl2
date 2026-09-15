@@ -12,7 +12,8 @@ git submodule update --init
 sudo (dkp-)pacman -S switch-dev switch-sdl2 switch-sdl2_ttf
 mkdir -p out/debug
 cd out/debug
-/opt/devkitpro/portlibs/switch/bin/aarch64-none-elf-cmake -DCMAKE_BUILD_TYPE=Debug ../../
+/opt/devkitpro/portlibs/switch/bin/aarch64-none-elf-cmake \
+  -DCMAKE_BUILD_TYPE=Debug -DSYSTEM3_SDL_VERSION=2 ../../
 make
 ```
 

@@ -8,6 +8,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sdl-version: [2, 3]
+    name: Emscripten SDL${{ matrix.sdl-version }}
     steps:
 
     - uses: actions/checkout@v6
@@ -32,9 +36,11 @@ jobs:
 
     - name: Build
       run: |
-        mkdir -p out/wasm
-        cd out/wasm
-        emcmake cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_COMPILE_WARNING_AS_ERROR=YES ../../
+        mkdir -p out/wasm-sdl${{ matrix.sdl-version }}
+        cd out/wasm-sdl${{ matrix.sdl-version }}
+        emcmake cmake -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=YES \
+          -DSYSTEM3_SDL_VERSION=${{ matrix.sdl-version }} ../..
         make -j4
         mkdir system3
         mv system3.* system3/
@@ -42,5 +48,5 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v7
       with:
-        name: system3-wasm
-        path: out/wasm/system3
+        name: system3-wasm-sdl${{ matrix.sdl-version }}
+        path: out/wasm-sdl${{ matrix.sdl-version }}/system3
