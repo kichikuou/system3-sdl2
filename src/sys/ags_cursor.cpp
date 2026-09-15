@@ -72,7 +72,7 @@ void AGS::load_cursor(int page, uint8_t flags)
 			}
 		}
 		if(hCursor[i]) {
-			SDL_FreeCursor(hCursor[i]);
+			sdl::DestroyCursor(hCursor[i]);
 		}
 		// TODO: fix amask/xmask values
 		hCursor[i] = SDL_CreateCursor(amask, xmask, 32, 32, 2, 2);
@@ -86,31 +86,4 @@ void AGS::select_cursor()
 	} else if(1 <= cursor_index && cursor_index <= 10 && hCursor[cursor_index - 1]) {
 		SDL_SetCursor(hCursor[cursor_index - 1]);
 	}
-}
-
-void AGS::translate_mouse_coords(int* x, int* y)
-{
-	// scale mouse x and y
-	float scalex, scaley;
-	SDL_RenderGetScale(g_renderer, &scalex, &scaley);
-	*x *= scalex;
-	*y *= scaley;
-
-	// calculate window borders
-	int logw, logh;
-	SDL_RenderGetLogicalSize(g_renderer, &logw, &logh);
-
-	float scalew, scaleh;
-	scalew = logw * scalex;
-	scaleh = logh * scaley;
-
-	int winw, winh;
-	SDL_GetWindowSize(g_window, &winw, &winh);
-
-	float border_left = (winw - scalew) / 2;
-	float border_top  = (winh - scaleh) / 2;
-
-	// offset x and y by window borders
-	*x += border_left;
-	*y += border_top;
 }

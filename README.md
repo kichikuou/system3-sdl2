@@ -1,6 +1,6 @@
-# System3 for SDL2
+# System3 for SDL2/SDL3
 
-This is an SDL2 port of
+This is an SDL port of
 [System3 for Win32](http://takeda-toshiya.my.coocan.jp/alice/) by Takeda
 Toshiya. It supports multiple platforms, including Android and Emscripten.
 
@@ -124,6 +124,8 @@ the game ID. You need to specify the `game` option in `system3.ini`.
 
 ## Building from Source
 
+SDL2 is used by default. Pass CMake option `-DSYSTEM3_SDL_VERSION=3` to select SDL3.
+
 ### Linux (Debian, Ubuntu)
 
 ```bash
@@ -131,10 +133,12 @@ $ git submodule update --init
 $ sudo apt install g++ cmake libsdl2-dev libsdl2-ttf-dev librtmidi-dev nlohmann-json3-dev
 $ mkdir -p out/debug
 $ cd out/debug
-$ cmake -DCMAKE_BUILD_TYPE=Debug ../../
+$ cmake -DCMAKE_BUILD_TYPE=Debug -DSYSTEM3_SDL_VERSION=2 ../../
 $ make
 $ sudo make install
 ```
+
+For SDL3, install `libsdl3-dev libsdl3-ttf-dev` and use `-DSYSTEM3_SDL_VERSION=3`.
 
 ### MacOS
 
@@ -143,10 +147,12 @@ $ git submodule update --init
 $ brew install cmake pkg-config sdl2 sdl2_ttf rtmidi nlohmann-json
 $ mkdir -p out/debug
 $ cd out/debug
-$ cmake -DCMAKE_BUILD_TYPE=Debug ../../
+$ cmake -DCMAKE_BUILD_TYPE=Debug -DSYSTEM3_SDL_VERSION=2 ../../
 $ make
 $ sudo make install
 ```
+
+For SDL3, install `sdl3 sdl3_ttf` and use `-DSYSTEM3_SDL_VERSION=3`.
 
 ### Windows (MSYS2)
 
@@ -155,9 +161,12 @@ $ git submodule update --init
 $ pacman -S make mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-SDL2_ttf mingw-w64-ucrt-x86_64-rtmidi mingw-w64-ucrt-x86_64-nlohmann-json
 $ mkdir -p out/debug
 $ cd out/debug
-$ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ../../
+$ cmake -G"MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug -DSYSTEM3_SDL_VERSION=2 ../../
 $ make
 ```
+
+For SDL3, install `mingw-w64-ucrt-x86_64-sdl3 mingw-w64-ucrt-x86_64-sdl3-ttf`
+and use `-DSYSTEM3_SDL_VERSION=3`.
 
 ### Windows (Microsoft Visual Studio)
 
@@ -168,14 +177,14 @@ $ make
 - Wait until the Output window reports `CMake generation finished.`
 - Select **Build > Build All** to build the project.
 
-The executable and its runtime DLLs are generated under
-`out/build/x64-Debug`:
+The executable and its runtime DLLs are generated under the build directory
+(`out/build/x64-Debug` for the default configuration):
 
 - `system3.exe`
 - `SDL2.dll`
 - `SDL2_ttf.dll`
 
-To run a game, copy all three files to the game folder and run `system3.exe`.
+To run a game, copy these files to the game folder, then run `system3.exe`.
 
 ### Emscripten
 
@@ -183,9 +192,11 @@ To run a game, copy all three files to the game folder and run `system3.exe`.
 $ git submodule update --init
 $ mkdir -p out/wasm
 $ cd out/wasm
-$ emcmake cmake -DCMAKE_BUILD_TYPE=Release ../../
+$ emcmake cmake -DCMAKE_BUILD_TYPE=Release -DSYSTEM3_SDL_VERSION=2 ../../
 $ make
 ```
+
+For SDL3, use `-DSYSTEM3_SDL_VERSION=3`.
 
 ### Android
 

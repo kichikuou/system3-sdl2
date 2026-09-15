@@ -16,7 +16,7 @@
 #include "game_id.h"
 #include "cg.h"
 #include "dri.h"
-#include <SDL_ttf.h>
+#include "ttf_compat.h"
 
 struct Config;
 
@@ -99,7 +99,6 @@ public:
 	// mouse
 	void load_cursor(int page, uint8_t flags);
 	void select_cursor();
-	void translate_mouse_coords(int* x, int* y);
 
 	int cursor_index;
 
@@ -137,7 +136,7 @@ private:
 	int fade_color = 0;  // 0: black, 255: white
 
 	// font
-	SDL_RWops* rw_font;
+	sdl::IOStream* rw_font;
 	TTF_Font* hFont16;
 	TTF_Font* hFont24;
 	TTF_Font* hFont32;

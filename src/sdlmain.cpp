@@ -1,3 +1,6 @@
+#if SYSTEM3_SDL_VERSION == 3
+#include <SDL3/SDL_main.h>
+#endif
 #include <string>
 #include "common.h"
 #include "config.h"
@@ -35,7 +38,9 @@ SDL_Window* create_window(const Config& config, const GameId& game_id)
 
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
+#if SYSTEM3_SDL_VERSION == 2
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+#endif
 #ifdef __EMSCRIPTEN__
 	// Stop SDL from calling emscripten_sleep() in functions that are called
 	// indirectly, which does not work with ASYNCIFY_IGNORE_INDIRECT=1. For
@@ -46,9 +51,10 @@ SDL_Window* create_window(const Config& config, const GameId& game_id)
 #ifdef __ANDROID__
 	SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
-	Uint32 flags = SDL_WINDOW_FULLSCREEN;
+	SDL_WindowFlags flags = SDL_WINDOW_FULLSCREEN;
 #else
-	Uint32 flags = config.fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_RESIZABLE;
+	SDL_WindowFlags flags = config.fullscreen ?
+		sdl::WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE;
 #endif
 
 #ifdef __EMSCRIPTEN__
@@ -57,7 +63,7 @@ SDL_Window* create_window(const Config& config, const GameId& game_id)
 #else
 	const char *window_title = title.c_str();
 #endif
-	return SDL_CreateWindow(window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 400, flags);
+	return sdl::CreateWindow(window_title, 640, 400, flags);
 }
 
 } // namespace
@@ -77,7 +83,7 @@ int main(int argc, char *argv[])
 	GameId game_id(config);
 
 	g_window = create_window(config, game_id);
-	g_renderer = SDL_CreateRenderer(g_window, -1, 0);
+	g_renderer = sdl::CreateRenderer(g_window);
 	sdl_custom_event_type = SDL_RegisterEvents(1);
 
 	// system3 初期化

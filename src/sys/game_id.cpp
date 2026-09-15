@@ -1,5 +1,5 @@
 #include <string.h>
-#include <SDL.h>
+#include "sdl_compat.h"
 #include "game_id.h"
 #include "fileio.h"
 #include "config.h"

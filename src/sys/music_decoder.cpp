@@ -20,7 +20,7 @@ public:
 		}
 		initialized = true;
 		spec_.freq = static_cast<int>(mp3.sampleRate);
-		spec_.format = AUDIO_S16SYS;
+		spec_.format = sdl::AudioS16;
 		spec_.channels = static_cast<Uint8>(mp3.channels);
 	}
 
@@ -60,7 +60,7 @@ public:
 		}
 		stb_vorbis_info info = stb_vorbis_get_info(vorbis);
 		spec_.freq = static_cast<int>(info.sample_rate);
-		spec_.format = AUDIO_S16SYS;
+		spec_.format = sdl::AudioS16;
 		spec_.channels = static_cast<Uint8>(info.channels);
 	}
 
@@ -104,7 +104,7 @@ public:
 	~WavDecoder() override
 	{
 		if (data)
-			SDL_FreeWAV(data);
+			sdl::FreeWAV(data);
 	}
 
 	bool is_open() const override { return data_size > 0 && frame_size > 0; }

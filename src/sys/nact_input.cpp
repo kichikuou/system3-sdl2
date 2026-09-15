@@ -8,7 +8,6 @@
 #include <windows.h>
 #undef ERROR
 #endif
-#include <SDL_syswm.h>
 #include "nact.h"
 #include "ags.h"
 #include "texthook.h"
@@ -21,6 +20,7 @@ enum TouchState {
 };
 
 extern SDL_Window* g_window;
+extern SDL_Renderer* g_renderer;
 static int mousex, mousey, wheel;
 static TouchState touch_state = TOUCH_NONE;
 
@@ -30,33 +30,37 @@ void NACT::handle_event(SDL_Event e)
 		return;
 
 	switch (e.type) {
-	case SDL_QUIT:
+	case sdl::EVENT_QUIT:
 		show_quit_dialog();
 		break;
 
 #ifdef __ANDROID__
-	case SDL_KEYUP:
-		if (e.key.keysym.scancode == SDL_SCANCODE_AC_BACK) {
+	case sdl::EVENT_KEY_UP:
+		if (sdl::GetKeyScancode(e.key) == SDL_SCANCODE_AC_BACK) {
 			show_quit_dialog();
 		}
 		break;
 #endif
 
-	case SDL_MOUSEMOTION:
-		mousex = e.motion.x * ags->screen_width / ags->window_width;
-		mousey = e.motion.y * ags->screen_height / ags->window_height;
+	case sdl::EVENT_MOUSE_MOTION: {
+		float render_x, render_y;
+		sdl::RenderCoordinatesFromWindow(g_renderer, e.motion.x, e.motion.y,
+			&render_x, &render_y);
+		mousex = render_x * ags->screen_width / ags->window_width;
+		mousey = render_y * ags->screen_height / ags->window_height;
 		break;
+	}
 
-	case SDL_MOUSEWHEEL:
+	case sdl::EVENT_MOUSE_WHEEL:
 		wheel += e.wheel.y * (e.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -1 : 1);
 		break;
 
-	case SDL_FINGERDOWN:
-	case SDL_FINGERUP:
-	case SDL_FINGERMOTION:
+	case sdl::EVENT_FINGER_DOWN:
+	case sdl::EVENT_FINGER_UP:
+	case sdl::EVENT_FINGER_MOTION:
 		mousex = e.tfinger.x * ags->screen_width;
 		mousey = e.tfinger.y * ags->screen_height;
-		switch (SDL_GetNumTouchFingers(e.tfinger.touchId)) {
+		switch (sdl::GetNumTouchFingers(sdl::GetTouchID(e.tfinger))) {
 		case 0:
 			touch_state = TOUCH_NONE;
 			break;
@@ -116,7 +120,7 @@ uint8 NACT::get_key(bool notify_texthook)
 	pump_events();
 
 	// キーボード＆マウス
-	const Uint8* key = SDL_GetKeyboardState(NULL);
+	const auto* key = SDL_GetKeyboardState(NULL);
 	Uint32 mouse = SDL_GetMouseState(NULL, NULL);
 
 	if(key[SDL_SCANCODE_UP    ] || key[SDL_SCANCODE_KP_8 ] ) val |= 0x01;
@@ -131,14 +135,14 @@ uint8 NACT::get_key(bool notify_texthook)
 	// マウス移動で方向入力はサポートしない
 
 	if(sdl_gamecontroller) {
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_UP) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTY) <= -8000) val |= 0x01;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_DOWN) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTY) >= 8000) val |= 0x02;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_LEFT) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTX) <= -8000) val |= 0x04;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT) || SDL_GameControllerGetAxis(sdl_gamecontroller, SDL_CONTROLLER_AXIS_LEFTX) >= 8000) val |= 0x08;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_A)) val |= 0x10;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_B)) val |= 0x20;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_X)) val |= 0x40;
-		if(SDL_GameControllerGetButton(sdl_gamecontroller, SDL_CONTROLLER_BUTTON_Y)) val |= 0x80;
+		if(sdl::GetGamepadButton(sdl_gamecontroller, sdl::GAMEPAD_BUTTON_DPAD_UP) || sdl::GetGamepadAxis(sdl_gamecontroller, sdl::GAMEPAD_AXIS_LEFTY) <= -8000) val |= 0x01;
+		if(sdl::GetGamepadButton(sdl_gamecontroller, sdl::GAMEPAD_BUTTON_DPAD_DOWN) || sdl::GetGamepadAxis(sdl_gamecontroller, sdl::GAMEPAD_AXIS_LEFTY) >= 8000) val |= 0x02;
+		if(sdl::GetGamepadButton(sdl_gamecontroller, sdl::GAMEPAD_BUTTON_DPAD_LEFT) || sdl::GetGamepadAxis(sdl_gamecontroller, sdl::GAMEPAD_AXIS_LEFTX) <= -8000) val |= 0x04;
+		if(sdl::GetGamepadButton(sdl_gamecontroller, sdl::GAMEPAD_BUTTON_DPAD_RIGHT) || sdl::GetGamepadAxis(sdl_gamecontroller, sdl::GAMEPAD_AXIS_LEFTX) >= 8000) val |= 0x08;
+		if(sdl::GetGamepadButton(sdl_gamecontroller, sdl::GAMEPAD_BUTTON_SOUTH)) val |= 0x10;
+		if(sdl::GetGamepadButton(sdl_gamecontroller, sdl::GAMEPAD_BUTTON_EAST)) val |= 0x20;
+		if(sdl::GetGamepadButton(sdl_gamecontroller, sdl::GAMEPAD_BUTTON_WEST)) val |= 0x40;
+		if(sdl::GetGamepadButton(sdl_gamecontroller, sdl::GAMEPAD_BUTTON_NORTH)) val |= 0x80;
 	}
 
 	return val;
@@ -160,7 +164,7 @@ void NACT::set_cursor(int x, int y)
 {
 	if (!mouse_move_enabled)
 		return;
-	ags->translate_mouse_coords(&x, &y);
+	sdl::RenderCoordinatesToWindow(g_renderer, g_window, &x, &y);
 	SDL_WarpMouseInWindow(g_window, x, y);
 }
 
@@ -186,7 +190,7 @@ void NACT::show_quit_dialog()
 		buttons,
 	};
 	int buttonid = 0;
-	if (SDL_ShowMessageBox(&messagebox_data, &buttonid) < 0) {
+	if (!sdl::ShowMessageBox(&messagebox_data, &buttonid)) {
 		WARNING("error displaying message box");
 		buttonid = 1;
 	}

@@ -12,12 +12,12 @@ namespace {
 
 void trim(CG& cg, int w, int h)
 {
-	SDL_Surface *sf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 8, SDL_PIXELFORMAT_INDEX8);
+	SDL_Surface *sf = sdl::CreateSurface(w, h, SDL_PIXELFORMAT_INDEX8);
 	SDL_SetSurfacePalette(sf, cg.palette());
-	if (SDL_HasColorKey(cg.surface())) {
+	if (sdl::SurfaceHasColorKey(cg.surface())) {
 		Uint32 key;
-		SDL_GetColorKey(cg.surface(), &key);
-		SDL_SetColorKey(sf, SDL_TRUE, key);
+		sdl::GetSurfaceColorKey(cg.surface(), &key);
+		sdl::SetSurfaceColorKey(sf, true, key);
 	}
 	SDL_Rect srcrect = { 0, 0, w, h };
 	SDL_BlitSurface(cg.surface(), &srcrect, sf, NULL);
@@ -74,7 +74,7 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	// Gakuen Senki uses exact sx values rather than 8x.
 	CG cg(game_id.is(GameId::GAKUEN_SENKI) ? sx : sx * 8, sy, width * 8, height);
 	if (transparent >= 0) {
-		SDL_SetColorKey(cg.surface(), SDL_TRUE, transparent | base);
+		sdl::SetSurfaceColorKey(cg.surface(), true, transparent | base);
 	}
 	uint8 cgdata[4][2][480], mask = 0;
 	int p = 0x3a;
@@ -166,4 +166,3 @@ CG AGS::load_vsp(const std::vector<uint8_t>& data, bool set_palette, int transpa
 	}
 	return cg;
 }
-
