@@ -9,7 +9,12 @@ project(System3 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 include(CTest)
 
-set(SYSTEM3_SDL_VERSION "2" CACHE STRING
+if (ANDROID)
+  set(_SYSTEM3_DEFAULT_SDL_VERSION "3")
+else()
+  set(_SYSTEM3_DEFAULT_SDL_VERSION "2")
+endif()
+set(SYSTEM3_SDL_VERSION "${_SYSTEM3_DEFAULT_SDL_VERSION}" CACHE STRING
   "SDL major version (2 or 3)")
 set_property(CACHE SYSTEM3_SDL_VERSION PROPERTY STRINGS 2 3)
 if (NOT SYSTEM3_SDL_VERSION STREQUAL "2" AND
@@ -56,17 +61,18 @@ endif()
 
 
 if (ANDROID)
-  if (NOT SYSTEM3_SDL_VERSION STREQUAL "2")
-    message(FATAL_ERROR "Android currently supports SDL2 only")
+  if (NOT SYSTEM3_SDL_VERSION STREQUAL "3")
+    message(FATAL_ERROR "Android supports SDL3 only")
   endif()
   add_library(system3 SHARED)
 
   target_sources(system3 PRIVATE
     src/android/nact_android.cpp
-    src/generic/mako.cpp
+    ${SYSTEM3_AUDIO_BACKEND}
     )
   find_library(ndk_log log)
-  target_link_libraries(system3 PRIVATE SDL2 SDL2_ttf ymfm ${ndk_log})
+  target_link_libraries(system3_sdl INTERFACE SDL3::SDL3 SDL3_ttf::SDL3_ttf)
+  target_link_libraries(system3 PRIVATE ymfm ${ndk_log})
 
 elseif (EMSCRIPTEN)
   option(JSPI "Use JavaScript Promise Integration instead of Asyncify" OFF)
