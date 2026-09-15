@@ -12,13 +12,93 @@
 
 #include "mako.h"
 #include "mako_midi.h"
-#include "mako_music.h"
+#include "music_decoder.h"
 #include "fm/mako_ymfm.h"
 #include "config.h"
 #include "dri.h"
 #include "game_id.h"
 
 namespace {
+
+// Plays a single BGM file (MP3, OGG, or WAV, chosen by file extension),
+// decoding on demand and mixing into the audio callback's output buffer.
+class Music {
+public:
+	// loops: number of times to play; 0 means loop forever.
+	Music(const std::string& path, int loops, const SDL_AudioSpec& device_spec)
+		: decoder(create_music_decoder(path)), loops_(loops)
+	{
+		if (!decoder)
+			return;
+		const SDL_AudioSpec& src_spec = decoder->spec();
+
+		stream = SDL_NewAudioStream(src_spec.format, src_spec.channels, src_spec.freq,
+								   device_spec.format, device_spec.channels, device_spec.freq);
+		if (!stream) {
+			WARNING("SDL_NewAudioStream failed: %s", SDL_GetError());
+			return;
+		}
+		playing = true;
+	}
+
+	~Music()
+	{
+		if (stream)
+			SDL_FreeAudioStream(stream);
+	}
+
+	bool is_open() const { return stream != nullptr; }
+	bool is_playing() const { return playing; }
+
+	// Called from the audio callback.
+	void mix(Uint8* out, int len)
+	{
+		if (!stream || !playing)
+			return;
+
+		while (SDL_AudioStreamAvailable(stream) < len && !input_finished)
+			decode();
+
+		Uint8* tmp = SDL_stack_alloc(Uint8, len);
+		int got = SDL_AudioStreamGet(stream, tmp, len);
+		if (got > 0)
+			SDL_MixAudioFormat(out, tmp, AUDIO_S16SYS, got, SDL_MIX_MAXVOLUME);
+		SDL_stack_free(tmp);
+		if (input_finished && SDL_AudioStreamAvailable(stream) <= 0)
+			playing = false;
+	}
+
+private:
+	// Decodes and queues one chunk, handling EOF and decoder errors.
+	void decode()
+	{
+		constexpr int CHUNK_FRAMES = 1024;
+
+		DecodedChunk chunk = decoder->decode(CHUNK_FRAMES);
+
+		if (chunk.frames == 0) {
+			if (loops_ && --loops_ == 0) {
+				SDL_AudioStreamFlush(stream);
+				input_finished = true;
+			} else {
+				decoder->seek_start();
+			}
+			return;
+		}
+		const SDL_AudioSpec& spec = decoder->spec();
+		int bytes = chunk.frames * SDL_AUDIO_BITSIZE(spec.format) / 8 * spec.channels;
+		if (SDL_AudioStreamPut(stream, chunk.data, bytes) < 0) {
+			WARNING("SDL_AudioStreamPut failed: %s", SDL_GetError());
+			input_finished = true;
+		}
+	}
+
+	std::unique_ptr<MusicDecoder> decoder;
+	SDL_AudioStream* stream = nullptr;
+	int loops_;  // number of times to play, 0 for infinite loop
+	bool playing = false;
+	bool input_finished = false;
+};
 
 const int SAMPLE_RATE = 44100;
 
@@ -36,7 +116,7 @@ const int8_t DPSALL_tracks[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 SDL_AudioDeviceID g_device;
 SDL_AudioSpec g_device_spec;
 
-std::unique_ptr<MakoMusic> music;
+std::unique_ptr<Music> music;
 std::unique_ptr<MakoYmfm> fm;
 std::unique_ptr<MAKOMidi> midi;
 
@@ -182,7 +262,7 @@ void MAKO::play_music(int page)
 			return;
 		file = abspath;
 #endif
-		auto m = std::make_unique<MakoMusic>(file, next_loop, g_device_spec);
+		auto m = std::make_unique<Music>(file, next_loop, g_device_spec);
 		if (!m->is_open())
 			return;
 		SDL_LockAudioDevice(g_device);
@@ -208,7 +288,7 @@ void MAKO::stop_music()
 {
 	if (music || fm) {
 		SDL_LockAudioDevice(g_device);
-		std::unique_ptr<MakoMusic> old_music = std::move(music);
+		std::unique_ptr<Music> old_music = std::move(music);
 		std::unique_ptr<MakoYmfm> old_fm = std::move(fm);
 		SDL_UnlockAudioDevice(g_device);
 		// old_music/old_fm are destroyed here, outside the lock.

@@ -1,31 +1,16 @@
-#include "mako_music.h"
+#include "music_decoder.h"
 #include <algorithm>
 #include <array>
 #include <cctype>
-#include <memory>
 #include "common.h"
 
 #define DR_MP3_IMPLEMENTATION
 #include "dr_mp3.h"
 #include "stb_vorbis.h"
 
-struct DecodedChunk {
-	const Uint8* data;
-	int frames;
-};
-
-class MakoMusicDecoder {
-public:
-	virtual ~MakoMusicDecoder() = default;
-	virtual bool is_open() const = 0;
-	virtual const SDL_AudioSpec& spec() const = 0;
-	virtual DecodedChunk decode(int max_frames) = 0;
-	virtual void seek_start() = 0;
-};
-
 namespace {
 
-class Mp3Decoder final : public MakoMusicDecoder {
+class Mp3Decoder final : public MusicDecoder {
 public:
 	explicit Mp3Decoder(const std::string& path)
 	{
@@ -63,7 +48,7 @@ private:
 	bool initialized = false;
 };
 
-class OggDecoder final : public MakoMusicDecoder {
+class OggDecoder final : public MusicDecoder {
 public:
 	explicit OggDecoder(const std::string& path)
 	{
@@ -103,7 +88,7 @@ private:
 	std::array<int16_t, 1024 * 2> pcm;
 };
 
-class WavDecoder final : public MakoMusicDecoder {
+class WavDecoder final : public MusicDecoder {
 public:
 	explicit WavDecoder(const std::string& path)
 	{
@@ -155,9 +140,11 @@ bool has_extension(const std::string& path, const char* ext)
 	return tail == ext;
 }
 
-std::unique_ptr<MakoMusicDecoder> create_decoder(const std::string& path)
+} // namespace
+
+std::unique_ptr<MusicDecoder> create_music_decoder(const std::string& path)
 {
-	std::unique_ptr<MakoMusicDecoder> decoder;
+	std::unique_ptr<MusicDecoder> decoder;
 	if (has_extension(path, ".ogg") || has_extension(path, ".oga"))
 		decoder = std::make_unique<OggDecoder>(path);
 	else if (has_extension(path, ".wav"))
@@ -167,68 +154,4 @@ std::unique_ptr<MakoMusicDecoder> create_decoder(const std::string& path)
 	if (!decoder->is_open())
 		return nullptr;
 	return decoder;
-}
-
-} // namespace
-
-MakoMusic::MakoMusic(const std::string& path, int loops, const SDL_AudioSpec& device_spec)
-	: decoder(create_decoder(path)), loops_(loops)
-{
-	if (!decoder)
-		return;
-	const SDL_AudioSpec& src_spec = decoder->spec();
-
-	stream = SDL_NewAudioStream(src_spec.format, src_spec.channels, src_spec.freq,
-							   device_spec.format, device_spec.channels, device_spec.freq);
-	if (!stream) {
-		WARNING("SDL_NewAudioStream failed: %s", SDL_GetError());
-		return;
-	}
-	playing = true;
-}
-
-MakoMusic::~MakoMusic()
-{
-	if (stream)
-		SDL_FreeAudioStream(stream);
-}
-
-void MakoMusic::decode()
-{
-	constexpr int CHUNK_FRAMES = 1024;
-
-	DecodedChunk chunk = decoder->decode(CHUNK_FRAMES);
-
-	if (chunk.frames == 0) {
-		if (loops_ && --loops_ == 0) {
-			SDL_AudioStreamFlush(stream);
-			input_finished = true;
-		} else {
-			decoder->seek_start();
-		}
-		return;
-	}
-	const SDL_AudioSpec& spec = decoder->spec();
-	int bytes = chunk.frames * SDL_AUDIO_BITSIZE(spec.format) / 8 * spec.channels;
-	if (SDL_AudioStreamPut(stream, chunk.data, bytes) < 0) {
-		WARNING("SDL_AudioStreamPut failed: %s", SDL_GetError());
-		input_finished = true;
-	}
-}
-
-void MakoMusic::mix(Uint8* out, int len)
-{
-	if (!stream || !playing)
-		return;
-
-	while (SDL_AudioStreamAvailable(stream) < len && !input_finished)
-		decode();
-
-	Uint8* tmp = SDL_stack_alloc(Uint8, len);
-	int got = SDL_AudioStreamGet(stream, tmp, len);
-	if (got > 0)
-		SDL_MixAudioFormat(out, tmp, AUDIO_S16SYS, got, SDL_MIX_MAXVOLUME);
-	SDL_stack_free(tmp);
-	if (input_finished && SDL_AudioStreamAvailable(stream) <= 0)
-		playing = false;
 }
