@@ -259,11 +259,11 @@ if(NINTENDO_SWITCH)
 endif()
 
 if (NOT EMSCRIPTEN)
-  target_sources(system3 PRIVATE src/sys/mako_music.cpp)
+  target_sources(system3 PRIVATE src/sys/music_decoder.cpp)
   target_include_directories(system3 PRIVATE deps/dr_libs deps/stb)
   # dr_mp3 and stb_vorbis are amalgamated into this translation unit; silence
   # their warnings so they are not promoted to errors by WARNING_AS_ERROR.
-  set_source_files_properties(src/sys/mako_music.cpp PROPERTIES
+  set_source_files_properties(src/sys/music_decoder.cpp PROPERTIES
     COMPILE_OPTIONS "$<IF:$<CXX_COMPILER_ID:MSVC>,/w,-w>")
 endif()
 
