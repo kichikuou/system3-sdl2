@@ -372,8 +372,10 @@ inline SDL_Window* CreateWindow(const char* title, int width, int height,
 		scale = 1.0f;
 	width = static_cast<int>(width * scale + 0.5f);
 	height = static_cast<int>(height * scale + 0.5f);
-	return SDL_CreateWindow(title, width, height,
-		flags | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+#ifndef __EMSCRIPTEN__
+	flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+#endif
+	return SDL_CreateWindow(title, width, height, flags);
 #endif
 }
 
