@@ -1,5 +1,5 @@
 	{10 / 3 \ 3: !tests_failed : tests_failed + 1! '[FAIL] division' R}
-	{10 / 0 \ 0: !tests_failed : tests_failed + 1! '[FAIL] division by zero' R}
+	{10 / 0 \ 65535: !tests_failed : tests_failed + 1! '[FAIL] division by zero' R}
 
 	%0:
 

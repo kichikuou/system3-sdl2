@@ -871,7 +871,7 @@ uint16 NACT_Sys2::cali()
 			if(cali[p - 1]) {
 				cali[p - 2] = cali[p - 2] / cali[p - 1];
 			} else {
-				cali[p - 2] = 0;
+				cali[p - 2] = 65535;
 			}
 			p--;
 		} else if(dat == 0x79) {
