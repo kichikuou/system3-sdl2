@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <optional>
+#include <stdlib.h>
 #include <string.h>
 #include <string>
 #include <string_view>
@@ -523,8 +524,8 @@ private:
 		// The sprite is drawn on top of every animation frame.
 		int origin_x = map_view_x - 5 - std::max(view_step_x, 0);
 		int origin_y = map_view_y - 4 - std::max(view_step_y, 0);
-		draw_map_cells(origin_x, origin_y, VIEW_COLS + std::abs(view_step_x),
-					   VIEW_ROWS + std::abs(view_step_y));
+		draw_map_cells(origin_x, origin_y, VIEW_COLS + abs(view_step_x),
+					   VIEW_ROWS + abs(view_step_y));
 
 		update_map_overview();
 
@@ -922,7 +923,7 @@ private:
 		} else {
 			int dx = x - (VIEW_X + VIEW_COLS * TILE_SIZE / 2);
 			int dy = y - (VIEW_Y + VIEW_ROWS * TILE_SIZE / 2);
-			if (std::abs(dx) > std::abs(dy))
+			if (abs(dx) > abs(dy))
 				take_step(dx < 0 ? 4 : 8);
 			else
 				take_step(dy < 0 ? 1 : 2);
@@ -1496,7 +1497,7 @@ private:
 			// set_cursor() put it is a move by the player. The pointer comes
 			// back through a scaling that rounds, so allow it one pixel.
 			if ((mx != seen_x || my != seen_y) &&
-			    (std::abs(mx - cx) > 1 || std::abs(my - cy) > 1))
+			    (abs(mx - cx) > 1 || abs(my - cy) > 1))
 				hide_cursor();
 			seen_x = mx;
 			seen_y = my;
