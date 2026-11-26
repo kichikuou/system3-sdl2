@@ -8,35 +8,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - sys: mingw32
-            package: "system3-sdl2-32bit"
+          - package: "system3-sdl2-64bit"
             sdl-version: 2
             sdl-deps: "SDL2:p SDL2_ttf:p"
-            deps: ""
-          - sys: ucrt64
-            package: "system3-sdl2-64bit"
-            sdl-version: 2
-            sdl-deps: "SDL2:p SDL2_ttf:p"
-            deps: "nlohmann-json:p"
-          - sys: ucrt64
-            package: "system3-sdl3-64bit"
+          - package: "system3-sdl3-64bit"
             sdl-version: 3
             sdl-deps: "sdl3:p sdl3-ttf:p"
-            deps: "nlohmann-json:p"
     defaults:
       run:
         shell: msys2 {0}
-    name: MSYS2 SDL${{ matrix.sdl-version }} ${{ matrix.sys }}
+    name: MSYS2 SDL${{ matrix.sdl-version }}
     steps:
 
     - name: Set up MSYS2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: ${{ matrix.sys }}
+        msystem: ucrt64
         pacboy: >-
           ${{ matrix.sdl-deps }}
           rtmidi:p
-          ${{ matrix.deps }}
+          nlohmann-json:p
 
     - name: Checkout
       uses: actions/checkout@v6
@@ -45,9 +36,9 @@ jobs:
 
     - name: Copy licenses
       run: |
-        ls /${{ matrix.sys }}/share/licenses
+        ls /ucrt64/share/licenses
         mkdir dist
-        cp -r /${{ matrix.sys }}/share/licenses dist/
+        cp -r /ucrt64/share/licenses dist/
         cp resources/fonts/*.license dist/licenses/
         cp deps/ymfm/LICENSE dist/licenses/ymfm.license
 
