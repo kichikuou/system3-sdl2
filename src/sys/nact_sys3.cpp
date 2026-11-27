@@ -443,33 +443,33 @@ void NACT_Sys3::cmd_l()
 
 void NACT_Sys3::cmd_m()
 {
-	char string[22];
+	std::string string;
 
 	int d = sco.getd();
 	if (d == '\'' || d == '"') {  // SysEng
-		sco.get_syseng_string(string, sizeof(string), encoding.get(), d);
+		char buf[256];
+		sco.get_syseng_string(buf, sizeof(buf), encoding.get(), d);
+		string = buf;
 	} else {
-		int p = 0;
 		while(d != ':') {
-			string[p++] = d;
+			string += static_cast<char>(d);
 			d = sco.getd();
 		}
-		string[p] = '\0';
 	}
 
-	TRACE("M %s:", encoding->toUtf8(string).c_str());
+	TRACE("M %s:", encoding->toUtf8(string.c_str()).c_str());
 
-	if(1 <= tvar_index && tvar_index <= 10) {
+	if (1 <= tvar_index && tvar_index <= 10) {
 		tvar[tvar_index - 1] = string;
-	} else if(tvar_index == 31) {
-		sco.open(string);
-	} else if(tvar_index == 32) {
-		ags->set_cg_file(string);
-	} else if(tvar_index == 33) {
-		mako->amus.open(string);
-		strcpy(string + strlen(string) - 3, "MDA");
-		mako->mda.open(string);
-	} else if(tvar_index == 34) {
+	} else if (tvar_index == 31) {
+		sco.open(string.c_str());
+	} else if (tvar_index == 32) {
+		ags->set_cg_file(string.c_str());
+	} else if (tvar_index == 33 && string.size() >= 3) {
+		mako->amus.open(string.c_str());
+		string.replace(string.size() - 3, 3, "MDA");
+		mako->mda.open(string.c_str());
+	} else if (tvar_index == 34) {
 		// mako->amse.open(string);
 	}
 }

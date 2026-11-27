@@ -530,21 +530,21 @@ void NACT_Sys2::cmd_l()
 
 void NACT_Sys2::cmd_m()
 {
-	char string[33];
+	std::string string;
 
 	int d = sco.getd();
 	if (d == '\'' || d == '"') {  // SysEng
-		sco.get_syseng_string(string, sizeof(string), encoding.get(), d);
+		char buf[256];
+		sco.get_syseng_string(buf, sizeof(buf), encoding.get(), d);
+		string = buf;
 	} else {
-		int p = 0;
 		while(d != ':') {
-			string[p++] = d;
+			string += static_cast<char>(d);
 			d = sco.getd();
 		}
-		string[p] = '\0';
 	}
 
-	TRACE("M %s:", encoding->toUtf8(string).c_str());
+	TRACE("M %s:", encoding->toUtf8(string.c_str()).c_str());
 
 	if(1 <= tvar_index && tvar_index <= 10) {
 		tvar[tvar_index - 1] = string;
