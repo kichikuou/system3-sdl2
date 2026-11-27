@@ -162,6 +162,7 @@ std::vector<uint8> Dri::load_mda(const GameId& game_id, int page)
 			break;
 		case GameId::YAKATA3_CD:
 		case GameId::YAKATA3_FD:
+		case GameId::NISE_NAGURI:
 			name = "AMUS_AL3.MDA";
 			break;
 		case GameId::HASHIRIONNA2:

@@ -162,6 +162,83 @@ void audio_callback(void*, Uint8* stream, int len)
 		mix_pcm(stream, len);
 }
 
+SDL_AudioStream* load_awav_pcm(Dri& archive, int page, std::vector<uint8_t>& src)
+{
+	std::vector<uint8_t> data = archive.load(page);
+	if (data.empty())
+		return nullptr;
+
+	SDL_AudioSpec spec;
+	Uint8* wav;
+	Uint32 wavlen;
+	if (!SDL_LoadWAV_RW(SDL_RWFromConstMem(data.data(), static_cast<int>(data.size())),
+						1, &spec, &wav, &wavlen)) {
+		WARNING("SDL_LoadWAV_RW failed: %s", SDL_GetError());
+		return nullptr;
+	}
+	src.assign(wav, wav + wavlen);
+	SDL_FreeWAV(wav);
+	SDL_AudioStream* stream = SDL_NewAudioStream(spec.format, spec.channels, spec.freq,
+										  g_device_spec.format, g_device_spec.channels, g_device_spec.freq);
+	if (!stream)
+		WARNING("SDL_NewAudioStream failed: %s", SDL_GetError());
+	return stream;
+}
+
+SDL_AudioStream* load_amse_pcm(Dri& archive, int page, std::vector<uint8_t>& src)
+{
+	std::vector<uint8_t> data = archive.load(page);
+	if (data.empty())
+		return nullptr;
+
+	uint32_t size = SDL_SwapLE32(*reinterpret_cast<uint32_t*>(&data[8]));
+	// 4-bit PCM -> 8-bit PCM, mono, 8000Hz
+	for (uint32_t i = 12; i < size; i++) {
+		src.push_back(data[i] & 0xf0);
+		src.push_back((data[i] & 0x0f) << 4);
+	}
+	SDL_AudioStream* stream = SDL_NewAudioStream(AUDIO_U8, 1, 8000,
+										  g_device_spec.format, g_device_spec.channels, g_device_spec.freq);
+	if (!stream)
+		WARNING("SDL_NewAudioStream failed: %s", SDL_GetError());
+	return stream;
+}
+
+SDL_AudioStream* load_amus_pcm(Dri& archive, int page, std::vector<uint8_t>& src)
+{
+	// Zero-terminated 4-bit PCM in AMUS.DAT.
+	std::vector<uint8_t> data = archive.load(page);
+	if (data.empty())
+		return nullptr;
+
+	// An optional "MP" header supplies the frequency in units of 100 Hz.
+	size_t pos = 0;
+	int freq = 8000;
+	if (data.size() >= 16 && data[0] == 'M' && data[1] == 'P' &&
+		data[2] == 100 && data[3] == 0) {
+		freq = (data[4] | (data[5] << 8)) * 100;
+		pos = 16;
+	}
+	if (freq == 0) {
+		WARNING("Invalid PCM freq in AMUS.DAT page %d", page);
+		return nullptr;
+	}
+	while (pos < data.size() && data[pos] != 0) {
+		src.push_back(data[pos] & 0xf0);
+		src.push_back((data[pos] & 0x0f) << 4);
+		pos++;
+	}
+	if (pos == data.size()) {
+		WARNING("Unterminated PCM in AMUS.DAT page %d", page);
+		return nullptr;
+	}
+	SDL_AudioStream* stream = SDL_NewAudioStream(AUDIO_U8, 1, freq,
+										  g_device_spec.format, g_device_spec.channels, g_device_spec.freq);
+	if (!stream)
+		WARNING("SDL_NewAudioStream failed: %s", SDL_GetError());
+	return stream;
+}
+
 } // namespace
 
 MAKO::MAKO(const Config& config, const GameId& game_id) :
@@ -394,38 +471,13 @@ void MAKO::play_pcm(int page, int loops)
 	SDL_AudioStream* stream = nullptr;
 	std::vector<uint8_t> src;
 
-	// WAV形式 (Only You)
-	std::vector<uint8_t> data = awav.load(page);
-	if (!data.empty()) {
-		SDL_AudioSpec spec;
-		Uint8* wav;
-		Uint32 wavlen;
-		if (!SDL_LoadWAV_RW(SDL_RWFromConstMem(data.data(), static_cast<int>(data.size())), 1, &spec, &wav, &wavlen)) {
-			WARNING("SDL_LoadWAV_RW failed: %s", SDL_GetError());
-			return;
-		}
-		src.assign(wav, wav + wavlen);
-		SDL_FreeWAV(wav);
-		stream = SDL_NewAudioStream(spec.format, spec.channels, spec.freq,
-								   g_device_spec.format, g_device_spec.channels, g_device_spec.freq);
-	} else {
-		// AMSE形式 (乙女戦記)
-		data = amse.load(page);
-		if (data.empty())
-			return;
-		uint32_t amse_size = SDL_SwapLE32(*reinterpret_cast<uint32_t*>(&data[8]));
-		// 4-bit PCM -> 8-bit PCM, mono, 8000Hz
-		for (uint32_t i = 12; i < amse_size; i++) {
-			src.push_back(data[i] & 0xf0);
-			src.push_back((data[i] & 0x0f) << 4);
-		}
-		stream = SDL_NewAudioStream(AUDIO_U8, 1, 8000,
-								   g_device_spec.format, g_device_spec.channels, g_device_spec.freq);
-	}
-	if (!stream) {
-		WARNING("SDL_NewAudioStream failed: %s", SDL_GetError());
+	stream = load_awav_pcm(awav, page, src);  // Only You
+	if (!stream)
+		stream = load_amse_pcm(amse, page, src);  // Otome Senki, Gakuen King
+	if (!stream)
+		stream = load_amus_pcm(amus, page, src);  // Nise naguri
+	if (!stream)
 		return;
-	}
 	SDL_LockAudioDevice(g_device);
 	pcm_stream = stream;
 	pcm_src = std::move(src);

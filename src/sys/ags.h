@@ -67,6 +67,7 @@ public:
 
 	// palette
 	void set_palette(int index, uint8_t r, uint8_t g, uint8_t b);
+	void apply_palette(int first, int count);
 	std::vector<uint32_t> get_screen_palette() const;
 	bool is_faded() const { return fade_level != 0; }
 	void set_fade_color(bool white) { fade_color = white ? 255 : 0; }

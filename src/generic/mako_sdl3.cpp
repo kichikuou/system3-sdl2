@@ -192,6 +192,86 @@ void SDLCALL pcm_audio_callback(void*, SDL_AudioStream* stream, int additional_a
 	}
 }
 
+SDL_AudioStream* create_pcm_stream(const SDL_AudioSpec& src_spec)
+{
+	SDL_AudioSpec device_spec;
+	if (!SDL_GetAudioDeviceFormat(g_device, &device_spec, nullptr)) {
+		WARNING("SDL_GetAudioDeviceFormat failed: %s", SDL_GetError());
+		return nullptr;
+	}
+	SDL_AudioStream* stream = SDL_CreateAudioStream(&src_spec, &device_spec);
+	if (!stream)
+		WARNING("SDL_CreateAudioStream failed: %s", SDL_GetError());
+	return stream;
+}
+
+SDL_AudioStream* load_awav_pcm(Dri& archive, int page, std::vector<uint8_t>& src)
+{
+	std::vector<uint8_t> data = archive.load(page);
+	if (data.empty())
+		return nullptr;
+
+	SDL_AudioSpec spec;
+	Uint8* wav;
+	Uint32 wavlen;
+	if (!SDL_LoadWAV_IO(SDL_IOFromConstMem(data.data(), data.size()), true,
+						&spec, &wav, &wavlen)) {
+		WARNING("SDL_LoadWAV_IO failed: %s", SDL_GetError());
+		return nullptr;
+	}
+	src.assign(wav, wav + wavlen);
+	SDL_free(wav);
+	return create_pcm_stream(spec);
+}
+
+SDL_AudioStream* load_amse_pcm(Dri& archive, int page, std::vector<uint8_t>& src)
+{
+	std::vector<uint8_t> data = archive.load(page);
+	if (data.empty())
+		return nullptr;
+
+	uint32_t size = SDL_Swap32LE(*reinterpret_cast<uint32_t*>(&data[8]));
+	// 4-bit PCM -> 8-bit PCM, mono, 8000Hz
+	for (uint32_t i = 12; i < size; i++) {
+		src.push_back(data[i] & 0xf0);
+		src.push_back((data[i] & 0x0f) << 4);
+	}
+	SDL_AudioSpec spec = { SDL_AUDIO_U8, 1, 8000 };
+	return create_pcm_stream(spec);
+}
+
+SDL_AudioStream* load_amus_pcm(Dri& archive, int page, std::vector<uint8_t>& src)
+{
+	// Zero-terminated 4-bit PCM in AMUS.DAT.
+	std::vector<uint8_t> data = archive.load(page);
+	if (data.empty())
+		return nullptr;
+
+	// An optional "MP" header supplies the frequency in units of 100 Hz.
+	size_t pos = 0;
+	int freq = 8000;
+	if (data.size() >= 16 && data[0] == 'M' && data[1] == 'P' &&
+		data[2] == 100 && data[3] == 0) {
+		freq = (data[4] | (data[5] << 8)) * 100;
+		pos = 16;
+	}
+	if (freq == 0) {
+		WARNING("Invalid PCM freq in AMUS.DAT page %d", page);
+		return nullptr;
+	}
+	while (pos < data.size() && data[pos] != 0) {
+		src.push_back(data[pos] & 0xf0);
+		src.push_back((data[pos] & 0x0f) << 4);
+		pos++;
+	}
+	if (pos == data.size()) {
+		WARNING("Unterminated PCM in AMUS.DAT page %d", page);
+		return nullptr;
+	}
+	SDL_AudioSpec spec = { SDL_AUDIO_U8, 1, freq };
+	return create_pcm_stream(spec);
+}
+
 } // namespace
 
 MAKO::MAKO(const Config& config, const GameId& game_id) :
@@ -387,43 +467,16 @@ void MAKO::play_pcm(int page, int loops)
 {
 	stop_pcm();
 
-	SDL_AudioSpec device_spec;
-	SDL_GetAudioDeviceFormat(g_device, &device_spec, nullptr);
-
 	SDL_AudioStream* stream = nullptr;
 	std::vector<uint8_t> src;
 
-	// WAV形式 (Only You)
-	std::vector<uint8_t> data = awav.load(page);
-	if (!data.empty()) {
-		SDL_AudioSpec spec;
-		Uint8* wav;
-		Uint32 wavlen;
-		if (!SDL_LoadWAV_IO(SDL_IOFromConstMem(data.data(), static_cast<int>(data.size())), 1, &spec, &wav, &wavlen)) {
-			WARNING("SDL_LoadWAV_IO failed: %s", SDL_GetError());
-			return;
-		}
-		src.assign(wav, wav + wavlen);
-		SDL_free(wav);
-		stream = SDL_CreateAudioStream(&spec, &device_spec);
-	} else {
-		// AMSE形式 (乙女戦記)
-		data = amse.load(page);
-		if (data.empty())
-			return;
-		uint32_t amse_size = SDL_Swap32LE(*reinterpret_cast<uint32_t*>(&data[8]));
-		// 4-bit PCM -> 8-bit PCM, mono, 8000Hz
-		for (uint32_t i = 12; i < amse_size; i++) {
-			src.push_back(data[i] & 0xf0);
-			src.push_back((data[i] & 0x0f) << 4);
-		}
-		SDL_AudioSpec src_spec = { SDL_AUDIO_U8, 1, 8000 };
-		stream = SDL_CreateAudioStream(&src_spec, &device_spec);
-	}
-	if (!stream) {
-		WARNING("SDL_CreateAudioStream failed: %s", SDL_GetError());
+	stream = load_awav_pcm(awav, page, src);  // Only You
+	if (!stream)
+		stream = load_amse_pcm(amse, page, src);  // Otome Senki, Gakuen King
+	if (!stream)
+		stream = load_amus_pcm(amus, page, src);  // Nise naguri
+	if (!stream)
 		return;
-	}
 
 	pcm_src = std::move(src);
 	pcm_loops = loops ? loops : -1;

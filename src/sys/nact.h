@@ -355,6 +355,7 @@ private:
 	bool k3_hack(const K3HackInfo* info_table);
 };
 
+NACT_Sys3* create_patton(const Config& config, const GameId& game_id);
 NACT_Sys3* create_gakuen_king(const Config& config, const GameId& game_id);
 
 extern std::unique_ptr<NACT> g_nact;

@@ -10,6 +10,7 @@
 #include "game_id.h"
 #include "config.h"
 #include "fileio.h"
+#include "debugger/debugger.h"
 
 extern SDL_Window* g_window;
 extern SDL_Renderer* g_renderer;
@@ -249,6 +250,16 @@ void AGS::set_palette(int index, uint8_t r, uint8_t g, uint8_t b)
 	SDL_SetPaletteColors(screen_palette, &color, index, 1);
 	SDL_SetPaletteColors(program_palette, &color, index, 1);
 	dirty_rect = {0, 0, screen_width, screen_height};
+}
+
+void AGS::apply_palette(int first, int count)
+{
+	SDL_SetPaletteColors(screen_palette, program_palette->colors + first, first, count);
+	dirty_rect = {0, 0, screen_width, screen_height};
+#ifdef ENABLE_DEBUGGER
+	if (g_debugger)
+		g_debugger->on_palette_change();
+#endif
 }
 
 std::vector<uint32_t> AGS::get_screen_palette() const

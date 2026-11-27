@@ -100,6 +100,23 @@ void NACT::init_windows()
 				menu_w[i].reset(288, 30, 433, 210, true, true);
 			}
 			break;
+		case GameId::NISE_NAGURI:
+			switch (i) {
+			default:
+			case 0: text_w[i].reset(112, 310, 624, 388, false, false); break;
+			case 1: text_w[i].reset(48, 308, 592, 397, false, false); break;
+			case 2: text_w[i].reset(0, 0, 639, 399, false, false); break;
+			case 3: text_w[i].reset(48, 350, 592, 397, false, false); break;
+			}
+			switch (i) {
+			default:
+			case 0: menu_w[i].reset(416, 24, 592, 248, true, true); break;
+			case 1: menu_w[i].reset(32, 16, 192, 216, true, true); break;
+			case 2: menu_w[i].reset(448, 16, 608, 216, true, true); break;
+			case 3: menu_w[i].reset(32, 256, 192, 400, true, true); break;
+			case 4: menu_w[i].reset(448, 256, 608, 400, true, true); break;
+			}
+			break;
 		case GameId::GAKUEN_KING:
 			switch (i) {
 			default:

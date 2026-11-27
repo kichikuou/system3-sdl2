@@ -1314,8 +1314,9 @@ public:
 NACT_Sys3* NACT_Sys3::create(const Config& config, const GameId& game_id) {
 	switch (game_id.game) {
 	case GameId::TOUSHIN2:
-	case GameId::NISE_NAGURI:
 		return new NACT_Toushin2(config, game_id);
+	case GameId::NISE_NAGURI:
+		return create_patton(config, game_id);
 	case GameId::GAKUEN_KING:
 		return create_gakuen_king(config, game_id);
 	default:
